@@ -1,93 +1,88 @@
 # AMIRIS
+AMIRIS is the **A**gent-based **M**arket model for the **I**nvestigation of **R**enewable and **I**ntegrated energy **S**ystems.
 
-**A**gent-based Market model for the Investigation of Renewable and Integrated energy Systems
+It is an agent-based model of the German electricity market to analyse and evaluate energy policy instruments and their impact on the actors involved in the simulation context.
+Different prototypical agents on the electricity market interact with each other, each employing complex decision strategies. 
+AMIRIS allows to calculate the impact of policy instruments on economic performance of power plant operators and marketers.
 
-## Getting started
+Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) to get further information.
+Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://forum.openmod.org/).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Requirements
+### JDK
+AMIRIS is written in Java (1.8) using the open Framework for distributed Agent-based Modelling of Energy systems [(FAME)](https://gitlab.com/fame-framework).
+This, AMIRIS requires a Java-8 JDK, which can be obtained, e.g., [here](https://adoptopenjdk.net/). 
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Maven
+AMIRIS has several dependencies, all of which available via the prominent [Apache Maven](https://maven.apache.org/) build tool.
+Most development environments for Java support Apache Maven by default, but you can also install Maven directly.
 
-## Add your files
-
-- [ ] [Create](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/dlr-ve/esy/amiris/amiris.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://gitlab.com/dlr-ve/esy/amiris/amiris/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://gitlab.com/-/experiment/new_project_readme_content:19824a2503340456cf7b200b178b64ab?https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Eclipse (optional)
+We recommend to use Eclipse and provide an Eclipse project for your convenience.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Clone the AMIRIS repository:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```
+    git clone https://gitlab.com/dlr-ve/esy/amiris/amiris.git
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Use your maven client to download dependencies and build the project. 
+Fetch yourself a cup of coffee and let it download the following software, according to the Amiris pom.xml in the root of the project.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Run AMIRIS
+AMIRIS, as FAME application, can be run in parallel mode on multiple processors, or using a single processor. 
+As default, it runs in single core mode.
+Most configurations execute quite fast (depending on your machine, of course) even with on a single processor: Running AMIRIS in the example configuration takes about one minute on a standard laptop.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Single-Core Mode
+#### With Eclipse
+Create a new Java run configuration.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+In tab "Main" specify: 
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+* Name: e.g. `RunAMIRIS`
+* Project: e.g. `amiris`
+* Main class: `de.dlr.gitlab.fame.setup.FameRunner`
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+In tab "Arguments" specify
+* Program arguments: `-f <Path/to/your/input/file.pb>`
 
-## License
-For open source projects, say how it is licensed.
+In tab "JRE" select a Java 8 or Java 11 (higher versions not tested) JDK.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Before you can run the configuration, first select a valid input-file and enter its path after the `-f ` option in tab "Arguments".
+Click "Apply" and "run" buttons.
 
+#### In Console
+You need to package AMIRIS first. 
+
+##### Package
+Using Maven packaging is simple: 
+Go to the root folder of AMIRIS, and run 
+
+```
+    mvn package
+```
+
+This creates a Java ARchive (JAR) file in the "target/" folder that includes AMIRIS and all of its dependencies. 
+The file should be named `amiris-jar-with-dependencies.jar` by default.
+
+##### Start AMIRIS
+In the AMIRIS base directory run 
+
+```
+    java -cp "target/amiris-jar-with-dependencies.jar" de.dlr.gitlab.fame.setup.FameRunner -f <Path/to/your/input/file.pb>"
+```
+
+Please replace `<Path/to/your/input/file.pb>` with a path to a valid AMIRIS input file.
+
+### Multi-Core Mode
+If you want to use it in parallel mode, you need to install [Open-MPI](https://www.open-mpi.org/) or [MPJ-Express](http://mpj-express.org/) first.
+Since those libraries are platform-dependent, a manual compilation of those libraries is required.
+The exact procedure depends on the chosen parallelisation library and your operating system. 
+Please follow the instructions at the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wikis/home).
+
+## Results
+Once AMIRIS is run, the output files are generated in the "result" folder in the format "AMIRIS.YYYY-MMM-DD_HH-MM-SS.pb".
+With FAME-Io and its script convertResults.py, this protobuffer file (.pb) can be converted to a number of .csv files, each representing an agent class, e.g. the EnergyExchange.
+The results consist of the time series for the output of each agent, in the case of the energy exchange the electricity prices for the simulation duration.
