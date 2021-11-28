@@ -3,7 +3,6 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.List;
 import agents.forecast.MeritOrderForecaster;
-import agents.forecast.PriceForecaster;
 import agents.markets.EnergyExchange;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.books.DemandOrderBook;
@@ -13,10 +12,7 @@ import agents.storage.DispatchSchedule;
 import agents.storage.arbitrageStrategists.ArbitrageStrategist;
 import agents.storage.arbitrageStrategists.ArbitrageStrategist.StrategistType;
 import agents.storage.arbitrageStrategists.FileDispatcher;
-import agents.storage.arbitrageStrategists.MultiAgentSimple;
-import agents.storage.arbitrageStrategists.ProfitMaximiser;
 import agents.storage.arbitrageStrategists.SystemCostMinimiser;
-import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.PointInTime;
@@ -36,7 +32,6 @@ import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
-import util.Polynomial;
 
 /** Sells and buys energy utilising a Storage {@link Device} at the EnergyExchange
  * 
@@ -79,8 +74,6 @@ public class StorageTrader extends Trader {
 		call(this::updateMeritOrderForecast).on(MeritOrderForecaster.Products.MeritOrderForecast)
 				.use(MeritOrderForecaster.Products.MeritOrderForecast);
 		call(this::requestPriceForecast).on(Trader.Products.PriceForecastRequest);
-		call(this::updatePriceForecast).on(PriceForecaster.Products.PriceForecast)
-				.use(PriceForecaster.Products.PriceForecast);
 		call(this::prepareBids).on(Trader.Products.Bids);
 		call(this::digestAwards).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
 	}
@@ -96,20 +89,9 @@ public class StorageTrader extends Trader {
 		int scheduleDurationInHours = data.getInteger("ScheduleDurationInHours");
 
 		switch (strategistType) {
-			case SINGLE_AGENT_MAX_PROFIT: {
-				int chargingSteps = data.getInteger("SingleAgent.ModelledChargingSteps");
-				double leviesAndTaxes = data.getDouble("SingleAgent.PurchaseLeviesAndTaxesInEURperMWH");
-				return new ProfitMaximiser(forecastPeriodInHours, storage, scheduleDurationInHours, chargingSteps,
-						leviesAndTaxes);
-			}
 			case SINGLE_AGENT_MIN_SYSTEM_COST: {
 				int chargingSteps = data.getInteger("SingleAgent.ModelledChargingSteps");
 				return new SystemCostMinimiser(forecastPeriodInHours, storage, scheduleDurationInHours, chargingSteps);
-			}
-			case MULTI_AGENT_SIMPLE: {
-				Polynomial assessmentFunction = new Polynomial(
-						data.getList("MultiAgent.AssessmentFunctionPrefactors", Double.class));
-				return new MultiAgentSimple(forecastPeriodInHours, storage, scheduleDurationInHours, assessmentFunction);
 			}
 			case DISPATCH_FILE: {
 				TimeSeries dispatchSchedule = data.getTimeSeries("FixedDispatch.Schedule");
@@ -159,19 +141,6 @@ public class StorageTrader extends Trader {
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
-		}
-	}
-
-	/** Digests incoming price forecasts
-	 * 
-	 * @param input one or multiple price forecast message(s)
-	 * @param contracts not used */
-	private void updatePriceForecast(ArrayList<Message> input, List<Contract> contracts) {
-		for (Message inputMessage : input) {
-			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
-			double priceForecast = priceForecastMessage.amount;
-			TimePeriod timeSegment = new TimePeriod(priceForecastMessage.validAt, operationPeriod);
-			strategist.storeElectricityPriceForecast(timeSegment, priceForecast);
 		}
 	}
 
