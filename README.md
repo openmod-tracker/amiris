@@ -72,7 +72,7 @@ The file should be named `amiris-jar-with-dependencies.jar` by default.
 In the AMIRIS base directory run 
 
 ```
-    java -cp "target/amiris-jar-with-dependencies.jar" de.dlr.gitlab.fame.setup.FameRunner -f <Path/to/your/input/file.pb>"
+    java -cp "target/amiris-jar-with-dependencies.jar" de.dlr.gitlab.fame.setup.FameRunner -f <Path/to/your/input/file.pb>
 ```
 
 Please replace `<Path/to/your/input/file.pb>` with a path to a valid AMIRIS input file.

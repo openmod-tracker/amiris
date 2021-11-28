@@ -14,7 +14,7 @@ Minor bug fixes and new features will be continuously released.
 ## What is where?
 Here you can find information on how to contribute.
 For an overview of AMIRIS in general please visit the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
-There, you can also find relevant background information like coding conventions, a glossary and code design elements.
+There, you can also find relevant background information like a glossary and a description of existing model components.
 AMIRIS is based on FAME - an open Framework for distributed Agent-based Modelling of Energy systems.
 Please visit [FAME on gitlab](https://gitlab.com/fame-framework) to get more details on that framework.
 
