@@ -1,0 +1,357 @@
+package agents.trader;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+import agents.forecast.MarketForecaster;
+import agents.forecast.PowerForecastError;
+import agents.markets.EnergyExchange;
+import agents.plantOperator.PowerPlantOperator;
+import agents.plantOperator.RenewablePlantOperator;
+import agents.plantOperator.RenewablePlantOperator.SetType;
+import agents.policy.SupportPolicy;
+import communications.message.AmountAtTime;
+import communications.message.AwardData;
+import communications.message.BidData;
+import communications.message.MarginalCost;
+import communications.message.SupportRequestData;
+import communications.message.SupportResponseData;
+import communications.message.TechnologySet;
+import communications.message.YieldPotential;
+import communications.portable.SupportData;
+import de.dlr.gitlab.fame.agent.input.DataProvider;
+import de.dlr.gitlab.fame.agent.input.Input;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.communication.CommUtils;
+import de.dlr.gitlab.fame.communication.Contract;
+import de.dlr.gitlab.fame.communication.Product;
+import de.dlr.gitlab.fame.communication.message.Message;
+import de.dlr.gitlab.fame.service.output.Output;
+import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeSpan;
+import de.dlr.gitlab.fame.time.TimeStamp;
+
+/** Aggregates supply capacity and administers support payments to plant operators
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek, Felix Nitsch, Farzad Sarfarazi, Kristina Nienhaus */
+public abstract class AggregatorTrader extends Trader {
+	@Input private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
+			.buildTree();
+
+	static final String ERR_NO_MESSAGE_FOUND = "No client data received for client: ";
+	static final String ERR_SUPPORT_INFO = "Support info not implemented: ";
+	static final String ERR_NO_CLIENT_FOR_SET = " has no client with technology set type: ";
+	static final String ERR_TIMESTAMP_LEFTOVER = "Accounting period mismatch; No payout was obtained for dispatch at time stamp: ";
+
+	@Output
+	protected static enum OutputColumns {
+		/** amount of energy offered */
+		OfferedEnergyInMWH,
+		/** amount of energy awarded */
+		AwardedEnergyInMWH,
+		/** overall received support payments from policy agent */
+		ReceivedSupportInEUR,
+		/** overall support refunded to policy agent (in CFD scheme) */
+		RefundedSupportInEUR,
+		/** overall received market revenues from marketing power plants */
+		ReceivedMarketRevenues,
+		/** not dispatched but awarded energy */
+		EnergyImbalaceInMWH
+	};
+
+	@Product
+	public static enum Products {
+		/** Request for support information for contracted technology set(s) */
+		SupportInfoRequest,
+		/** Request to obtain support payments for contracted technology set(s) */
+		SupportPayoutRequest,
+		/** Yield potential of contracted technology set(s) */
+		YieldPotential
+	};
+
+	/** bids submitted */
+	protected ArrayList<BidData> submittedBids;
+	/** Map to store all client, i.e. {@link RenewablePlantOperator}, specific data */
+	protected final HashMap<Long, ClientData> clientMap = new HashMap<>();
+	/** Stores the power prices from {@link EnergyExchange} */
+	protected final TreeMap<TimeStamp, Double> powerPricesList = new TreeMap<>();
+	/** Adds random errors (nomally distributed) to the amount of offered power */
+	protected PowerForecastError errorGenerator;
+
+	/** Creates an {@link AggregatorTrader}
+	 * 
+	 * @param dataProvider provides input from config */
+	public AggregatorTrader(DataProvider dataProvider) {
+		super(dataProvider);
+		ParameterData inputData = parameters.join(dataProvider);
+		try {
+			errorGenerator = new PowerForecastError(inputData.getGroup("ForecastError"), getNextRandomNumberGenerator());
+		} catch (MissingDataException e) {
+			errorGenerator = null;
+		}
+
+		call(this::registerClient).on(RenewablePlantOperator.Products.SetRegistration)
+				.use(RenewablePlantOperator.Products.SetRegistration);
+		call(this::requestSupportInfo).on(Products.SupportInfoRequest);
+		call(this::digestSupportInfo).on(SupportPolicy.Products.SupportInfo).use(SupportPolicy.Products.SupportInfo);
+		call(this::prepareForecastBids).on(Trader.Products.BidsForecast)
+				.use(PowerPlantOperator.Products.MarginalCostForecast);
+		call(this::prepareBids).on(Trader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
+		call(this::sendYieldPotentials).on(Products.YieldPotential);
+		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(EnergyExchange.Products.Awards);
+		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
+		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
+		call(this::payoutClients).on(Trader.Products.Payout);
+	}
+
+	/** Extract information on {@link TechnologySet} and add it to the client data collection
+	 * 
+	 * @param messages client registration information: {@link TechnologySet}
+	 * @param contracts not used */
+	private void registerClient(ArrayList<Message> messages, List<Contract> contracts) {
+		for (Contract contract : contracts) {
+			long clientId = contract.getSenderId();
+			ClientData clientData = searchClientData(messages, clientId);
+			clientMap.put(clientId, clientData);
+		}
+	}
+
+	/** Find client data based on client's Id */
+	private ClientData searchClientData(ArrayList<Message> messages, long clientId) {
+		for (Message message : messages) {
+			if (message.senderId == clientId) {
+				TechnologySet technologySet = message.getDataItemOfType(TechnologySet.class);
+				return new ClientData(technologySet);
+			}
+		}
+		throw new RuntimeException(ERR_NO_MESSAGE_FOUND + clientId);
+	}
+
+	/** Request support details by informing it of the {@link TechnologySet}s and their instrument
+	 * 
+	 * @param messages not used
+	 * @param contracts single partner (typically {@link SupportPolicy}) */
+	private void requestSupportInfo(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		for (ClientData clientData : clientMap.values()) {
+			TechnologySet technologySet = clientData.getTechnologySet();
+			fulfilNext(contract, technologySet);
+		}
+	}
+
+	/** Processes the received support information and adds it to the associated client's data
+	 * 
+	 * @param messages support information, typically from {@link SupportPolicy}
+	 * @param contracts not used */
+	private void digestSupportInfo(ArrayList<Message> messages, List<Contract> contracts) {
+		for (Message message : messages) {
+			SupportData info = message.getFirstPortableItemOfType(SupportData.class);
+			SetType technologySetType = info.getSetType();
+			getClientDataForSetType(technologySetType).setSupportInfo(info);
+		}
+	}
+
+	/** @return client data for given set type. Assumption: client set types are unique */
+	protected ClientData getClientDataForSetType(SetType setType) {
+		for (ClientData clientData : clientMap.values()) {
+			if (clientData.getTechnologySet().setType == setType) {
+				return clientData;
+			}
+		}
+		throw new RuntimeException(this + ERR_NO_CLIENT_FOR_SET + setType);
+	}
+
+	/** Sends supply {@link BidData bid} forecasts
+	 * 
+	 * @param messages marginal cost forecasts to process - typically from {@link RenewablePlantOperator}
+	 * @param contractsToFulfill one partner to send bid forecasts to, typically a {@link MarketForecaster} */
+	private void prepareForecastBids(ArrayList<Message> messages, List<Contract> contractsToFulfill) {
+		Contract contract = CommUtils.getExactlyOneEntry(contractsToFulfill);
+		TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp = sortMarginalsByTimeStamp(messages);
+		for (TimeStamp deliveryTime : messagesByTimeStamp.keySet()) {
+			ArrayList<Message> timeMessages = messagesByTimeStamp.get(deliveryTime);
+			ArrayList<MarginalCost> sortedMarginalsForecast = getSortedMarginalList(timeMessages);
+			submitHourlyBids(deliveryTime, contract, sortedMarginalsForecast);
+		}
+	}
+
+	/** Prepares the hourly bids based on given marginals and sends them to the contracted partner
+	 * 
+	 * @return submitted bids */
+	protected abstract ArrayList<BidData> submitHourlyBids(TimeStamp time, Contract contract,
+			ArrayList<MarginalCost> sortedMarginals);
+
+	/** Sends supply {@link BidData} bids
+	 * 
+	 * @param messages marginal cost to process - typically from {@link RenewablePlantOperator}
+	 * @param contracts one partner to send bid forecasts to, typically {@link EnergyExchange} */
+	private void prepareBids(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimeStamp targetTime = now().laterByOne(); // TODO:: HACK for Validation: remove + 1L
+		ArrayList<MarginalCost> sortedMarginals = getSortedMarginalList(messages);
+		ArrayList<MarginalCost> marginalsWithError = addPowerForecastErrors(sortedMarginals);
+		submittedBids = submitHourlyBids(targetTime, contract, marginalsWithError);
+		storeYieldPotentials();
+		storeOfferedEnergy();
+	}
+
+	/** Returns list of marginals that include power forecast errors based on the given marginals (without errors) */
+	private ArrayList<MarginalCost> addPowerForecastErrors(ArrayList<MarginalCost> marginals) {
+		if (errorGenerator != null) {
+			ListIterator<MarginalCost> iterator = marginals.listIterator();
+			while (iterator.hasNext()) {
+				MarginalCost item = iterator.next();
+				double powerForecastWithError = calcPowerWithError(item.powerPotentialInMW);
+				iterator.set(new MarginalCost(item, powerForecastWithError));
+			}
+		}
+		return marginals;
+	}
+
+	/** @return given power multiplied with a randomly generated forecast error */
+	private double calcPowerWithError(double powerWithoutError) {
+		// TODO: also consider maximum installed capacity as upper limit
+		double factor = Math.max(0, 1 + errorGenerator.getNextError());
+		return powerWithoutError * factor;
+	}
+
+	/** Store {@link YieldPotential}s for RES market value calculation **/
+	private void storeYieldPotentials() {
+		for (BidData bid : submittedBids) {
+			long senderId = bid.producerUuid;
+			ClientData clientData = clientMap.get(senderId);
+			clientData.appendYieldPotential(bid.deliveryTime, bid.powerPotentialInMW);
+		}
+	}
+
+	/** Store the amount of energy offered */
+	private void storeOfferedEnergy() {
+		double totalEnergyOffered = 0.;
+		for (BidData bid : submittedBids) {
+			totalEnergyOffered += bid.offeredEnergyInMWH;
+		}
+		store(OutputColumns.OfferedEnergyInMWH, totalEnergyOffered);
+	}
+
+	/** Forward yield potential information from clients to partner
+	 * 
+	 * @param messages incoming yield potential reports from clients, typically {@link RenewablePlantOperator}s
+	 * @param contracts one partner, typically {@link SupportPolicy} */
+	private void sendYieldPotentials(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimeStamp time = contract.getNextTimeOfDeliveryAfter(now()).earlierBy(new TimeSpan(1L)); // TODO: Hack; Remove 1L
+		for (ClientData clientData : clientMap.values()) {
+			YieldPotential yieldPotential = new YieldPotential(time, clientData.getYieldPotential().get(time),
+					clientData.getTechnologySet().energyCarrier);
+			fulfilNext(contract, yieldPotential);
+		}
+	}
+
+	/** Determine capacity to be dispatched based on {@link AwardData} from {@link EnergyExchange}; dispatch is assigned in
+	 * ascending order of bid prices, thus accounting for marginal cost + expected policy payments
+	 * 
+	 * @param messages single award message from {@link EnergyExchange}
+	 * @param contracts clients (typically {@link RenewablePlantOperator}s) to receive their dispatch assignment */
+	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(messages);
+		AwardData award = message.getDataItemOfType(AwardData.class);
+		store(OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
+		double energyToDispatch = award.supplyEnergyInMWH;
+		submittedBids.sort(BidData.BY_PRICE_ASCENDING);
+		for (BidData bid : submittedBids) {
+			Contract matchingContract = getMatchingContract(contracts, bid.producerUuid);
+			double dispatchedEnergy = Math.min(energyToDispatch, bid.powerPotentialInMW);
+			logClientDispatchAndRevenues(bid, dispatchedEnergy, award.powerPriceInEURperMWH);
+			fulfilNext(matchingContract, new AmountAtTime(now(), dispatchedEnergy));
+			energyToDispatch = Math.max(0, energyToDispatch - dispatchedEnergy);
+		}
+		store(OutputColumns.EnergyImbalaceInMWH, energyToDispatch);
+	}
+
+	/** Logs actual dispatch and revenue for client of given BidData at its delivery time */
+	protected void logClientDispatchAndRevenues(BidData bid, double dispatchedEnergy, double powerPrice) {
+		ClientData clientData = clientMap.get(bid.producerUuid);
+		double stepRevenue = powerPrice * dispatchedEnergy;
+		clientData.appendStepDispatchAndRevenue(bid.deliveryTime, dispatchedEnergy, stepRevenue);
+	}
+
+	/** Request support pay-out - one message per client
+	 * 
+	 * @param messages not used
+	 * @param contracts one partner to ask for policy pay-out, i.e. {@link SupportPolicy} */
+	private void requestSupportPayout(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimePeriod accountingPeriod = SupportPolicy.extractAccountingPeriod(now(), contract, 1800L);
+		for (ClientData clientData : clientMap.values()) {
+			SupportRequestData supportData = new SupportRequestData(clientData, accountingPeriod);
+			fulfilNext(contract, supportData);
+		}
+	}
+
+	/** Collect and store the support revenues per client, i.e. operator of the {@link TechnologySet}
+	 * 
+	 * @param messages one pay-out message per client
+	 * @param contracts not used */
+	private void digestSupportPayout(ArrayList<Message> messages, List<Contract> contracts) {
+		double receivedSupport = 0.0;
+		double refundedSupport = 0.0;
+		for (Message message : messages) {
+			SupportResponseData supportDataResponse = message.getDataItemOfType(SupportResponseData.class);
+			ClientData clientData = getClientDataForSetType(supportDataResponse.setType);
+			clientData.appendSupportRevenue(supportDataResponse.accountingPeriod, supportDataResponse.payment);
+			clientData.appendMarketPremium(supportDataResponse.accountingPeriod, supportDataResponse.marketPremium);
+			receivedSupport += Math.max(0, supportDataResponse.payment);
+			refundedSupport -= Math.min(0, supportDataResponse.payment);
+		}
+		store(OutputColumns.ReceivedSupportInEUR, receivedSupport);
+		store(OutputColumns.RefundedSupportInEUR, refundedSupport);
+	}
+
+	/** Forward support pay-out to clients
+	 * 
+	 * @param messages not used
+	 * @param contracts with clients to pay-out, typically {@link RenewablePlantOperator}s */
+	private void payoutClients(ArrayList<Message> messages, List<Contract> contracts) {
+		double receivedMarketRevenues = 0;
+		for (Contract contract : contracts) {
+			long plantOperatorId = contract.getReceiverId();
+			TimePeriod accountingPeriod = SupportPolicy.extractAccountingPeriod(now(), contract, 1796L); // -3L
+			double marketRevenue = calcMarketRevenue(plantOperatorId, accountingPeriod);
+			receivedMarketRevenues += marketRevenue;
+			double payout = applyPayoutStrategy(plantOperatorId, accountingPeriod, marketRevenue);
+			AmountAtTime contractualPayout = new AmountAtTime(now(), payout);
+			fulfilNext(contract, contractualPayout);
+			clientMap.get(plantOperatorId).clearBefore(now());
+		}
+		store(OutputColumns.ReceivedMarketRevenues, receivedMarketRevenues);
+	}
+
+	/** Define a pay-out strategy for the contractual pay-out (in child classes) */
+	protected abstract double applyPayoutStrategy(long plantOperatorId, TimePeriod accountingPeriod,
+			double marketRevenue);
+
+	/** Calculate and return the sum of market revenues during a given accounting period for a given client */
+	private double calcMarketRevenue(long plantOperatorId, TimePeriod accountingPeriod) {
+		ClientData clientData = clientMap.get(plantOperatorId);
+		double marketRevenue = 0;
+		Iterator<Entry<TimeStamp, Double>> iterator = clientData.getMarketRevenue().entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<TimeStamp, Double> entry = iterator.next();
+			if (entry.getKey().isLessThan(accountingPeriod.getStartTime())) {
+				throw new RuntimeException(ERR_TIMESTAMP_LEFTOVER + entry.getKey());
+			}
+			if (entry.getKey().isLessEqualTo(accountingPeriod.getLastTime())) {
+				marketRevenue += entry.getValue();
+				iterator.remove();
+			}
+		}
+		return marketRevenue;
+	}
+}
