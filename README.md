@@ -23,7 +23,7 @@ Please download and install the latest [Eclipse IDE](https://www.eclipse.org/).
 #### Clone & Build
 1. Start Eclipse
 2. Click `File` &rarr; `Import` &rarr; `Git` &rarr; `Projects from Git` &rarr; `Next`
-3. Select `Clone URI` &rarr; `Next` &rarr;
+3. Select `Clone URI` &rarr; `Next`
 4. In the URI-Field enter `https://gitlab.com/dlr-ve/esy/amiris/amiris.git`; authentication is not required &rarr; `Next`
 5. Select branch `main` &rarr; `Next`
 6. Choose a directory, &rarr; `Next`
