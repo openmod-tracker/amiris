@@ -15,8 +15,10 @@ AMIRIS is written in Java (1.8) and uses [(FAME)](https://gitlab.com/fame-framew
 Thus, AMIRIS requires a Java-JDK version 8 or higher, which can be obtained, e.g., [here](https://adoptopenjdk.net/). 
 
 ### Maven
-AMIRIS has several dependencies, all of which available via the prominent [Apache Maven](https://maven.apache.org/) build tool.
-Most development environments for Java support Apache Maven by default, but you can also install Maven directly.
+AMIRIS has several dependencies, all of which are available via the prominent [Apache Maven](https://maven.apache.org/) build tool.
+Most development environments for Java offer an integrated version Apache Maven - thus you do not have to install it.
+If you do not used an IDE or don't want to use their integrations, you can also install Maven directly to your system.
+In that case, please follow the instructions marked with `Console` below.
 
 ### Java IDE (optional)
 We recommend to use Eclipse and provide an Eclipse project for your convenience.
@@ -38,16 +40,19 @@ Thus, steps differ in Eclipse (which has automatic building) and on console.
 Add the cloned repository to your Git-view.
 Import the project using the Eclipse import wizard.
 An existing Eclipse project is provided.
+Eclipse automacitlly build the project - go to [Run AMIRIS](#Run-AMIRIS)
 
 #### Console
 Use your maven client to download dependencies and build the project. 
 Go to the root folder of AMIRIS, and run 
 
 ```
-    mvn install
+    mvn package
 ```
 
 Wait for Maven to fetch all dependencies and to build AMIRIS.
+This creates a Java ARchive (JAR) file in the "target/" folder that includes AMIRIS and all of its dependencies. 
+The file should be named `amiris-jar-with-dependencies.jar` by default.
 
 ## Run AMIRIS
 AMIRIS, as FAME application, can be run in parallel mode on multiple processors, or using a single processor. 
@@ -73,20 +78,6 @@ Before you can run the configuration, first select a valid input-file and enter 
 Click "Apply" and "run" buttons.
 
 #### In Console
-You need to package AMIRIS first. 
-
-##### Package
-Using Maven packaging is simple: 
-Go to the root folder of AMIRIS, and run 
-
-```
-    mvn package
-```
-
-This creates a Java ARchive (JAR) file in the "target/" folder that includes AMIRIS and all of its dependencies. 
-The file should be named `amiris-jar-with-dependencies.jar` by default.
-
-##### Start AMIRIS
 In the AMIRIS base directory run 
 
 ```
