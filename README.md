@@ -77,6 +77,8 @@ Go to the root folder of the newly cloned amiris folder, and execute
 Wait for Maven to fetch all dependencies and to build AMIRIS.
 This creates a Java ARchive (JAR) file in the `target/` folder that includes AMIRIS and all of its dependencies. 
 The file should be named `amiris-jar-with-dependencies.jar` by default.
+You can change the name of the created file in the "pom.xml": search for `maven-assembly-plugin` and replace the entry at `descriptorRef`.
+You need to package AMIRIS each time you change the code-base of AMIRIS.
 
 #### Run AMIRIS
 In the AMIRIS base directory run 
