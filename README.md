@@ -12,7 +12,7 @@ Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://for
 ## Usage Prerequisites
 ### JDK
 AMIRIS is written in Java (1.8) and uses [(FAME)](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
-Thus, AMIRIS requires a Java-8 JDK, which can be obtained, e.g., [here](https://adoptopenjdk.net/). 
+Thus, AMIRIS requires a Java-JDK version 8 or higher, which can be obtained, e.g., [here](https://adoptopenjdk.net/). 
 
 ### Maven
 AMIRIS has several dependencies, all of which available via the prominent [Apache Maven](https://maven.apache.org/) build tool.
@@ -22,14 +22,27 @@ Most development environments for Java support Apache Maven by default, but you 
 We recommend to use Eclipse and provide an Eclipse project for your convenience.
 
 ## Installation
+### Download
+
 Clone the AMIRIS repository:
 
 ```
     git clone https://gitlab.com/dlr-ve/esy/amiris/amiris.git
 ```
 
+### Building
+#### With Eclipse
+Import the project using the Eclipse import wizard.
+
+#### Console 
 Use your maven client to download dependencies and build the project. 
-Fetch yourself a cup of coffee and let it download the following software, according to the Amiris pom.xml in the root of the project.
+Go to the root folder of AMIRIS, and run 
+
+```
+    mvn install
+```
+
+Wait for Maven to fetch all dependencies and to build AMIRIS.
 
 ## Run AMIRIS
 AMIRIS, as FAME application, can be run in parallel mode on multiple processors, or using a single processor. 
