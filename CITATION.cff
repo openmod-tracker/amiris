@@ -1,0 +1,47 @@
+abstract: "AMIRIS. Agent-based Market model for the Investigation of Renewable and Integrated energy Systems. https://gitlab.com/dlr-ve/esy/amiris/amiris"
+authors: 
+  - family-names: Nienhaus
+    given-names: Kristina
+    orcid: 0000-0003-4180-6767
+  - family-names: Reeg
+    given-names: Matthias
+    orcid: 0000-0001-8247-6499
+  - family-names: Klein
+    given-names: Martin
+    orcid: 0000-0001-7283-4707
+  - family-names: Deissenroth-Uhrig
+    given-names: Marc
+    orcid: 0000-0002-9103-418X
+  - family-names: Schimeczek
+    given-names: Christoph
+    orcid: 0000-0002-0791-9365
+  - family-names: Ulrich
+    given-names: Frey
+    orcid: 0000-0002-9803-1336
+  - family-names: Sperber
+    given-names: Evelyn
+    orcid:
+  - family-names: Sarfarazi
+    given-names: Seyedfarzad
+    orcid:
+  - family-names: Nitsch
+    given-names: Felix
+    orcid: 0000-0002-9824-3371
+  - family-names: Kochems
+    given-names: Johannes
+    orcid: 0000-0002-3461-3679
+  - family-names: El Ghazi
+    given-names: A. Achraf
+    orcid: 0000-0001-5064-9148
+cff-version: "1.1.0"
+date-released: 2021-12-06
+doi: https://doi.org/
+keywords: 
+  - "electricity market"
+  - "agent based model"
+  - "simulation"
+  - "fame-framework"
+license: "Apache License 2.0"
+message: "If you use this software, please cite as follows."
+title: AMIRIS
+version: "1.0.0"

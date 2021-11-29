@@ -66,14 +66,4 @@ Please, check the following points before submitting a pull request:
 1. Contact the main developers via [amiris@dlr.de](mailto:amiris@dlr.de) or at [openMod Forum](https://forum.openmod.org/) in case you've got any questions.
 
 # List of Contributors
-* Kristina Nienhaus
-* Matthias Reeg
-* Martin Klein
-* Marc Deissenroth-Uhrig
-* Christoph Schimeczek
-* Ulrich Frey
-* Evelyn Sperber
-* Seyedfarzad Sarfarazi
-* Felix Nitsch
-* Johannes Kochems
-* A. Achraf El Ghazi
+see [Citation](Citation.cff)
