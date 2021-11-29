@@ -40,7 +40,7 @@ Thus, steps differ in Eclipse (which has automatic building) and on console.
 Add the cloned repository to your Git-view.
 Import the project using the Eclipse import wizard.
 An existing Eclipse project is provided.
-Eclipse automacitlly build the project - go to [Run AMIRIS](#Run-AMIRIS)
+Eclipse automatically build the project - go to [Run AMIRIS](#Run-AMIRIS)
 
 #### Console
 Use your maven client to download dependencies and build the project. 
@@ -61,7 +61,7 @@ Most configurations execute quite fast (depending on your machine, of course) ev
 
 ### Single-Core Mode
 #### With Eclipse
-Create a new Java run configuration.
+Create a new run configuration for "Java application"
 
 In tab "Main" specify: 
 
