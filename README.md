@@ -37,14 +37,14 @@ Eclipse comes with its own Maven integration.
 Thus, steps differ in Eclipse (which has automatic building) and on console.
 
 #### With Eclipse
-Add the cloned repository to your Git-view.
-Import the project using the Eclipse import wizard.
-An existing Eclipse project is provided.
-Eclipse automatically build the project - go to [Run AMIRIS](#Run-AMIRIS)
+* Add the cloned repository to your Git-view.
+* Import the project using the Eclipse import wizard. An existing Eclipse project is provided.
+* Eclipse automatically builds the project
+* proceed with step [Run AMIRIS](#Run-AMIRIS)
 
 #### Console
 Use your maven client to download dependencies and build the project. 
-Go to the root folder of AMIRIS, and run 
+Go to the root folder of AMIRIS, and run
 
 ```
     mvn package
@@ -61,30 +61,30 @@ Most configurations execute quite fast (depending on your machine, of course) ev
 
 ### Single-Core Mode
 #### With Eclipse
-Create a new run configuration for "Java application"
+Create a new run configuration for "Java application" with name e.g. ``RunAMIRIS``
 
 In tab "Main" specify: 
-
-* Name: e.g. `RunAMIRIS`
 * Project: e.g. `amiris`
 * Main class: `de.dlr.gitlab.fame.setup.FameRunner`
 
 In tab "Arguments" specify
-* Program arguments: `-f <Path/to/your/input/file.pb>`
+* Program arguments: `-f input/input.pb`
 
-In tab "JRE" select a Java 8 or Java 11 (higher versions not tested) JDK.
+In tab "JRE" select a JDK version 8 or 11 (higher versions not tested).
 
 Before you can run the configuration, first select a valid input-file and enter its path after the `-f ` option in tab "Arguments".
 Click "Apply" and "run" buttons.
+
+Learn how to create own simulation configurations in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started).
 
 #### In Console
 In the AMIRIS base directory run 
 
 ```
-    java -cp "target/amiris-jar-with-dependencies.jar" de.dlr.gitlab.fame.setup.FameRunner -f <Path/to/your/input/file.pb>
+    java -cp "target/amiris-jar-with-dependencies.jar" de.dlr.gitlab.fame.setup.FameRunner -f input/input.pb
 ```
 
-Please replace `<Path/to/your/input/file.pb>` with a path to a valid AMIRIS input file.
+Learn how to create own simulation configurations in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started).
 
 ### Multi-Core Mode
 If you want to use it in parallel mode, you need to install [Open-MPI](https://www.open-mpi.org/) or [MPJ-Express](http://mpj-express.org/) first.
