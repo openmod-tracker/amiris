@@ -31,10 +31,15 @@ Clone the AMIRIS repository:
 ```
 
 ### Building
-#### With Eclipse
-Import the project using the Eclipse import wizard.
+Eclipse comes with its own Maven integration.
+Thus, steps differ in Eclipse (which has automatic building) and on console.
 
-#### Console 
+#### With Eclipse
+Add the cloned repository to your Git-view.
+Import the project using the Eclipse import wizard.
+An existing Eclipse project is provided.
+
+#### Console
 Use your maven client to download dependencies and build the project. 
 Go to the root folder of AMIRIS, and run 
 
