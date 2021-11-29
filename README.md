@@ -28,10 +28,10 @@ Please download and install the latest [Eclipse IDE](https://www.eclipse.org/).
 5. Select branch `main` &rarr; `Next`
 6. Choose a directory &rarr; `Next`
 7. `Import existing Eclipse project` &rarr; `Next`
-8. Select `amiris` to import &rarr; `Next`
+8. Select `amiris` to import &rarr; `Finish`
 
 This should import the Eclipse project in the repository to you Eclipse workspace.
-Eclipse automatically builds the project.
+Wait for a few seconds for Eclipse to automatically build the project.
 
 #### Run
 Create a new run configuration for `Java application` with name, e.g., "RunAMIRIS"
@@ -95,18 +95,18 @@ Learn how to read results with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/d
 Learn how to create own simulation configurations with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started).
 
 ### Multi-Core Mode
-AMIRIS, as FAME application, can be run in parallel mode on multiple processors, or using a single processor. 
+AMIRIS, as FAME application, can be run in parallel mode on multiple processors, or using a single processor.
 As default, it runs in single core mode.
 Most configurations execute quite fast (depending on your machine, of course) even with on a single processor.
 Running AMIRIS in the sample configuration takes a few seconds on a standard laptop.
 
 If you want to use it in parallel mode, you need to install [Open-MPI](https://www.open-mpi.org/) or [MPJ-Express](http://mpj-express.org/) first.
 Since those libraries are platform-dependent, a manual compilation of those libraries is required.
-The exact procedure depends on the chosen parallelization library and your operating system. 
+The exact procedure depends on the chosen parallelization library and your operating system.
 Please follow the instructions at the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wikis/home).
 
 ## Available Support
-This is a purely scientific project by (at the moment) one research group. 
+This is a purely scientific project by (at the moment) one research group.
 Thus, there is no paid technical support available.
 
 If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/) or via [amiris@dlr.de](mailto:amiris@dlr.de).
