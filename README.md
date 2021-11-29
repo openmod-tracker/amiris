@@ -26,7 +26,7 @@ Please download and install the latest [Eclipse IDE](https://www.eclipse.org/).
 3. Select `Clone URI` &rarr; `Next`
 4. In the URI-Field enter `https://gitlab.com/dlr-ve/esy/amiris/amiris.git`; authentication is not required &rarr; `Next`
 5. Select branch `main` &rarr; `Next`
-6. Choose a directory, &rarr; `Next`
+6. Choose a directory &rarr; `Next`
 7. `Import existing Eclipse project` &rarr; `Next`
 8. Select `amiris` to import &rarr; `Next`
 
@@ -34,20 +34,20 @@ This should import the Eclipse project in the repository to you Eclipse workspac
 Eclipse automatically builds the project.
 
 #### Run
-Create a new run configuration for "Java application" with name, e.g., `RunAMIRIS`
+Create a new run configuration for `Java application` with name, e.g., "RunAMIRIS"
 
-In tab "Main" specify: 
-* Project: e.g. `amiris`
-* Main class: `de.dlr.gitlab.fame.setup.FameRunner`
+In tab `Main` specify: 
+* `Project`: amiris
+* `Main class`: de.dlr.gitlab.fame.setup.FameRunner
 
-In tab "Arguments" specify
-* Program arguments: `-f input/input.pb`
+In tab `Arguments` specify
+* `Program arguments`: -f input/input.pb
 
-In tab "JRE" select a JDK version 8 or 11 (higher versions not tested).
-Click "Apply" and "Run" buttons to run an AMIRIS simulation.
+In tab `JRE` select a JDK version 8 or 11 (higher versions not tested).
+Click `Apply` and `Run` buttons to run an AMIRIS simulation.
 
 ### Experts
-In case you **are familiar** with Java development or do not want to use Eclipse we recommend following the instructions given here.
+In case you are **familiar with Java development** or do not want to use Eclipse we recommend following the instructions given here.
 
 #### Requirements
 Please check the given requirements below.
@@ -75,7 +75,7 @@ Go to the root folder of the newly cloned amiris folder, and execute
 ```
 
 Wait for Maven to fetch all dependencies and to build AMIRIS.
-This creates a Java ARchive (JAR) file in the "target/" folder that includes AMIRIS and all of its dependencies. 
+This creates a Java ARchive (JAR) file in the `target/` folder that includes AMIRIS and all of its dependencies. 
 The file should be named `amiris-jar-with-dependencies.jar` by default.
 
 #### Run AMIRIS
@@ -86,7 +86,7 @@ In the AMIRIS base directory run
 ```
 
 ## Results 
-Once AMIRIS is run, the output files are generated in the "result" folder in the format "AMIRIS.YYYY-MMM-DD_HH-MM-SS.pb".
+Once AMIRIS is run, the output files are generated in the `result/` folder in the format `AMIRIS.YYYY-MMM-DD_HH-MM-SS.pb`.
 These files are in a binary `protobuf` format and need to be converted to a human-readable format first.
 
 Learn how to read results with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started).
