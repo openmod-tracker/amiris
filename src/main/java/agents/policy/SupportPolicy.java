@@ -74,8 +74,8 @@ public class SupportPolicy extends Agent {
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("SetSupportData").list().add(Make.newEnum("Set", SetType.class))
-					.addAs("FIT", FitInfo.parameters).addAs("MPVAR", MpvarOrCfdInfo.parameters)
-					.addAs("MPFIX", MpfixInfo.parameters).addAs("CFD", MpvarOrCfdInfo.parameters).addAs("CP", CPInfo.parameters))
+					.addAs("FIT", FitInfo.parameters).addAs("MPVAR", MpvarInfo.parameters)
+					.addAs("MPFIX", MpfixInfo.parameters).addAs("CFD", CfdInfo.parameters).addAs("CP", CPInfo.parameters))
 			.buildTree();
 
 	@Output
@@ -124,9 +124,9 @@ public class SupportPolicy extends Agent {
 		for (ParameterData group : inputData.getGroupList("SetSupportData")) {
 			SetType setType = group.getEnum("Set", SetType.class);
 			FitInfo fitInfo = PolicyInfo.buildPolicyInfo(FitInfo.class, "FIT", group);
-			MpvarOrCfdInfo mpvarInfo = PolicyInfo.buildPolicyInfo(MpvarOrCfdInfo.class, "MPVAR", group);
+			MpvarInfo mpvarInfo = PolicyInfo.buildPolicyInfo(MpvarInfo.class, "MPVAR", group);
 			MpfixInfo mpfixInfo = PolicyInfo.buildPolicyInfo(MpfixInfo.class, "MPFIX", group);
-			MpvarOrCfdInfo cfdInfo = PolicyInfo.buildPolicyInfo(MpvarOrCfdInfo.class, "CFD", group);
+			CfdInfo cfdInfo = PolicyInfo.buildPolicyInfo(CfdInfo.class, "CFD", group);
 			CPInfo capacityPremiumInfo = PolicyInfo.buildPolicyInfo(CPInfo.class, "CP", group);
 			setTypeSupportData.put(setType, new SetSupportData(fitInfo, mpvarInfo, mpfixInfo, cfdInfo, capacityPremiumInfo));
 		}
@@ -301,7 +301,7 @@ public class SupportPolicy extends Agent {
 				supportRate = ((FitInfo) policyInfo).getTsFit().getValueLowerEqual(startTime);
 				break;
 			case MPVAR:
-				TimeSeries lcoe = ((MpvarOrCfdInfo) policyInfo).getLcoe();
+				TimeSeries lcoe = ((MpvarInfo) policyInfo).getLcoe();
 				double valueApplied = lcoe.getValueLowerEqual(startTime);
 				supportRate = Math.max(0, valueApplied - marketValue);
 				break;
@@ -310,7 +310,7 @@ public class SupportPolicy extends Agent {
 				supportRate = marketPremium.getValueLowerEqual(supportData.accountingPeriod.getStartTime());
 				break;
 			case CFD:
-				lcoe = ((MpvarOrCfdInfo) policyInfo).getLcoe();
+				lcoe = ((CfdInfo) policyInfo).getLcoe();
 				valueApplied = lcoe.getValueLowerEqual(startTime);
 				supportRate = valueApplied - marketValue;
 				break;

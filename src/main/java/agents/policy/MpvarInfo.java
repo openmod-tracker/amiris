@@ -13,7 +13,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
  * SupportPolicy and part of a MpVarOrCfdData
  * 
  * @author Johannes Kochems */
-public class MpvarOrCfdInfo extends PolicyInfo {
+public class MpvarInfo extends PolicyInfo {
 	public static final Tree parameters = Make.newTree().add(Make.newSeries("Lcoe").optional()).buildTree();
 
 	/** The levelised cost of electricity (value applied) */
