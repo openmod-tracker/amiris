@@ -10,9 +10,15 @@ It is based on [(FAME)](https://gitlab.com/fame-framework), the open Framework f
 Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) to get further information.
 Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://forum.openmod.org/).
 
+## Recommended Skills
+AMIRIS is a *JAVA* application configured via *Python* scripts.
+To configure and run AMIRIS applications, no prior skills are strictly necessary.
+However, AMIRIS developers should have at least basic experiences with both languages.
+
 ## AMIRIS Setup & Execution
-We provide to quick guides on how to get AMIRIS running, one for **Java-Rookies** and one for **Java-Experts**.
+Here, we provide quick guides on how to execute the AMIRIS Java application, one for **Java-Rookies** and one for **Java-Experts**.
 Feel free to follow whichever guide you feel comfortable with.
+To see how AMIRIS is configured via Python, please check the [Getting-Started](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started) guide on the Wiki.
 
 ### Rookies
 In case you are **not familiar** with Java development we recommend following the instructions given here.
@@ -32,6 +38,7 @@ Please download and install the latest [Eclipse IDE](https://www.eclipse.org/).
 
 This should import the Eclipse project in the repository to you Eclipse workspace.
 Eclipse automatically builds the project.
+Thus, you **need not** install FAME separately: Eclipse's Maven plugin will sort out the dependencies in the background.
 
 #### Run
 Create a new run configuration for `Java application` with name, e.g., "RunAMIRIS"
