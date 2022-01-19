@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import agents.plantOperator.ConventionalPlantOperator;
 import communications.message.AmountAtTime;
+import communications.message.ClearingTimes;
 import communications.message.Co2Cost;
-import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -21,7 +21,6 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.logging.Logging;
 import de.dlr.gitlab.fame.service.output.Output;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** CO2 market place that sells CO2 certificates and accounts for total sold CO2 emission rights. Determines CO2 prices.
@@ -69,9 +68,8 @@ public class CarbonMarket extends Agent {
 		ParameterData data = parameters.join(dataProvider);
 		operationMode = data.getEnum("OperationMode", OperationMode.class);
 		loadOperationModeParameters(data);
-		call(this::sendPriceForecast).on(Products.Co2PriceForecast)
-				.use(ConventionalPlantOperator.Products.Co2PriceForecastRequest);
-		call(this::sendPrice).on(Products.Co2Price);
+		call(this::sendPrice).on(Products.Co2PriceForecast).use(ConventionalPlantOperator.Products.Co2PriceForecastRequest);
+		call(this::sendPrice).on(Products.Co2Price).use(ConventionalPlantOperator.Products.Co2PriceRequest);
 		call(this::registerCertificateOrders).on(ConventionalPlantOperator.Products.Co2Emissions)
 				.use(ConventionalPlantOperator.Products.Co2Emissions);
 		call(this::sendBill).on(Products.CertificateBill);
@@ -92,16 +90,18 @@ public class CarbonMarket extends Agent {
 		}
 	}
 
-	/** Sends Co2-certificate price forecast to {@link Contract} partners according to requested time
+	/** Sends Co2-certificate price matching requested {@link ClearingTimes} to contract partners
 	 * 
-	 * @param input forecast request to specify the relevant time of the forecast
-	 * @param contracts with partners to serve the certificate price forecast */
-	private void sendPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+	 * @param input {@link ClearingTimes} specifying requested times
+	 * @param contracts with partners to send the certificate price(s) */
+	private void sendPrice(ArrayList<Message> input, List<Contract> contracts) {
 		for (Contract contract : contracts) {
 			ArrayList<Message> connectedMessages = CommUtils.extractMessagesFrom(input, contract.getReceiverId());
 			for (Message message : connectedMessages) {
-				TimeStamp requestedTime = (message.getDataItemOfType(PointInTime.class)).timeStamp;
-				sendCo2PricesFor(requestedTime, contract);
+				List<TimeStamp> targetTimes = message.getDataItemOfType(ClearingTimes.class).getTimes();
+				for (TimeStamp targetTime : targetTimes) {
+					sendCo2PricesFor(targetTime, contract);
+				}
 			}
 		}
 	}
@@ -121,18 +121,6 @@ public class CarbonMarket extends Agent {
 	private void sendCo2PricesFor(TimeStamp time, Contract contract) {
 		Co2Cost priceDataItem = new Co2Cost(time, getCo2Price(time));
 		fulfilNext(contract, priceDataItem);
-	}
-
-	/** Sends Co2-certificate price to contract partners; contract delivery time is used to derive targeted time
-	 * 
-	 * @param input not used
-	 * @param contracts with partners to send the certificate price */
-	private void sendPrice(ArrayList<Message> input, List<Contract> contracts) {
-		for (Contract contract : contracts) {
-			// TODO:: remove HACK "+ 2L"
-			TimeStamp targetTime = contract.getNextTimeOfDeliveryAfter(now()).laterBy(new TimeSpan(2L));
-			sendCo2PricesFor(targetTime, contract);
-		}
 	}
 
 	/** Reads emission certificate orders and saves associated cost per reporting agent

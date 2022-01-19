@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import agents.plantOperator.ConventionalPlantOperator;
 import communications.message.AmountAtTime;
+import communications.message.ClearingTimes;
 import communications.message.FuelCost;
 import communications.message.FuelData;
-import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -21,7 +21,6 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.logging.Logging;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Determines market prices for all conventional power plant fuels
@@ -62,7 +61,7 @@ public class FuelsMarket extends Agent {
 		ParameterData input = parameters.join(dataProvider);
 		loadFuelPrices(input.getGroupList("FuelPrices"));
 
-		call(this::sendPriceForecasts).on(Products.FuelPriceForecast)
+		call(this::sendPrices).on(Products.FuelPriceForecast)
 				.use(ConventionalPlantOperator.Products.FuelPriceForecastRequest);
 		call(this::sendPrices).on(Products.FuelPrice).use(ConventionalPlantOperator.Products.FuelPriceRequest);
 		call(this::sendBill).on(Products.FuelsBill).use(ConventionalPlantOperator.Products.ConsumedFuel);
@@ -80,17 +79,19 @@ public class FuelsMarket extends Agent {
 		}
 	}
 
-	/** Sends price forecast for requested fuel and time to any contracted partner
+	/** Sends prices matching requested {@link FuelType} and {@link ClearingTimes} to all {@link Contract}ed receivers
 	 * 
-	 * @param input FuelPriceForecastRequests that specify type of fuel and time of requested forecast
-	 * @param contracts to return forecasts to - each receiver must issue a request first */
-	private void sendPriceForecasts(ArrayList<Message> input, List<Contract> contracts) {
+	 * @param input FuelPriceRequests that specify {@link FuelType} and {@link ClearingTimes}
+	 * @param contracts to return prices to - each receiver must issue a request first */
+	private void sendPrices(ArrayList<Message> input, List<Contract> contracts) {
 		for (Contract contract : contracts) {
 			ArrayList<Message> connectedMessages = CommUtils.extractMessagesFrom(input, contract.getReceiverId());
 			for (Message message : connectedMessages) {
-				TimeStamp requestedTime = (message.getDataItemOfType(PointInTime.class)).timeStamp;
 				FuelType fuelType = message.getDataItemOfType(FuelData.class).fuelType;
-				sendFuelPriceFor(requestedTime, fuelType, contract);
+				List<TimeStamp> targetTimes = message.getDataItemOfType(ClearingTimes.class).getTimes();
+				for (TimeStamp targetTime : targetTimes) {
+					sendFuelPriceFor(targetTime, fuelType, contract);
+				}
 			}
 		}
 	}
@@ -130,22 +131,6 @@ public class FuelsMarket extends Agent {
 			return conversionFactors.get(fuel);
 		} else {
 			throw Logging.logFatalException(logger, CONVERSION_FACTOR_MISSING + fuel);
-		}
-	}
-
-	/** Sends upcoming prices for matching requested {@link FuelType} to all {@link Contract}ed receivers
-	 * 
-	 * @param input FuelPriceRequests that specify type of fuel and time of requested fuel price
-	 * @param contracts to return prices to - each receiver must issue a request first */
-	private void sendPrices(ArrayList<Message> input, List<Contract> contracts) {
-		for (Contract contract : contracts) {
-			// TODO:: HACK for Validation: remove + 2L
-			TimeStamp targetTime = contract.getNextTimeOfDeliveryAfter(now()).laterBy(new TimeSpan(2L));
-			ArrayList<Message> connectedMessages = CommUtils.extractMessagesFrom(input, contract.getReceiverId());
-			for (Message message : connectedMessages) {
-				FuelType fuelType = message.getDataItemOfType(FuelData.class).fuelType;
-				sendFuelPriceFor(targetTime, fuelType, contract);
-			}
 		}
 	}
 

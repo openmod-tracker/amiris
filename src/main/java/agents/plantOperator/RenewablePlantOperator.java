@@ -2,12 +2,12 @@ package agents.plantOperator;
 
 import java.util.ArrayList;
 import java.util.List;
-import agents.forecast.MarketForecaster;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import agents.policy.SupportPolicy.SupportInstrument;
 import agents.trader.AggregatorTrader;
+import agents.trader.Trader;
+import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
-import communications.message.PointInTime;
 import communications.message.TechnologySet;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -20,7 +20,6 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A {@link PowerPlantOperator} for renewable plants
@@ -48,6 +47,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	private final TimeSeries tsInstalledPowerInMW;
 	/** TimeSeries of variable cost of operation */
 	private final TimeSeries tsOpexVarInEURperMWH;
+	private double totalPowerPotential;
 
 	/** Creates a {@link RenewablePlantOperator}
 	 * 
@@ -66,9 +66,10 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 				tsInstalledPowerInMW.getValueLowerEqual(now()));
 
 		call(this::registerSet).on(Products.SetRegistration);
-		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost);
-		call(this::sendSupplyMarginalsForecast).on(PowerPlantOperator.Products.MarginalCostForecast)
-				.use(MarketForecaster.Products.ForecastRequest);
+		call(this::sendSupplyMarginalsMultipleTimes).on(PowerPlantOperator.Products.MarginalCost)
+				.use(Trader.Products.GateClosureForward);
+		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCostForecast)
+				.use(Trader.Products.ForecastRequestForward);
 	}
 
 	/** Registers the {@link TechnologySet} to be marketed by a single associated {@link AggregatorTrader} */
@@ -81,11 +82,24 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	 * 
 	 * @param input one or multiple messages that define the time of the forecast to be created
 	 * @param contracts single contract with trader */
-	private void sendSupplyMarginalsForecast(ArrayList<Message> input, List<Contract> contracts) {
+	private void sendSupplyMarginals(ArrayList<Message> input, List<Contract> contracts) {
+		sendSupplyMarginalsMultipleTimes(input, contracts);
+		store(PowerPlantOperator.OutputFields.OfferedPowerInMW, totalPowerPotential);
+	}
+
+	/** Prepares supply {@link Marginal}s and sends them to single contracted trader
+	 * 
+	 * @param input single ClearingTimes message from contracted trader
+	 * @param contracts single contracted trader to receive calculated marginals */
+	private void sendSupplyMarginalsMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		for (Message message : input) {
-			TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).timeStamp;
-			fulfilSupplyContract(requestedTime, contract);
+		Message message = CommUtils.getExactlyOneEntry(input);
+		ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
+		List<TimeStamp> clearingTimeList = clearingTimes.getTimes();
+		totalPowerPotential = 0;
+		for (TimeStamp clearingTime : clearingTimeList) {
+			MarginalCost marginal = fulfilSupplyContract(clearingTime, contract);
+			totalPowerPotential += marginal.powerPotentialInMW;
 		}
 	}
 
@@ -99,17 +113,6 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	/** @param time to calculate costs for
 	 * @return single MarginalCost item calculated for the given time */
 	abstract protected MarginalCost calcSingleMarginal(TimeStamp time);
-
-	/** Prepares supply {@link Marginal}s and sends them to single contracted trader
-	 * 
-	 * @param input not used
-	 * @param contracts single contracted trader to receive calculated marginals */
-	private void sendSupplyMarginals(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp targetTime = now().laterBy(new TimeSpan(2L));// TODO:: HACK for Validation: remove + 2L
-		MarginalCost marginal = fulfilSupplyContract(targetTime, contract);
-		store(PowerPlantOperator.OutputFields.OfferedPowerInMW, marginal.powerPotentialInMW);
-	}
 
 	/** Returns the installed power at the specified time
 	 * 

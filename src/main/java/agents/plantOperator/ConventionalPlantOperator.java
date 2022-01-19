@@ -8,23 +8,24 @@ import java.util.ListIterator;
 import agents.conventionals.PlantBuildingManager;
 import agents.conventionals.Portfolio;
 import agents.conventionals.PowerPlant;
-import agents.forecast.MarketForecaster;
 import agents.markets.CarbonMarket;
 import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
+import agents.trader.Trader;
 import communications.message.AmountAtTime;
+import communications.message.ClearingTimes;
 import communications.message.Co2Cost;
 import communications.message.FuelCost;
 import communications.message.FuelData;
 import communications.message.MarginalCost;
 import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
 
@@ -41,6 +42,8 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 		Co2Emissions,
 		/** Request for a Co2 Price forecast at given time */
 		Co2PriceForecastRequest,
+		/** Request for a Co2 Price at given time */
+		Co2PriceRequest,
 		/** Request for Fuel price forecast at a given time and for a given fuel */
 		FuelPriceForecastRequest,
 		/** Request for Fuel price at a given time and for a given fuel */
@@ -55,6 +58,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 	/** The list of all power plants to be operated (now and possibly power plants to become active in the near future) */
 	private Portfolio portfolio;
 	private FuelData myFuelData;
+	private double totalPowerPotentialInMW;
 	private ArrayList<AmountAtTime> fuelConsumption = new ArrayList<>();
 	private ArrayList<AmountAtTime> co2Emissions = new ArrayList<>();
 
@@ -70,13 +74,12 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 		call(this::updatePortfolio).on(PlantBuildingManager.Products.PowerPlantPortfolio)
 				.use(PlantBuildingManager.Products.PowerPlantPortfolio);
-		call(this::requestFuelPriceForecast).on(Products.FuelPriceForecastRequest)
-				.use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestCo2PriceForecast).on(Products.Co2PriceForecastRequest)
-				.use(MarketForecaster.Products.ForecastRequest);
-		call(this::sendSupplyMarginalsForecast).on(PowerPlantOperator.Products.MarginalCostForecast)
+		call(this::requestFuelPrice).on(Products.FuelPriceForecastRequest).use(Trader.Products.ForecastRequestForward);
+		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest).use(Trader.Products.ForecastRequestForward);
+		call(this::sendSupplyMarginalsMultipleTimes).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(CarbonMarket.Products.Co2PriceForecast, FuelsMarket.Products.FuelPriceForecast);
-		call(this::requestFuelPrice).on(Products.FuelPriceRequest);
+		call(this::requestFuelPrice).on(Products.FuelPriceRequest).use(Trader.Products.GateClosureForward);
+		call(this::requestCo2Price).on(Products.Co2PriceRequest).use(Trader.Products.GateClosureForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost).use(CarbonMarket.Products.Co2Price,
 				FuelsMarket.Products.FuelPrice);
 		call(this::reportCo2Emissions).on(Products.Co2Emissions);
@@ -90,37 +93,33 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 		myFuelData = new FuelData(portfolio.getFuelType());
 	}
 
-	/** sends {@link FuelData} message to specify {@link FuelType} for fuel price request */
+	/** sends {@link FuelData} message to specify {@link FuelType} and clearing time(s) for fuel price request
+	 * 
+	 * @param input requested ClearingTimes from associated Trader
+	 * @param contracts single contract with FuelsMarket */
 	private void requestFuelPrice(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		fulfilNext(contract, myFuelData);
-	}
-
-	/** sends {@link FuelData} and {@link PointInTime} message to specify {@link FuelType} for fuel price forecast request */
-	private void requestFuelPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		for (Message message : input) {
-			PointInTime requestedTime = message.getDataItemOfType(PointInTime.class);
-			fulfilNext(contract, myFuelData, requestedTime);
-		}
+		Message message = CommUtils.getExactlyOneEntry(input);
+		ClearingTimes requestedTimes = message.getDataItemOfType(ClearingTimes.class);
+		fulfilNext(contract, myFuelData, requestedTimes);
 	}
 
 	/** sends {@link PointInTime} message to specify time of delivery for CO2 price forecast request */
-	private void requestCo2PriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+	private void requestCo2Price(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		for (Message message : input) {
-			PointInTime requestedTime = message.getDataItemOfType(PointInTime.class);
-			fulfilNext(contract, requestedTime);
-		}
+		Message message = CommUtils.getExactlyOneEntry(input);
+		ClearingTimes requestedTimes = message.getDataItemOfType(ClearingTimes.class);
+		fulfilNext(contract, requestedTimes);
 	}
 
-	/** sends {@link MarginalCost} forecast to connected Trader based using incoming fuelCost and CO2 cost forecasts for one or
-	 * multiple {@link TimeStamp}s */
-	private void sendSupplyMarginalsForecast(ArrayList<Message> input, List<Contract> contracts) {
+	/** sends {@link MarginalCost} to connected Trader using incoming fuelCost and CO2 cost (forecasts) for one or multiple
+	 * {@link TimeStamp}s */
+	private void sendSupplyMarginalsMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		ArrayList<Message> fuelCosts = CommUtils.extractMessagesWith(input, FuelCost.class);
 		ArrayList<Message> co2Costs = CommUtils.extractMessagesWith(input, Co2Cost.class);
 
+		totalPowerPotentialInMW = 0;
 		ArrayList<ArrayList<Message>> fuelCo2CostPairs = findMatchingCostItems(fuelCosts, co2Costs);
 		for (ArrayList<Message> costPair : fuelCo2CostPairs) {
 			TimeStamp targetTime = retrieveTargetTime(costPair);
@@ -128,6 +127,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 			for (MarginalCost marginal : marginals) {
 				if (marginal.powerPotentialInMW > 0) {
 					fulfilNext(contract, marginal);
+					totalPowerPotentialInMW += marginal.powerPotentialInMW;
 				}
 			}
 		}
@@ -140,7 +140,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 		Iterator<Message> fuelIterator = fuelCosts.iterator();
 		while (fuelIterator.hasNext()) {
-			ArrayList<Message> costPair = new ArrayList<>();
+			ArrayList<Message> costPair = new ArrayList<>(2);
 			Message fuelMessage = fuelIterator.next();
 			TimeStamp targetTime = fuelMessage.getDataItemOfType(FuelCost.class).validAt;
 			costPair.add(fuelMessage);
@@ -191,18 +191,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 	/** sends {@link MarginalCost} to connected Trader based using incoming fuelCost and CO2 costs for a single {@link TimeStamp} */
 	private void sendSupplyMarginals(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		// TODO:: HACK for Validation: remove + 1L
-		TimeStamp targetTime = contract.getNextTimeOfDeliveryAfter(now()).laterBy(new TimeSpan(1L));
-		ArrayList<MarginalCost> marginals = calcSupplyMarginalList(targetTime, input);
-
-		double totalPowerPotentialInMW = 0;
-		for (MarginalCost marginal : marginals) {
-			if (marginal.powerPotentialInMW > 0) {
-				fulfilNext(contract, marginal);
-				totalPowerPotentialInMW += marginal.powerPotentialInMW;
-			}
-		}
+		sendSupplyMarginalsMultipleTimes(input, contracts);
 		store(PowerPlantOperator.OutputFields.OfferedPowerInMW, totalPowerPotentialInMW);
 	}
 
