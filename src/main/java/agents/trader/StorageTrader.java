@@ -15,6 +15,7 @@ import agents.storage.arbitrageStrategists.FileDispatcher;
 import agents.storage.arbitrageStrategists.SystemCostMinimiser;
 import communications.message.AwardData;
 import communications.message.BidData;
+import communications.message.ClearingTimes;
 import communications.message.PointInTime;
 import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -74,7 +75,7 @@ public class StorageTrader extends Trader {
 		call(this::updateMeritOrderForecast).on(MeritOrderForecaster.Products.MeritOrderForecast)
 				.use(MeritOrderForecaster.Products.MeritOrderForecast);
 		call(this::requestPriceForecast).on(Trader.Products.PriceForecastRequest);
-		call(this::prepareBids).on(Trader.Products.Bids);
+		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
 		call(this::digestAwards).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
 	}
 
@@ -144,19 +145,22 @@ public class StorageTrader extends Trader {
 		}
 	}
 
-	/** Prepares and sends Bids
+	/** Prepares and sends Bids to the contracted partner
 	 * 
-	 * @param input not used
-	 * @param contracts contracted partner to send bids to (EnergyExchange) */
+	 * @param input one ClearingTimes message
+	 * @param contracts one partner */
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp targetTime = now().laterByOne(); // HACK
-		excuteBeforeBidPreparation(targetTime);
-		BidData demandBid = prepareHourlyDemandBids(targetTime);
-		BidData supplyBid = prepareHourlySupplyBids(targetTime);
-		store(OutputFields.OfferedPowerInMW, supplyBid.offeredEnergyInMWH - demandBid.offeredEnergyInMWH);
-		fulfilNext(contractToFulfil, demandBid);
-		fulfilNext(contractToFulfil, supplyBid);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		List<TimeStamp> targetTimes = clearingTimes.getTimes();
+		for (TimeStamp targetTime : targetTimes) {
+			excuteBeforeBidPreparation(targetTime);
+			BidData demandBid = prepareHourlyDemandBids(targetTime);
+			BidData supplyBid = prepareHourlySupplyBids(targetTime);
+			store(OutputFields.OfferedPowerInMW, supplyBid.offeredEnergyInMWH - demandBid.offeredEnergyInMWH);
+			fulfilNext(contractToFulfil, demandBid);
+			fulfilNext(contractToFulfil, supplyBid);
+		}
 	}
 
 	/** Clears past sensitivities and creates new schedule based on current energy storage level

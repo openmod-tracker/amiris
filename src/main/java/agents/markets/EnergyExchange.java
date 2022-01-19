@@ -11,6 +11,7 @@ import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.trader.Trader;
 import communications.message.AwardData;
+import communications.message.ClearingTimes;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -22,15 +23,21 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
+import de.dlr.gitlab.fame.time.TimeSpan;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Energy exchange performs market clearing for day-ahead energy market
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class EnergyExchange extends Agent {
+	static final String LONE_LIST = "At most one element is expected in this list: ";
+	
 	@Product
 	public static enum Products {
 		/** Awarded energy and price per bidding trader */
-		Awards
+		Awards,
+		/** Information on when the market clearing is performed */
+		GateClosureInfo
 	};
 
 	@Output
@@ -39,11 +46,14 @@ public class EnergyExchange extends Agent {
 	};
 
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("DistributionMethod", DistributionMethod.class)).buildTree();
+			.add(Make.newEnum("DistributionMethod", DistributionMethod.class), 
+					 Make.newInt("GateClosureInfoOffsetInSeconds")).buildTree();
 
 	private DemandOrderBook demandBook = new DemandOrderBook();
 	private SupplyOrderBook supplyBook = new SupplyOrderBook();
 	private final MarketClearing marketClearing;
+	private final TimeSpan gateClosureInfoOffset;
+	private ClearingTimes clearingTimes;
 
 	/** Creates an {@link EnergyExchange}
 	 * 
@@ -53,9 +63,23 @@ public class EnergyExchange extends Agent {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		marketClearing = new MarketClearing(input.getEnum("DistributionMethod", DistributionMethod.class));
+		gateClosureInfoOffset = new TimeSpan(input.getInteger("GateClosureInfoOffsetInSeconds"));
 
-		/** Clear market by using incoming bids and sending Awards */
+		/**Sends out ClearingTimes*/
+		call(this::sendGateClosureInfo).on(Products.GateClosureInfo);
+		/** Clears market by using incoming bids and sending Awards */
 		call(this::clearMarket).on(Products.Awards).use(Trader.Products.Bids);
+	}
+	
+	/** Sends info upon next gate closure to connected traders
+	 * 
+	 * @param input n/a
+	 * @param contracts connected traders to inform */
+	private void sendGateClosureInfo(ArrayList<Message> input, List<Contract> contracts) {
+		clearingTimes = new ClearingTimes(now().laterBy(gateClosureInfoOffset));
+		for (Contract contract : contracts) {
+			fulfilNext(contract, clearingTimes);
+		}
 	}
 
 	/** Clears the market based on all the bids provided; writes out some market-clearing data
@@ -83,8 +107,14 @@ public class EnergyExchange extends Agent {
 			long receiverId = contract.getReceiverId();
 			double awardedSupplyPower = calcAwardedEnergyForAgent(supplyBook, receiverId);
 			double awardedDemandPower = calcAwardedEnergyForAgent(demandBook, receiverId);
-			AwardData awardData = new AwardData(awardedSupplyPower, awardedDemandPower, powerPrice, now());
-			fulfilNext(contract, awardData);
+			List<TimeStamp> clearingTimeList = clearingTimes.getTimes();
+			if (clearingTimeList.size() > 1) {
+				throw new RuntimeException(LONE_LIST + clearingTimeList);
+			}
+			for (TimeStamp clearingTime : clearingTimeList) {
+				AwardData awardData = new AwardData(awardedSupplyPower, awardedDemandPower, powerPrice, clearingTime);
+				fulfilNext(contract, awardData);
+			}
 		}
 	}
 

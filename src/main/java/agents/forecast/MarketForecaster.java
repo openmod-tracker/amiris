@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.stream.IntStream;
 import agents.markets.EnergyExchange;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.trader.Trader;
 import communications.message.BidData;
-import communications.message.PointInTime;
+import communications.message.ClearingTimes;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -68,27 +69,28 @@ public abstract class MarketForecaster extends Agent {
 		call(this::calcMarketClearingForecasts).on(Trader.Products.BidsForecast).use(Trader.Products.BidsForecast);
 	}
 
-	/** Request bid forecast for all future hours within forecast period
+	/** Requests bid forecast for all future hours within forecast period
 	 * 
 	 * @param input not used
 	 * @param contracts with all agents that start an {@link EnergyExchange} bidding chain */
 	private void sendForecastRequests(ArrayList<Message> input, List<Contract> contracts) {
 		if (calculatedForecastContainer.isEmpty()) {
-			for (int hour = 0; hour <= forecastPeriodInHours; hour++) {
-				fulfilForecastRequestContracts(hour, contracts);
-			}
+			fulfilForecastRequestContracts(contracts, IntStream.range(0, forecastPeriodInHours + 1).toArray());
 		} else {
-			fulfilForecastRequestContracts(forecastPeriodInHours, contracts);
+			fulfilForecastRequestContracts(contracts, forecastPeriodInHours);
 			bookKeeping();
 		}
 	}
 
 	/** send out forecast request to all receivers of given contracts */
-	private void fulfilForecastRequestContracts(int hour, List<Contract> contracts) {
-		TimeSpan hourOffset = new TimeSpan(hour, Interval.HOURS);
-		TimeStamp targetTime = now().laterBy(forecastRequestOffset).laterBy(hourOffset);
+	private void fulfilForecastRequestContracts(List<Contract> contracts, int... hourDeltas) {
+		TimeStamp[] targetTimes = new TimeStamp[hourDeltas.length];
+		for (int i = 0; i < hourDeltas.length; i++) {
+			TimeSpan hourOffset = new TimeSpan(hourDeltas[i], Interval.HOURS);
+			targetTimes[i] = now().laterBy(forecastRequestOffset).laterBy(hourOffset);
+		}
 		for (Contract contract : contracts) {
-			fulfilNext(contract, new PointInTime(targetTime));
+			fulfilNext(contract, new ClearingTimes(targetTimes));
 		}
 	}
 
@@ -112,8 +114,8 @@ public abstract class MarketForecaster extends Agent {
 		for (Entry<TimeStamp, ArrayList<Message>> entry : messagesByTimeStamp.entrySet()) {
 			TimeStamp requestedTime = entry.getKey();
 			ArrayList<Message> bidsAtRequestedTime = entry.getValue();
-			MarketClearingResult marketClearingResults = marketClearing.calculateMarketClearing(bidsAtRequestedTime);
-			calculatedForecastContainer.put(requestedTime, marketClearingResults);
+			MarketClearingResult marketClearingResult = marketClearing.calculateMarketClearing(bidsAtRequestedTime);
+			calculatedForecastContainer.put(requestedTime, marketClearingResult);
 		}
 	}
 

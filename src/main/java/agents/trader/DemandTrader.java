@@ -7,7 +7,7 @@ import agents.markets.EnergyExchange;
 import agents.markets.meritOrder.Bid.Type;
 import communications.message.AwardData;
 import communications.message.BidData;
-import communications.message.PointInTime;
+import communications.message.ClearingTimes;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -61,21 +61,33 @@ public class DemandTrader extends Trader {
 			loads.add(new Load(group.getTimeSeries("DemandSeries"), group.getDouble("ValueOfLostLoad")));
 		}
 
-		call(this::sendDemandForecast).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::prepareBids).on(Trader.Products.Bids);
+		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
+		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
 		call(this::evaluateAwardedDemandBids).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
 	}
 
-	/** Prepares demand bids and sends them to the {@link EnergyExchange} */
-	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
+	/** Prepares forecasts and sends them to the {@link MarketForecaster} */
+	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
+		prepareBidsMultipleTimes(input, contracts);
+	}
+
+	/** Calculates and submits demand bids
+	 * 
+	 * @param input single ClearingTimes message
+	 * @param contracts one contracted partner to receive bids
+	 * @return sum of demand bid energies */
+	private double prepareBidsMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		List<BidData> bids = prepareBidsFor(now().laterByOne()); // HACK!! Target Time has been hacked
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
 		double totalRequestedEnergyInMWH = 0;
-		for (BidData bid : bids) {
-			fulfilNext(contract, bid);
-			totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
+		for (TimeStamp targetTime : clearingTimes.getTimes()) {
+			List<BidData> bids = prepareBidsFor(targetTime);
+			for (BidData bid : bids) {
+				fulfilNext(contract, bid);
+				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
+			}
 		}
-		store(OutputColumns.RequestedEnergyInMWH, totalRequestedEnergyInMWH);
+		return totalRequestedEnergyInMWH;
 	}
 
 	/** Prepares hourly demand bids */
@@ -89,25 +101,16 @@ public class DemandTrader extends Trader {
 		return bids;
 	}
 
+	/** Prepares demand bids and sends them to the {@link EnergyExchange} */
+	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
+		double totalRequestedEnergyInMWH = prepareBidsMultipleTimes(input, contracts);
+		store(OutputColumns.RequestedEnergyInMWH, totalRequestedEnergyInMWH);
+	}
+
 	/** Writes out the total awarded demand */
 	private void evaluateAwardedDemandBids(ArrayList<Message> input, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(input);
 		double awardedPower = message.getDataItemOfType(AwardData.class).demandEnergyInMWH;
 		store(OutputColumns.AwardedEnergyInMWH, awardedPower);
-	}
-
-	/** Sends demand forecast for requested time to contracted partner
-	 * 
-	 * @param input forecast request(s) that specify the time(s) at which forecast(s) are requested
-	 * @param contracts single contract with Forecaster to receive forecasted demand */
-	private void sendDemandForecast(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		for (Message message : input) {
-			TimeStamp requestedTime = (message.getDataItemOfType(PointInTime.class)).timeStamp;
-			List<BidData> bids = prepareBidsFor(requestedTime);
-			for (BidData bid : bids) {
-				fulfilNext(contract, bid);
-			}
-		}
 	}
 }

@@ -56,7 +56,7 @@ public class ConventionalTrader extends Trader {
 
 		call(this::sendBids).on(Trader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(EnergyExchange.Products.Awards);
-		call(this::prepareForecastBids).on(Trader.Products.BidsForecast)
+		call(this::prepareBidsMultipleTimes).on(Trader.Products.BidsForecast)
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::payout).on(Trader.Products.Payout).use(EnergyExchange.Products.Awards);
 	}
@@ -75,16 +75,27 @@ public class ConventionalTrader extends Trader {
 	 * @param messages marginal cost data from client
 	 * @param contracts single contract with typically {@link EnergyExchange} */
 	private void sendBids(ArrayList<Message> messages, List<Contract> contracts) {
-		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
-		prepareBids(messages, contractToFulfil);
+		prepareBidsMultipleTimes(messages, contracts);
 		store(OutputFields.OfferedPowerInMW, totalOfferedPowerInMW);
+	}
+
+	/** Prepares forecast bids grouped by time stamps
+	 * 
+	 * @param messages marginal cost forecasts from associated PowerPlantOperators
+	 * @param contractsToFulfill single contract, typically with a {@link MarketForecaster} */
+	private void prepareBidsMultipleTimes(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
+		TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp = sortMarginalsByTimeStamp(messages);
+		for (ArrayList<Message> messagesAtTime : messagesByTimeStamp.values()) {
+			prepareBidsSingleTime(messagesAtTime, contractToFulfil);
+		}
 	}
 
 	/** Sends supply {@link BidData bids} to contracted partner
 	 * 
-	 * @param input marginal costs from associated PowerPlantOperators
+	 * @param input marginal costs from associated PowerPlantOperators all valid at the same time stamp
 	 * @param contractToFulfil contracted parter */
-	private void prepareBids(ArrayList<Message> input, Contract contractToFulfil) {
+	private void prepareBidsSingleTime(ArrayList<Message> input, Contract contractToFulfil) {
 		ArrayList<MarginalCost> marginals = getSortedMarginalList(input);
 		ArrayList<Double> markups = Util.linearInterpolation(minMarkup, maxMarkup, marginals.size());
 		TimeStamp deliveryTime = input.get(0).getDataItemOfType(MarginalCost.class).deliveryTime;
@@ -98,18 +109,6 @@ public class ConventionalTrader extends Trader {
 			BidData bid = new BidData(marginal.powerPotentialInMW, offeredPriceInEURperMWH, marginal.marginalCostInEURperMWH,
 					getId(), Type.Supply, deliveryTime);
 			fulfilNext(contractToFulfil, bid);
-		}
-	}
-
-	/** Prepares forecast bids grouped by time stamps
-	 * 
-	 * @param messages marginal cost forecasts from associated PowerPlantOperators
-	 * @param contractsToFulfill single contract, typically with a {@link MarketForecaster} */
-	private void prepareForecastBids(ArrayList<Message> messages, List<Contract> contracts) {
-		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
-		TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp = sortMarginalsByTimeStamp(messages);
-		for (ArrayList<Message> messagesAtTime : messagesByTimeStamp.values()) {
-			prepareBids(messagesAtTime, contractToFulfil);
 		}
 	}
 
