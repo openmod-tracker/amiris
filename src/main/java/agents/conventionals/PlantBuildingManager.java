@@ -23,7 +23,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class PlantBuildingManager extends Agent {
-	@Input private static final Tree parameters = Make.newTree().addAs("Prototype", PowerPlantPrototype.parameters)
+	@Input private static final Tree parameters = Make.newTree().add(Make.newLong("PortfolioBuildingOffsetInSeconds"))
+			.addAs("Prototype", PowerPlantPrototype.parameters)
 			.add(Make.newGroup("Efficiency").add(Make.newSeries("Minimal"), Make.newSeries("Maximal")),
 					Make.newDouble("BlockSizeInMW"))
 			.buildTree();
@@ -34,6 +35,7 @@ public abstract class PlantBuildingManager extends Agent {
 		PowerPlantPortfolio
 	};
 
+	private final TimeSpan portfolioBuildingOffset;
 	private final PowerPlantPrototype prototype;
 	private final TimeSeries tsMinimumEfficiency;
 	private final TimeSeries tsMaximumEfficiency;
@@ -49,6 +51,7 @@ public abstract class PlantBuildingManager extends Agent {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 
+		portfolioBuildingOffset = new TimeSpan(input.getLong("PortfolioBuildingOffsetInSeconds"));
 		prototype = new PowerPlantPrototype(input.getGroup("Prototype"));
 		portfolio = new Portfolio(prototype);
 		blockSizeInMW = input.getDouble("BlockSizeInMW");
@@ -64,8 +67,7 @@ public abstract class PlantBuildingManager extends Agent {
 	 * @param contracts one contract to receiver of generated Portfolio - typically a {@link ConventionalPlantOperator} */
 	public void updateAndSendPortfolio(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		// TODO:: HACK remove + 60L
-		TimeStamp targetTime = contract.getNextTimeOfDeliveryAfter(now()).laterBy(new TimeSpan(60L));
+		TimeStamp targetTime = contract.getNextTimeOfDeliveryAfter(now()).laterBy(portfolioBuildingOffset);
 		TimeStamp deliveryIntervalInSteps = contract.getNextTimeOfDeliveryAfter(targetTime);
 
 		updatePortfolio(targetTime, deliveryIntervalInSteps);

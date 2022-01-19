@@ -20,7 +20,7 @@ public class CPInfo extends PolicyInfo {
 
 	@Override
 	public void setDataFromConfig(ParameterData group) throws MissingDataException {
-		premium = group.getTimeSeries("Premium"); 
+		premium = group.getTimeSeries("Premium");
 	}
 
 	/** required for {@link Portable}s */

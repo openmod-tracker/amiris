@@ -14,9 +14,11 @@ import agents.plantOperator.PowerPlantOperator;
 import agents.plantOperator.RenewablePlantOperator;
 import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.SupportPolicy;
+import agents.policy.SupportPolicy.EnergyCarrier;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
+import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
 import communications.message.SupportRequestData;
 import communications.message.SupportResponseData;
@@ -35,7 +37,6 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Aggregates supply capacity and administers support payments to plant operators
@@ -77,12 +78,12 @@ public abstract class AggregatorTrader extends Trader {
 	};
 
 	/** bids submitted */
-	protected ArrayList<BidData> submittedBids;
+	protected final TreeMap<TimeStamp, ArrayList<BidData>> submittedBidsByTime = new TreeMap<>();
 	/** Map to store all client, i.e. {@link RenewablePlantOperator}, specific data */
 	protected final HashMap<Long, ClientData> clientMap = new HashMap<>();
 	/** Stores the power prices from {@link EnergyExchange} */
 	protected final TreeMap<TimeStamp, Double> powerPricesList = new TreeMap<>();
-	/** Adds random errors (nomally distributed) to the amount of offered power */
+	/** Adds random errors (normally distributed) to the amount of offered power */
 	protected PowerForecastError errorGenerator;
 
 	/** Creates an {@link AggregatorTrader}
@@ -104,7 +105,7 @@ public abstract class AggregatorTrader extends Trader {
 		call(this::prepareForecastBids).on(Trader.Products.BidsForecast)
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::prepareBids).on(Trader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
-		call(this::sendYieldPotentials).on(Products.YieldPotential);
+		call(this::sendYieldPotentials).on(Products.YieldPotential).use(EnergyExchange.Products.GateClosureInfo);
 		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(EnergyExchange.Products.Awards);
 		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
 		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
@@ -190,16 +191,34 @@ public abstract class AggregatorTrader extends Trader {
 
 	/** Sends supply {@link BidData} bids
 	 * 
-	 * @param messages marginal cost to process - typically from {@link RenewablePlantOperator}
+	 * @param messages marginal cost to process - typically from {@link RenewablePlantOperator} - possibly for multiple times
 	 * @param contracts one partner to send bid forecasts to, typically {@link EnergyExchange} */
 	private void prepareBids(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp targetTime = now().laterByOne(); // TODO:: HACK for Validation: remove + 1L
-		ArrayList<MarginalCost> sortedMarginals = getSortedMarginalList(messages);
-		ArrayList<MarginalCost> marginalsWithError = addPowerForecastErrors(sortedMarginals);
-		submittedBids = submitHourlyBids(targetTime, contract, marginalsWithError);
-		storeYieldPotentials();
-		storeOfferedEnergy();
+		TreeMap<TimeStamp, ArrayList<MarginalCost>> marginalsByTimeStamp = splitMarginalsByTimeStamp(messages);
+		for (TimeStamp targetTime : marginalsByTimeStamp.keySet()) {
+			ArrayList<MarginalCost> marginals = marginalsByTimeStamp.get(targetTime);
+			marginals.sort(MarginalCost.byCostAscending);
+			ArrayList<MarginalCost> marginalsWithError = addPowerForecastErrors(marginals);
+			ArrayList<BidData> submittedBids = submitHourlyBids(targetTime, contract, marginalsWithError);
+			submittedBidsByTime.put(targetTime, submittedBids);
+			storeYieldPotentials(submittedBids);
+			storeOfferedEnergy(submittedBids);
+		}
+	}
+
+	/** @return HashMap with marginals split with respect to their deliveryTime */
+	private TreeMap<TimeStamp, ArrayList<MarginalCost>> splitMarginalsByTimeStamp(ArrayList<Message> messages) {
+		TreeMap<TimeStamp, ArrayList<MarginalCost>> marginalsByTimeStamp = new TreeMap<>();
+		for (Message message : messages) {
+			MarginalCost marginalCost = message.getDataItemOfType(MarginalCost.class);
+			TimeStamp time = marginalCost.deliveryTime;
+			if (!marginalsByTimeStamp.containsKey(time)) {
+				marginalsByTimeStamp.put(time, new ArrayList<MarginalCost>());
+			}
+			marginalsByTimeStamp.get(time).add(marginalCost);
+		}
+		return marginalsByTimeStamp;
 	}
 
 	/** Returns list of marginals that include power forecast errors based on the given marginals (without errors) */
@@ -223,34 +242,35 @@ public abstract class AggregatorTrader extends Trader {
 	}
 
 	/** Store {@link YieldPotential}s for RES market value calculation **/
-	private void storeYieldPotentials() {
-		for (BidData bid : submittedBids) {
-			long senderId = bid.producerUuid;
-			ClientData clientData = clientMap.get(senderId);
+	private void storeYieldPotentials(ArrayList<BidData> bids) {
+		for (BidData bid : bids) {
+			ClientData clientData = clientMap.get(bid.producerUuid);
 			clientData.appendYieldPotential(bid.deliveryTime, bid.powerPotentialInMW);
 		}
 	}
 
 	/** Store the amount of energy offered */
-	private void storeOfferedEnergy() {
+	private void storeOfferedEnergy(ArrayList<BidData> bids) {
 		double totalEnergyOffered = 0.;
-		for (BidData bid : submittedBids) {
+		for (BidData bid : bids) {
 			totalEnergyOffered += bid.offeredEnergyInMWH;
 		}
 		store(OutputColumns.OfferedEnergyInMWH, totalEnergyOffered);
 	}
 
-	/** Forward yield potential information from clients to partner
+	/** Forward yield potential information from clients
 	 * 
-	 * @param messages incoming yield potential reports from clients, typically {@link RenewablePlantOperator}s
+	 * @param messages one ClearingTimes message
 	 * @param contracts one partner, typically {@link SupportPolicy} */
 	private void sendYieldPotentials(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp time = contract.getNextTimeOfDeliveryAfter(now()).earlierBy(new TimeSpan(1L)); // TODO: Hack; Remove 1L
-		for (ClientData clientData : clientMap.values()) {
-			YieldPotential yieldPotential = new YieldPotential(time, clientData.getYieldPotential().get(time),
-					clientData.getTechnologySet().energyCarrier);
-			fulfilNext(contract, yieldPotential);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(messages).getDataItemOfType(ClearingTimes.class);
+		for (TimeStamp time : clearingTimes.getTimes()) {
+			for (ClientData clientData : clientMap.values()) {
+				double yieldPotential = clientData.getYieldPotential().get(time);
+				EnergyCarrier energyCarrier = clientData.getTechnologySet().energyCarrier;
+				fulfilNext(contract, new YieldPotential(time, yieldPotential, energyCarrier));
+			}
 		}
 	}
 
@@ -264,12 +284,13 @@ public abstract class AggregatorTrader extends Trader {
 		AwardData award = message.getDataItemOfType(AwardData.class);
 		store(OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
 		double energyToDispatch = award.supplyEnergyInMWH;
+		ArrayList<BidData> submittedBids = submittedBidsByTime.remove(award.beginOfDeliveryInterval);
 		submittedBids.sort(BidData.BY_PRICE_ASCENDING);
 		for (BidData bid : submittedBids) {
 			Contract matchingContract = getMatchingContract(contracts, bid.producerUuid);
 			double dispatchedEnergy = Math.min(energyToDispatch, bid.powerPotentialInMW);
 			logClientDispatchAndRevenues(bid, dispatchedEnergy, award.powerPriceInEURperMWH);
-			fulfilNext(matchingContract, new AmountAtTime(now(), dispatchedEnergy));
+			fulfilNext(matchingContract, new AmountAtTime(award.beginOfDeliveryInterval, dispatchedEnergy));
 			energyToDispatch = Math.max(0, energyToDispatch - dispatchedEnergy);
 		}
 		store(OutputColumns.EnergyImbalaceInMWH, energyToDispatch);
