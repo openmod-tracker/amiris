@@ -27,7 +27,10 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek, Johannes Kochems */
 public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	public static enum SetType {
-		PVRooftop, WindOn, WindOff, RunOfRiver, OtherPV, Biogas, Undefined
+		PVRooftop, WindOn, WindOff, RunOfRiver, OtherPV, Biogas, Undefined,
+		PvFit, PvMpvarCluster1, PvMpvarCluster2, PvMpvarCluster3, PvMpvarCluster4, PvMpvarCluster5,
+	  WindOnFit, WindOnMpvarCluster1, WindOnMpvarCluster2, WindOnMpvarCluster3, WindOnMpvarCluster4, WindOnMpvarCluster5,
+	  WindOffMpvarCluster1, WindOffMpvarCluster2, WindOffMpvarCluster3, WindOffMpvarCluster4
 	}
 
 	@Input private static final Tree parameters = Make.newTree()
