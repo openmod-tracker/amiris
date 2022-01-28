@@ -16,7 +16,11 @@ public class MeritOrderKernel {
 	 * lowermost element from demand and supply. It compares the demand and supply price from these elements. In case the demand
 	 * price is lower than the supply price, the condition for a cut of the discrete functions is met. If no cut is found, the next
 	 * element from demand and/or supply is selected, whichever has the lower cumulatedPower. Then the cut condition is evaluated
-	 * again. */
+	 * again.
+	 * 
+	 * @param supply sorted supply orders
+	 * @param demand sorted demand orders
+	 * @return market clearing data, i.e. awarded power and price */
 	public static MarketClearingResult clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand) {
 		ArrayList<OrderBookItem> supplyBids = supply.getOrderBookItems();
 		ArrayList<OrderBookItem> demandBids = demand.getOrderBookItems();

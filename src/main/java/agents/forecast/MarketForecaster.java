@@ -38,7 +38,7 @@ public abstract class MarketForecaster extends Agent {
 
 	@Product
 	public static enum Products {
-		/** Send this out to every (start) agent of an {@link EnergyExchange} bidding chain (e.g. demand & power plant agents) */
+		/** Send this out to every (start) agent of an {@link EnergyExchange} bidding chain (e.g. demand and power plant agents) */
 		ForecastRequest
 	};
 

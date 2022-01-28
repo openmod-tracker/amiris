@@ -22,16 +22,17 @@ public class DispatchSchedule {
 
 	/** Creates a {@link DispatchSchedule}
 	 * 
-	 * @param timeOfFirstElement First time at which this schedule is valid
-	 * @param durationInPeriods number of time periods covered by this schedule
-	 * @param period length of one time interval */
+	 * @param timeSegment defines first time at which this schedule is valid and length of each period
+	 * @param durationInPeriods number of time periods covered by this schedule, i.e. multiples of timeSegment durations */
 	public DispatchSchedule(TimePeriod timeSegment, int durationInPeriods) {
 		this.timeOfFirstElement = timeSegment.getStartTime();
 		this.durationInPeriods = durationInPeriods;
 		this.period = timeSegment.getDuration();
 	}
 
-	/** copies hourly charging schedule to {@link Schedule} */
+	/** sets hourly charging schedule
+	 * 
+	 * @param chargingPerPeriodInMW charging schedule */
 	public void setChargingPerPeriod(double[] chargingPerPeriodInMW) {
 		ensureIsNull(this.chargingPerPeriodInMW);
 		ensureCorrectLength(chargingPerPeriodInMW);
@@ -52,14 +53,18 @@ public class DispatchSchedule {
 		}
 	}
 
-	/** copies hourly bidding schedule to {@link Schedule} */
+	/** sets hourly bidding schedule
+	 * 
+	 * @param bidPerPeriodInEURperMWH bidding schedule */
 	public void setBidsScheduleInEURperMWH(double[] bidPerPeriodInEURperMWH) {
 		ensureIsNull(this.bidPerPeriodInEURperMWH);
 		ensureCorrectLength(bidPerPeriodInEURperMWH);
 		this.bidPerPeriodInEURperMWH = bidPerPeriodInEURperMWH.clone();
 	}
 
-	/** copies expected initial internal energies to {@link Schedule} */
+	/** sets schedule for expected initial internal energies
+	 * 
+	 * @param expectedInitialInternalEnergyPerPeriodInMWH initial energy schedule */
 	public void setExpectedInitialInternalEnergyScheduleInMWH(double[] expectedInitialInternalEnergyPerPeriodInMWH) {
 		ensureIsNull(this.expectedInitialInternalEnergyPerPeriodInMWH);
 		ensureCorrectLength(expectedInitialInternalEnergyPerPeriodInMWH);

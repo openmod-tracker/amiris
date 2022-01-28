@@ -45,7 +45,8 @@ public abstract class Trader extends Agent {
 		}
 	}
 
-	/** @return a Map of Messages with {@link MarginalCost} sorted by the {@link TimeStamp} they are valid at */
+	/** @param messages to sort by time stamp
+	 * @return a Map of Messages with {@link MarginalCost} sorted by the {@link TimeStamp} they are valid at */
 	protected TreeMap<TimeStamp, ArrayList<Message>> sortMarginalsByTimeStamp(ArrayList<Message> messages) {
 		TreeMap<TimeStamp, ArrayList<Message>> marginalsByTimeStamp = new TreeMap<>();
 		for (Message message : messages) {
@@ -70,7 +71,8 @@ public abstract class Trader extends Agent {
 		return marginalsByTimeStamp.get(timeStamp);
 	}
 
-	/** @return List of {@link MarginalCost} extracted from given Messages in ascending order of their marginal cost */
+	/** @param messages to sort by marginal cost
+	 * @return List of {@link MarginalCost} extracted from given Messages in ascending order of their marginal cost */
 	protected ArrayList<MarginalCost> getSortedMarginalList(ArrayList<Message> messages) {
 		ArrayList<MarginalCost> marginals = new ArrayList<>();
 		for (Message message : messages) {
@@ -80,7 +82,9 @@ public abstract class Trader extends Agent {
 		return marginals;
 	}
 
-	/** @return the matching contract for a given agentId from given list of {@link Contract}s */
+	/** @param contracts whose receivers are searched for given agentId
+	 * @param agentId to search for
+	 * @return first matching contract from given list of {@link Contract}s where the given agentID is receiver */
 	protected Contract getMatchingContract(List<Contract> contracts, long agentId) {
 		for (Contract contract : contracts) {
 			if (agentId == contract.getReceiverId()) {

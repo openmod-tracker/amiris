@@ -28,7 +28,6 @@ public class SupportRequestData extends DataItem {
 	/** the accounting period for calculating the support payments */
 	public final TimePeriod accountingPeriod;
 
-	/** Constructs a new {@link SupportRequestData} */
 	public SupportRequestData(ClientData clientData, TimePeriod accountingPeriod) {
 		this.setType = clientData.getTechnologySet().setType;
 		this.supportInstrument = clientData.getTechnologySet().supportInstrument;
@@ -48,7 +47,6 @@ public class SupportRequestData extends DataItem {
 		this.accountingPeriod = accountingPeriod;
 	}
 
-	/** Creates a SupportRequestData by copying an existing one */
 	public SupportRequestData(SupportRequestData supportData) {
 		this.setType = supportData.setType;
 		this.supportInstrument = supportData.supportInstrument;
@@ -74,7 +72,9 @@ public class SupportRequestData extends DataItem {
 		return overallInfeed;
 	}
 
-	/** Constructs a new {@link SupportRequestData} from ProtoBuffer */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public SupportRequestData(ProtoDataItem proto) {
 		int ordinal1 = proto.getIntValue(0);
 		this.setType = SetType.values()[ordinal1];

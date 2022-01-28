@@ -16,7 +16,6 @@ public class AwardData extends DataItem {
 	/** the begin of the delivery interval (hour) */
 	public final TimeStamp beginOfDeliveryInterval;
 
-	/** Constructs a new {@link AwardData} */
 	public AwardData(double supplyEnergyInMWH, double demandEnergyInMWH, double powerPriceInEURperMWH,
 			TimeStamp timeStamp) {
 		this.demandEnergyInMWH = demandEnergyInMWH;
@@ -25,7 +24,9 @@ public class AwardData extends DataItem {
 		this.beginOfDeliveryInterval = timeStamp;
 	}
 
-	/** Constructs a new {@link AwardData} from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public AwardData(ProtoDataItem proto) {
 		demandEnergyInMWH = proto.getDoubleValue(0);
 		supplyEnergyInMWH = proto.getDoubleValue(1);

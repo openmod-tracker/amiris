@@ -49,10 +49,13 @@ public class Device extends AbstractDevice {
 		accountedFullStorageCycles = 0;
 	}
 
-	/** (Dis-)charges this device according to given external energy delta<br>
-	 * externalChargingPower > 0: charging <br>
-	 * externalChargingPower < 0: depleting
+	/** (Dis-)charges this device according to given external energy delta
 	 * 
+	 * @param externalChargingPower
+	 *          <ul>
+	 *          <li>externalChargingPower &gt; 0: charging</li>
+	 *          <li>externalChargingPower &lt; 0: depleting</li>
+	 *          </ul>
 	 * @return actual external charging power, considering power and energy capacity restrictions of this device */
 	public double chargeInMW(double externalChargingPower) {
 		double internalChargingPowerInMW = externalToInternalEnergy(externalChargingPower);

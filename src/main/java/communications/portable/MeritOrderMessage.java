@@ -18,7 +18,6 @@ public class MeritOrderMessage implements Portable {
 	/** required for {@link Portable}s */
 	public MeritOrderMessage() {}
 
-	/** Creates a {@link MeritOrderMessage} */
 	public MeritOrderMessage(SupplyOrderBook supplyOrderBook, DemandOrderBook demandOrderBook, TimeStamp timeStamp) {
 		this.supplyOrderBook = supplyOrderBook;
 		this.demandOrderBook = demandOrderBook;

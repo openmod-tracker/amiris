@@ -1,6 +1,7 @@
 package communications.message;
 
 import agents.policy.SupportPolicy.EnergyCarrier;
+import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -12,13 +13,14 @@ public class YieldPotential extends AmountAtTime {
 	/** the energy carrier */
 	public final EnergyCarrier energyCarrier;
 
-	/** Constructs a new {@link YieldPotential} */
 	public YieldPotential(TimeStamp timeStamp, double amount, EnergyCarrier energyCarrier) {
 		super(timeStamp, amount);
 		this.energyCarrier = energyCarrier;
 	}
 
-	/** Constructs a new {@link YieldPotential} from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public YieldPotential(ProtoDataItem proto) {
 		super(proto);
 		this.energyCarrier = EnergyCarrier.values()[proto.getIntValue(0)];

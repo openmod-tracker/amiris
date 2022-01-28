@@ -36,7 +36,9 @@ public class ClearingTimes extends DataItem {
 		}
 	}
 
-	/** Constructs a new {@link ClearingTimes} from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public ClearingTimes(ProtoDataItem proto) {
 		int itemCount = proto.getIntValue(0);
 		times = new TimeStamp[itemCount];

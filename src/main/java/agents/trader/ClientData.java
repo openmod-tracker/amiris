@@ -15,31 +15,35 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class ClientData {
 	private TechnologySet technologySet;
 	private double installedCapacity;
-	private final TreeMap<TimeStamp, Double> yieldPotential = new TreeMap<>();
-	private final TreeMap<TimeStamp, Double> dispatch = new TreeMap<>();
-	private final TreeMap<TimeStamp, Double> marketRevenue = new TreeMap<>();
+	private final TreeMap<TimeStamp, Double> yieldPotentials = new TreeMap<>();
+	private final TreeMap<TimeStamp, Double> dispatches = new TreeMap<>();
+	private final TreeMap<TimeStamp, Double> marketRevenues = new TreeMap<>();
 	/** Total amount of support payed in accounting interval in € */
 	private final TreeMap<TimePeriod, Double> supportRevenueInEUR = new TreeMap<>();
 	/** The market premium for the accounting interval in €/MWh */
 	private final TreeMap<TimePeriod, Double> marketPremiaInEURperMWH = new TreeMap<>();
 	private SupportData supportInfo;
 
-	/** Create a client data object and initialize it only with the technology set */
+	/** Create a client data object and initialise it with the given technology set
+	 * 
+	 * @param technologySet to be assigned */
 	public ClientData(TechnologySet technologySet) {
 		this.technologySet = technologySet;
 	}
 
-	/** Removes any internal data with TimeStamp before given TimeStamp */
+	/** Removes any internal data with TimeStamp before given TimeStamp; other arrays are cleared as well
+	 * 
+	 * @param timeStamp any stored data associated with earlier times are removed */
 	public void clearBefore(TimeStamp timeStamp) {
-		yieldPotential.headMap(timeStamp).clear();
-		dispatch.headMap(timeStamp).clear();
-		marketRevenue.headMap(timeStamp).clear();
+		yieldPotentials.headMap(timeStamp).clear();
+		dispatches.headMap(timeStamp).clear();
+		marketRevenues.headMap(timeStamp).clear();
 		clearBefore(timeStamp, supportRevenueInEUR);
 		clearBefore(timeStamp, marketPremiaInEURperMWH);
 	}
 
 	/** Removes any element of a TreeMap with TimeSegment key if last time before given TimeStamp */
-	public void clearBefore(TimeStamp timeStamp, TreeMap<TimePeriod, Double> map) {
+	private void clearBefore(TimeStamp timeStamp, TreeMap<TimePeriod, Double> map) {
 		Iterator<Entry<TimePeriod, Double>> iterator = map.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Entry<TimePeriod, Double> entry = iterator.next();
@@ -57,13 +61,17 @@ public class ClientData {
 	}
 
 	public void appendYieldPotential(TimeStamp time, double stepPotential) {
-		yieldPotential.put(time, stepPotential);
+		yieldPotentials.put(time, stepPotential);
 	}
 
-	/** Append dispatch and revenue for given time stamps to maps for tracking it */
-	public void appendStepDispatchAndRevenue(TimeStamp time, double stepDispatch, double stepRevenue) {
-		dispatch.put(time, stepDispatch);
-		marketRevenue.put(time, stepRevenue);
+	/** Append dispatch and revenue for given time stamps to maps for tracking it
+	 * 
+	 * @param time at which to save dispatch and revenue
+	 * @param dispatch at given time to save
+	 * @param revenue at given time to save */
+	public void appendStepDispatchAndRevenue(TimeStamp time, double dispatch, double revenue) {
+		dispatches.put(time, dispatch);
+		marketRevenues.put(time, revenue);
 	}
 
 	public void appendSupportRevenue(TimePeriod accountingPeriod, double amount) {
@@ -83,15 +91,15 @@ public class ClientData {
 	}
 
 	public TreeMap<TimeStamp, Double> getDispatch() {
-		return dispatch;
+		return dispatches;
 	}
 
 	public TreeMap<TimeStamp, Double> getMarketRevenue() {
-		return marketRevenue;
+		return marketRevenues;
 	}
 
 	public TreeMap<TimeStamp, Double> getYieldPotential() {
-		return yieldPotential;
+		return yieldPotentials;
 	}
 
 	public TreeMap<TimePeriod, Double> getSupportRevenueInEUR() {

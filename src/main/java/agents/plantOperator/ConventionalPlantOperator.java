@@ -20,7 +20,6 @@ import communications.message.FuelData;
 import communications.message.MarginalCost;
 import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
-import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
@@ -67,8 +66,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 	/** Creates a {@link ConventionalPlantOperator}
 	 * 
-	 * @param dataProvider provides input from config
-	 * @throws MissingDataException if any required data is not provided */
+	 * @param dataProvider provides input from config */
 	public ConventionalPlantOperator(DataProvider dataProvider) {
 		super(dataProvider);
 

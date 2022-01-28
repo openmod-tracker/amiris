@@ -33,8 +33,9 @@ public class DemandOrderBook extends OrderBook {
 				.mapToDouble(i -> i.getBlockPower()).sum();
 	}
 
-	/** Can only be called once the book is updated after market clearing
+	/** Returns amount of power that the supply is short; can only be called once the book is updated after market clearing
 	 * 
+	 * @param highestSupplyItem OrderBookItem with highest price and non-zero power from SupplyOrderBook
 	 * @return amount of power that the supply is short, i.e. the sum of all demand power not awarded with a higher price than the
 	 *         last supply offer */
 	public double getAmountOfPowerShortage(OrderBookItem highestSupplyItem) {

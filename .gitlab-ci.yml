@@ -39,6 +39,18 @@ cache:
 verify:jdk8:
   <<: *verify
 
+# Build javadoc
+javadoc:
+  stage: deploy
+  image: maven:3.3.9-jdk-8
+  script:
+    - 'mvn javadoc:javadoc'
+  artifacts:
+    paths:
+      - target/site/apidocs
+  only:
+    - main
+
 # For `main` branch run:
 deploy:jdk8:
   stage: deploy
@@ -51,3 +63,14 @@ deploy:jdk8:
     paths:
       - target/*.jar
     expire_in: never
+
+pages:
+  stage: .post
+  script:
+    - mkdir public
+    - cp -r target/site/apidocs/* public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

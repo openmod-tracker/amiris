@@ -349,7 +349,12 @@ public class SupportPolicy extends Agent {
 		}
 	}
 
-	/** Extract the accounting period for premia schemes from contract duration and shift it by given value */
+	/** Extract the accounting period for premia schemes from contract duration and shift it by given steps
+	 * 
+	 * @param time to start the search for next delivery time
+	 * @param contract to create the accounting period from
+	 * @param stepsToShift seconds to shift the time: positive values shift towards the future, negative ones towards the past
+	 * @return a TimePeriod matching next delivery period of given contract shifted by given time steps */
 	public static TimePeriod extractAccountingPeriod(TimeStamp time, Contract contract, long stepsToShift) {
 		TimeStamp endTime;
 		TimeStamp nextContractExecutionTime = contract.getNextTimeOfDeliveryAfter(time);

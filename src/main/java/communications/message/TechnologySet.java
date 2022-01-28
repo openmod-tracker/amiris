@@ -20,7 +20,6 @@ public class TechnologySet extends DataItem {
 	/** installed capacity at this set - assumed constant */
 	public final double installedCapacity;
 
-	/** Creates a {@link TechnologySet} */
 	public TechnologySet(SetType technologySetType, EnergyCarrier energyCarrier,
 			SupportInstrument supportInstrument, double installedCapacity) {
 		this.setType = technologySetType;
@@ -29,7 +28,9 @@ public class TechnologySet extends DataItem {
 		this.installedCapacity = installedCapacity;
 	}
 
-	/** Creates a {@link TechnologySet} from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public TechnologySet(ProtoDataItem proto) {
 		energyCarrier = EnergyCarrier.values()[proto.getIntValue(0)];
 		setType = getOrNull(SetType.values(), proto.getIntValue(1));
