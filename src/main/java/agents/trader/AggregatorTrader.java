@@ -159,7 +159,8 @@ public abstract class AggregatorTrader extends Trader {
 		}
 	}
 
-	/** @return client data for given set type. Assumption: client set types are unique */
+	/** @param setType to search for; assumption: client set types are unique
+	 * @return client data for given set type */
 	protected ClientData getClientDataForSetType(SetType setType) {
 		for (ClientData clientData : clientMap.values()) {
 			if (clientData.getTechnologySet().setType == setType) {
@@ -183,8 +184,11 @@ public abstract class AggregatorTrader extends Trader {
 		}
 	}
 
-	/** Prepares the hourly bids based on given marginals and sends them to the contracted partner
+	/** Prepares hourly bids based on given marginals and sends them to the contracted partner
 	 * 
+	 * @param time at which to calculate bids
+	 * @param contract to fulfil
+	 * @param sortedMarginals to be used for bid calculation
 	 * @return submitted bids */
 	protected abstract ArrayList<BidData> submitHourlyBids(TimeStamp time, Contract contract,
 			ArrayList<MarginalCost> sortedMarginals);
@@ -296,7 +300,11 @@ public abstract class AggregatorTrader extends Trader {
 		store(OutputColumns.EnergyImbalaceInMWH, energyToDispatch);
 	}
 
-	/** Logs actual dispatch and revenue for client of given BidData at its delivery time */
+	/** Logs actual dispatch and revenue for client of given BidData at its delivery time
+	 * 
+	 * @param bid original bid sent for clearing
+	 * @param dispatchedEnergy assigned to this bid
+	 * @param powerPrice awarded price */
 	protected void logClientDispatchAndRevenues(BidData bid, double dispatchedEnergy, double powerPrice) {
 		ClientData clientData = clientMap.get(bid.producerUuid);
 		double stepRevenue = powerPrice * dispatchedEnergy;
@@ -354,7 +362,12 @@ public abstract class AggregatorTrader extends Trader {
 		store(OutputColumns.ReceivedMarketRevenues, receivedMarketRevenues);
 	}
 
-	/** Define a pay-out strategy for the contractual pay-out (in child classes) */
+	/** Define a pay-out strategy for the contractual pay-out (in child classes)
+	 * 
+	 * @param plantOperatorId the operator to pay
+	 * @param accountingPeriod to be considered
+	 * @param marketRevenue earned with bids associated with that operator
+	 * @return value to pay out to that plant operator */
 	protected abstract double applyPayoutStrategy(long plantOperatorId, TimePeriod accountingPeriod,
 			double marketRevenue);
 

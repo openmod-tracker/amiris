@@ -14,13 +14,14 @@ public class AmountAtTime extends DataItem {
 	/** The actual amount to be exchanged between the contract parties */
 	public final double amount;
 
-	/** Constructs a new {@link AmountAtTime} */
 	public AmountAtTime(TimeStamp timeStamp, double amount) {
 		this.validAt = timeStamp;
 		this.amount = amount;
 	}
 
-	/** Constructs a new {@link AmountAtTime} from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public AmountAtTime(ProtoDataItem proto) {
 		this.validAt = new TimeStamp(proto.getLongValue(0));
 		this.amount = proto.getDoubleValue(0);

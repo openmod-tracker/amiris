@@ -59,7 +59,10 @@ public abstract class AbstractDevice {
 		return selfDischargeRatePerHour * (1 + getNetChargingLossFactor());
 	}
 
-	/** @return energy loss in one hour due to self discharge based on given energy in storage */
+	/** Returns energy losses due to self discharge based on given energy in storage
+	 * 
+	 * @param energyInStorageInMWH to be considered
+	 * @return energy loss in one hour due to self discharge based on given energy in storage */
 	public double calcInternalSelfDischargeInMWH(double energyInStorageInMWH) {
 		return energyInStorageInMWH * selfDischargeRatePerHour;
 	}
@@ -106,7 +109,7 @@ public abstract class AbstractDevice {
 
 	/** Return internal energy delta equivalent of given external energy delta
 	 * 
-	 * @param externalEnergyDelta > 0 == charging; < 0 == depleting
+	 * @param externalEnergyDelta &gt; 0: charging; &lt; 0: depleting
 	 * @return corresponding internal energy delta equivalent */
 	public double externalToInternalEnergy(double externalEnergyDelta) {
 		if (externalEnergyDelta > 0) {
@@ -118,7 +121,7 @@ public abstract class AbstractDevice {
 
 	/** Return external energy delta equivalent of given internal energy delta
 	 * 
-	 * @param internalEnergyDelta > 0 == charging; < 0 == depleting
+	 * @param internalEnergyDelta &gt; 0: charging; &lt; 0: depleting
 	 * @return external energy delta equivalent */
 	public double internalToExternalEnergy(double internalEnergyDelta) {
 		if (internalEnergyDelta > 0) {

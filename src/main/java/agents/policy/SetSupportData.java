@@ -9,7 +9,6 @@ import agents.policy.SupportPolicy.SupportInstrument;
 public class SetSupportData {
 	private final EnumMap<SupportInstrument, PolicyInfo> infos = new EnumMap<>(SupportInstrument.class);
 
-	/** Creates a {@link SetSupportData} joining all given support information */
 	public SetSupportData(FitInfo fitInfo, MpvarInfo mpvarInfo, MpfixInfo mpfixInfo, CfdInfo cfdInfo,
 			CPInfo cpInfo) {
 		infos.put(SupportInstrument.FIT, fitInfo);

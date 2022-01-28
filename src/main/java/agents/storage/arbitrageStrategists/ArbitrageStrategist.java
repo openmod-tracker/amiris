@@ -44,7 +44,7 @@ public abstract class ArbitrageStrategist {
 	 * 
 	 * @param forecastSteps number of forecast intervals
 	 * @param storage Device for which schedules are to be created
-	 * @param scheduleDurationPeriods number of time periods to be scheduled (<= forecastSteps) */
+	 * @param scheduleDurationPeriods number of time periods to be scheduled (&#x2264; forecastSteps) */
 	public ArbitrageStrategist(int forecastSteps, Device storage, int scheduleDurationPeriods) {
 		this.forecastSteps = forecastSteps;
 		this.storage = storage;

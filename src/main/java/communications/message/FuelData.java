@@ -9,12 +9,13 @@ import de.dlr.gitlab.fame.communication.message.DataItem;
 public class FuelData extends DataItem {
 	public final FuelType fuelType;
 
-	/** Constructs a new {@link FuelData} item */
 	public FuelData(FuelType fuelType) {
 		this.fuelType = fuelType;
 	}
 
-	/** Constructs a {@link FuelData} item from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public FuelData(ProtoDataItem proto) {
 		int ordinal = proto.getIntValue(0);
 		fuelType = FuelType.values()[ordinal];

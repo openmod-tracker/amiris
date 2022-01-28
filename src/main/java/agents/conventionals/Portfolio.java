@@ -83,7 +83,7 @@ public class Portfolio implements Portable {
 	 * 
 	 * @param efficiencies the list of efficiencies to be rounded
 	 * @param roundingPrecision number of decimal places to round to [1..15] - for other values no rounding is applied
-	 * @returns new (or old, if not rounded) list of efficiencies */
+	 * @return new (or old, if not rounded) list of efficiencies */
 	private ArrayList<Double> roundEfficiencySet(ArrayList<Double> efficiencies, int roundingPrecision) {
 		if (roundingPrecision < 16 && roundingPrecision > 0) {
 			ArrayList<Double> newValues = new ArrayList<>(efficiencies.size());
@@ -101,7 +101,7 @@ public class Portfolio implements Portable {
 		return prototype.getFuelType();
 	}
 
-	/** @returns {@link UnmodifiableSortedLinkedList} of {@link PowerPlant}s, ordered from lowest to highest efficiency */
+	/** @return {@link Collections#unmodifiableList(List) UnmodifiableList} of {@link PowerPlant}s, ordered from lowest to highest efficiency */
 	public List<PowerPlant> getPowerPlantList() {
 		return Collections.unmodifiableList(powerPlants);
 	}

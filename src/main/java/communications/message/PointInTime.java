@@ -11,7 +11,6 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class PointInTime extends DataItem {
 	public final TimeStamp timeStamp;
 
-	/** Constructs a new {@link PointInTime} */
 	public PointInTime(TimeStamp timeStamp) {
 		this.timeStamp = timeStamp;
 	}
@@ -21,7 +20,9 @@ public class PointInTime extends DataItem {
 		builder.addLongValue(timeStamp.getStep());
 	}
 
-	/** Constructs a new {@link AmountAtTime} from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public PointInTime(ProtoDataItem proto) {
 		this.timeStamp = new TimeStamp(proto.getLongValue(0));
 	}

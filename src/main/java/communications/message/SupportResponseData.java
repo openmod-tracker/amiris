@@ -1,5 +1,6 @@
 package communications.message;
 
+import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
 
@@ -12,14 +13,15 @@ public class SupportResponseData extends SupportRequestData {
 	/** the market premium (if applicable, i.e. a MPVAR, MPFIX or CFD scheme) */
 	public final double marketPremium;
 
-	/** Creates a {@link SupportResponseData} */
 	public SupportResponseData(SupportRequestData supportRequestData, double payment, double marketPremium) {
 		super(supportRequestData);
 		this.payment = payment;
 		this.marketPremium = marketPremium;
 	}
 
-	/** Constructs a new {@link SupportRequestData} from ProtoBuffer */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public SupportResponseData(ProtoDataItem proto) {
 		super(proto);
 		this.payment = proto.getDoubleValue(1);

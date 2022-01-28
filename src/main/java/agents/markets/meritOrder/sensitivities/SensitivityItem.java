@@ -42,7 +42,9 @@ public class SensitivityItem {
 		return marginal;
 	}
 
-	/** set the cumulated power at the beginning this power block */
+	/** set the cumulated power at the beginning this power block
+	 * 
+	 * @param cumulatedPower lower value of cumulated power for this item */
 	public void setCumulatedLowerPower(double cumulatedPower) {
 		this.cumulatedLowerPower = cumulatedPower;
 	}
@@ -62,7 +64,9 @@ public class SensitivityItem {
 		return monetaryOffset;
 	}
 
-	/** set the cumulated monetary value at the beginning this power block */
+	/** set the cumulated monetary value at the beginning this power block
+	 * 
+	 * @param monetaryOffset total monetary value at the beginning this power block */
 	public void setMonetaryOffset(double monetaryOffset) {
 		this.monetaryOffset = monetaryOffset;
 	}

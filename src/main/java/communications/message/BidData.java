@@ -57,7 +57,6 @@ public class BidData extends DataItem {
 		this.deliveryTime = deliveryTime;
 	}
 
-	/** Constructs a new {@link BidData} */
 	public BidData(double offeredEnergyInMWH, double priceInEURperMWH, double marginalCostInEURperMWH,
 			double powerPotentialInMW, long traderUuid, long producerUuid, Type type, TimeStamp deliveryTime) {
 		this.offeredEnergyInMWH = offeredEnergyInMWH;
@@ -70,7 +69,9 @@ public class BidData extends DataItem {
 		this.deliveryTime = deliveryTime;
 	}
 
-	/** Constructs a new {@link BidData} from its protobuf representation */
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
 	public BidData(ProtoDataItem proto) {
 		this.offeredEnergyInMWH = proto.getDoubleValue(0);
 		this.priceInEURperMWH = proto.getDoubleValue(1);

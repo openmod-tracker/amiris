@@ -29,7 +29,10 @@ public class PriceSensitivity extends MeritOrderSensitivity {
 		return item.getPrice();
 	}
 
-	/** @return the price at a given power demand level induced by the additional power demand */
+	/** Returns price considering given addition power demand
+	 * 
+	 * @param powerDemandInMW additional power to consider
+	 * @return price at a given power demand level induced by the additional power demand */
 	public double calcPriceAtPowerDemand(double powerDemandInMW) {
 		int chargingIndex = 0;
 		while (chargingItems.get(chargingIndex).getCumulatedUpperPower() < powerDemandInMW) {

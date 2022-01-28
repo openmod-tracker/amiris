@@ -36,22 +36,27 @@ public class MarginalCost extends DataItem {
 		this.powerPotentialWithErrorsInMW = powerPotentialInMW;
 	}
 
-	/** Constructs a new {@link MarginalCost} from its protobuf representation */
-	public MarginalCost(ProtoDataItem proto) {
-		this.producerUuid = proto.getLongValue(0);
-		this.deliveryTime = new TimeStamp(proto.getLongValue(1));
-		this.powerPotentialInMW = proto.getDoubleValue(0);
-		this.marginalCostInEURperMWH = proto.getDoubleValue(1);
-		this.powerPotentialWithErrorsInMW = proto.getDoubleValue(2);
-	}
-
-	/** Construct {@link MarginalCost} from given {@link MarginalCost} with extra powerPotentialWithErrors */
+	/** Construct copy of given {@link MarginalCost} with extra powerPotentialWithErrors
+	 * 
+	 * @param original to copy values from
+	 * @param powerPotentialWithErrorsInMW to replace any previous value */
 	public MarginalCost(MarginalCost original, double powerPotentialWithErrorsInMW) {
 		this.producerUuid = original.producerUuid;
 		this.marginalCostInEURperMWH = original.marginalCostInEURperMWH;
 		this.deliveryTime = original.deliveryTime;
 		this.powerPotentialInMW = original.powerPotentialInMW;
 		this.powerPotentialWithErrorsInMW = powerPotentialWithErrorsInMW;
+	}
+
+	/** Mandatory for deserialisation of {@link DataItem}s
+	 * 
+	 * @param proto protobuf representation */
+	public MarginalCost(ProtoDataItem proto) {
+		this.producerUuid = proto.getLongValue(0);
+		this.deliveryTime = new TimeStamp(proto.getLongValue(1));
+		this.powerPotentialInMW = proto.getDoubleValue(0);
+		this.marginalCostInEURperMWH = proto.getDoubleValue(1);
+		this.powerPotentialWithErrorsInMW = proto.getDoubleValue(2);
 	}
 
 	@Override
@@ -63,6 +68,7 @@ public class MarginalCost extends DataItem {
 		builder.addDoubleValue(powerPotentialWithErrorsInMW);
 	}
 
+	@Override
 	public String toString() {
 		return "(" + powerPotentialInMW + " MW@" + marginalCostInEURperMWH + " �/MWh)";
 	}

@@ -29,7 +29,7 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
 	}
 
-	/** @return single {@link Marginal} considering variable yield */
+	/** @return single {@link MarginalCost} considering variable yield */
 	@Override
 	protected MarginalCost calcSingleMarginal(TimeStamp time) {
 		if (tsYieldProfile == null) {

@@ -14,15 +14,15 @@ import de.dlr.gitlab.fame.communication.message.Message;
 public final class Util {
 	/** Returns a newly created List of doubles, interpolating between given minimum and maximum
 	 * 
-	 * @param minValue minimum value, if steps > 1 also included in the returned list
-	 * @param maxValue maximum value, if steps > 1 also included in the returned list, requires maxValue > minValue
+	 * @param minValue minimum value, if steps &gt; 1 also included in the returned list
+	 * @param maxValue maximum value, if steps &gt; 1 also included in the returned list, requires maxValue &gt; minValue
 	 * @param steps integer number of interpolation steps [0..]
 	 * @return a list of interpolated values; in case of
 	 *         <ul>
 	 *         <li>steps = 0: an empty list</li>
 	 *         <li>steps = 1: average of minValue and maxValue</li>
 	 *         <li>steps = 2: minValue and maxValue</li>
-	 *         <li>steps > 2: minValue, maxValue + (steps - 2) intermediate values, splitting the interval in (steps - 1)
+	 *         <li>steps &gt; 2: minValue, maxValue + (steps - 2) intermediate values, splitting the interval in (steps - 1)
 	 *         equidistant segments</li>
 	 *         </ul>
 	 */
@@ -45,18 +45,25 @@ public final class Util {
 		return interpolatedValues;
 	}
 
-	/** throws an {@link InvalidParameterException} in case minValue > maxValue */
+	/** Ensures that given minValue is smaller than or equal to given maxValue
+	 * 
+	 * @param minValue must be smaller than or equal to maxValue
+	 * @param maxValue must be larger than or equal to minValue 
+	 * @throws InvalidParameterException in case minValue &gt; maxValue */
 	public static void ensureValidRange(double minValue, double maxValue) {
 		if (minValue > maxValue) {
 			throw new InvalidParameterException("minValue has to be lower than or equal to maxValue");
 		}
 	}
 
-	/** @return a {@link DescriptiveStatistics} filled with entries copied from the provided array */
-	public static DescriptiveStatistics createStatisticsFrom(double[] array) {
+	/** Creates a {@link DescriptiveStatistics} from the provided data
+	 * 
+	 * @param data data to be statistically analysed
+	 * @return filled with entries copied from the provided array */
+	public static DescriptiveStatistics createStatisticsFrom(double[] data) {
 		DescriptiveStatistics stat = new DescriptiveStatistics();
-		for (int i = 0; i < array.length; i++) {
-			stat.addValue(array[i]);
+		for (int i = 0; i < data.length; i++) {
+			stat.addValue(data[i]);
 		}
 		return stat;
 	}
@@ -65,7 +72,7 @@ public final class Util {
 	 * with that payload from given list and returns the payload. Further messages with that payload still reside in the message
 	 * list. If no message with matching payload is found: returns null.
 	 * 
-	 * @param <T> type of searched & returned DataItem
+	 * @param <T> type of searched and returned DataItem
 	 * @param payload class type of DataItem to search for
 	 * @param messages list of messages to search; message with found data item is removed
 	 * @return first matching DataItem found */

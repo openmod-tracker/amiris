@@ -19,12 +19,14 @@ public class StepPower {
 		this.numberOfTransitionSteps = numberOfTransitionSteps;
 	}
 
-	/** @return power in MW corresponding to number of charging / discharging steps<br />
-	 *         <ul>
-	 *         <li>given stepDelta > 0: charging => power > 0</li>
-	 *         <li>given stepDelta < 0: discharging => power < 0</li>
-	 *         </ul>
-	 */
+	/** Returns power matching given step delta
+	 * 
+	 * @param stepDelta for charging / discharging
+	 *          <ul>
+	 *          <li>&gt; 0: charging &rarr; power &gt; 0</li>
+	 *          <li>&lt; 0: discharging &rarr; power &lt; 0</li>
+	 *          </ul>
+	 * @return power in MW corresponding to number of charging / discharging steps */
 	public double getPower(int stepDelta) {
 		if (stepDelta >= 0 && stepDelta <= numberOfTransitionSteps) {
 			return stepDelta * chargingStepPowerInMW;

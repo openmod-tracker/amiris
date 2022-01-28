@@ -20,7 +20,7 @@ public class SupplyOrderBook extends OrderBook {
 		return OrderBookItem.BY_PRICE;
 	}
 
-	/** @return most expensive (real) bid (i.e. with block power > 0); may only be called after sorting */
+	/** @return most expensive (real) bid (i.e. with block power is larger than 0); may only be called after sorting */
 	public OrderBookItem getHighestItem() {
 		ensureSortedOrThrow("Bids have not yet been sorted - most expensive bid is not yet known!");
 		ListIterator<OrderBookItem> iterator = orderBookItems.listIterator(orderBookItems.size());
@@ -35,8 +35,8 @@ public class SupplyOrderBook extends OrderBook {
 
 	/** Can only be called once the book is updated after market clearing
 	 * 
-	 * @return one of possibly many {@link OrderBookItem}s that were price setting<br/>
-	 *         may only be called after sorting & awarding */
+	 * @return one of possibly many {@link OrderBookItem}s that were price setting<br>
+	 *         may only be called after sorting and awarding */
 	public OrderBookItem getLastAwardedItem() {
 		ensureSortedOrThrow("Bids have not yet been sorted - awarded power is yet unknown!");
 		OrderBookItem comparedTo = new OrderBookItem(new Bid(0, awardedPrice, 0, Long.MIN_VALUE, Type.Supply));

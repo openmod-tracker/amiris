@@ -76,8 +76,9 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 		return 0;
 	}
 
-	/** Checks if a power plant is currently active.
+	/** Checks if a power plant is active at given time
 	 * 
+	 * @param timeStep at which to test activeness
 	 * @return true if the plant is active at given time, false otherwise */
 	public boolean isActive(long timeStep) {
 		return timeStep >= constructionTimeStep && timeStep < tearDownTimeStep;
