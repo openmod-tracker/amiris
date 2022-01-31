@@ -22,7 +22,7 @@ Installation instructions can be found in the [ReadMe](README.md) file.
 
 Issues and Bugs are tracked on the [Repository](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/issues) at GitLab.
 
-We kindly ask you to discuss the AMIRIS developement and configuration at the [openMod Forum](https://forum.openmod.org/).
+We kindly ask you to discuss the AMIRIS development and configuration at the [openMod Forum](https://forum.openmod.org/tag/amiris).
 
 ## Contact / Help
 You can contact the main developers via [amiris@dlr.de](mailto:amiris@dlr.de) to pose any questions or to get involved.
@@ -46,7 +46,7 @@ Thank you for your intention to contribute.
 
 ### Environment
 It is recommended to use a current Eclipse version to compile AMIRIS code.
-[Maven](https://maven.apache.org/) is strongly recommended to resolve the dependencies of AMIRIRS.
+[Maven](https://maven.apache.org/) is strongly recommended for resolving the dependencies of AMIRIS.
 We recommend Java 8 (64 bit) to build and run AMIRIS.
 
 ### Coding
@@ -63,7 +63,7 @@ Please, check the following points before submitting a pull request:
 
 ### Pull request
 1. Submit your request using the provided *pull_request* template & (briefly) describe the changes you made in the pull request.
-1. Contact the main developers via [amiris@dlr.de](mailto:amiris@dlr.de) or at [openMod Forum](https://forum.openmod.org/) in case you've got any questions.
+1. Contact the main developers via [amiris@dlr.de](mailto:amiris@dlr.de) or at [openMod Forum](https://forum.openmod.org/tag/amiris) in case you've got any questions.
 
 # List of Contributors
-see [Citation](Citation.cff)
+see file [Citation.cff](CITATION.cff)
