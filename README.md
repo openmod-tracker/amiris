@@ -13,7 +13,7 @@ AMIRIS allows to calculate the impact of policy instruments on economic performa
 It is based on [(FAME)](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
 
 Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) to get further information.
-Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://forum.openmod.org/).
+Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://forum.openmod.org/tag/amiris).
 
 ## Recommended Skills
 AMIRIS is a *JAVA* application configured via *Python* scripts.
@@ -87,7 +87,7 @@ Go to the root folder of the newly cloned amiris folder, and execute
 ```
 
 Wait for Maven to fetch all dependencies and to build AMIRIS.
-This creates a Java ARchive (JAR) file in the `target/` folder that includes AMIRIS and all of its dependencies. 
+This creates a Java archive (JAR) file in the `target/` folder that includes AMIRIS and all of its dependencies. 
 The file should be named `amiris-jar-with-dependencies.jar` by default.
 You need to *re-package* AMIRIS once you *change the code-base* of AMIRIS.
 
@@ -125,6 +125,6 @@ Please follow the instructions at the [FAME-Wiki](https://gitlab.com/fame-framew
 This is a purely scientific project by (at the moment) one research group. 
 Thus, there is no paid technical support available.
 
-If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/) or via [amiris@dlr.de](mailto:amiris@dlr.de).
+If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/tag/amiris) or via [amiris@dlr.de](mailto:amiris@dlr.de).
 Please report bugs and make feature requests by filing issues following the provided templates (see also [CONTRIBUTING](CONTRIBUTING)).
 For substantial enhancements, we recommend that you contact us via [amiris@dlr.de](mailto:amiris@dlr.de) for working together on the code in common projects or towards common publications and thus further develop AMIRIS.
