@@ -54,6 +54,7 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<finalName>${project.artifactId}_${project.version}</finalName>
 				</configuration>
 				<executions>
 					<execution>
