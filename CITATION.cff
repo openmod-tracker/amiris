@@ -3,6 +3,17 @@ authors:
   - family-names: Nienhaus
     given-names: Kristina
     orcid: 0000-0003-4180-6767
+  - family-names: Reeg
+    given-names: Matthias
+    orcid: 0000-0001-8247-6499
+  - family-names: Nils
+    given-names: Roloff
+  - family-names: Deissenroth-Uhrig
+    given-names: Marc
+    orcid: 0000-0002-9103-418X
+  - family-names: Klein
+    given-names: Martin
+    orcid: 0000-0001-7283-4707
   - family-names: Schimeczek
     given-names: Christoph
     orcid: 0000-0002-0791-9365
@@ -25,8 +36,7 @@ authors:
     given-names: A. Achraf
     orcid: 0000-0001-5064-9148
 cff-version: "1.1.0"
-date-released: 2021-12-06
-doi: https://doi.org/
+date-released: 2022-01-24
 keywords: 
   - "electricity market"
   - "agent based model"
@@ -35,4 +45,4 @@ keywords:
 license: "Apache License 2.0"
 message: "If you use this software, please cite as follows."
 title: AMIRIS
-version: "1.0.0"
+version: "1.1.0"
