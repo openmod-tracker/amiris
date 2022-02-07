@@ -29,7 +29,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 	public SystemCostMinimiser(int forecastPeriod, Device storage, int scheduleDuration, int transitionSteps) {
 		super(forecastPeriod, storage, scheduleDuration);
 		this.numberOfTransitionStates = transitionSteps;
-		this.numberOfEnergyStates = (int) Math.ceil(numberOfTransitionStates * storage.getEnergyToPowerRatio()) + 1;
+		this.numberOfEnergyStates = (int) Math.floor(numberOfTransitionStates * storage.getEnergyToPowerRatio()) + 1;
 
 		followUpCostSum = new double[forecastPeriod][numberOfEnergyStates];
 		bestNextState = new int[forecastPeriod][numberOfEnergyStates];
