@@ -50,8 +50,8 @@ public class StorageTrader extends Trader {
 
 	@Output
 	private static enum OutputFields {
-		OfferedPowerInMW, OfferedChargePrice, OfferedDischargePrice, AwardedChargePower, AwardedDischargePower,
-		AwardedPower, StoredMWh, Revenues, Costs, Profit
+		OfferedPowerInMW, OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargePowerInMWH, AwardedDischargePowerInMWH,
+		AwardedPowerInMWH, StoredEnergyInMWH, ReceivedMoneyInEUR, CostsInEUR
 	};
 
 	private final TimeSpan forecastRequestOffset;
@@ -182,7 +182,7 @@ public class StorageTrader extends Trader {
 		double demandPower = schedule.getScheduledChargingPowerInMW(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		BidData demandBid = new BidData(demandPower, price, Double.NaN, getId(), Type.Demand, requestedTime);
-		store(OutputFields.OfferedChargePrice, price);
+		store(OutputFields.OfferedChargePriceInEURperMWH, price);
 		return demandBid;
 	}
 
@@ -194,7 +194,7 @@ public class StorageTrader extends Trader {
 		double supplyPower = schedule.getScheduledDischargingPowerInMW(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		BidData supplyBid = new BidData(supplyPower, price, Double.NaN, getId(), Type.Supply, requestedTime);
-		store(OutputFields.OfferedDischargePrice, price);
+		store(OutputFields.OfferedDischargePriceInEURperMWH, price);
 		return supplyBid;
 	}
 
@@ -211,12 +211,12 @@ public class StorageTrader extends Trader {
 		double revenues = powerPrice * awardedDischargePower;
 		double costs = powerPrice * awardedChargePower;
 		storage.chargeInMW(externalPowerDelta);
-		store(OutputFields.AwardedChargePower, awardedChargePower);
-		store(OutputFields.AwardedDischargePower, -awardedDischargePower);
-		store(OutputFields.AwardedPower, externalPowerDelta);
-		store(OutputFields.StoredMWh, storage.getCurrentEnergyInStorageInMWH());
-		store(OutputFields.Revenues, revenues);
-		store(OutputFields.Costs, costs);
-		store(OutputFields.Profit, revenues - costs);
+
+		store(OutputFields.AwardedDischargePowerInMWH, awardedDischargePower);
+		store(OutputFields.AwardedChargePowerInMWH, awardedChargePower);
+		store(OutputFields.AwardedPowerInMWH, externalPowerDelta);
+		store(OutputFields.StoredEnergyInMWH, storage.getCurrentEnergyInStorageInMWH());
+		store(OutputFields.ReceivedMoneyInEUR, revenues);
+		store(OutputFields.CostsInEUR, costs);
 	}
 }
