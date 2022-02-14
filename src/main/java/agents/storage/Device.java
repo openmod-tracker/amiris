@@ -16,7 +16,7 @@ public class Device extends AbstractDevice {
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("EnergyToPowerRatio"), Make.newDouble("SelfDischargeRatePerHour"),
 					Make.newDouble("ChargingEfficiency"), Make.newDouble("DischargingEfficiency"),
-					Make.newDouble("InitialEnergyLevelInMWH"), Make.newDouble("PowerInMW"))
+					Make.newDouble("InitialEnergyLevelInMWH"), Make.newDouble("InstalledPowerInMW"))
 			.buildTree();
 
 	/** Creates a physical {@link Device}
@@ -26,7 +26,7 @@ public class Device extends AbstractDevice {
 	public Device(ParameterData input) throws MissingDataException {
 		super(input.getDouble("EnergyToPowerRatio"), input.getDouble("SelfDischargeRatePerHour"),
 				input.getDouble("ChargingEfficiency"), input.getDouble("DischargingEfficiency"));
-		setInternalPowerInMW(input.getDouble("PowerInMW"));
+		setInternalPowerInMW(input.getDouble("InstalledPowerInMW"));
 		setInternalEnergyInMWH(input.getDouble("InitialEnergyLevelInMWH"));
 	}
 
