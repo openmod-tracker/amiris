@@ -33,7 +33,7 @@ cache:
   artifacts:
     paths:
       - target/*.jar
-    expire_in: 1 week
+    expire_in: 1 day
 
 # Verify merge requests using JDK8
 verify:jdk8:
@@ -48,6 +48,7 @@ javadoc:
   artifacts:
     paths:
       - target/site/apidocs
+    expire_in: 1 day
   only:
     - main
 
@@ -62,7 +63,7 @@ deploy:jdk8:
   artifacts:
     paths:
       - target/*.jar
-    expire_in: never
+    expire_in: 1 day
 
 pages:
   stage: .post
@@ -72,5 +73,6 @@ pages:
   artifacts:
     paths:
       - public
+    expire_in: 1 day
   only:
     - main
