@@ -46,17 +46,29 @@ Eclipse automatically builds the project.
 Thus, you **need not** install FAME separately: Eclipse's Maven plugin will sort out the dependencies in the background.
 
 #### Run
-Create a new run configuration for `Java application` with name, e.g., "RunAMIRIS"
+Create a new run configuration for `Java application` with name, e.g., "RunAMIRIS". To do so:
+* Go to eclipse's `Run Configurations` menu (`Run` / `Run Configurations`)
+* In the eclipse's `Run Configurations` menu select `New launch configuration`
+* Change the name of the new run configuration to "RunAMIRIS"
 
-In tab `Main` specify: 
+
+In tab `Main` of your new run configuration "RunAMIRIS" specify: 
 * `Project`: amiris
 * `Main class`: de.dlr.gitlab.fame.setup.FameRunner
 
-In tab `Arguments` specify
+In tab `Arguments` of your new run configuration "RunAMIRIS" specify
 * `Program arguments`: -f input/input.pb
 
-In tab `JRE` select a JDK version 8 or 11 (higher versions not tested).
-Click `Apply` and `Run` buttons to run an AMIRIS simulation.
+In tab `JRE` of your new run configuration "RunAMIRIS" select a JDK version 8 or 11 (this should be the default case).
+Click `Apply` and `Run` buttons to run an AMIRIS simulation. This should result in an output similar to:
+
+```
+    Starting up 1 processes.
+    Warm-up completed after 1 ticks. 
+    22.02.2022 16:43:55 :: Ran 157746 ticks in: 22501 ms 
+```
+
+Once finished proceed with section [Results](#Results)
 
 ### Experts
 In case you are **familiar with Java development** or do not want to use Eclipse we recommend following the instructions given here.
