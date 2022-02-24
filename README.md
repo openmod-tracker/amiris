@@ -1,8 +1,3 @@
-> ### Join our online release workshop on 23rd February 2022! 
->
-> #### Click [here](https://dlr-ve.gitlab.io/esy/amiris/home/page/workshop/) for more details.
-
-
 # AMIRIS
 AMIRIS is the **A**gent-based **M**arket model for the **I**nvestigation of **R**enewable and **I**ntegrated energy **S**ystems.
 
