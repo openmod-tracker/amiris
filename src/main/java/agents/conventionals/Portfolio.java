@@ -9,6 +9,7 @@ import agents.markets.FuelsMarket.FuelType;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
+import de.dlr.gitlab.fame.time.TimeStamp;
 import util.SortedLinkedList;
 import util.Util;
 
@@ -101,7 +102,8 @@ public class Portfolio implements Portable {
 		return prototype.getFuelType();
 	}
 
-	/** @return {@link Collections#unmodifiableList(List) UnmodifiableList} of {@link PowerPlant}s, ordered from lowest to highest efficiency */
+	/** @return {@link Collections#unmodifiableList(List) UnmodifiableList} of {@link PowerPlant}s, ordered from lowest to highest
+	 *         efficiency */
 	public List<PowerPlant> getPowerPlantList() {
 		return Collections.unmodifiableList(powerPlants);
 	}
@@ -131,5 +133,14 @@ public class Portfolio implements Portable {
 	/** @return power plant prototype common to all power plants in this {@link Portfolio} */
 	public PowerPlantPrototype getPrototype() {
 		return prototype;
+	}
+
+	/** @return installed capacity at given time */
+	public double getInstalledCapacityInMW(TimeStamp time) {
+		double totalInstalledPower = 0;
+		for (PowerPlant powerPlant : powerPlants) {
+			totalInstalledPower += powerPlant.getInstalledPowerInMW(time);
+		}
+		return totalInstalledPower;
 	}
 }

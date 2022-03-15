@@ -32,10 +32,10 @@ public class PredefinedPlantBuilder extends PlantBuildingManager {
 	}
 
 	@Override
-	protected void updatePortfolio(TimeStamp targetTime, TimeStamp deliveryIntervalInSteps) {
+	protected void updatePortfolio(TimeStamp targetTime, TimeSpan deliveryInterval) {
 		portfolio.tearDownPlants(now().getStep());
-		TimeStamp followUpTime = targetTime.laterBy(new TimeSpan(deliveryIntervalInSteps.getStep()));
-		TimeStamp followFollowUpTime = followUpTime.laterBy(new TimeSpan(deliveryIntervalInSteps.getStep()));
+		TimeStamp followUpTime = targetTime.laterBy(deliveryInterval);
+		TimeStamp followFollowUpTime = followUpTime.laterBy(deliveryInterval);
 
 		if (portfolio.getPowerPlantList().isEmpty()) {
 			portfolio.setupPlants(blockSizeInMW, getPlannedPowerAt(targetTime), getMinEfficiencyAt(targetTime),
