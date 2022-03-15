@@ -42,7 +42,7 @@ public class Bid implements Portable {
 
 	@Override
 	public String toString() {
-		return energyAmountInMWH + " MWH @ " + offerPriceInEURperMWH + " €/MWh";
+		return energyAmountInMWH + " MWH @ " + offerPriceInEURperMWH + " €/MWh from " + traderUuid;
 	}
 
 	/** @return maximum / minimum offer price (depending on Type of this Bid) */

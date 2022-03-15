@@ -67,18 +67,20 @@ public abstract class PlantBuildingManager extends Agent {
 	 * @param contracts one contract to receiver of generated Portfolio - typically a {@link ConventionalPlantOperator} */
 	public void updateAndSendPortfolio(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp targetTime = contract.getNextTimeOfDeliveryAfter(now()).laterBy(portfolioBuildingOffset);
-		TimeStamp deliveryIntervalInSteps = contract.getNextTimeOfDeliveryAfter(targetTime);
+		TimeStamp currentDeliveryTime = contract.getNextTimeOfDeliveryAfter(now());
+		TimeStamp targetTime = currentDeliveryTime.laterBy(portfolioBuildingOffset);
+		TimeStamp nextDeliveryTime = contract.getNextTimeOfDeliveryAfter(targetTime);
+		TimeSpan deliveryInterval = new TimeSpan(nextDeliveryTime.getStep() - currentDeliveryTime.getStep());
 
-		updatePortfolio(targetTime, deliveryIntervalInSteps);
+		updatePortfolio(targetTime, deliveryInterval);
 		fulfilNext(contract, portfolio, (DataItem) null);
 	}
 
 	/** Creates new plants and tears down old ones in order to match current and future plant specifications
 	 * 
 	 * @param time the target time when the generated portfolio shall become active
-	 * @param deliveryIntervalInSteps duration for which the portfolio shall be active */
-	protected abstract void updatePortfolio(TimeStamp time, TimeStamp deliveryIntervalInSteps);
+	 * @param deliveryInterval duration for which the portfolio shall be active */
+	protected abstract void updatePortfolio(TimeStamp time, TimeSpan deliveryInterval);
 
 	/** Calculates the minimum efficiency of portfolio at given time
 	 * 

@@ -64,16 +64,19 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 		return new double[] {availablePower, marginalCostValue};
 	}
 
+	/** @param time at which to calculate
+	 * @return nominal installed power at given time */
+	public double getInstalledPowerInMW(TimeStamp time) {
+		return isActive(time.getStep()) ? installedGenerationPowerInMW : 0;
+	}
+
 	/** Calculates effectively available net electricity generation capacity considering plant availabilities
 	 *
 	 * @param time at which to calculate
 	 * @return effectively available net electricity generation capacity in MW at the given time considering plant availability.<br>
 	 *         If a power plant is not active at the specified time, 0 is returned. */
 	public double getAvailablePowerInMW(TimeStamp time) {
-		if (isActive(time.getStep())) {
-			return installedGenerationPowerInMW * prototype.getAvailability(time);
-		}
-		return 0;
+		return isActive(time.getStep()) ? installedGenerationPowerInMW * prototype.getAvailability(time) : 0;
 	}
 
 	/** Checks if a power plant is active at given time
@@ -128,7 +131,7 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 	/** Returns ramping cost on load level change
 	 * 
 	 * @param oldLoadLevel previous load level
-	 * @param newLoadLevel tload level
+	 * @param newLoadLevel next load level
 	 * @return specific cost for changing load level of this plant from old to new */
 	public double calcSpecificCostOfLoadChangeInEURperMW(double oldLoadLevel, double newLoadLevel) {
 		if (oldLoadLevel == 0 && newLoadLevel > 0) {
@@ -186,4 +189,5 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 	public String toString() {
 		return "(" + installedGenerationPowerInMW + " MW " + prototype.getFuelType() + " @" + efficiency * 100. + "%)";
 	}
+
 }
