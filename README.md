@@ -18,7 +18,7 @@ However, AMIRIS developers should have at least basic experiences with both lang
 ## AMIRIS Setup & Execution
 Here, we provide quick guides on how to execute the AMIRIS Java application, one for **Java-Rookies** and one for **Java-Experts**.
 Feel free to follow whichever guide you feel comfortable with.
-To see how AMIRIS is configured via Python, please check the [Getting-Started](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started) guide on the Wiki.
+To see how AMIRIS is configured via Python, please check the [Getting-Started](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) guide on the Wiki.
 
 ### Rookies
 In case you are **not familiar** with Java development we recommend following the instructions given here.
@@ -73,7 +73,7 @@ Please check the given requirements below.
 
 ##### JDK
 AMIRIS is written in Java (1.8) and uses [(FAME)](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
-Thus, AMIRIS requires a Java-JDK version 8 or higher, which can be obtained, e.g., [here](https://adoptopenjdk.net/). 
+Thus, AMIRIS requires a Java-JDK version 8 or higher, which can be obtained, e.g., [here](https://adoptium.net/). 
 
 ##### Maven
 AMIRIS has several dependencies, all of which are available via the prominent [Apache Maven](https://maven.apache.org/) build tool.
@@ -112,10 +112,10 @@ In the AMIRIS base directory run
 Once AMIRIS is run, the output files are generated in the `result/` folder in the format `AMIRIS.YYYY-MMM-DD_HH-MM-SS.pb`.
 These files are in a binary `protobuf` format and need to be converted to a human-readable format first.
 
-Learn how to read results with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started).
+Learn how to read results with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
 
 ## Create own simulations
-Learn how to create own simulation configurations with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Getting-started).
+Learn how to create own simulation configurations with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
 
 ### Multi-Core Mode
 AMIRIS, as FAME application, can be run in parallel mode on multiple processors, or using a single processor. 
@@ -123,7 +123,7 @@ As default, it runs in single core mode.
 Most configurations execute quite fast (depending on your machine, of course) even with on a single processor.
 Running AMIRIS in the sample configuration takes a few seconds on a standard laptop.
 
-If you want to use it in parallel mode, you need to install [Open-MPI](https://www.open-mpi.org/) or [MPJ-Express](http://mpj-express.org/) first.
+If you want to use it in parallel mode, you need to install [Open-MPI](https://www.open-mpi.org/) or [MPJ-Express](http://mpjexpress.org/) first.
 Since those libraries are platform-dependent, a manual compilation of those libraries is required.
 The exact procedure depends on the chosen parallelization library and your operating system. 
 Please follow the instructions at the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wikis/home).
