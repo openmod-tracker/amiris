@@ -25,7 +25,7 @@
 (Paste any relevant logs - please use code blocks (```) to format console output, logs, and code, as it's very hard to read otherwise.)
 
 # Other
-(Feel free to add any information you think is relevant in order to adress this issue)
+(Feel free to add any information you think is relevant in order to address this issue)
 
 
 ## Possible fixes
