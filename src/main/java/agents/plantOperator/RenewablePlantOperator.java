@@ -29,8 +29,8 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	public static enum SetType {
 		PVRooftop, WindOn, WindOff, RunOfRiver, OtherPV, Biogas, Undefined,
 		PvFit, PvMpvarCluster1, PvMpvarCluster2, PvMpvarCluster3, PvMpvarCluster4, PvMpvarCluster5,
-	  WindOnFit, WindOnMpvarCluster1, WindOnMpvarCluster2, WindOnMpvarCluster3, WindOnMpvarCluster4, WindOnMpvarCluster5,
-	  WindOffMpvarCluster1, WindOffMpvarCluster2, WindOffMpvarCluster3, WindOffMpvarCluster4
+		WindOnFit, WindOnMpvarCluster1, WindOnMpvarCluster2, WindOnMpvarCluster3, WindOnMpvarCluster4, WindOnMpvarCluster5,
+		WindOffMpvarCluster1, WindOffMpvarCluster2, WindOffMpvarCluster3, WindOffMpvarCluster4
 	}
 
 	@Input private static final Tree parameters = Make.newTree()
@@ -50,7 +50,6 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	private final TimeSeries tsInstalledPowerInMW;
 	/** TimeSeries of variable cost of operation */
 	private final TimeSeries tsOpexVarInEURperMWH;
-	private double totalPowerPotential;
 
 	/** Creates a {@link RenewablePlantOperator}
 	 * 
@@ -69,10 +68,10 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 				tsInstalledPowerInMW.getValueLowerEqual(now()));
 
 		call(this::registerSet).on(Products.SetRegistration);
-		call(this::sendSupplyMarginalsMultipleTimes).on(PowerPlantOperator.Products.MarginalCost)
-				.use(Trader.Products.GateClosureForward);
-		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCostForecast)
+		call(this::sendSupplyMarginalForecasts).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(Trader.Products.ForecastRequestForward);
+		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost)
+				.use(Trader.Products.GateClosureForward);
 	}
 
 	/** Registers the {@link TechnologySet} to be marketed by a single associated {@link AggregatorTrader} */
@@ -83,27 +82,37 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 
 	/** Prepares supply {@link MarginalForecast}s and sends them to contracted trader
 	 * 
-	 * @param input one or multiple messages that define the time of the forecast to be created
-	 * @param contracts single contract with trader */
-	private void sendSupplyMarginals(ArrayList<Message> input, List<Contract> contracts) {
+	 * @param input single ClearingTimes message that define the time(s) of the forecast to be created
+	 * @param contracts one contract with a single trader */
+	private void sendSupplyMarginalForecasts(ArrayList<Message> input, List<Contract> contracts) {
 		sendSupplyMarginalsMultipleTimes(input, contracts);
-		store(PowerPlantOperator.OutputFields.OfferedPowerInMW, totalPowerPotential);
 	}
 
-	/** Prepares supply {@link Marginal}s and sends them to single contracted trader
+	/** Prepares supply {@link Marginal}s at requested times and sends them to single contracted trader
 	 * 
-	 * @param input single ClearingTimes message from contracted trader
-	 * @param contracts single contracted trader to receive calculated marginals */
-	private void sendSupplyMarginalsMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
+	 * @param input single ClearingTimes message that define the time(s) of the marginal costs to be sent
+	 * @param contracts one contract with a single trader
+	 * @return sum of all power potentials for the requested time(s) */
+	private double sendSupplyMarginalsMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		Message message = CommUtils.getExactlyOneEntry(input);
 		ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
 		List<TimeStamp> clearingTimeList = clearingTimes.getTimes();
-		totalPowerPotential = 0;
+		double totalPowerPotential = 0;
 		for (TimeStamp clearingTime : clearingTimeList) {
 			MarginalCost marginal = fulfilSupplyContract(clearingTime, contract);
 			totalPowerPotential += marginal.powerPotentialInMW;
 		}
+		return totalPowerPotential;
+	}
+
+	/** Prepares supply {@link Marginal}s and sends them to single contracted trader & stores their output
+	 * 
+	 * @param input single ClearingTimes message that define the time(s) of the marginal costs to be sent
+	 * @param contracts single contracted trader to receive calculated marginals */
+	private void sendSupplyMarginals(ArrayList<Message> input, List<Contract> contracts) {
+		double totalPowerPotential = sendSupplyMarginalsMultipleTimes(input, contracts);
+		store(PowerPlantOperator.OutputFields.OfferedPowerInMW, totalPowerPotential);
 	}
 
 	/** Calculates supply marginals for the given TimeStamp to fulfil the given contract */
