@@ -26,7 +26,12 @@ public class MarginalCost extends DataItem {
 	/** the begin of the delivery interval */
 	public final TimeStamp deliveryTime;
 
-	/** Constructs a new {@link MarginalCost}; powerPotentialWithErrors := powerPotential */
+	/** Constructs a new {@link MarginalCost}; powerPotentialWithErrors := powerPotential
+	 * 
+	 * @param producerUuid the unique id of the power generation agent
+	 * @param powerPotentialInMW the true power that the associated generation unit could produce in perfect foresight
+	 * @param marginalCostInEURperMWH the true marginal cost for producing the offered energy in EUR per MWh
+	 * @param deliveryTime the starting time at which the associated energy is to be delivered */
 	public MarginalCost(long producerUuid, double powerPotentialInMW, double marginalCostInEURperMWH,
 			TimeStamp deliveryTime) {
 		this.producerUuid = producerUuid;

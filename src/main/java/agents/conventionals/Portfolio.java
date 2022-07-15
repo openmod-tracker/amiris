@@ -55,7 +55,7 @@ public class Portfolio implements Portable {
 	 * @param constructionTimeStep the time at which all power plants become active
 	 * @param tearDownTimeStep time step at which all power plant are deactivated
 	 * @param roundingPrecision number of decimal places to round interpolated precision to */
-	public void setupPlants(double blockSizeInMW, double installedCapacityInMW, double minEfficiency,
+	void setupPlants(double blockSizeInMW, double installedCapacityInMW, double minEfficiency,
 			double maxEfficiency, long constructionTimeStep, long tearDownTimeStep, int roundingPrecision) {
 		int numberOfBlocks = calcBlocks(installedCapacityInMW, blockSizeInMW);
 		ArrayList<Double> efficiencySet = Util.linearInterpolation(minEfficiency, maxEfficiency, numberOfBlocks);
@@ -69,6 +69,13 @@ public class Portfolio implements Portable {
 			powerPlants.add(powerPlant);
 			remainingPowerInMW -= powerOfPlant;
 		}
+	}
+
+	/** adds given power plant to the this portfolio
+	 * 
+	 * @param powerPlant to add to the portfolio */
+	void addPlant(PowerPlant powerPlant) {
+		powerPlants.add(powerPlant);
 	}
 
 	/** Calculates the number of blocks required to match the given total capacity
@@ -135,7 +142,10 @@ public class Portfolio implements Portable {
 		return prototype;
 	}
 
-	/** @return installed capacity at given time */
+	/** Returns installed capacity at given time
+	 * 
+	 * @param time to evaluate capacity for
+	 * @return installed capacity at given time in MW */
 	public double getInstalledCapacityInMW(TimeStamp time) {
 		double totalInstalledPower = 0;
 		for (PowerPlant powerPlant : powerPlants) {

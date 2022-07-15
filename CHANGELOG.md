@@ -1,3 +1,6 @@
+# [Agua - v1.3 (tba)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3):
+Added: IndividualPlantBuilder - allows to parameterise individual conventional power plants from a list
+
 # [Adams - v1.2 (2022-02-14)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.2):
 Harmonised inputs & outputs across agents
 

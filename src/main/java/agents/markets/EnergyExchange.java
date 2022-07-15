@@ -46,7 +46,7 @@ public class EnergyExchange extends Agent {
 	};
 
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("DistributionMethod", DistributionMethod.class), 
+			.add(Make.newEnum("DistributionMethod", DistributionMethod.class),
 					 Make.newInt("GateClosureInfoOffsetInSeconds")).buildTree();
 
 	private DemandOrderBook demandBook = new DemandOrderBook();
@@ -86,7 +86,7 @@ public class EnergyExchange extends Agent {
 	 * 
 	 * @param input supply and demand bids
 	 * @param contracts with anyone who wants to receive information about the market clearing outcome */
-	private void clearMarket(ArrayList<Message> input, List<Contract> contracts) {
+	protected void clearMarket(ArrayList<Message> input, List<Contract> contracts) {
 		MarketClearingResult result = marketClearing.calculateMarketClearing(input);
 		demandBook = result.getDemandBook();
 		supplyBook = result.getSupplyBook();

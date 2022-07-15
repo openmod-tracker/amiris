@@ -79,12 +79,21 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 		return isActive(time.getStep()) ? installedGenerationPowerInMW * prototype.getAvailability(time) : 0;
 	}
 
-	/** Checks if a power plant is active at given time
+	/** Checks if the power plant is active at given time
 	 * 
 	 * @param timeStep at which to test activeness
 	 * @return true if the plant is active at given time, false otherwise */
 	public boolean isActive(long timeStep) {
 		return timeStep >= constructionTimeStep && timeStep < tearDownTimeStep;
+	}
+
+	/** Checks if the power plant is active at any time between the given start time step and end time step
+	 * 
+	 * @param startStep (included) left border of the time interval to check
+	 * @param endStep (excluded) right border of the time interval to check
+	 * @return true, if the power plant has any phase of activity between the given time steps; false otherwise */
+	public boolean isActiveAnyTimeBetween(long startStep, long endStep) {
+		return !(tearDownTimeStep <= startStep || constructionTimeStep >= endStep);
 	}
 
 	/** Returns consumed fuel based on the (previously set) load of the plant

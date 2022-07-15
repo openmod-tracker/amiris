@@ -14,9 +14,15 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  *
  * @author Christoph Schimeczek */
 public class PredefinedPlantBuilder extends PlantBuildingManager {
-	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newSeries("InstalledPowerInMW"), Make.newInt("EfficiencyRoundingPrecision").optional()).buildTree();
+	@Input private static final Tree parameters = Make.newTree().add(
+			Make.newSeries("InstalledPowerInMW"), Make.newInt("EfficiencyRoundingPrecision").optional(),
+			Make.newGroup("Efficiency").add(Make.newSeries("Minimal"), Make.newSeries("Maximal")),
+			Make.newDouble("BlockSizeInMW"))
+			.buildTree();
 
+	private final TimeSeries tsMinimumEfficiency;
+	private final TimeSeries tsMaximumEfficiency;
+	private final double blockSizeInMW;
 	private final TimeSeries tsInstalledCapacityInMW;
 	private final int roundingPrecision;
 
@@ -29,20 +35,20 @@ public class PredefinedPlantBuilder extends PlantBuildingManager {
 		ParameterData input = parameters.join(dataProvider);
 		tsInstalledCapacityInMW = input.getTimeSeries("InstalledPowerInMW");
 		roundingPrecision = input.getIntegerOrDefault("EfficiencyRoundingPrecision", 20);
+		blockSizeInMW = input.getDouble("BlockSizeInMW");
+		tsMinimumEfficiency = input.getTimeSeries("Efficiency.Minimal");
+		tsMaximumEfficiency = input.getTimeSeries("Efficiency.Maximal");
 	}
 
 	@Override
 	protected void updatePortfolio(TimeStamp targetTime, TimeSpan deliveryInterval) {
-		portfolio.tearDownPlants(now().getStep());
-		TimeStamp followUpTime = targetTime.laterBy(deliveryInterval);
-		TimeStamp followFollowUpTime = followUpTime.laterBy(deliveryInterval);
+		removeOldPlantsFromPortfolio();
 
-		if (portfolio.getPowerPlantList().isEmpty()) {
-			portfolio.setupPlants(blockSizeInMW, getPlannedPowerAt(targetTime), getMinEfficiencyAt(targetTime),
-					getMaxEfficiencyAt(targetTime), targetTime.getStep(), followUpTime.getStep(), roundingPrecision);
-		}
-		portfolio.setupPlants(blockSizeInMW, getPlannedPowerAt(followUpTime), getMinEfficiencyAt(followUpTime),
-				getMaxEfficiencyAt(followUpTime), followUpTime.getStep(), followFollowUpTime.getStep(), roundingPrecision);
+		boolean isFirstBuild = portfolio.getPowerPlantList().isEmpty();
+		TimeStamp contructionTime = isFirstBuild ? targetTime : targetTime.laterBy(deliveryInterval);
+		TimeStamp tearDownTime = contructionTime.laterBy(deliveryInterval);
+		portfolio.setupPlants(blockSizeInMW, getPlannedPowerAt(contructionTime), getMinEfficiencyAt(contructionTime),
+				getMaxEfficiencyAt(contructionTime), contructionTime.getStep(), tearDownTime.getStep(), roundingPrecision);
 	}
 
 	/** Returns the planned power at the specified time
@@ -51,5 +57,21 @@ public class PredefinedPlantBuilder extends PlantBuildingManager {
 	 * @return installed capacity in MW at the given time */
 	private double getPlannedPowerAt(TimeStamp time) {
 		return tsInstalledCapacityInMW.getValueLinear(time);
+	}
+
+	/** Calculates the minimum efficiency of portfolio at given time
+	 * 
+	 * @param time for which to calculate the efficiency
+	 * @return the minimum efficiency of the power plant portfolio at the given time */
+	private double getMinEfficiencyAt(TimeStamp time) {
+		return tsMinimumEfficiency.getValueLinear(time);
+	}
+
+	/** Calculates the maximum efficiency of portfolio at given time
+	 * 
+	 * @param time for which to calculate the efficiency
+	 * @return the maximum efficiency of the power plant portfolio at the given time */
+	private double getMaxEfficiencyAt(TimeStamp time) {
+		return tsMaximumEfficiency.getValueLinear(time);
 	}
 }
