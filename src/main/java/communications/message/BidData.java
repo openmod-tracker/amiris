@@ -31,7 +31,13 @@ public class BidData extends DataItem {
 	/** the begin of the delivery interval */
 	public final TimeStamp deliveryTime;
 
-	/** Constructs a new {@link BidData}; producerUuid = -1; marginalCost = powerPotential = Double.NaN */
+	/** Constructs a new {@link BidData}; using producerUuid = -1; marginalCost = powerPotential = Double.NaN
+	 * 
+	 * @param offeredEnergyInMWH this bids offered energy (either asked for as offered in MWh
+	 * @param priceInEURperMWH this bids price in EUR per MWh
+	 * @param traderUuid unique ID of the trader associated with this bid
+	 * @param type {@link Type} of the bid, either {@link Type#Demand} or {@link Type#Supply}
+	 * @param deliveryTime the starting time at which the associated energy is to be delivered */
 	public BidData(double offeredEnergyInMWH, double priceInEURperMWH, long traderUuid, Type type,
 			TimeStamp deliveryTime) {
 		this.offeredEnergyInMWH = offeredEnergyInMWH;
@@ -44,7 +50,14 @@ public class BidData extends DataItem {
 		this.deliveryTime = deliveryTime;
 	}
 
-	/** Constructs a new {@link BidData}; producerUuid = -1; powerPotential = Double.NaN */
+	/** Constructs a new {@link BidData}; producerUuid = -1; powerPotential = Double.NaN
+	 * 
+	 * @param offeredEnergyInMWH this bids offered energy (either asked for as offered in MWh
+	 * @param priceInEURperMWH this bids price in EUR per MWh
+	 * @param marginalCostInEURperMWH the true marginal cost for producing the offered energy
+	 * @param traderUuid unique ID of the trader associated with this bid
+	 * @param type {@link Type} of the bid, either {@link Type#Demand} or {@link Type#Supply}
+	 * @param deliveryTime the starting time at which the associated energy is to be delivered */
 	public BidData(double offeredEnergyInMWH, double priceInEURperMWH, double marginalCostInEURperMWH, long traderUuid,
 			Type type, TimeStamp deliveryTime) {
 		this.offeredEnergyInMWH = offeredEnergyInMWH;
@@ -57,6 +70,14 @@ public class BidData extends DataItem {
 		this.deliveryTime = deliveryTime;
 	}
 
+	/** @param offeredEnergyInMWH this bids offered energy (either asked for as offered in MWh
+	 * @param priceInEURperMWH this bids price in EUR per MWh
+	 * @param marginalCostInEURperMWH the true marginal cost for producing the offered energy in EUR per MWh
+	 * @param powerPotentialInMW the true power that the associated generation unit could produce in perfect foresight
+	 * @param traderUuid unique ID of the trader associated with this bid
+	 * @param producerUuid the unique ID of the associated generation unit
+	 * @param type {@link Type} of the bid, either {@link Type#Demand} or {@link Type#Supply}
+	 * @param deliveryTime the starting time at which the associated energy is to be delivered */
 	public BidData(double offeredEnergyInMWH, double priceInEURperMWH, double marginalCostInEURperMWH,
 			double powerPotentialInMW, long traderUuid, long producerUuid, Type type, TimeStamp deliveryTime) {
 		this.offeredEnergyInMWH = offeredEnergyInMWH;

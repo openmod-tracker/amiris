@@ -11,7 +11,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Stores common data of one conventional power plant type
+/** Stores common data of one type of conventional power plants
  * 
  * @author Christoph Schimeczek */
 public class PowerPlantPrototype implements Portable {

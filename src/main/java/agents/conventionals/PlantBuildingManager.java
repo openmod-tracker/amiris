@@ -15,7 +15,6 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.communication.message.Message;
-import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -23,10 +22,9 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class PlantBuildingManager extends Agent {
-	@Input private static final Tree parameters = Make.newTree().add(Make.newLong("PortfolioBuildingOffsetInSeconds"))
+	@Input private static final Tree parameters = Make.newTree()
+			.add(Make.newLong("PortfolioBuildingOffsetInSeconds"))
 			.addAs("Prototype", PowerPlantPrototype.parameters)
-			.add(Make.newGroup("Efficiency").add(Make.newSeries("Minimal"), Make.newSeries("Maximal")),
-					Make.newDouble("BlockSizeInMW"))
 			.buildTree();
 
 	@Product
@@ -35,13 +33,10 @@ public abstract class PlantBuildingManager extends Agent {
 		PowerPlantPortfolio
 	};
 
+	/** Offset between time the portfolio created and time it becomes active */
 	private final TimeSpan portfolioBuildingOffset;
-	private final PowerPlantPrototype prototype;
-	private final TimeSeries tsMinimumEfficiency;
-	private final TimeSeries tsMaximumEfficiency;
+	protected final PowerPlantPrototype prototype;
 	protected final Portfolio portfolio;
-	protected final double blockSizeInMW;
-	protected final int foresightOfPowerPlantOperator = 0;
 
 	/** Creates a {@link PlantBuildingManager}
 	 * 
@@ -54,9 +49,6 @@ public abstract class PlantBuildingManager extends Agent {
 		portfolioBuildingOffset = new TimeSpan(input.getLong("PortfolioBuildingOffsetInSeconds"));
 		prototype = new PowerPlantPrototype(input.getGroup("Prototype"));
 		portfolio = new Portfolio(prototype);
-		blockSizeInMW = input.getDouble("BlockSizeInMW");
-		tsMinimumEfficiency = input.getTimeSeries("Efficiency.Minimal");
-		tsMaximumEfficiency = input.getTimeSeries("Efficiency.Maximal");
 
 		call(this::updateAndSendPortfolio).on(Products.PowerPlantPortfolio);
 	}
@@ -82,19 +74,8 @@ public abstract class PlantBuildingManager extends Agent {
 	 * @param deliveryInterval duration for which the portfolio shall be active */
 	protected abstract void updatePortfolio(TimeStamp time, TimeSpan deliveryInterval);
 
-	/** Calculates the minimum efficiency of portfolio at given time
-	 * 
-	 * @param time for which to calculate the efficiency
-	 * @return the minimum efficiency of the power plant portfolio at the given time */
-	protected double getMinEfficiencyAt(TimeStamp time) {
-		return tsMinimumEfficiency.getValueLinear(time);
-	}
-
-	/** Calculates the maximum efficiency of portfolio at given time
-	 * 
-	 * @param time for which to calculate the efficiency
-	 * @return the maximum efficiency of the power plant portfolio at the given time */
-	protected double getMaxEfficiencyAt(TimeStamp time) {
-		return tsMaximumEfficiency.getValueLinear(time);
+	/** removes all power plants that are currently beyond their tear-down time */
+	protected void removeOldPlantsFromPortfolio() {
+		portfolio.tearDownPlants(now().getStep());
 	}
 }
