@@ -4,6 +4,7 @@ import agents.markets.meritOrder.sensitivities.MarginalCostSensitivity;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
 import agents.storage.Device;
 import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Strategy to minimise system cost (i.e. supply-side marginals) via dynamic programming, running backwards in time. The state
  * considered is the discretised (internal) storage energy level. System costs are minimised by finding the best sequence of
@@ -132,5 +133,10 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 	@Override
 	protected MeritOrderSensitivity createBlankSensitivity() {
 		return new MarginalCostSensitivity();
+	}
+
+	@Override
+	public double getChargingPowerForecastInMW(TimeStamp targetTime) {
+		throw new RuntimeException(ERR_CANNOT_PROVIDE_FORECAST + StrategistType.SINGLE_AGENT_MIN_SYSTEM_COST);
 	}
 }

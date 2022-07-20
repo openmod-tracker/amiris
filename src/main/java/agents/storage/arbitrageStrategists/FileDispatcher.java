@@ -1,6 +1,8 @@
 package agents.storage.arbitrageStrategists;
 
 import agents.markets.meritOrder.Constants;
+import agents.markets.meritOrder.books.DemandOrderBook;
+import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
 import agents.storage.Device;
 import agents.storage.DispatchSchedule;
@@ -12,7 +14,9 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  *
  * @author Christoph Schimeczek */
 public class FileDispatcher extends ArbitrageStrategist {
-	public static final String WARN_SUSPICIOUS_DISPATCH = "Warning:: Storage below empty or above full:: Dispatch file may be not suitable";
+	static final String WARN_SUSPICIOUS_DISPATCH = "Warning:: Storage below empty or above full:: Dispatch file may be not suitable";
+	static final String ERR_CANNOT_USE_FORECAST = "Error:: Storage strategist 'FileDispatcher' cannot digest forecasts. Remove contracts.";
+
 	private static final double ABSOLUTE_TOLERANCE_IN_MWH = 0.1;
 	/** TimeSeries of storage charging power (< 0:discharging; >0: charging) relative to internal charging power */
 	private TimeSeries tsDispatch;
@@ -96,5 +100,18 @@ public class FileDispatcher extends ArbitrageStrategist {
 		schedule.setChargingPerPeriod(periodChargingScheduleInMW);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(periodScheduledInitialInternalEnergyInMWH);
 		return schedule;
+	}
+
+	@Override
+	public double getChargingPowerForecastInMW(TimeStamp targetTime) {
+		double internalEnergyInMW = calcInternalChargingPowerAt(targetTime);
+		return storage.internalToExternalEnergy(internalEnergyInMW);
+	}
+
+	/** Unused method - will throw an Exception */
+	@Override
+	public void storeMeritOrderForesight(TimePeriod timePeriod, SupplyOrderBook supplyForecast,
+			DemandOrderBook demandForecast) {
+		throw new RuntimeException(ERR_CANNOT_USE_FORECAST);
 	}
 }
