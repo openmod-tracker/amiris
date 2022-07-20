@@ -2,8 +2,10 @@ package agents.trader;
 
 import java.util.ArrayList;
 import java.util.List;
+import agents.forecast.MarketForecaster;
 import agents.forecast.MeritOrderForecaster;
 import agents.markets.EnergyExchange;
+import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -50,7 +52,8 @@ public class StorageTrader extends Trader {
 
 	@Output
 	private static enum OutputFields {
-		OfferedPowerInMW, OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargePowerInMWH, AwardedDischargePowerInMWH,
+		OfferedPowerInMW, OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargePowerInMWH,
+		AwardedDischargePowerInMWH,
 		AwardedPowerInMWH, StoredEnergyInMWH, ReceivedMoneyInEUR, CostsInEUR
 	};
 
@@ -71,6 +74,7 @@ public class StorageTrader extends Trader {
 		this.strategist = createStrategist(input.getGroup("Strategy"));
 		forecastRequestOffset = new TimeSpan(input.getInteger("ForecastRequestOffsetInSeconds"));
 
+		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
 		call(this::requestMeritOrderForecast).on(Trader.Products.MeritOrderForecastRequest);
 		call(this::updateMeritOrderForecast).on(MeritOrderForecaster.Products.MeritOrderForecast)
 				.use(MeritOrderForecaster.Products.MeritOrderForecast);
@@ -142,6 +146,29 @@ public class StorageTrader extends Trader {
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
+		}
+	}
+
+	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
+	 * Strategists other than {@link FileDispatcher}
+	 * 
+	 * @param input one ClearingTimes message
+	 * @param contracts one partner */
+	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		List<TimeStamp> targetTimes = clearingTimes.getTimes();
+		for (TimeStamp targetTime : targetTimes) {
+			double chargingPowerInMW = strategist.getChargingPowerForecastInMW(targetTime);
+			BidData bid;
+			if (chargingPowerInMW > 0) {
+				bid = new BidData(chargingPowerInMW, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN, getId(), Type.Demand,
+						targetTime);
+			} else {
+				bid = new BidData(-chargingPowerInMW, Constants.MINIMAL_PRICE_IN_EUR_PER_MWH, Double.NaN, getId(), Type.Supply,
+						targetTime);
+			}
+			fulfilNext(contractToFulfil, bid);
 		}
 	}
 

@@ -16,6 +16,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class ArbitrageStrategist {
+	protected static final String ERR_CANNOT_PROVIDE_FORECAST = "Cannot provide forecasts with storage strategist type ";
+
 	public static enum StrategistType {
 		/** Creates a the schedule according to a given TimeSeries. */
 		DISPATCH_FILE,
@@ -157,4 +159,11 @@ public abstract class ArbitrageStrategist {
 	protected MeritOrderSensitivity getSensitivityForSegment(TimePeriod timePeriod) {
 		return sensitivities.get(timePeriod);
 	}
+
+	/** Returns forecasted external charging power, if possible - otherwise throws a RuntimeEception
+	 * 
+	 * @param targetTime for which to provide the forecast
+	 * @return forecasted external charging power in MW
+	 * @throws RuntimeException if this strategist cannot provide forecasts */
+	public abstract double getChargingPowerForecastInMW(TimeStamp targetTime);
 }
