@@ -42,7 +42,7 @@ public class FuelsMarket extends Agent {
 
 	/** Available types of fuel traded at {@link FuelsMarket} */
 	public static enum FuelType {
-		NATURAL_GAS, LIGNITE, HARD_COAL, OIL, WASTE, NUCLEAR
+		NATURAL_GAS, LIGNITE, HARD_COAL, OIL, WASTE, NUCLEAR, HYDROGEN
 	};
 
 	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("FuelPrices").list()
