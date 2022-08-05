@@ -2,6 +2,7 @@ package agents.conventionals;
 
 import java.util.ArrayList;
 import java.util.List;
+import agents.conventionals.PowerPlantPrototype.PrototypeData;
 import agents.plantOperator.ConventionalPlantOperator;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -35,7 +36,7 @@ public abstract class PlantBuildingManager extends Agent {
 
 	/** Offset between time the portfolio created and time it becomes active */
 	private final TimeSpan portfolioBuildingOffset;
-	protected final PowerPlantPrototype prototype;
+	protected final PrototypeData prototypeData;
 	protected final Portfolio portfolio;
 
 	/** Creates a {@link PlantBuildingManager}
@@ -47,8 +48,8 @@ public abstract class PlantBuildingManager extends Agent {
 		ParameterData input = parameters.join(dataProvider);
 
 		portfolioBuildingOffset = new TimeSpan(input.getLong("PortfolioBuildingOffsetInSeconds"));
-		prototype = new PowerPlantPrototype(input.getGroup("Prototype"));
-		portfolio = new Portfolio(prototype);
+		prototypeData = new PrototypeData(input.getGroup("Prototype"));
+		portfolio = new Portfolio(prototypeData.fuelType);
 
 		call(this::updateAndSendPortfolio).on(Products.PowerPlantPortfolio);
 	}
