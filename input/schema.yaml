@@ -491,4 +491,25 @@ AgentTypes:
             AttributeType: STRING
             Mandatory: false
             List: false
+          Override:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            NestedAttributes:
+              PlannedAvailability:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+              UnplannedAvailabilityFactor:
+                AttributeType: double
+                Mandatory: false
+                List: false
+              OpexVarInEURperMWH:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+              CyclingCostInEURperMW:
+                AttributeType: double
+                Mandatory: false
+                List: false
     Products: [ 'PowerPlantPortfolio' ]

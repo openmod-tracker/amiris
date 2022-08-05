@@ -9,6 +9,7 @@ import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -21,7 +22,14 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 					Make.newDouble("Efficiency"),
 					Make.newDouble("NetCapacityInMW"),
 					Make.newTimeStamp("ActivationTime").optional(),
-					Make.newTimeStamp("DeactivationTime").optional()).list())
+					Make.newTimeStamp("DeactivationTime").optional(),
+					Make.newString("Id").optional(),
+					Make.newGroup("Override").add(
+							Make.newSeries("PlannedAvailability").optional(),
+							Make.newDouble("UnplannedAvailabilityFactor").optional(),
+							Make.newSeries("OpexVarInEURperMWH").optional(),
+							Make.newDouble("CyclingCostInEURperMW").optional()))
+					.list())
 			.buildTree();
 
 	private final List<PowerPlant> powerPlants;
@@ -39,8 +47,11 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 	/** @return list of all power plants created from the corresponding input group list */
 	private List<PowerPlant> readPowerPlants(List<ParameterData> plantsData) throws MissingDataException {
 		LinkedList<PowerPlant> plants = new LinkedList<>();
+		int plantCount = 0;
 		for (ParameterData data : plantsData) {
-			PowerPlant plant = new PowerPlant(prototype, data.getDouble("Efficiency"), data.getDouble("NetCapacityInMW"));
+			plantCount++;
+			String identifier = data.getStringOrDefault("Id", "Auto_" + plantCount);
+			PowerPlant plant = new PowerPlant(prototypeData, data.getDouble("Efficiency"), data.getDouble("NetCapacityInMW"), identifier);
 			TimeStamp activationTime = data.getTimeStampOrDefault("ActivationTime", null);
 			TimeStamp deactivationTime = data.getTimeStampOrDefault("DeactivationTime", null);
 			if (activationTime != null) {
@@ -49,6 +60,25 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 			if (deactivationTime != null) {
 				plant.setTearDownTimeStep(deactivationTime.getStep());
 			}
+			try {
+				ParameterData override = data.getGroup("Override");
+				TimeSeries plannedAvailability = override.getTimeSeriesOrDefault("PlannedAvailability", null);
+				Double unplannedAvailabilityFactor = override.getDoubleOrDefault("UnplannedAvailabilityFactor", null);
+				TimeSeries opexVarInEURperMWH = override.getTimeSeriesOrDefault("OpexVarInEURperMWH", null);
+				Double cyclingCostInEURperMW = override.getDoubleOrDefault("CyclingCostInEURperMW", null);
+				if (plannedAvailability != null) {
+					plant.setPlannedAvailability(plannedAvailability);
+				}
+				if (unplannedAvailabilityFactor != null) {
+					plant.setUnplannedAvailabilityFactor(unplannedAvailabilityFactor);
+				}
+				if (opexVarInEURperMWH != null) {
+					plant.setTsVariableCosts(opexVarInEURperMWH);
+				}
+				if (cyclingCostInEURperMW != null) {
+					plant.setCyclingCostInEURperMW(cyclingCostInEURperMW);
+				}
+			} catch (MissingDataException e) {}
 			plants.add(plant);
 		}
 		return plants;

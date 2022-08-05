@@ -24,6 +24,7 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
+import de.dlr.gitlab.fame.service.output.ComplexIndex;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
@@ -52,7 +53,9 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 	}
 
 	@Output
-	private static enum OutputFields {}
+	private static enum OutputFields {
+		DispatchedPowerInMWHperPlant, VariableCostsInEURperPlant
+	}
 
 	/** The list of all power plants to be operated (now and possibly power plants to become active in the near future) */
 	private Portfolio portfolio;
@@ -63,6 +66,22 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 	private HashMap<TimeStamp, Double> fuelPrice = new HashMap<>();
 	private HashMap<TimeStamp, Double> co2Price = new HashMap<>();
+
+	private enum PlantsKey {
+		ID
+	}
+
+	private static final ComplexIndex<PlantsKey> dispatch = ComplexIndex.build(
+			OutputFields.DispatchedPowerInMWHperPlant, PlantsKey.class);
+	private static final ComplexIndex<PlantsKey> variableCosts = ComplexIndex.build(
+			OutputFields.VariableCostsInEURperPlant, PlantsKey.class);
+
+	/** Conveys the totals of the portfolio dispatch */
+	public class DispatchTotals {
+		private double variableCosts = 0;
+		private double fuelConsumption = 0;
+		private double co2Emissions = 0;
+	}
 
 	/** Creates a {@link ConventionalPlantOperator}
 	 * 
@@ -195,48 +214,51 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 	@Override
 	protected double dispatchPlants(double requiredEnergy, TimeStamp time) {
-		double rampingCost = updatePowerPlantStatus(requiredEnergy, time);
-		double fuelConsumptionSum = calcFuelConsumption(time);
-		this.fuelConsumption.add(new AmountAtTime(time, fuelConsumptionSum));
-
-		double co2Emissions = portfolio.getPrototype().calcCo2EmissionInTons(fuelConsumptionSum);
-		this.co2Emissions.add(new AmountAtTime(time, co2Emissions));
-
-		return rampingCost + fuelConsumptionSum * fuelPrice.remove(time) + co2Emissions * co2Price.remove(time);
+		DispatchTotals dispatchTotals = updatePowerPlantStatus(requiredEnergy, time);
+		this.fuelConsumption.add(new AmountAtTime(time, dispatchTotals.fuelConsumption));
+		this.co2Emissions.add(new AmountAtTime(time, dispatchTotals.co2Emissions));
+		return dispatchTotals.variableCosts;
 	}
 
 	/** Sets load level of plants in {@link #portfolio}, starting at the highest efficiency, to generated required energy at the
-	 * given TimeStamp. Remaining power plants' load level is set to Zero.
+	 * given TimeStamp. Remaining power plants' load level is set to Zero. Accounts for all emissions, fuel consumption and variable
+	 * costs of dispatch.
 	 *
 	 * @param requiredEnergy to produce
 	 * @param time to dispatch at
-	 * @return the accumulated ramping cost */
-	private double updatePowerPlantStatus(double requiredEnergy, TimeStamp time) {
+	 * @return {@link DispatchTotals} showing emissions, fuel consumption and variable costs */
+	private DispatchTotals updatePowerPlantStatus(double requiredEnergy, TimeStamp time) {
+		double currentFuelPrice = fuelPrice.remove(time);
+		double currentCo2Price = co2Price.remove(time);
+		DispatchTotals totals = new DispatchTotals();
+
 		List<PowerPlant> plantList = portfolio.getPowerPlantList();
 		ListIterator<PowerPlant> iterator = plantList.listIterator(plantList.size());
-		double rampingCost = 0;
 		while (iterator.hasPrevious()) {
 			PowerPlant powerPlant = iterator.previous();
 			double powerToDispatch = 0;
 			if (requiredEnergy > 0) {
 				powerToDispatch = Math.min(requiredEnergy, powerPlant.getAvailablePowerInMW(time));
 				requiredEnergy -= powerToDispatch;
+				store(dispatch.key(PlantsKey.ID, powerPlant.getId()), powerToDispatch);
 			}
-			rampingCost += powerPlant.updateCurrentLoadLevel(time, powerToDispatch);
+			double rampingCosts = powerPlant.updateCurrentLoadLevel(time, powerToDispatch);
+			double fuelConsumption = powerPlant.calcFuelConsumptionOfGenerationInThermalMWH(time);
+			double co2Emission = powerPlant.calcCo2EmissionInTons(fuelConsumption);
+			double dispatchCosts = rampingCosts + fuelConsumption * currentFuelPrice + co2Emission * currentCo2Price;
+
+			if (dispatchCosts > 0) {
+				store(variableCosts.key(PlantsKey.ID, powerPlant.getId()), dispatchCosts);
+			}
+
+			totals.variableCosts += dispatchCosts;
+			totals.co2Emissions += co2Emission;
+			totals.fuelConsumption += fuelConsumption;
 		}
 		if (requiredEnergy > NUMERIC_TOLERANCE) {
 			logger.error(ERR_MISSING_POWER + requiredEnergy);
 		}
-		return rampingCost;
-	}
-
-	/** @return fuel consumption from dispatched PowerPlants in the {@link #portfolio} at given time */
-	private double calcFuelConsumption(TimeStamp time) {
-		double fuelConsumptionSum = 0;
-		for (PowerPlant powerPlant : portfolio.getPowerPlantList()) {
-			fuelConsumptionSum += powerPlant.calcFuelConsumptionOfGenerationInThermalMWH(time);
-		}
-		return fuelConsumptionSum;
+		return totals;
 	}
 
 	/** send co2 emissions caused by power generation to single contract receiver */

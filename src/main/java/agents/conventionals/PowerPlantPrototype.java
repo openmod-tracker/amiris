@@ -14,7 +14,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Stores common data of one type of conventional power plants
  * 
  * @author Christoph Schimeczek */
-public class PowerPlantPrototype implements Portable {
+public abstract class PowerPlantPrototype implements Portable {
 	static final Tree parameters = Make.newTree().add(
 			Make.newEnum("FuelType", FuelType.class), Make.newDouble("SpecificCo2EmissionsInTperMWH"),
 			Make.newSeries("PlannedAvailability"), Make.newDouble("UnplannedAvailabilityFactor"),
@@ -27,20 +27,42 @@ public class PowerPlantPrototype implements Portable {
 	private TimeSeries tsAvailability;
 	private TimeSeries tsVariableCosts;
 
+	/** Technical specification template for a group conventional power plants */
+	public static class PrototypeData {
+		public FuelType fuelType;
+		public double specificCo2EmissionsInTonsPerThermalMWH;
+		public double unplannedAvailabilityFactor;
+		public double cyclingCostInEURperMW;
+		public TimeSeries tsAvailability;
+		public TimeSeries tsVariableCosts;
+
+		/** Creates a new {@link PrototypeData}
+		 * 
+		 * @param data input parameters of group {@link PowerPlantPrototype#parameters}
+		 * @throws MissingDataException if any required parameter is not specified */
+		public PrototypeData(ParameterData data) throws MissingDataException {
+			fuelType = data.getEnum("FuelType", FuelType.class);
+			specificCo2EmissionsInTonsPerThermalMWH = data.getDouble("SpecificCo2EmissionsInTperMWH");
+			unplannedAvailabilityFactor = data.getDouble("UnplannedAvailabilityFactor");
+			tsAvailability = data.getTimeSeries("PlannedAvailability");
+			cyclingCostInEURperMW = data.getDouble("CyclingCostInEURperMW");
+			tsVariableCosts = data.getTimeSeries("OpexVarInEURperMWH");
+		}
+	}
+
 	/** required for {@link Portable}s */
 	public PowerPlantPrototype() {}
 
-	/** Creates {@link PowerPlantPrototype}
+	/** Creates {@link PowerPlantPrototype} based on
 	 * 
-	 * @param data parameter group matching {@link #parameters}
-	 * @throws MissingDataException if any required entry is missing */
-	public PowerPlantPrototype(ParameterData data) throws MissingDataException {
-		fuelType = data.getEnum("FuelType", FuelType.class);
-		specificCo2EmissionsInTonsPerThermalMWH = data.getDouble("SpecificCo2EmissionsInTperMWH");
-		unplannedAvailabilityFactor = data.getDouble("UnplannedAvailabilityFactor");
-		tsAvailability = data.getTimeSeries("PlannedAvailability");
-		cyclingCostInEURperMW = data.getDouble("CyclingCostInEURperMW");
-		tsVariableCosts = data.getTimeSeries("OpexVarInEURperMWH");
+	 * @param prototypeData template to initialise most technical plant parameters */
+	public PowerPlantPrototype(PrototypeData prototypeData) {
+		fuelType = prototypeData.fuelType;
+		specificCo2EmissionsInTonsPerThermalMWH = prototypeData.specificCo2EmissionsInTonsPerThermalMWH;
+		unplannedAvailabilityFactor = prototypeData.unplannedAvailabilityFactor;
+		cyclingCostInEURperMW = prototypeData.cyclingCostInEURperMW;
+		tsAvailability = prototypeData.tsAvailability;
+		tsVariableCosts = prototypeData.tsVariableCosts;
 	}
 
 	/** required for {@link Portable}s */
@@ -67,7 +89,7 @@ public class PowerPlantPrototype implements Portable {
 	 * @param time at which to return availability
 	 * @return availability ratio between effective and nominal available net electricity generation considering planned and
 	 *         unplanned availabilities */
-	public double getAvailability(TimeStamp time) {
+	protected double getAvailability(TimeStamp time) {
 		return tsAvailability.getValueLinear(time) * unplannedAvailabilityFactor;
 	}
 
@@ -75,7 +97,7 @@ public class PowerPlantPrototype implements Portable {
 	 * 
 	 * @param time to return costs for
 	 * @return variable costs in EUR per (electric) MWh */
-	public double getVariableCostInEURperMWH(TimeStamp time) {
+	protected double getVariableCostInEURperMWH(TimeStamp time) {
 		return tsVariableCosts.getValueLinear(time);
 	}
 
@@ -97,7 +119,7 @@ public class PowerPlantPrototype implements Portable {
 	/** Returns the fuel type
 	 * 
 	 * @return fuel type */
-	public FuelType getFuelType() {
+	protected FuelType getFuelType() {
 		return fuelType;
 	}
 
@@ -106,5 +128,33 @@ public class PowerPlantPrototype implements Portable {
 	 * @return specific CO2 emissions in tons per thermal MWH */
 	public double getSpecificCo2EmissionsInTonsPerThermalMWH() {
 		return specificCo2EmissionsInTonsPerThermalMWH;
+	}
+
+	/** Override {@link #unplannedAvailabilityFactor} with given value
+	 * 
+	 * @param unplannedAvailabilityFactor to replace template value */
+	public void setUnplannedAvailabilityFactor(double unplannedAvailabilityFactor) {
+		this.unplannedAvailabilityFactor = unplannedAvailabilityFactor;
+	};
+
+	/** Override {@link #cyclingCostInEURperMW} with given value
+	 * 
+	 * @param cyclingCostInEURperMW to replace template value */
+	public void setCyclingCostInEURperMW(double cyclingCostInEURperMW) {
+		this.cyclingCostInEURperMW = cyclingCostInEURperMW;
+	}
+
+	/** Override {@link #tsAvailability} with given value
+	 * 
+	 * @param tsAvailability to replace template value */
+	public void setPlannedAvailability(TimeSeries tsAvailability) {
+		this.tsAvailability = tsAvailability;
+	}
+
+	/** Override {@link #tsVariableCosts} with given value
+	 * 
+	 * @param tsVariableCosts to replace template value */
+	public void setTsVariableCosts(TimeSeries tsVariableCosts) {
+		this.tsVariableCosts = tsVariableCosts;
 	}
 }

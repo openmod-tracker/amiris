@@ -1,6 +1,5 @@
 package agents.conventionals;
 
-import agents.markets.FuelsMarket.FuelType;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -9,44 +8,47 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** A conventional power plant unit
  * 
  * @author Christoph Schimeczek */
-public class PowerPlant implements Comparable<PowerPlant>, Portable {
-	private PowerPlantPrototype prototype;
+public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerPlant>, Portable {
 	private double efficiency;
 	private double installedGenerationPowerInMW;
 	private double currentLoadLevel = 0;
 	private long constructionTimeStep = Long.MIN_VALUE;
 	private long tearDownTimeStep = Long.MAX_VALUE;
+	private String id;
 
 	/** required for {@link Portable}s */
 	public PowerPlant() {}
 
 	/** Creates a {@link PowerPlant}
 	 * 
-	 * @param prototype general technical specifications
+	 * @param prototypeData technical specification template for a group of power plants
 	 * @param efficiency conversion ratio of thermal to electric energy
 	 * @param installedBlockPowerInMW nominal (maximum) net electricity generation capacity */
-	public PowerPlant(PowerPlantPrototype prototype, double efficiency, double installedBlockPowerInMW) {
-		this.prototype = prototype;
+	public PowerPlant(PrototypeData prototypeData, double efficiency, double installedBlockPowerInMW, String id) {
+		super(prototypeData);
 		this.efficiency = efficiency;
 		this.installedGenerationPowerInMW = installedBlockPowerInMW;
+		this.id = id;
 	}
 
 	/** required for {@link Portable}s */
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
-		collector.storeComponents(prototype);
+		super.addComponentsTo(collector);
 		collector.storeDoubles(efficiency, installedGenerationPowerInMW);
 		collector.storeLongs(constructionTimeStep, tearDownTimeStep);
+		collector.storeStrings(id);
 	}
 
 	/** required for {@link Portable}s */
 	@Override
 	public void populate(ComponentProvider provider) {
-		prototype = provider.nextComponent(PowerPlantPrototype.class);
+		super.populate(provider);
 		efficiency = provider.nextDouble();
 		installedGenerationPowerInMW = provider.nextDouble();
 		constructionTimeStep = provider.nextLong();
 		tearDownTimeStep = provider.nextLong();
+		id = provider.nextString();
 	}
 
 	/** Calculates marginal costs and available power this {@link PowerPlant}
@@ -56,9 +58,9 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 	 * @param co2CostInEURperTon cost for CO2 emission certificates in Euro per ton
 	 * @return array of [availablePower, marginalCost] for this power plant at the given time */
 	public double[] calcMarginalCost(TimeStamp time, double fuelCostInEURperThermalMWH, double co2CostInEURperTon) {
-		double co2CostInEURperThermalMWH = co2CostInEURperTon * prototype.getSpecificCo2EmissionsInTonsPerThermalMWH();
+		double co2CostInEURperThermalMWH = co2CostInEURperTon * getSpecificCo2EmissionsInTonsPerThermalMWH();
 		double thermalEnergyCostInEURperThermalMWH = fuelCostInEURperThermalMWH + co2CostInEURperThermalMWH;
-		double variableCostInEURperMWH = prototype.getVariableCostInEURperMWH(time);
+		double variableCostInEURperMWH = getVariableCostInEURperMWH(time);
 		double availablePower = getAvailablePowerInMW(time);
 		double marginalCostValue = thermalEnergyCostInEURperThermalMWH / efficiency + variableCostInEURperMWH;
 		return new double[] {availablePower, marginalCostValue};
@@ -76,7 +78,7 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 	 * @return effectively available net electricity generation capacity in MW at the given time considering plant availability.<br>
 	 *         If a power plant is not active at the specified time, 0 is returned. */
 	public double getAvailablePowerInMW(TimeStamp time) {
-		return isActive(time.getStep()) ? installedGenerationPowerInMW * prototype.getAvailability(time) : 0;
+		return isActive(time.getStep()) ? installedGenerationPowerInMW * getAvailability(time) : 0;
 	}
 
 	/** Checks if the power plant is active at given time
@@ -144,16 +146,9 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 	 * @return specific cost for changing load level of this plant from old to new */
 	public double calcSpecificCostOfLoadChangeInEURperMW(double oldLoadLevel, double newLoadLevel) {
 		if (oldLoadLevel == 0 && newLoadLevel > 0) {
-			return prototype.getCyclingCostInEURperMW();
+			return getCyclingCostInEURperMW();
 		}
 		return 0;
-	}
-
-	/** Returns type of fuel used by this {@link PowerPlant}
-	 * 
-	 * @return fuel type of power plant */
-	public FuelType getFuelType() {
-		return prototype.getFuelType();
 	}
 
 	/** Sets first time step in which the power plant will be able to deliver power
@@ -189,14 +184,14 @@ public class PowerPlant implements Comparable<PowerPlant>, Portable {
 		return efficiency;
 	}
 
-	/** @return cycling cost in Euro per MW */
-	public double getCyclingCostInEURperMW() {
-		return prototype.getCyclingCostInEURperMW();
+	/** @return identifier of this {@link PowerPlant} */
+	public String getId() {
+		return id;
 	}
 
 	@Override
 	public String toString() {
-		return "(" + installedGenerationPowerInMW + " MW " + prototype.getFuelType() + " @" + efficiency * 100. + "%)";
+		return "(" + installedGenerationPowerInMW + " MW " + getFuelType() + " @" + efficiency * 100. + "%)";
 	}
 
 }
