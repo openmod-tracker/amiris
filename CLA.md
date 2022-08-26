@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+
+SPDX-License-Identifier: Apache-2.0 -->
 # DLR Individual Contributor License Agreement
 In order to clarify the intellectual property license granted with Contributions from any person or entity to AMIRIS, Deutsches Zentrum für Luft- und Raumfahrt e. V. (German Aerospace Center, "DLR") must have a Contributor License Agreement ("CLA") on file that has been signed by each Contributor, indicating agreement to the license terms below. 
 This license is for your protection as a Contributor as well as the protection of DLR; it does not change your rights to use your own Contributions for any other purpose.

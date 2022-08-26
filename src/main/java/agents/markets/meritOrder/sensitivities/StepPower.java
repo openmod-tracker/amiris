@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.sensitivities;
 
 /** Power in MW per charging / discharging step connected to a {@link MeritOrderSensitivity}

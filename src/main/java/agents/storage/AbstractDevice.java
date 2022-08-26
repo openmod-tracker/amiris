@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.storage;
 
 /** Represents a storage device of any kind (e.g. LiIon, pumped-hydro) in its abstract form, i.e. without a specific state of

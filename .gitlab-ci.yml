@@ -1,7 +1,19 @@
+# SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# This includes reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
+reuse:
+  image:
+    name: fsfe/reuse:latest
+    entrypoint: [""]
+  cache: []
+  script:
+    - reuse lint
+
 # This pipeline will build and test your projects
 # * Caches downloaded dependencies and plugins between invocation.
 # * Verify but don't deploy merge requests.
-
 variables:
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
   # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.

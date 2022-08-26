@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.policy;
 
 import de.dlr.gitlab.fame.agent.input.Make;

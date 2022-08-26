@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+
+SPDX-License-Identifier: Apache-2.0 -->
 <profiles version="19">
 <profile kind="CodeFormatterProfile" name="Google" version="19">
 <setting id="org.eclipse.jdt.core.formatter.insert_space_after_ellipsis" value="insert"/>
