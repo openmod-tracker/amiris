@@ -23,7 +23,8 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	 * 
 	 * @param prototypeData technical specification template for a group of power plants
 	 * @param efficiency conversion ratio of thermal to electric energy
-	 * @param installedBlockPowerInMW nominal (maximum) net electricity generation capacity */
+	 * @param installedBlockPowerInMW nominal (maximum) net electricity generation capacity 
+	 * @param id name of this power plant unit used in outputs */
 	public PowerPlant(PrototypeData prototypeData, double efficiency, double installedBlockPowerInMW, String id) {
 		super(prototypeData);
 		this.efficiency = efficiency;
