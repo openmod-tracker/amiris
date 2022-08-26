@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
 
 import java.util.Comparator;

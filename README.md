@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+
+SPDX-License-Identifier: Apache-2.0 -->
 # AMIRIS
 AMIRIS is the **A**gent-based **M**arket model for the **I**nvestigation of **R**enewable and **I**ntegrated energy **S**ystems.
 
@@ -63,7 +66,7 @@ Click `Apply` and `Run` buttons to run an AMIRIS simulation. This should result 
     22.02.2022 16:43:55 :: Ran 157746 ticks in: 22501 ms 
 ```
 
-Once finished proceed with section [Results](#Results)
+Once finished proceed with section [Results](#results)
 
 ### Experts
 In case you are **familiar with Java development** or do not want to use Eclipse we recommend following the instructions given here.

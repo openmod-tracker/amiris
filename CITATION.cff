@@ -1,3 +1,6 @@
+cff-version: "1.2.0"
+message: "If you use this software, please cite it using these metadata."
+title: AMIRIS
 abstract: "AMIRIS. Agent-based Market model for the Investigation of Renewable and Integrated energy Systems. https://gitlab.com/dlr-ve/esy/amiris/amiris"
 authors: 
   - family-names: Nienhaus
@@ -35,14 +38,12 @@ authors:
   - family-names: El Ghazi
     given-names: A. Achraf
     orcid: 0000-0001-5064-9148
-cff-version: "1.1.0"
-date-released: 2022-01-24
+version: "1.1.0"
+date-released: 2022-08-24
 keywords: 
   - "electricity market"
   - "agent based model"
   - "simulation"
   - "fame-framework"
 license: "Apache License 2.0"
-message: "If you use this software, please cite as follows."
-title: AMIRIS
-version: "1.1.0"
+repository-code: "https://gitlab.com/dlr-ve/esy/amiris/amiris"

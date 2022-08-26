@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+
+SPDX-License-Identifier: Apache-2.0 -->
 # Welcome
 Welcome fellow researcher.
 We are happy that you want to contribute to and improve AMIRIS.
