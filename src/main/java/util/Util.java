@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package util;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +14,14 @@ import de.dlr.gitlab.fame.communication.message.Message;
  * 
  * @author Christoph Schimeczek, Martin Klein, Marc Deissenroth */
 public final class Util {
+	static final String INVALID_RANGE = "Interpolation: minValue must be lower equal to maxValue";
+	static final String INVALID_STEPS = "Interpolation steps must not be negative!";
+	static final String NO_INSTANCE = "Do not instantiate class: ";
+	
+	Util() {
+		throw new IllegalStateException(NO_INSTANCE + getClass().getCanonicalName());
+	}
+	
 	/** Returns a newly created List of doubles, interpolating between given minimum and maximum
 	 * 
 	 * @param minValue minimum value, if steps &gt; 1 also included in the returned list
@@ -28,12 +35,12 @@ public final class Util {
 	 *         <li>steps &gt; 2: minValue, maxValue + (steps - 2) intermediate values, splitting the interval in (steps - 1)
 	 *         equidistant segments</li>
 	 *         </ul>
-	 */
+	 * @throws IllegalArgumentException if steps are negative or if minValue > maxValue */
 	public static ArrayList<Double> linearInterpolation(double minValue, double maxValue, int steps) {
 		ensureValidRange(minValue, maxValue);
 		ArrayList<Double> interpolatedValues = new ArrayList<>();
 		if (steps < 0) {
-			throw new IllegalArgumentException("Interpolation steps must not be negative!");
+			throw new IllegalArgumentException(INVALID_STEPS);
 		} else if (steps == 1) {
 			double averageValue = (minValue + maxValue) / 2.;
 			interpolatedValues.add(averageValue);
@@ -51,24 +58,20 @@ public final class Util {
 	/** Ensures that given minValue is smaller than or equal to given maxValue
 	 * 
 	 * @param minValue must be smaller than or equal to maxValue
-	 * @param maxValue must be larger than or equal to minValue 
-	 * @throws InvalidParameterException in case minValue &gt; maxValue */
+	 * @param maxValue must be larger than or equal to minValue
+	 * @throws IllegalArgumentException in case minValue &gt; maxValue */
 	public static void ensureValidRange(double minValue, double maxValue) {
 		if (minValue > maxValue) {
-			throw new InvalidParameterException("minValue has to be lower than or equal to maxValue");
+			throw new IllegalArgumentException(INVALID_RANGE);
 		}
 	}
 
-	/** Creates a {@link DescriptiveStatistics} from the provided data
+	/** Calculates median of given data using {@link DescriptiveStatistics}
 	 * 
-	 * @param data data to be statistically analysed
-	 * @return filled with entries copied from the provided array */
-	public static DescriptiveStatistics createStatisticsFrom(double[] data) {
-		DescriptiveStatistics stat = new DescriptiveStatistics();
-		for (int i = 0; i < data.length; i++) {
-			stat.addValue(data[i]);
-		}
-		return stat;
+	 * @param data to be analysed
+	 * @return median of the given data or NaN if given data was null or empty */
+	public static double calcMedian(double... data) {
+		return (new DescriptiveStatistics(data)).getPercentile(50);
 	}
 
 	/** Searches given list of messages for the given type of DataItem. If at least one such message is found: Removes first message
@@ -80,12 +83,14 @@ public final class Util {
 	 * @param messages list of messages to search; message with found data item is removed
 	 * @return first matching DataItem found */
 	public static <T extends DataItem> T removeFirstMessageWithDataItem(Class<T> payload, List<Message> messages) {
-		Iterator<Message> iterator = messages.iterator();
-		while (iterator.hasNext()) {
-			Message message = iterator.next();
-			if (message.containsType(payload)) {
-				iterator.remove();
-				return message.getDataItemOfType(payload);
+		if (messages != null) {
+			Iterator<Message> iterator = messages.iterator();
+			while (iterator.hasNext()) {
+				Message message = iterator.next();
+				if (message.containsType(payload)) {
+					iterator.remove();
+					return message.getDataItemOfType(payload);
+				}
 			}
 		}
 		return null;
