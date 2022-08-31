@@ -2,89 +2,77 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-# This includes reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
-reuse:
-  image:
-    name: fsfe/reuse:latest
-    entrypoint: [""]
-  cache: []
-  script:
-    - reuse lint
+stages:
+  - test
+  - deploy
 
-# This pipeline will build and test your projects
-# * Caches downloaded dependencies and plugins between invocation.
-# * Verify but don't deploy merge requests.
 variables:
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
   # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   # As of Maven 3.3.0 instead of this you may define these options in `.mvn/maven.config` so the same config is used
-  # when running from the command line.
-  # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
+  # when running from the command line. `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-# This template uses jdk8 for verifying and deploying images
-image: maven:3.3.9-jdk-8
-
 # Cache downloaded dependencies and plugins between builds.
-# To keep cache across branches add 'key: "$CI_JOB_NAME"'
 cache:
   paths:
     - .m2/repository
 
-# For merge requests only run `verify`.
-# See https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
-.verify: &verify
+# Include reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
+reuse:
+  stage: test
+  image:
+    name: fsfe/reuse:latest
+    entrypoint: [""]
+  cache: [] # do not use cached files here, as those will be assessed by the reuse linter
+  script:
+    - reuse lint
+
+.test:
   stage: test
   script:
-    - 'mvn $MAVEN_CLI_OPTS verify'
-    - 'mvn $MAVEN_CLI_OPTS package'
-  except:
-    variables:
-      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  artifacts:
-    paths:
-      - target/*.jar
-    expire_in: 1 day
+    - 'mvn $MAVEN_CLI_OPTS test'
+    - "cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | grep -o '[0-9.,]* of [0-9.,]*' | sed 's/[,.]//g' | sed 's/ of / /g' | awk '{printf \"COVERAGE::%.2f\\n\", (1.0 - ($1 / $2))}'"
+  coverage: '/COVERAGE::\d+\.\d+/'
 
 # Verify merge requests using JDK8
-verify:jdk8:
-  <<: *verify
+test:jdk8:
+  extends: .test
+  image: maven:3.3.9-jdk-8
 
-# Build javadoc
+# Test javadoc building
 javadoc:
-  stage: deploy
+  stage: test
   image: maven:3.3.9-jdk-8
   script:
     - 'mvn javadoc:javadoc'
   artifacts:
     paths:
       - target/site/apidocs
-    expire_in: 1 day
-  only:
-    - main
+    expire_in: 2 hrs
 
-# For `main` branch run:
+# For merge to `main` branch run:
 deploy:jdk8:
   stage: deploy
+  image: maven:3.3.9-jdk-8
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
   only:
-    variables:
-      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - main
   artifacts:
     paths:
       - target/*.jar
-    expire_in: 1 day
+    expire_in: 2 hrs
 
 pages:
-  stage: .post
+  stage: deploy
   script:
-    - mkdir public
-    - cp -r target/site/apidocs/* public
+    - mkdir .public
+    - cp -r target/site/apidocs/* .public
+    - mv .public public
   artifacts:
     paths:
       - public
-    expire_in: 1 day
   only:
     - main
