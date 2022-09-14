@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+__pycache__/
+/dist/*
+/build/*
+/.eggs/
+*.egg-info/
+/.idea/
+*.log
+*.pb
