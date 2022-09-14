@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
-
-SPDX-License-Identifier: CC0-1.0 -->
 <launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
         <listEntry value="/amiris"/>

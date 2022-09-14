@@ -35,7 +35,7 @@ public final class Util {
 	 *         <li>steps &gt; 2: minValue, maxValue + (steps - 2) intermediate values, splitting the interval in (steps - 1)
 	 *         equidistant segments</li>
 	 *         </ul>
-	 * @throws IllegalArgumentException if steps are negative or if minValue > maxValue */
+	 * @throws IllegalArgumentException if steps are negative or if minValue &gt; maxValue */
 	public static ArrayList<Double> linearInterpolation(double minValue, double maxValue, int steps) {
 		ensureValidRange(minValue, maxValue);
 		ArrayList<Double> interpolatedValues = new ArrayList<>();

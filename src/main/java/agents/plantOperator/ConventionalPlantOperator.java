@@ -78,13 +78,6 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 	private static final ComplexIndex<PlantsKey> variableCosts = ComplexIndex.build(
 			OutputFields.VariableCostsInEURperPlant, PlantsKey.class);
 
-	/** Conveys the totals of the portfolio dispatch */
-	public class DispatchTotals {
-		private double variableCosts = 0;
-		private double fuelConsumption = 0;
-		private double co2Emissions = 0;
-	}
-
 	/** Creates a {@link ConventionalPlantOperator}
 	 * 
 	 * @param dataProvider provides input from config */
@@ -226,10 +219,10 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 	@Override
 	protected double dispatchPlants(double requiredEnergy, TimeStamp time) {
-		DispatchTotals dispatchTotals = updatePowerPlantStatus(requiredEnergy, time);
-		this.fuelConsumption.add(new AmountAtTime(time, dispatchTotals.fuelConsumption));
-		this.co2Emissions.add(new AmountAtTime(time, dispatchTotals.co2Emissions));
-		return dispatchTotals.variableCosts;
+		DispatchResult dispatchResult = updatePowerPlantStatus(requiredEnergy, time);
+		this.fuelConsumption.add(new AmountAtTime(time, dispatchResult.getFuelConsumptionInThermalMWH()));
+		this.co2Emissions.add(new AmountAtTime(time, dispatchResult.getCo2EmissionsInTons()));
+		return dispatchResult.getVariableCostsInEUR();
 	}
 
 	/** Sets load level of plants in {@link #portfolio}, starting at the highest efficiency, to generated required energy at the
@@ -238,11 +231,11 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 	 *
 	 * @param requiredEnergy to produce
 	 * @param time to dispatch at
-	 * @return {@link DispatchTotals} showing emissions, fuel consumption and variable costs */
-	private DispatchTotals updatePowerPlantStatus(double requiredEnergy, TimeStamp time) {
+	 * @return {@link DispatchResult} showing emissions, fuel consumption and variable costs */
+	private DispatchResult updatePowerPlantStatus(double requiredEnergy, TimeStamp time) {
 		double currentFuelPrice = fuelPrice.remove(time);
 		double currentCo2Price = co2Price.remove(time);
-		DispatchTotals totals = new DispatchTotals();
+		DispatchResult totals = new DispatchResult();
 
 		List<PowerPlant> plantList = portfolio.getPowerPlantList();
 		ListIterator<PowerPlant> iterator = plantList.listIterator(plantList.size());
@@ -254,18 +247,12 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 				requiredEnergy -= powerToDispatch;
 				store(dispatch.key(PlantsKey.ID, powerPlant.getId()), powerToDispatch);
 			}
-			double rampingCosts = powerPlant.updateCurrentLoadLevel(time, powerToDispatch);
-			double fuelConsumption = powerPlant.calcFuelConsumptionOfGenerationInThermalMWH(time);
-			double co2Emission = powerPlant.calcCo2EmissionInTons(fuelConsumption);
-			double dispatchCosts = rampingCosts + fuelConsumption * currentFuelPrice + co2Emission * currentCo2Price;
-
-			if (dispatchCosts > 0) {
-				store(variableCosts.key(PlantsKey.ID, powerPlant.getId()), dispatchCosts);
+			DispatchResult plantDispatchResult = powerPlant.updateGeneration(time, powerToDispatch, currentFuelPrice,
+					currentCo2Price);
+			if (plantDispatchResult.getVariableCostsInEUR() > 0) {
+				store(variableCosts.key(PlantsKey.ID, powerPlant.getId()), plantDispatchResult.getVariableCostsInEUR());
 			}
-
-			totals.variableCosts += dispatchCosts;
-			totals.co2Emissions += co2Emission;
-			totals.fuelConsumption += fuelConsumption;
+			totals.add(plantDispatchResult);
 		}
 		if (requiredEnergy > NUMERIC_TOLERANCE) {
 			logger.error(ERR_MISSING_POWER + requiredEnergy);
