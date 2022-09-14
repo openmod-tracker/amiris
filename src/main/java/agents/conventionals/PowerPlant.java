@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
 
+import agents.plantOperator.DispatchResult;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -26,7 +27,7 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	 * 
 	 * @param prototypeData technical specification template for a group of power plants
 	 * @param efficiency conversion ratio of thermal to electric energy
-	 * @param installedBlockPowerInMW nominal (maximum) net electricity generation capacity 
+	 * @param installedBlockPowerInMW nominal (maximum) net electricity generation capacity
 	 * @param id name of this power plant unit used in outputs */
 	public PowerPlant(PrototypeData prototypeData, double efficiency, double installedBlockPowerInMW, String id) {
 		super(prototypeData);
@@ -102,31 +103,29 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 		return !(tearDownTimeStep <= startStep || constructionTimeStep >= endStep);
 	}
 
-	/** Returns consumed fuel based on the (previously set) load of the plant
-	 * 
-	 * @param time of generation
-	 * @return consumed fuel in thermal MWh based on the current load level of the plant */
-	public double calcFuelConsumptionOfGenerationInThermalMWH(TimeStamp time) {
-		double availablePowerInMW = getAvailablePowerInMW(time);
-		double electricityGenerationInMWH = availablePowerInMW * currentLoadLevel;
-		return electricityGenerationInMWH / efficiency;
-	}
-
-	/** Changes current load level of plant according to desired electricity output
+	/** Changes current generation of plant according to desired electricity output, returns associated {@link DispatchResult}
 	 * 
 	 * @param time at which to perform the load change
-	 * @param electricityOutputInMW the desired net electricity generation in MW
-	 * @return ramping cost in EUR */
-	public double updateCurrentLoadLevel(TimeStamp time, double electricityOutputInMW) {
-		double availablePowerInMW = getAvailablePowerInMW(time);
-		double newLoadLevel = electricityOutputInMW / availablePowerInMW;
-		newLoadLevel = ensureValidLoadLevel(newLoadLevel);
-		double oldOutputPowerInMW = currentLoadLevel * availablePowerInMW;
-		double powerDeltaInMW = electricityOutputInMW - oldOutputPowerInMW;
-		double costOfLoadChangeInEUR = calcSpecificCostOfLoadChangeInEURperMW(currentLoadLevel, newLoadLevel)
-				* powerDeltaInMW;
+	 * @param requestedPowerInMW the desired net electricity generation in MW
+	 * @param fuelPriceInEURperMWH at given time in EUR per thermal MWH
+	 * @param co2PriceInEURperTon at given time in EUR per Ton of CO2
+	 * @return {@link DispatchResult result} from the dispatch */
+	public DispatchResult updateGeneration(TimeStamp time, double requestedPowerInMW, double fuelPriceInEURperMWH,
+			double co2PriceInEURperTon) {
+		double[] marginal = calcMarginalCost(time, fuelPriceInEURperMWH, co2PriceInEURperTon);
+		double newLoadLevel = calcLoadLevel(marginal[0], requestedPowerInMW);
+		double rampingCostInEUR = calcSpecificCostOfLoadChangeInEURperMW(currentLoadLevel, newLoadLevel) * marginal[0];
 		currentLoadLevel = newLoadLevel;
-		return costOfLoadChangeInEUR;
+		double fuelConsumptionInThermalMWH = requestedPowerInMW / efficiency;
+		double co2EmissionsInTons = calcCo2EmissionInTons(fuelConsumptionInThermalMWH);
+		double variableCost = rampingCostInEUR + marginal[1] * requestedPowerInMW;
+		return new DispatchResult(requestedPowerInMW, variableCost, fuelConsumptionInThermalMWH, co2EmissionsInTons);
+	}
+
+	/** @returns new load level based on the available and requested power */
+	private double calcLoadLevel(double availablePowerInMW, double requestedPower) {
+		double newLoadLevel = requestedPower / availablePowerInMW;
+		return ensureValidLoadLevel(newLoadLevel);
 	}
 
 	/** Throws an Exception if given load level is not between [0..1], else returns given load level

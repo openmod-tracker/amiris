@@ -114,7 +114,7 @@ public abstract class PowerPlantPrototype implements Portable {
 
 	/** Returns the cycling costs
 	 * 
-	 * @return cycling costs in Euro in MW */
+	 * @return cycling costs in Euro per MW */
 	public double getCyclingCostInEURperMW() {
 		return cyclingCostInEURperMW;
 	}
