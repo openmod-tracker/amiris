@@ -55,7 +55,8 @@ public class RenewableTrader extends AggregatorTrader {
 
 	/** Returns calculated {@link BidData bid} at given time according the associated client's support instrument
 	 * <ul>
-	 * <li>MPFIX, MPVAR or CFD: price = marginal costs - market premium; ignore negative premia</li>
+	 * <li>MPFIX, MPVAR: price = marginal costs - market premium; ignore negative premia</li>
+	 * <li>CFD: price = marginal costs - market premium; do not ignore negative premia</li>
 	 * <li>CAPACITY_PREMIUM: price equal to marginal costs</li>
 	 * </ul>
 	 */
@@ -65,9 +66,10 @@ public class RenewableTrader extends AggregatorTrader {
 		double bidPrice;
 		switch (supportInstrument) {
 			case MPVAR:
+				bidPrice = marginal.marginalCostInEURperMWH - Math.max(0, calcExpectedMarketPremium(clientId, targetTime));
+				break;
 			case CFD:
-				double marketPremiumPreviousMonth = calcExpectedMarketPremium(clientId, targetTime);
-				bidPrice = marginal.marginalCostInEURperMWH - Math.max(0, marketPremiumPreviousMonth);
+				bidPrice = marginal.marginalCostInEURperMWH - calcExpectedMarketPremium(clientId, targetTime);
 				break;
 			case MPFIX:
 				MpfixInfo mpFixInfo = clientMap.get(clientId).getSupportInfo().getPolicyInfoOfType(MpfixInfo.class);
