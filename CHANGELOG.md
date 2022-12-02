@@ -5,6 +5,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 # [Agua - v1.3 (tba)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3):
 Added: IndividualPlantBuilder - allows to parameterise individual conventional power plants from a list
 Updated: StorageTrader with Strategist "DISPATCH_FILE" can now also provide forecasts
+Fixes: improved packaging
 
 ## Minor changes
 Added: REUSE license statements for each file in repository
