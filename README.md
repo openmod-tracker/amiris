@@ -7,133 +7,131 @@ AMIRIS is the **A**gent-based **M**arket model for the **I**nvestigation of **R*
 It is an agent-based simulation of electricity markets and their actors.
 AMIRIS enables researches to analyse and evaluate energy policy instruments and their impact on the actors involved in the simulation context.
 Different prototypical agents on the electricity market interact with each other, each employing complex decision strategies. 
-AMIRIS allows to calculate the impact of policy instruments on economic performance of power plant operators and marketers.
-It is based on [(FAME)](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
+AMIRIS allows calculating the impact of policy instruments on economic performance of power plant operators and marketers.
+It is based on [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
 
 Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) to get further information.
 Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://forum.openmod.org/tag/amiris).
 
 ## Recommended Skills
 AMIRIS is a *JAVA* application configured via *Python* scripts.
-To configure and run AMIRIS applications, no prior skills are strictly necessary.
+No programming skills are necessary to configure and run AMIRIS simulations.
 However, AMIRIS developers should have at least basic experiences with both languages.
 
-## AMIRIS Setup & Execution
-Here, we provide quick guides on how to execute the AMIRIS Java application, one for **Java-Rookies** and one for **Java-Experts**.
-Feel free to follow whichever guide you feel comfortable with.
-To see how AMIRIS is configured via Python, please check the [Getting-Started](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) guide on the Wiki.
+## System Requirements
+To run AMIRIS, Python 3.8 or higher and Java Development Kit (JDK) version 8 or higher are required.
+In case you want to modify the AMIRIS code, additional tools might be required.
+See our [Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) for additional instructions.
 
-### Rookies
-In case you are **not familiar** with Java development we recommend following the instructions given here.
+### JDK
+AMIRIS is based on the Java tool [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
+It requires a JDK version 8 or higher and has been tested to work with JDK 8, 11 and 17.
+You can test if you have a JDK by using the command `java --version` (or `java -version` on some systems).
+This should show your Java version if Java was found.
+If you get a command not found error, or if Java version is less than 8 please download and install a recent JDK from e.g. [here](https://adoptium.net/).
 
-#### Requirements
-Please download and install the latest [Eclipse IDE](https://www.eclipse.org/).
+### Python
+You will need a Python-enabled shell with Python 3.8 or higher and pip.
+You can test if you have Python available by using the command `python --version`.
+This should show your Python version if the Python command was found.
+If you do not have Python installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html) or [mamba](https://github.com/conda-forge/miniforge#mambaforge).
 
-#### Clone & Build
-1. Start Eclipse
-2. Click `File` &rarr; `Import` &rarr; `Git` &rarr; `Projects from Git` &rarr; `Next`
-3. Select `Clone URI` &rarr; `Next`
-4. In the URI-Field enter `https://gitlab.com/dlr-ve/esy/amiris/amiris.git`; authentication is not required &rarr; `Next`
-5. Select branch `main` &rarr; `Next`
-6. Choose a directory &rarr; `Next`
-7. `Import existing Eclipse project` &rarr; `Next`
-8. Select `amiris` to import &rarr; `Next`
+#### Set up Python Environment
+In case you do not have any experience with creating a Python environment, we recommend to use [anaconda ](https://www.anaconda.com/).
+Install anaconda, start the anaconda prompt or powershell and enter:
 
-This should import the Eclipse project in the repository to you Eclipse workspace.
-Eclipse automatically builds the project.
-Thus, you **need not** install FAME separately: Eclipse's Maven plugin will sort out the dependencies in the background.
+1. `conda create -n amirisEnv python=3.8`
+2. `conda activate amirisEnv`
 
-#### Run
-Create a new run configuration for `Java application` with name, e.g., "RunAMIRIS". To do so:
-* Go to eclipse's `Run Configurations` menu (`Run` / `Run Configurations`)
-* In the eclipse's `Run Configurations` menu select `New launch configuration`
-* Change the name of the new run configuration to "RunAMIRIS"
+In case you are using mamba, simple replace "conda" in the first command with "mamba" (but not in the second).
 
-
-In tab `Main` of your new run configuration "RunAMIRIS" specify: 
-* `Project`: amiris
-* `Main class`: de.dlr.gitlab.fame.setup.FameRunner
-
-In tab `Arguments` of your new run configuration "RunAMIRIS" specify
-* `Program arguments`: -f input/input.pb
-
-In tab `JRE` of your new run configuration "RunAMIRIS" select a JDK version 8 or 11 (this should be the default case).
-Click `Apply` and `Run` buttons to run an AMIRIS simulation. This should result in an output similar to:
+### Get AMIRIS-Py
+We recommend to use [AMIRIS-Py](https://gitlab.com/dlr-ve/esy/amiris/amiris-py/-/blob/main/README.md).
+AMIRIS-Py provides "one-command" installation and execution scripts, but you may also run AMIRIS using FAME scripts (see [here](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started)).
+In your AMIRIS Python environment (called "amirisEnv" above), run
 
 ```
-    Starting up 1 processes.
-    Warm-up completed after 1 ticks. 
-    22.02.2022 16:43:55 :: Ran 157746 ticks in: 22501 ms 
+pip install amirispy
 ```
 
-Once finished proceed with section [Results](#results)
+## Setup with AMIRIS-Py
+1. Create a new folder on your disk called, e.g., "AMIRIS": `mkdir <AMIRIS>`
+2. Open your Python-enabled shell and navigate to this newly created folder: `cd <AMIRIS>` 
+3. If not done yet, activate your Python environment with amiris-py: `conda activate <amirisEnv>`
+4. To download the latest AMIRIS build use: `amiris install`. This should add at least three files to the current folder.
+5. Get AMIRIS [example scenarios](https://gitlab.com/dlr-ve/esy/amiris/examples) and put them into the same folder, via
+  * either git: `git clone https://gitlab.com/dlr-ve/esy/amiris/examples.git`
+  * or download and extract: this [file](https://gitlab.com/dlr-ve/esy/amiris/examples/-/archive/main/examples-main.zip)
 
-### Experts
-In case you are **familiar with Java development** or do not want to use Eclipse we recommend following the instructions given here.
+Your "AMIRIS" folder should now look like this:
+* examples/
+  * Austria2019/
+  * Germany2019/
+  * Simple/
+  * ReadMe.md
+* amiris-core_X.y.z-with-dependencies.jar
+* fameSetup.yaml
 
-#### Requirements
-Please check the given requirements below.
+You are now ready to execute AMIRIS.
 
-##### JDK
-AMIRIS is written in Java (1.8) and uses [(FAME)](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
-Thus, AMIRIS requires a Java-JDK version 8 or higher, which can be obtained, e.g., [here](https://adoptium.net/). 
-
-##### Maven
-AMIRIS has several dependencies, all of which are available via the prominent [Apache Maven](https://maven.apache.org/) build tool.
-Most development environments for Java offer an integrated version Apache Maven - thus you do not have to install it.
-If you do not use an IDE or don't want to use their integrations, you can also install Maven directly to your system.
-
-#### Clone & Build
-Clone the AMIRIS repository:
-
-```
-    git clone https://gitlab.com/dlr-ve/esy/amiris/amiris.git
-```
-
-Go to the root folder of the newly cloned amiris folder, and execute
+## Run AMIRIS with AMIRIS-Py
+Use amirispy again to run AMIRIS:
 
 ```
-    mvn package
+amiris run -j ./amiris-core_1.2.3.4-jar-with-dependencies.jar -s ./examples/Simple/scenario.yaml -o simple
 ```
 
-Wait for Maven to fetch all dependencies and to build AMIRIS.
-This creates a Java archive (JAR) file in the `target/` folder that includes AMIRIS and all of its dependencies. 
-The file should be named `amiris-core_X.y-jar-with-dependencies.jar` by default, where X.y is the current version of AMIRIS in pom.xml.
-You only need to *re-package* AMIRIS once you *change the code-base* of AMIRIS.
-
-##### Optional
-You can change the name of the file created during packaging in the "pom.xml": search for `maven-assembly-plugin` and replace the entry at `<finalName>`.
-
-#### Run AMIRIS
-In the AMIRIS base directory run 
-
-```
-    java -cp "target/amiris-core_1.1-jar-with-dependencies.jar" de.dlr.gitlab.fame.setup.FameRunner -f input/input.pb
-```
+This runs the packaged AMIRIS Java archive (Jar) file specified after the `-j` option and simulates the scenario specified after the `-s` option.
+The AMIRIS outputs are stored in a folder as designated after the `-o` option. 
+Check out the files in the AMIRIS folder - if a newer version of AMIRIS was installed, use the version code of the jar file you downloaded.
 
 ## Results 
-Once AMIRIS is run, the output files are generated in the `result/` folder in the format `AMIRIS.YYYY-MMM-DD_HH-MM-SS.pb`.
-These files are in a binary `protobuf` format and need to be converted to a human-readable format first.
+Open the created output folder called e.g. "simple".
+Each type of agent has its own output file in CSV format.
+Open the files in your favourite CSV editor.
+The files take the following general structure:
 
-Learn how to read results with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
+| AgentId | TimeStep | Col1 | Col2 | Col3 | ... |
+|---------|----------|------|------|------|-----|
 
-## Create own simulations
-Learn how to create own simulation configurations with FAME-Io in the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
+where:
+* `AgentId` refers to the unique ID of that agent - as specified in the input scenario.yaml 
+* `TimeStep` refers to the time step at which the output was created; the number refers to the passed seconds since January 1st 2000, 00:00h (ignoring leap years). To convert to a human-readable time stamp best use the python function `fameio.source.time.FameTime.convert_fame_time_step_to_datetime`
+* `Col1` refers to the agent-type specific first output column
+* `Col2` refers to the agent-type specific second output column
+* `...` there can be arbitrarily many output columns - depending on the type of the agent 
 
-### Multi-Core Mode
-AMIRIS, as FAME application, can be run in parallel mode on multiple processors, or using a single processor. 
-As default, it runs in single core mode.
-Most configurations execute quite fast (depending on your machine, of course) even with on a single processor.
-Running AMIRIS in the sample configuration takes a few seconds on a standard laptop.
+Here, `AgentId` and `TimeStep` form a 2-column multiindex.
+Thus, each agent can only write one value per column and simulation time.
+For example, open the "EnergyExchange.csv". 
+The Agent with ID 1 is the only one of type EnergyExchange - so this column is kind of uninteresting in this file.
+The fourth column is named "ElectricityPriceInEURperMWH" and contains the market-clearing day-ahead electricity prices.
 
-If you want to use it in parallel mode, you need to install [Open-MPI](https://www.open-mpi.org/) or [MPJ-Express](http://mpjexpress.org/) first.
-Since those libraries are platform-dependent, a manual compilation of those libraries is required.
-The exact procedure depends on the chosen parallelization library and your operating system. 
-Please follow the instructions at the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wikis/home).
+Although in this file, all columns are filled in every time step, this is not the case for all types of agents.
+Some agents write their column entries at slightly different time steps.
+This is caused by the simulation, which saves output data at the time step the action is performed.
+
+Some types of agents need to write out more than one output per time step.
+E.g., the conventional plant operators writes out the dispatched power for every power plant of each agent and each time step.
+Such output will be assigned an extra CSV file named "AgentType_MultiindexColumn".
+These files can feature an N-dimensional-multiindex with a single "value" column like so:
+
+| AgentId | TimeStep | 3rd index | 4th index | ... | Value |
+|---------|----------|-----------|-----------|-----|-------|
+
+In this example of "ConventionalPlantOperator_DispatchedPowerInMWHperPlant.csv", `AgentId`, `TimeStep` and `ID` of the power plant form a 3D-multiindex.
+Each index is assigned a single value for "DispatchedPowerInMWHperPlant".
+
+## Next Steps
+Congratulations, you have now successfully run AMIRIS. 
+You want to see which inputs led to those results? See the input scenario at "./examples/Simple/scenario.yaml".
+Or do you want to create your own simulation configuration or how to modify AMIRIS?
+Check out the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
 
 ## Available Support
 This is a purely scientific project by (at the moment) one research group. 
 Thus, there is no paid technical support available.
+However, we will give our best to answer your questions and provide support.
 
 If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/tag/amiris) or via [amiris@dlr.de](mailto:amiris@dlr.de).
 Please report bugs and make feature requests by filing issues following the provided templates (see also [CONTRIBUTING](CONTRIBUTING)).
