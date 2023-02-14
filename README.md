@@ -19,7 +19,7 @@ No programming skills are necessary to configure and run AMIRIS simulations.
 However, AMIRIS developers should have at least basic experiences with both languages.
 
 ## System Requirements
-To run AMIRIS, Python 3.8 or higher and Java Development Kit (JDK) version 8 or higher are required.
+To run AMIRIS, Python 3.8 or 3.9 and Java Development Kit (JDK) version 8 or higher are required.
 In case you want to modify the AMIRIS code, additional tools might be required.
 See our [Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) for additional instructions.
 
@@ -31,13 +31,14 @@ This should show your Java version if Java was found.
 If you get a command not found error, or if Java version is less than 8 please download and install a recent JDK from e.g. [here](https://adoptium.net/).
 
 ### Python
-You will need a Python-enabled shell with Python 3.8 or higher and pip.
+You will need a Python-enabled shell with Python 3.8 or 3.9 and pip.
 You can test if you have Python available by using the command `python --version`.
 This should show your Python version if the Python command was found.
-If you do not have Python installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html) or [mamba](https://github.com/conda-forge/miniforge#mambaforge).
+Note that if you use a Python environment manager you can have several different Python versions on your system side by side.
+If you do not have Python installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html) or [mamba](https://github.com/conda-forge/miniforge#mambaforge) or [Poetry](https://python-poetry.org/).
 
 #### Set up Python Environment
-In case you do not have any experience with creating a Python environment, we recommend to use [anaconda ](https://www.anaconda.com/).
+In case you do not have any experience with creating a Python environment, we recommend to use [anaconda](https://www.anaconda.com/).
 Install anaconda, start the anaconda prompt or powershell and enter:
 
 1. `conda create -n amirisEnv python=3.8`
