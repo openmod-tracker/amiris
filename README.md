@@ -59,19 +59,20 @@ pip install amirispy
 1. Create a new folder on your disk called, e.g., "AMIRIS": `mkdir <AMIRIS>`
 2. Open your Python-enabled shell and navigate to this newly created folder: `cd <AMIRIS>` 
 3. If not done yet, activate your Python environment with amiris-py: `conda activate <amirisEnv>`
-4. To download the latest AMIRIS build use: `amiris install`. This should add at least three files to the current folder.
-5. Get AMIRIS [example scenarios](https://gitlab.com/dlr-ve/esy/amiris/examples) and put them into the same folder, via
-  * either git: `git clone https://gitlab.com/dlr-ve/esy/amiris/examples.git`
-  * or download and extract: this [file](https://gitlab.com/dlr-ve/esy/amiris/examples/-/archive/main/examples-main.zip)
+4. To download the latest AMIRIS build use: `amiris install`. This downloads the latest [AMIRIS model](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/jobs/artifacts/main/download?job=deploy:jdk8) and the latest version of [AMIRIS examples](https://gitlab.com/dlr-ve/esy/amiris/examples) into the current folder.
 
 Your "AMIRIS" folder should now look like this:
-* examples/
-  * Austria2019/
-  * Germany2019/
-  * Simple/
-  * ReadMe.md
-* amiris-core_X.y.z-with-dependencies.jar
-* fameSetup.yaml
+
+```
+AMIRIS
+├─── examples
+│    ├─── Austria2019/
+│    ├─── Germany2019/
+│    ├─── Simple/
+│    └─── README.md
+├─── amiris-core_X.y.z-with-dependencies.jar
+└─── fameSetup.yaml
+```
 
 You are now ready to execute AMIRIS.
 
