@@ -129,6 +129,8 @@ Congratulations, you have now successfully run AMIRIS.
 You want to see which inputs led to those results? See the input scenario at "./examples/Simple/scenario.yaml".
 Or do you want to create your own simulation configuration or how to modify AMIRIS?
 Check out the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
+Please also refer to the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wikis) when applying more advanced adaptations to your scenario, such as changing the [simulation duration](https://gitlab.com/fame-framework/wiki/-/wikis/GetStarted/core/Contracts). 
+
 
 ## Available Support
 This is a purely scientific project by (at the moment) one research group. 
