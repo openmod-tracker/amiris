@@ -4,19 +4,24 @@ SPDX-License-Identifier: Apache-2.0 -->
 # AMIRIS
 AMIRIS is the **A**gent-based **M**arket model for the **I**nvestigation of **R**enewable and **I**ntegrated energy **S**ystems.
 
-It is an agent-based simulation of electricity markets and their actors.
-AMIRIS enables researches to analyse and evaluate energy policy instruments and their impact on the actors involved in the simulation context.
+## Statement of need
+AMIRIS is an agent-based simulation of electricity markets and their actors.
+It enables researchers to analyse and evaluate energy policy instruments and their impact on the actors involved in the simulation context.
 Different prototypical agents on the electricity market interact with each other, each employing complex decision strategies. 
 AMIRIS allows calculating the impact of policy instruments on economic performance of power plant operators and marketers.
 It is based on [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
+AMIRIS follows an explorative approach.
+Thus, it does not optimise the energy system like other tools, e.g. [PyPsa](https://pypsa.readthedocs.io/en/latest/), but explores emerging effects created by energy system actors and their interactions under a given set of assumptions.
 
-Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) to get further information.
+## Further information
+Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) for further information.
 Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://forum.openmod.org/tag/amiris).
 
 ## Recommended Skills
 AMIRIS is a *JAVA* application configured via *Python* scripts.
-No programming skills are necessary to configure and run AMIRIS simulations.
-However, AMIRIS developers should have at least basic experiences with both languages.
+To configure and run AMIRIS applications, no programming skills are strictly necessary, but experience with energy system modelling and Python is helpful.
+Developers, who want to modify the functionality or enhance the capabilities of AMIRIS, however, should have at least basic understanding of Java.
+In addition, a basic understanding of [(FAME)](https://gitlab.com/fame-framework) is required in order to design new agents and their interactions.
 
 ## System Requirements
 To run AMIRIS, Python 3.8 or 3.9 and Java Development Kit (JDK) version 8 or higher are required.
@@ -139,4 +144,11 @@ However, we will give our best to answer your questions and provide support.
 
 If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/tag/amiris) or via [amiris@dlr.de](mailto:amiris@dlr.de).
 Please report bugs and make feature requests by filing issues following the provided templates (see also [CONTRIBUTING](CONTRIBUTING)).
-For substantial enhancements, we recommend that you contact us via [amiris@dlr.de](mailto:amiris@dlr.de) for working together on the code in common projects or towards common publications and thus further develop AMIRIS.
+For substantial enhancements, we recommend that you contact us via [amiris@dlr.de](mailto:amiris@dlr.de) for working together on the code in joint projects or towards common publications in order to further develop AMIRIS.
+
+## Citing AMIRIS
+If you use AMIRIS in your scientific work please cite:
+
+Christoph Schimeczek, Kristina Nienhaus, Ulrich Frey, Evelyn Sperber, Seyedfarzad Sarfarazi, Felix Nitsch, Johannes Kochems & A. Achraf El Ghazi (2023).
+AMIRIS: Agent-based Market model for the Investigation of Renewable and Integrated energy Systems.
+Journal of Open Source Software. [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041)
