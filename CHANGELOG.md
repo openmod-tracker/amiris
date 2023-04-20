@@ -2,6 +2,10 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 
+# [TBA - v1.4 (TBA)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.4)
+## Other changes
+* Added: JOSS Paper at folder paper/
+
 # [Agua - v1.3 (2023-03-21)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3):
 ## Changes
 * Added: IndividualPlantBuilder - allows to parameterise individual conventional power plants from a list
