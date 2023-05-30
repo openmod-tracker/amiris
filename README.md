@@ -39,7 +39,7 @@ If you get a command not found error, or if Java version is less than 8 please d
 You will need a Python-enabled shell with Python 3.8 or 3.9 and pip.
 You can test if you have Python available by using the command `python --version`.
 This should show your Python version if the Python command was found.
-Note that if you use a Python environment manager you can have several different Python versions on your system side by side.
+Note that if you use a Python environment manager you can have several Python versions on your system side by side.
 If you do not have Python installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html) or [mamba](https://github.com/conda-forge/miniforge#mambaforge) or [Poetry](https://python-poetry.org/).
 
 #### Set up Python Environment

@@ -1,49 +1,63 @@
-cff-version: "1.2.0"
-message: "If you use this software, please cite it using these metadata."
-title: AMIRIS
-abstract: "AMIRIS. Agent-based Market model for the Investigation of Renewable and Integrated energy Systems. https://gitlab.com/dlr-ve/esy/amiris/amiris"
-authors: 
-  - family-names: Nienhaus
-    given-names: Kristina
-    orcid: 0000-0003-4180-6767
-  - family-names: Reeg
-    given-names: Matthias
-    orcid: 0000-0001-8247-6499
-  - family-names: Roloff
-    given-names: Nils
-  - family-names: Deissenroth-Uhrig
-    given-names: Marc
-    orcid: 0000-0002-9103-418X
-  - family-names: Klein
-    given-names: Martin
-    orcid: 0000-0001-7283-4707
+# SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+cff-version: 1.2.0
+title: >-
+  AMIRIS. Agent-based Market model for the Investigation of
+  Renewable and Integrated energy Systems.
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
   - family-names: Schimeczek
     given-names: Christoph
-    orcid: 0000-0002-0791-9365
+    orcid: 'https://orcid.org/0000-0002-0791-9365'
+  - family-names: Nienhaus
+    given-names: Kristina
+    orcid: 'https://orcid.org/0000-0003-4180-6767'
   - family-names: Frey
     given-names: Ulrich
-    orcid: 0000-0002-9803-1336
+    orcid: 'https://orcid.org/0000-0002-9803-1336'
   - family-names: Sperber
     given-names: Evelyn
-    orcid: 0000-0001-9093-5042
+    orcid: 'https://orcid.org/0000-0001-9093-5042'
   - family-names: Sarfarazi
     given-names: Seyedfarzad
-    orcid: 0000-0003-0532-5907
+    orcid: 'https://orcid.org/0000-0003-0532-5907'
   - family-names: Nitsch
     given-names: Felix
-    orcid: 0000-0002-9824-3371
+    orcid: 'https://orcid.org/0000-0002-9824-3371'
   - family-names: Kochems
     given-names: Johannes
-    orcid: 0000-0002-3461-3679
+    orcid: 'https://orcid.org/0000-0002-3461-3679'
   - family-names: El Ghazi
     given-names: A. Achraf
-    orcid: 0000-0001-5064-9148
-version: "1.1.0"
-date-released: 2022-08-24
-keywords: 
-  - "electricity market"
-  - "agent based model"
-  - "simulation"
-  - "fame-framework"
-license: "Apache License 2.0"
-repository-code: "https://gitlab.com/dlr-ve/esy/amiris/amiris"
+    orcid: 'https://orcid.org/0000-0001-5064-9148'
+identifiers:
+  - type: doi
+    value: 10.21105/joss.05041
+    description: Publication
+repository-code: 'https://gitlab.com/dlr-ve/esy/amiris/amiris'
+url: 'https://dlr-ve.gitlab.io/esy/amiris/home/'
+repository-artifact: 'https://doi.org/10.5281/zenodo.7756087'
+abstract: >-
+  AMIRIS aims at enabling scientists to dissect the complex
+  questions arising with respect to future energy markets,
+  their market design, and energy-related policy
+  instruments. The model computes electricity prices
+  endogenously based on the simulation of strategic bidding
+  behavior of prototyped market actors. This bidding
+  behavior does not only reflect marginal prices, but can
+  also consider effects of support instruments like market
+  premia, uncertainties and limited information, or market
+  power.
+keywords:
+  - electricity market
+  - agent based model
+  - simulation
+  - fame-framework
+license: Apache-2.0
+version: 1.3.0
+date-released: '2023-03-21'
