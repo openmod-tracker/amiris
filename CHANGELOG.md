@@ -2,9 +2,16 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 
-# [TBA - v1.4 (TBA)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.4)
+# [Aguilera - v1.4 (TBA)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.4)
+## Major Changes:
+* Removed support for JDK versions 8 to 10, new minimum version is JDK11 
+
+## Changes
+* Added: UrlModelService - utility class to support calling external models via POST web-requests
+
 ## Other changes
 * Added: JOSS Paper at folder paper/
+* Updated: CITATION.cff
 
 # [Agua - v1.3 (2023-03-21)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3):
 ## Changes
