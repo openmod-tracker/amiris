@@ -24,16 +24,16 @@ Developers, who want to modify the functionality or enhance the capabilities of 
 In addition, a basic understanding of [(FAME)](https://gitlab.com/fame-framework) is required in order to design new agents and their interactions.
 
 ## System Requirements
-To run AMIRIS, Python 3.8 or 3.9 and Java Development Kit (JDK) version 8 or higher are required.
+To run AMIRIS, Python 3.8 or 3.9 and Java Development Kit (JDK) version 11 or higher are required.
 In case you want to modify the AMIRIS code, additional tools might be required.
 See our [Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) for additional instructions.
 
 ### JDK
 AMIRIS is based on the Java tool [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
-It requires a JDK version 8 or higher and has been tested to work with JDK 8, 11 and 17.
+It requires a JDK version 11 or higher and has been tested to work with 11 and 17.
 You can test if you have a JDK by using the command `java --version` (or `java -version` on some systems).
 This should show your Java version if Java was found.
-If you get a command not found error, or if Java version is less than 8 please download and install a recent JDK from e.g. [here](https://adoptium.net/).
+If you get a command not found error, or if Java version is less than 11 please download and install a recent JDK from e.g. [here](https://adoptium.net/).
 
 ### Python
 You will need a Python-enabled shell with Python 3.8 or 3.9 and pip.
@@ -64,7 +64,7 @@ pip install amirispy
 1. Create a new folder on your disk called, e.g., "AMIRIS": `mkdir <AMIRIS>`
 2. Open your Python-enabled shell and navigate to this newly created folder: `cd <AMIRIS>` 
 3. If not done yet, activate your Python environment with amiris-py: `conda activate <amirisEnv>`
-4. To download the latest AMIRIS build use: `amiris install`. This downloads the latest [AMIRIS model](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/jobs/artifacts/main/download?job=deploy:jdk8) and the latest version of [AMIRIS examples](https://gitlab.com/dlr-ve/esy/amiris/examples) into the current folder.
+4. To download the latest AMIRIS build use: `amiris install`. This downloads the latest [AMIRIS model](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/jobs/artifacts/main/download?job=deploy:jdk11) and the latest version of [AMIRIS examples](https://gitlab.com/dlr-ve/esy/amiris/examples) into the current folder.
 
 Your "AMIRIS" folder should now look like this:
 

@@ -33,18 +33,18 @@ reuse:
   stage: test
   script:
     - 'mvn $MAVEN_CLI_OPTS test'
-    - "cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | grep -o '[0-9.,]* of [0-9.,]*' | sed 's/[,.]//g' | sed 's/ of / /g' | awk '{printf \"COVERAGE::%.2f\\n\", (1.0 - ($1 / $2))}'"
+    - "cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | grep -o '[0-9.,]* of [0-9.,]*' | sed 's/[,.]//g' | sed 's/ of / /g' | awk '{printf \"COVERAGE::%.2f\\n\", ((1.0 - ($1 / $2)) *100)}'"
   coverage: '/COVERAGE::\d+\.\d+/'
 
-# Verify merge requests using JDK8
-test:jdk8:
+# Verify merge requests
+test:jdk11:
   extends: .test
-  image: maven:3.3.9-jdk-8
+  image: maven:3-eclipse-temurin-11
 
 # Test javadoc building
 javadoc:
   stage: test
-  image: maven:3.3.9-jdk-8
+  image: maven:3-eclipse-temurin-11
   script:
     - 'mvn javadoc:javadoc'
   artifacts:
@@ -53,9 +53,9 @@ javadoc:
     expire_in: 2 hrs
 
 # For merge to `main` branch run:
-deploy:jdk8:
+deploy:jdk11:
   stage: deploy
-  image: maven:3.3.9-jdk-8
+  image: maven:3-eclipse-temurin-11
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
   only:

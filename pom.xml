@@ -1,11 +1,11 @@
-<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: Apache-2.0 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.dlr.gitlab.amiris</groupId>
 	<artifactId>amiris-core</artifactId>
-	<version>1.3.0</version>
+	<version>1.3.1</version>
 
 	<dependencies>
 		<dependency>
@@ -38,7 +38,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>4.7.0</version>
+			<version>5.3.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -47,6 +47,23 @@ SPDX-License-Identifier: Apache-2.0 -->
 			<version>2.2</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- Begin: Required for util.UrlModelService -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20220320</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.3</version>
+		</dependency>
+		<!-- End: Required for util.UrlModelService -->
 	</dependencies>
 
 	<build>
@@ -63,9 +80,9 @@ SPDX-License-Identifier: Apache-2.0 -->
 					</descriptorRefs>
 					<finalName>${project.artifactId}_${project.version}</finalName>
 					<archive>
-					    <manifest>
-					        <mainClass>de.dlr.gitlab.fame.setup.FameRunner</mainClass>
-					    </manifest>
+						<manifest>
+							<mainClass>de.dlr.gitlab.fame.setup.FameRunner</mainClass>
+						</manifest>
 					</archive>
 				</configuration>
 				<executions>
@@ -99,12 +116,20 @@ SPDX-License-Identifier: Apache-2.0 -->
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>11</release>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
 	<properties>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.source>1.8</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.release>11</maven.compiler.release>
 	</properties>
 </project>

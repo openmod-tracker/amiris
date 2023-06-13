@@ -6,4 +6,5 @@
 /bin/
 /.idea/
 /.settings/
+*.jfr
 !*.license
