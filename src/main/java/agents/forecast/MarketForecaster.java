@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.forecast;
@@ -81,7 +81,7 @@ public abstract class MarketForecaster extends Agent {
 			fulfilForecastRequestContracts(contracts, IntStream.range(0, forecastPeriodInHours + 1).toArray());
 		} else {
 			fulfilForecastRequestContracts(contracts, forecastPeriodInHours);
-			bookKeeping();
+			removeFirstOutdatedForecast();
 		}
 	}
 
@@ -97,13 +97,10 @@ public abstract class MarketForecaster extends Agent {
 		}
 	}
 
-	/** remove first out-dated market clearing result and write out its data */
-	private void bookKeeping() {
+	/** remove first out-dated market clearing result */
+	private void removeFirstOutdatedForecast() {
 		Entry<TimeStamp, MarketClearingResult> entry = calculatedForecastContainer.firstEntry();
 		if (entry.getKey().isLessThan(now())) {
-			MarketClearingResult marketClearingResults = entry.getValue();
-			store(OutputFields.ElectricityPriceForecast, marketClearingResults.getMarketPriceInEURperMWH());
-			store(OutputFields.AwardedPowerForecast, marketClearingResults.getTradedEnergyInMWH());
 			calculatedForecastContainer.remove(entry.getKey());
 		}
 	}
@@ -156,4 +153,11 @@ public abstract class MarketForecaster extends Agent {
 		}
 		return result;
 	}
+	
+	/** writes out the nearest upcoming forecast */
+	protected void saveNextForecast() {
+		MarketClearingResult marketClearingResults = calculatedForecastContainer.ceilingEntry(now()).getValue();
+		store(OutputFields.ElectricityPriceForecast, marketClearingResults.getMarketPriceInEURperMWH());
+		store(OutputFields.AwardedPowerForecast, marketClearingResults.getTradedEnergyInMWH());
+	}	
 }
