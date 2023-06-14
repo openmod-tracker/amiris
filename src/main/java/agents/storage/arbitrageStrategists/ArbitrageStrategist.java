@@ -6,6 +6,7 @@ package agents.storage.arbitrageStrategists;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
+import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
@@ -101,13 +102,15 @@ public abstract class ArbitrageStrategist {
 	 * @param initialEnergyInStorageInMWh energy level at the beginning of the first period */
 	protected abstract void updateSchedule(TimePeriod timePeriod, double initialEnergyInStorageInMWh);
 
-	/** Updates the bid schedules considering safety margins for the bid prices */
+	/** Updates the bid schedules considering safety margins for the bid prices and market price limits */
 	private void updateBidSchedule() {
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
 			if (periodChargingScheduleInMW[period] > 0) {
-				periodScheduledBidsInEURperMWH[period] = periodPriceScheduleInEURperMWH[period] + BID_TOLERANCE;
+				periodScheduledBidsInEURperMWH[period] = Math.min(Constants.SCARCITY_PRICE_IN_EUR_PER_MWH,
+						periodPriceScheduleInEURperMWH[period] + BID_TOLERANCE);
 			} else if (periodChargingScheduleInMW[period] < 0) {
-				periodScheduledBidsInEURperMWH[period] = periodPriceScheduleInEURperMWH[period] - BID_TOLERANCE;
+				periodScheduledBidsInEURperMWH[period] = Math.max(Constants.MINIMAL_PRICE_IN_EUR_PER_MWH,
+						periodPriceScheduleInEURperMWH[period] - BID_TOLERANCE);
 			} else {
 				periodScheduledBidsInEURperMWH[period] = 0;
 			}
