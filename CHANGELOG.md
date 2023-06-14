@@ -1,4 +1,4 @@
-<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: CC0-1.0 -->
 
@@ -9,6 +9,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 ## Changes
 * Added: UrlModelService - utility class to support calling external models via POST web-requests
 * Fixed: Previously, storage bids could exceed market limits - now the abide by the market limits
+* Fixed: Forecaster wrote out forecast prices with one hour lag - the time lag is removed
 
 ## Other changes
 * Added: JOSS Paper at folder paper/
