@@ -8,6 +8,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 
 ## Changes
 * Added: UrlModelService - utility class to support calling external models via POST web-requests
+* Fixed: Previously, storage bids could exceed market limits - now the abide by the market limits
 
 ## Other changes
 * Added: JOSS Paper at folder paper/
