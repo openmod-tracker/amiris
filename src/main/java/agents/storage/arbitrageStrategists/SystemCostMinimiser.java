@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
@@ -44,6 +44,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 		clearPlanningArrays();
 		optimiseDispatch(startTimePeriod);
 		updateScheduleArrays(initialEnergyInStorageInMWh);
+		correctForRoundingErrors(initialEnergyInStorageInMWh);
 	}
 
 	/** replaces all entries in the planning arrays with 0 or Integer.MIN_VALUE */
