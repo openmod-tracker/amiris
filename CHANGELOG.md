@@ -10,6 +10,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 * Added: UrlModelService - utility class to support calling external models via POST web-requests
 * Fixed: Previously, storage bids could exceed market limits - now the abide by the market limits
 * Fixed: Forecaster wrote out forecast prices with one hour lag - the time lag is removed
+* Fixed: Storage dispatch no longer violates upper or lower storage limits due to discretisation imprecision
 
 ## Other changes
 * Added: JOSS Paper at folder paper/

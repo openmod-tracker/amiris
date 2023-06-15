@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
@@ -172,4 +172,17 @@ public abstract class ArbitrageStrategist {
 	 * @return forecasted external charging power in MW
 	 * @throws RuntimeException if this strategist cannot provide forecasts */
 	public abstract double getChargingPowerForecastInMW(TimeStamp targetTime);
+
+	/** Update scheduled initial energies and charging schedules to correct errors due to rounding of energies caused by
+	 * discretisation of internal energy states */
+	protected void correctForRoundingErrors(double initialEnergyInStorage) {
+		double maxCapacity = storage.getEnergyStorageCapacityInMWH();
+		for (int period = 0; period < scheduleDurationPeriods; period++) {
+			periodScheduledInitialInternalEnergyInMWH[period] = initialEnergyInStorage;
+			double internalChargingPower = storage.externalToInternalEnergy(periodChargingScheduleInMW[period]);
+			double nextEnergy = Math.max(0, Math.min(maxCapacity, initialEnergyInStorage + internalChargingPower));
+			periodChargingScheduleInMW[period] = storage.internalToExternalEnergy(nextEnergy - initialEnergyInStorage);
+			initialEnergyInStorage = nextEnergy;
+		}
+	}
 }
