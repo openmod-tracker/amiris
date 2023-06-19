@@ -17,11 +17,11 @@ public final class Util {
 	static final String INVALID_RANGE = "Interpolation: minValue must be lower equal to maxValue";
 	static final String INVALID_STEPS = "Interpolation steps must not be negative!";
 	static final String NO_INSTANCE = "Do not instantiate class: ";
-	
+
 	Util() {
 		throw new IllegalStateException(NO_INSTANCE + getClass().getCanonicalName());
 	}
-	
+
 	/** Returns a newly created List of doubles, interpolating between given minimum and maximum
 	 * 
 	 * @param minValue minimum value, if steps &gt; 1 also included in the returned list
