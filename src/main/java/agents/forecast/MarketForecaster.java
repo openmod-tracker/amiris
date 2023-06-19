@@ -15,7 +15,6 @@ import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.trader.Trader;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
-import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -34,7 +33,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * required forecasts; uses forecasted bids to clear market ahead of time and thus provide forecasts
  * 
  * @author Christoph Schimeczek */
-public abstract class MarketForecaster extends Agent {
+public abstract class MarketForecaster extends Forecaster {
 	@Input private static final Tree parameters = Make.newTree().add(Make.newInt("ForecastPeriodInHours"),
 			Make.newInt("ForecastRequestOffsetInSeconds"), Make.newEnum("DistributionMethod", DistributionMethod.class))
 			.buildTree();
@@ -137,18 +136,16 @@ public abstract class MarketForecaster extends Agent {
 		TreeMap<TimeStamp, ArrayList<Message>> messageByTimeStamp = new TreeMap<>();
 		for (Message message : messages) {
 			TimeStamp deliveryTime = message.getDataItemOfType(BidData.class).deliveryTime;
-			ArrayList<Message> messageList = saveGet(messageByTimeStamp, deliveryTime);
+			ArrayList<Message> messageList = getOrCreate(messageByTimeStamp, deliveryTime);
 			messageList.add(message);
 		}
 		return messageByTimeStamp;
 	}
 
-	/** @return Stored messages from given Map at given {@link TimeStamp} - if TimeStamp is not yet registered, a new empty list is
+	/** @return stored messages from given Map at given {@link TimeStamp} - if TimeStamp is not yet registered, a new empty list is
 	 *         created, stored to the Map and returned */
-	private ArrayList<Message> saveGet(TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp, TimeStamp timeStamp) {
-		if (!messagesByTimeStamp.containsKey(timeStamp)) {
-			messagesByTimeStamp.put(timeStamp, new ArrayList<Message>());
-		}
+	private ArrayList<Message> getOrCreate(TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp, TimeStamp timeStamp) {
+		messagesByTimeStamp.computeIfAbsent(timeStamp, k -> new ArrayList<Message>());
 		return messagesByTimeStamp.get(timeStamp);
 	}
 
@@ -164,7 +161,7 @@ public abstract class MarketForecaster extends Agent {
 		return result;
 	}
 
-	/** writes out the nearest upcoming forecast */
+	/** writes out the nearest upcoming forecast after current time */
 	protected void saveNextForecast() {
 		MarketClearingResult marketClearingResults = calculatedForecastContainer.ceilingEntry(now()).getValue();
 		store(OutputFields.ElectricityPriceForecast, marketClearingResults.getMarketPriceInEURperMWH());

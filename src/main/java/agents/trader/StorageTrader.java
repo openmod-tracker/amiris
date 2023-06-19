@@ -1,15 +1,15 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
 
 import java.util.ArrayList;
 import java.util.List;
+import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
-import agents.forecast.MeritOrderForecaster;
 import agents.markets.EnergyExchange;
-import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.storage.Device;
@@ -79,8 +79,8 @@ public class StorageTrader extends Trader {
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
 		call(this::requestMeritOrderForecast).on(Trader.Products.MeritOrderForecastRequest);
-		call(this::updateMeritOrderForecast).on(MeritOrderForecaster.Products.MeritOrderForecast)
-				.use(MeritOrderForecaster.Products.MeritOrderForecast);
+		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
+				.use(Forecaster.Products.MeritOrderForecast);
 		call(this::requestPriceForecast).on(Trader.Products.PriceForecastRequest);
 		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
 		call(this::digestAwards).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
