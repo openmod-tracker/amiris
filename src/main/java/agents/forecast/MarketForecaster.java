@@ -4,10 +4,10 @@
 package agents.forecast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.stream.IntStream;
 import agents.markets.EnergyExchange;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
@@ -77,31 +77,41 @@ public abstract class MarketForecaster extends Agent {
 	 * @param input not used
 	 * @param contracts with all agents that start an {@link EnergyExchange} bidding chain */
 	private void sendForecastRequests(ArrayList<Message> input, List<Contract> contracts) {
-		if (calculatedForecastContainer.isEmpty()) {
-			fulfilForecastRequestContracts(contracts, IntStream.range(0, forecastPeriodInHours + 1).toArray());
-		} else {
-			fulfilForecastRequestContracts(contracts, forecastPeriodInHours);
-			removeFirstOutdatedForecast();
+		List<TimeStamp> missingForecastTimes = findTimesMissing(now().laterBy(forecastRequestOffset));
+		fulfilForecastRequestContracts(contracts, missingForecastTimes);
+		removeOutdatedForecasts();
+	}
+
+	/** @return TimeStamps based on the given referenceTime that are within the forecast horizon but not yet have a forecast */
+	private List<TimeStamp> findTimesMissing(TimeStamp referenceTime) {
+		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
+		for (int i = 0; i < forecastPeriodInHours; i++) {
+			TimeSpan hourOffset = new TimeSpan(i, Interval.HOURS);
+			TimeStamp forecastTime = referenceTime.laterBy(hourOffset);
+			if (!calculatedForecastContainer.containsKey(forecastTime)) {
+				missingTimes.add(forecastTime);
+			}
 		}
+		return missingTimes;
 	}
 
 	/** send out forecast request to all receivers of given contracts */
-	private void fulfilForecastRequestContracts(List<Contract> contracts, int... hourDeltas) {
-		TimeStamp[] targetTimes = new TimeStamp[hourDeltas.length];
-		for (int i = 0; i < hourDeltas.length; i++) {
-			TimeSpan hourOffset = new TimeSpan(hourDeltas[i], Interval.HOURS);
-			targetTimes[i] = now().laterBy(forecastRequestOffset).laterBy(hourOffset);
-		}
+	private void fulfilForecastRequestContracts(List<Contract> contracts, List<TimeStamp> times) {
 		for (Contract contract : contracts) {
-			fulfilNext(contract, new ClearingTimes(targetTimes));
+			fulfilNext(contract, new ClearingTimes(times.toArray(new TimeStamp[0])));
 		}
 	}
 
-	/** remove first out-dated market clearing result */
-	private void removeFirstOutdatedForecast() {
-		Entry<TimeStamp, MarketClearingResult> entry = calculatedForecastContainer.firstEntry();
-		if (entry.getKey().isLessThan(now())) {
-			calculatedForecastContainer.remove(entry.getKey());
+	/** remove all out-dated market clearing results */
+	private void removeOutdatedForecasts() {
+		Iterator<Entry<TimeStamp, MarketClearingResult>> iterator = calculatedForecastContainer.entrySet().iterator();
+		while(iterator.hasNext()) {
+			Entry<TimeStamp, MarketClearingResult> entry = iterator.next();
+			if (entry.getKey().isLessThan(now())) {
+				iterator.remove();
+			} else {
+				break;
+			}
 		}
 	}
 
@@ -153,11 +163,11 @@ public abstract class MarketForecaster extends Agent {
 		}
 		return result;
 	}
-	
+
 	/** writes out the nearest upcoming forecast */
 	protected void saveNextForecast() {
 		MarketClearingResult marketClearingResults = calculatedForecastContainer.ceilingEntry(now()).getValue();
 		store(OutputFields.ElectricityPriceForecast, marketClearingResults.getMarketPriceInEURperMWH());
 		store(OutputFields.AwardedPowerForecast, marketClearingResults.getTradedEnergyInMWH());
-	}	
+	}
 }
