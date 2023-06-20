@@ -63,6 +63,9 @@ Please, check the following points before submitting a pull request:
 1. Ensure there is a corresponding issue to your code contribution.
 1. Make sure your code is based on the latest version of the *main* branch and that there are no conflicts. In case of conflicts: fix them first.
 1. Make sure that existing unit tests are all successful. Add new unit tests that cover your code contributions and ensure that your code works as intended. In case an error occurred that you don't know how to solve, ask for help from the main developers.
+1. Update `CHANGELOG.md` in the main repository reflecting on the code changes made. Follow the changelog [style guide](https://github.com/vweevers/common-changelog)
+1. Update the version number of the project in `pom.xml`. Follow conventions of [semantic versioning](https://semver.org/) 2.0.0.
+1. If a breaking change occurs: add hints on how to upgrade to `UPGRADING.md`.
 
 ### Pull request
 1. Submit your request using the provided *pull_request* template & (briefly) describe the changes you made in the pull request.
