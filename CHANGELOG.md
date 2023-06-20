@@ -4,6 +4,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
 ## [2.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.0.0) - TBA
+_ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 
 ### Changed
 - **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, Evelyn Sperber, Seyerfarzad Sarfarazi, @kriniti)
@@ -14,6 +15,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - PriceForecaster: New forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
+- UPGRADING.md: help people with upgrading tasks
 
 ### Removed
 - **Breaking**: Drop support of JDK 8, 9 and 10; new minimum version is JDK 11, associated with #52 (@dlr-cjs)
