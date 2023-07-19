@@ -16,6 +16,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
 - UPGRADING.md: help people with upgrading tasks
+- CI: Automatic checks for changelog updates #60 (@dlr-cjs)
 
 ### Removed
 - **Breaking**: Drop support of JDK 8, 9 and 10; new minimum version is JDK 11, associated with #52 (@dlr-cjs)

@@ -19,9 +19,15 @@ cache:
   paths:
     - .m2/repository
 
-# Include reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
-reuse:
+# General Settings for jobs in stage "test"
+.test:
   stage: test
+  only:
+    - merge_requests
+
+# Include reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
+test:reuse:
+  extends: .test
   image:
     name: fsfe/reuse:latest
     entrypoint: [""]
@@ -29,21 +35,27 @@ reuse:
   script:
     - reuse lint
 
-.test:
-  stage: test
+# Settings for unit tests & coverage analysis
+.unittest:
+  extends: .test
   script:
     - 'mvn $MAVEN_CLI_OPTS test'
     - "cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | grep -o '[0-9.,]* of [0-9.,]*' | sed 's/[,.]//g' | sed 's/ of / /g' | awk '{printf \"COVERAGE::%.2f\\n\", ((1.0 - ($1 / $2)) *100)}'"
   coverage: '/COVERAGE::\d+\.\d+/'
 
-# Verify merge requests
-test:jdk11:
-  extends: .test
+# Execute unit tests with JDK11
+unittest:jdk11:
+  extends: .unittest
   image: maven:3-eclipse-temurin-11
 
+# Execute unit tests with JDK11
+unittest:jdk17:
+  extends: .unittest
+  image: maven:3-eclipse-temurin-17
+
 # Test javadoc building
-javadoc:
-  stage: test
+test:javadoc:
+  extends: .test
   image: maven:3-eclipse-temurin-11
   script:
     - 'mvn javadoc:javadoc'
@@ -51,22 +63,35 @@ javadoc:
     paths:
       - target/site/apidocs
     expire_in: 2 hrs
+    
+# Ensure CHANGELOG.md was updated
+test:changelog:
+  extends: .test
+  script:
+    - git fetch
+    - 'echo "Base is: $CI_MERGE_REQUEST_DIFF_BASE_SHA"'
+    - CHANGELOG_CHANGED=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA...HEAD CHANGELOG.md)
+    - 'if [[ "CHANGELOG.md" == $CHANGELOG_CHANGED ]]; then exit 0; else echo "No changes found in CHANGELOG.md compared to target branch."; exit 1; fi'
 
-# For merge to `main` branch run:
+# General settings for stage "deploy", only run when merged to branch `main`
+.deploy:
+  only:
+    - main
+
+# Package AMIRIS
 deploy:jdk11:
-  stage: deploy
+  extends: .deploy
   image: maven:3-eclipse-temurin-11
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
-  only:
-    - main
   artifacts:
     paths:
       - target/*.jar
     expire_in: 2 hrs
 
+# Update javadoc
 pages:
-  stage: deploy
+  extends: .deploy
   script:
     - mkdir .public
     - cp -r target/site/apidocs/* .public
@@ -74,5 +99,3 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - main
