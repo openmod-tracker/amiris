@@ -5,6 +5,7 @@
 stages:
   - test
   - deploy
+  - publish
 
 variables:
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
@@ -59,10 +60,6 @@ test:javadoc:
   image: maven:3-eclipse-temurin-11
   script:
     - 'mvn javadoc:javadoc'
-  artifacts:
-    paths:
-      - target/site/apidocs
-    expire_in: 2 hrs
     
 # Ensure CHANGELOG.md was updated
 test:changelog:
@@ -79,20 +76,28 @@ test:changelog:
   only:
     - main
 
-# Package AMIRIS
+# Package AMIRIS & build javadoc
 deploy:jdk11:
   extends: .deploy
   image: maven:3-eclipse-temurin-11
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
+    - 'mvn javadoc:javadoc'
   artifacts:
     paths:
       - target/*.jar
+      - target/site/apidocs
     expire_in: 2 hrs
 
-# Update javadoc
+# General settings for stage "publish", only run when merged to branch `main`
+.publish:
+  stage: publish
+  only:
+    - main
+
+# Publish javadoc to pages
 pages:
-  extends: .deploy
+  extends: .publish
   script:
     - mkdir .public
     - cp -r target/site/apidocs/* .public
