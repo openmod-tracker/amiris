@@ -67,7 +67,8 @@ public abstract class PlantBuildingManager extends Agent {
 		TimeStamp targetTime = currentDeliveryTime.laterBy(portfolioBuildingOffset);
 		TimeStamp nextDeliveryTime = contract.getNextTimeOfDeliveryAfter(targetTime);
 		TimeSpan deliveryInterval = new TimeSpan(nextDeliveryTime.getStep() - currentDeliveryTime.getStep());
-
+		
+		portfolio.tearDownPlants(targetTime.getStep());
 		updatePortfolio(targetTime, deliveryInterval);
 		fulfilNext(contract, portfolio, (DataItem) null);
 	}
@@ -78,8 +79,4 @@ public abstract class PlantBuildingManager extends Agent {
 	 * @param deliveryInterval duration for which the portfolio shall be active */
 	protected abstract void updatePortfolio(TimeStamp time, TimeSpan deliveryInterval);
 
-	/** removes all power plants that are currently beyond their tear-down time */
-	protected void removeOldPlantsFromPortfolio() {
-		portfolio.tearDownPlants(now().getStep());
-	}
 }
