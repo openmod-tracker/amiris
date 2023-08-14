@@ -22,6 +22,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - **Breaking**: Drop support of JDK 8, 9 and 10; new minimum version is JDK 11, associated with #52 (@dlr-cjs)
 
 ### Fixed
+- PredefinedPlantBuilder: delivering portfolio for second year #65 (@dlr-cjs, @dlr_jk, @dlr_fn)
 - Storage: bids could exceed market limits - now they abide by the market limits #47 (@dlr-cjs)
 - Storage: discretisation of planning no longer causes over-charging or under-depletion #55 (@dlr-cjs)
 - Forecaster: wrote out forecast prices with one hour lag - the time lag is removed #48 (@dlr-cjs)

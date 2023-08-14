@@ -89,7 +89,6 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 
 	@Override
 	protected void updatePortfolio(TimeStamp targetTime, TimeSpan deliveryInterval) {
-		removeOldPlantsFromPortfolio();
 		TimeStamp followUpTime = targetTime.laterBy(deliveryInterval);
 		TimeStamp followFollowUpTime = followUpTime.laterBy(deliveryInterval);
 

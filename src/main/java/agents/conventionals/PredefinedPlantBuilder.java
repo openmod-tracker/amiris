@@ -48,15 +48,19 @@ public class PredefinedPlantBuilder extends PlantBuildingManager {
 
 	@Override
 	protected void updatePortfolio(TimeStamp targetTime, TimeSpan deliveryInterval) {
-		removeOldPlantsFromPortfolio();
-
 		boolean isFirstBuild = portfolio.getPowerPlantList().isEmpty();
-		TimeStamp contructionTime = isFirstBuild ? targetTime : targetTime.laterBy(deliveryInterval);
-		TimeStamp tearDownTime = contructionTime.laterBy(deliveryInterval);
-		setupPlants(blockSizeInMW, getPlannedPowerAt(contructionTime), getMinEfficiencyAt(contructionTime),
-				getMaxEfficiencyAt(contructionTime), contructionTime.getStep(), tearDownTime.getStep(), roundingPrecision);
+		if (isFirstBuild) {
+			addPlantsAt(targetTime, deliveryInterval);
+		} 
+		addPlantsAt(targetTime.laterBy(deliveryInterval), deliveryInterval);
 	}
 
+	private void addPlantsAt(TimeStamp targetTime, TimeSpan deliveryInterval) {
+		TimeStamp tearDownTime = targetTime.laterBy(deliveryInterval);
+		setupPlants(blockSizeInMW, getPlannedPowerAt(targetTime), getMinEfficiencyAt(targetTime),
+				getMaxEfficiencyAt(targetTime), targetTime.getStep(), tearDownTime.getStep(), roundingPrecision);
+	}
+	
 	/** Creates new {@link PowerPlant}s which are added to the portfolio, sorted from lowest to highest efficiency
 	 * 
 	 * @param blockSizeInMW nominal capacity of each (but the final) created power plant block

@@ -64,7 +64,7 @@ public class Portfolio implements Portable {
 		return Collections.unmodifiableList(powerPlants);
 	}
 
-	/** Removes any plants from the portfolio that have a tear-down time before the specified time step
+	/** Removes any plants from the portfolio that have a tear-down time before or equal the specified time step
 	 * 
 	 * @param currentTimeStep specified TimeStep */
 	public void tearDownPlants(long currentTimeStep) {
