@@ -4,8 +4,8 @@
 package communications.message;
 
 import agents.plantOperator.RenewablePlantOperator.SetType;
+import agents.policy.PolicyItem.SupportInstrument;
 import agents.policy.SupportPolicy.EnergyCarrier;
-import agents.policy.SupportPolicy.SupportInstrument;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;

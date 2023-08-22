@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.trader;
+package agents.trader.renewable;
 
 import java.util.ArrayList;
 import agents.markets.EnergyExchange;

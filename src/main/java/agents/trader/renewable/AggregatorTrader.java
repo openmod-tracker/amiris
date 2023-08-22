@@ -1,7 +1,7 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.trader;
+package agents.trader.renewable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,8 @@ import agents.plantOperator.RenewablePlantOperator;
 import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.SupportPolicy;
 import agents.policy.SupportPolicy.EnergyCarrier;
+import agents.trader.ClientData;
+import agents.trader.Trader;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
@@ -46,7 +48,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek, Felix Nitsch, Farzad Sarfarazi, Kristina Nienhaus */
 public abstract class AggregatorTrader extends Trader {
-	@Input private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
+	@Input
+	private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
 			.buildTree();
 
 	static final String ERR_NO_MESSAGE_FOUND = "No client data received for client: ";
@@ -67,7 +70,7 @@ public abstract class AggregatorTrader extends Trader {
 		/** overall received market revenues from marketing power plants */
 		ReceivedMarketRevenues,
 		/** not dispatched but awarded energy */
-		EnergyImbalaceInMWH
+		TruePowerPotentialInMWH
 	};
 
 	@Product
@@ -85,7 +88,7 @@ public abstract class AggregatorTrader extends Trader {
 	/** Map to store all client, i.e. {@link RenewablePlantOperator}, specific data */
 	protected final HashMap<Long, ClientData> clientMap = new HashMap<>();
 	/** Stores the power prices from {@link EnergyExchange} */
-	protected final TreeMap<TimeStamp, Double> powerPricesList = new TreeMap<>();
+	protected final TreeMap<TimeStamp, Double> powerPrices = new TreeMap<>();
 	/** Adds random errors (normally distributed) to the amount of offered power */
 	protected PowerForecastError errorGenerator;
 
@@ -156,9 +159,9 @@ public abstract class AggregatorTrader extends Trader {
 	 * @param contracts not used */
 	private void digestSupportInfo(ArrayList<Message> messages, List<Contract> contracts) {
 		for (Message message : messages) {
-			SupportData info = message.getFirstPortableItemOfType(SupportData.class);
-			SetType technologySetType = info.getSetType();
-			getClientDataForSetType(technologySetType).setSupportInfo(info);
+			SupportData supportData = message.getFirstPortableItemOfType(SupportData.class);
+			SetType technologySetType = supportData.getSetType();
+			getClientDataForSetType(technologySetType).setSupportData(supportData);
 		}
 	}
 
@@ -234,6 +237,7 @@ public abstract class AggregatorTrader extends Trader {
 			ListIterator<MarginalCost> iterator = marginals.listIterator();
 			while (iterator.hasNext()) {
 				MarginalCost item = iterator.next();
+				// TODO: also consider maximum installed capacity as upper limit
 				double powerForecastWithError = calcPowerWithError(item.powerPotentialInMW);
 				iterator.set(new MarginalCost(item, powerForecastWithError));
 			}
@@ -243,7 +247,6 @@ public abstract class AggregatorTrader extends Trader {
 
 	/** @return given power multiplied with a randomly generated forecast error */
 	private double calcPowerWithError(double powerWithoutError) {
-		// TODO: also consider maximum installed capacity as upper limit
 		double factor = Math.max(0, 1 + errorGenerator.getNextError());
 		return powerWithoutError * factor;
 	}
@@ -293,14 +296,17 @@ public abstract class AggregatorTrader extends Trader {
 		double energyToDispatch = award.supplyEnergyInMWH;
 		ArrayList<BidData> submittedBids = submittedBidsByTime.remove(award.beginOfDeliveryInterval);
 		submittedBids.sort(BidData.BY_PRICE_ASCENDING);
+		double overallPowerPotential = 0;
 		for (BidData bid : submittedBids) {
 			Contract matchingContract = getMatchingContract(contracts, bid.producerUuid);
 			double dispatchedEnergy = Math.min(energyToDispatch, bid.powerPotentialInMW);
+			overallPowerPotential += bid.powerPotentialInMW;
 			logClientDispatchAndRevenues(bid, dispatchedEnergy, award.powerPriceInEURperMWH);
 			fulfilNext(matchingContract, new AmountAtTime(award.beginOfDeliveryInterval, dispatchedEnergy));
 			energyToDispatch = Math.max(0, energyToDispatch - dispatchedEnergy);
 		}
-		store(OutputColumns.EnergyImbalaceInMWH, energyToDispatch);
+		powerPrices.put(award.beginOfDeliveryInterval, award.powerPriceInEURperMWH);
+		store(OutputColumns.TruePowerPotentialInMWH, overallPowerPotential);
 	}
 
 	/** Logs actual dispatch and revenue for client of given BidData at its delivery time
@@ -325,6 +331,7 @@ public abstract class AggregatorTrader extends Trader {
 			SupportRequestData supportData = new SupportRequestData(clientData, accountingPeriod);
 			fulfilNext(contract, supportData);
 		}
+		powerPrices.headMap(accountingPeriod.getLastTime()).clear();
 	}
 
 	/** Collect and store the support revenues per client, i.e. operator of the {@link TechnologySet}

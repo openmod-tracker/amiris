@@ -9,6 +9,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 ### Changed
 - **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, Evelyn Sperber, Seyerfarzad Sarfarazi, @kriniti)
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
+- Refactoring of SupportPolicy, PolicyInfo, RenewableTrader and bidding strategies #66 (@dlr-cjs, @dlr_jk)
 - CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs)
 
 ### Added
