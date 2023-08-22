@@ -174,7 +174,9 @@ public abstract class ArbitrageStrategist {
 	public abstract double getChargingPowerForecastInMW(TimeStamp targetTime);
 
 	/** Update scheduled initial energies and charging schedules to correct errors due to rounding of energies caused by
-	 * discretisation of internal energy states */
+	 * discretisation of internal energy states
+	 * 
+	 * @param initialEnergyInStorage at the beginning of the schedule */
 	protected void correctForRoundingErrors(double initialEnergyInStorage) {
 		double maxCapacity = storage.getEnergyStorageCapacityInMWH();
 		for (int period = 0; period < scheduleDurationPeriods; period++) {

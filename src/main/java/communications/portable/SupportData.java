@@ -4,7 +4,7 @@
 package communications.portable;
 
 import agents.plantOperator.RenewablePlantOperator.SetType;
-import agents.policy.PolicyInfo;
+import agents.policy.PolicyItem;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -16,29 +16,29 @@ public final class SupportData implements Portable {
 	static final String WRONG_TYPE = "SupportData item does not contain PolicyInfo of type: ";
 
 	private SetType setType;
-	/** setType-specific policy information */
-	private PolicyInfo policyInfo;
+	/** setType-specific policy */
+	private PolicyItem policyItem;
 
 	/** required for {@link Portable}s */
 	public SupportData() {}
 
-	public SupportData(SetType setType, PolicyInfo policyInfo) {
+	public SupportData(SetType setType, PolicyItem policyInfo) {
 		this.setType = setType;
-		this.policyInfo = policyInfo;
+		this.policyItem = policyInfo;
 	}
 
 	/** required for {@link Portable}s */
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeInts(setType.ordinal());
-		collector.storeComponents(policyInfo);
+		collector.storeComponents(policyItem);
 	}
 
 	/** required for {@link Portable}s */
 	@Override
 	public void populate(ComponentProvider provider) {
 		setType = SetType.values()[provider.nextInt()];
-		policyInfo = provider.nextComponent(PolicyInfo.class);
+		policyItem = provider.nextComponent(PolicyItem.class);
 	}
 
 	/** @return SetType associated with the also contained PolicyInfo */
@@ -53,9 +53,9 @@ public final class SupportData implements Portable {
 	 * @return object of requested type of PolicyInfo type
 	 * @throws RuntimeException if contained PolicyInfo is of other than requested type */
 	@SuppressWarnings("unchecked")
-	public <T> T getPolicyInfoOfType(Class<T> type) {
-		if (type.isInstance(policyInfo)) {
-			return (T) policyInfo;
+	public <T> T getPolicyOfType(Class<T> type) {
+		if (type.isInstance(policyItem)) {
+			return (T) policyItem;
 		} else {
 			throw new RuntimeException(WRONG_TYPE + type);
 		}

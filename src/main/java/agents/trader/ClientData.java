@@ -25,7 +25,7 @@ public class ClientData {
 	private final TreeMap<TimePeriod, Double> supportRevenueInEUR = new TreeMap<>();
 	/** The market premium for the accounting interval in €/MWh */
 	private final TreeMap<TimePeriod, Double> marketPremiaInEURperMWH = new TreeMap<>();
-	private SupportData supportInfo;
+	private SupportData supportData;
 
 	/** Create a client data object and initialise it with the given technology set
 	 * 
@@ -113,11 +113,11 @@ public class ClientData {
 		return marketPremiaInEURperMWH;
 	}
 
-	public void setSupportInfo(SupportData info) {
-		this.supportInfo = info;
+	public void setSupportData(SupportData supportData) {
+		this.supportData = supportData;
 	}
 
-	public SupportData getSupportInfo() {
-		return supportInfo;
+	public SupportData getSupportData() {
+		return supportData;
 	}
 }

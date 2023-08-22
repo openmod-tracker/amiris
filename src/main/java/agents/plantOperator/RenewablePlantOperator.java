@@ -5,10 +5,10 @@ package agents.plantOperator;
 
 import java.util.ArrayList;
 import java.util.List;
+import agents.policy.PolicyItem.SupportInstrument;
 import agents.policy.SupportPolicy.EnergyCarrier;
-import agents.policy.SupportPolicy.SupportInstrument;
-import agents.trader.AggregatorTrader;
 import agents.trader.Trader;
+import agents.trader.renewable.AggregatorTrader;
 import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
 import communications.message.TechnologySet;

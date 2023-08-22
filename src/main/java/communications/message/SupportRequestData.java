@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import agents.plantOperator.RenewablePlantOperator.SetType;
-import agents.policy.SupportPolicy.SupportInstrument;
+import agents.policy.PolicyItem.SupportInstrument;
 import agents.trader.ClientData;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
@@ -26,80 +25,63 @@ public class SupportRequestData extends DataItem {
 	public final SetType setType;
 	/** the support instrument for the technology set */
 	public final SupportInstrument supportInstrument;
-	/** the amount of energy fed in (all except for capacity premium) or the installed capacity (capacity premium) */
-	public final double amount;
+	/** infeed per time stamp */
+	public final TreeMap<TimeStamp, Double> infeed;
+	/** the installed capacity, relevant in case of capacity-based support */
+	public final double installedCapacityInMW;
 	/** the accounting period for calculating the support payments */
 	public final TimePeriod accountingPeriod;
 
 	public SupportRequestData(ClientData clientData, TimePeriod accountingPeriod) {
 		this.setType = clientData.getTechnologySet().setType;
 		this.supportInstrument = clientData.getTechnologySet().supportInstrument;
-		switch (supportInstrument) {
-			case FIT:
-			case MPVAR:
-			case MPFIX:
-			case CFD:
-				this.amount = calcOverallInfeed(clientData, accountingPeriod);
-				break;
-			case CP:
-				this.amount = clientData.getTechnologySet().installedCapacity;
-				break;
-			default:
-				throw new RuntimeException("Support instrument " + supportInstrument + "is not a valid one.");
-		}
 		this.accountingPeriod = accountingPeriod;
-	}
-
-	public SupportRequestData(SupportRequestData supportData) {
-		this.setType = supportData.setType;
-		this.supportInstrument = supportData.supportInstrument;
-		this.amount = supportData.amount;
-		this.accountingPeriod = supportData.accountingPeriod;
-	}
-
-	/** Calculates and returns the overall infeed of a client's technology set */
-	private double calcOverallInfeed(ClientData clientData, TimePeriod accountingPeriod) {
-		double overallInfeed = 0;
-		TreeMap<TimeStamp, Double> dispatch = clientData.getDispatch();
-		Iterator<Entry<TimeStamp, Double>> iterator = dispatch.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Entry<TimeStamp, Double> entry = iterator.next();
-			if (entry.getKey().isLessThan(accountingPeriod.getStartTime())) {
-				throw new RuntimeException(ERR_TIMESTAMP_LEFTOVER + entry.getKey());
-			}
-			if (entry.getKey().isLessEqualTo(accountingPeriod.getLastTime())) {
-				overallInfeed += entry.getValue();
-				iterator.remove();
-			}
-		}
-		return overallInfeed;
+		this.installedCapacityInMW = clientData.getTechnologySet().installedCapacity;
+		this.infeed = clientData.getDispatch();
 	}
 
 	/** Mandatory for deserialisation of {@link DataItem}s
 	 * 
 	 * @param proto protobuf representation */
 	public SupportRequestData(ProtoDataItem proto) {
-		int ordinal1 = proto.getIntValue(0);
-		this.setType = SetType.values()[ordinal1];
-		int ordinal2 = proto.getIntValue(1);
-		this.supportInstrument = SupportInstrument.values()[ordinal2];
-		this.amount = proto.getDoubleValue(0);
+		this.setType = SetType.values()[proto.getIntValue(0)];
+		this.supportInstrument = SupportInstrument.values()[proto.getIntValue(1)];
+		this.installedCapacityInMW = proto.getDoubleValue(0);
 		TimeStamp startTime = new TimeStamp(proto.getLongValue(0));
 		TimeSpan duration = new TimeSpan(proto.getLongValue(1));
 		this.accountingPeriod = new TimePeriod(startTime, duration);
+		this.infeed = new TreeMap<>();
+		for (int i = 0; i < proto.getIntValue(2); i++) {
+			TimeStamp timeStamp = new TimeStamp(proto.getLongValue(i + 2));
+			double value = proto.getDoubleValue(i + 1);
+			infeed.put(timeStamp, value);
+		}
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
 		builder.addIntValue(setType.ordinal());
 		builder.addIntValue(supportInstrument.ordinal());
-		builder.addDoubleValue(amount);
+		builder.addDoubleValue(installedCapacityInMW);
 		builder.addLongValue(accountingPeriod.getStartTime().getStep());
 		builder.addLongValue(accountingPeriod.getDuration().getSteps());
+		
+		int counter = 0;
+		for (Entry<TimeStamp, Double> entry : infeed.entrySet()) {
+			if (entry.getKey().isLessThan(accountingPeriod.getStartTime())) {
+				throw new RuntimeException(ERR_TIMESTAMP_LEFTOVER + entry.getKey());
+			}
+			if (entry.getKey().isLessEqualTo(accountingPeriod.getLastTime())) {
+				counter++;
+				builder.addLongValue(entry.getKey().getStep());
+				builder.addDoubleValue(entry.getValue());
+			}
+		}
+		builder.addIntValue(counter);
 	}
 
 	@Override
 	public String toString() {
-		return "(" + setType + " " + supportInstrument + " " + amount + ")";
+		return "(" + setType + " " + supportInstrument + " " + installedCapacityInMW + ")";
 	}
 }

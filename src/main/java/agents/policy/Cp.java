@@ -1,8 +1,10 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.policy;
 
+import java.util.TreeMap;
+import communications.message.SupportRequestData;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -11,12 +13,14 @@ import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 import de.dlr.gitlab.fame.data.TimeSeries;
+import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Holds the information of a capacity premium (CP) support model needed by the SupportPolicy and part of a CPData
+/** Set-specific realisation of a capacity premium
  * 
- * @author Johannes Kochems */
-public class CPInfo extends PolicyInfo {
-	public static final Tree parameters = Make.newTree().add(Make.newSeries("Premium").optional()).buildTree();
+ * @author Johannes Kochems, Christoph Schimeczek */
+public class Cp extends PolicyItem {
+	public static final Tree parameters = Make.newTree().add(premiumParam).buildTree();
 
 	/** The capacity premium in EUR/MW installed */
 	private TimeSeries premium;
@@ -42,4 +46,34 @@ public class CPInfo extends PolicyInfo {
 	public TimeSeries getPremium() {
 		return premium;
 	}
+
+	@Override
+	public SupportInstrument getSupportInstrument() {
+		return SupportInstrument.CP;
+	}
+
+	@Override
+	public double calcEligibleInfeed(TreeMap<TimeStamp, Double> powerPrices, SupportRequestData request) {
+		return 0;
+	}
+
+	@Override
+	public double calcInfeedSupportRate(TimePeriod accountingPeriod, double marketValue) {
+		return 0;
+	}
+
+	@Override
+	public double calcEligibleCapacity(SupportRequestData request) {
+		return request.installedCapacityInMW;
+	}
+
+	@Override
+	public double calcCapacitySupportRate(TimePeriod accountingPeriod) {
+		return premium.getValueLowerEqual(accountingPeriod.getStartTime());
+	}
+	
+	@Override
+	public boolean isTypeOfMarketPremium() {
+		return false;
+	}	
 }
