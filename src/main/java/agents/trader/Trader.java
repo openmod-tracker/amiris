@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -27,7 +27,9 @@ public abstract class Trader extends Agent {
 	@Product
 	public static enum Products {
 		Bids, Payout, DispatchAssignment, BidsForecast, MeritOrderForecastRequest, PriceForecastRequest, GateClosureForward,
-		ForecastRequestForward
+		ForecastRequestForward,
+		/** Report annual costs (not sent to other agents, but calculated within operator class) */
+		AnnualCostReport
 	};
 
 	public Trader(DataProvider dataProvider) {

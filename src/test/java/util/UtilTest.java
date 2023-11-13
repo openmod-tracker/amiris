@@ -5,16 +5,19 @@ package util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static testUtils.Exceptions.assertThrowsMessage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
@@ -25,29 +28,23 @@ public class UtilTest {
 	public void constructor_throws() {
 		assertThrowsMessage(IllegalStateException.class, Util.NO_INSTANCE, () -> new Util());
 	}
-	
-	@Test
-	public void ensureValidRange_equals() {
-		Util.ensureValidRange(0, 0);
-		Util.ensureValidRange(-1, -1);
-		Util.ensureValidRange(1, 1);
+
+	@ParameterizedTest
+	@ValueSource(ints = {0, -1, 1})
+	public void ensureValidRange_equals(int number) {
+		Util.ensureValidRange(number, number);
 	}
 
-	@Test
-	public void ensureValidRange_aLessThanB() {
-		Util.ensureValidRange(-2, -1);
-		Util.ensureValidRange(-1, 0);
-		Util.ensureValidRange(0, 1);
-		Util.ensureValidRange(1, 2);
+	@ParameterizedTest
+	@CsvSource({"-2, -1", "-1, 0", "0, 1", "1, 2"})
+	public void ensureValidRange_aLessThanB(int left, int right) {
+		Util.ensureValidRange(left, right);
 	}
 
-	@Test
-	public void ensureValidRange_throwsIf_bLessThanA() {
-		assertThrowsMessage(IllegalArgumentException.class, Util.INVALID_RANGE, () -> Util.ensureValidRange(-1, -2));
-		assertThrowsMessage(IllegalArgumentException.class, Util.INVALID_RANGE, () -> Util.ensureValidRange(0, -0.0001));
-		assertThrowsMessage(IllegalArgumentException.class, Util.INVALID_RANGE, () -> Util.ensureValidRange(0.0001, 0));
-		assertThrowsMessage(IllegalArgumentException.class, Util.INVALID_RANGE, () -> Util.ensureValidRange(1, 0));
-		assertThrowsMessage(IllegalArgumentException.class, Util.INVALID_RANGE, () -> Util.ensureValidRange(2, 1));
+	@ParameterizedTest
+	@CsvSource({"-1, -2", "0, -0.0001", "0.0001, 0", "1, 0", "2, 1"})
+	public void ensureValidRange_throwsIf_bLessThanA(double left, double right) {
+		assertThrowsMessage(IllegalArgumentException.class, Util.INVALID_RANGE, () -> Util.ensureValidRange(left, right));
 	}
 
 	@Test
@@ -65,17 +62,16 @@ public class UtilTest {
 		assert Util.linearInterpolation(1, 2, 0).size() == 0;
 	}
 
-	@Test
-	public void linearInterpolation_oneStep_average() {
-		assertEquals(0., Util.linearInterpolation(-1, 1, 1).get(0), 1E-12);
-		assertEquals(0.5, Util.linearInterpolation(0, 1, 1).get(0), 1E-12);
-		assertEquals(5.5, Util.linearInterpolation(1, 10, 1).get(0), 1E-12);
+	@ParameterizedTest
+	@CsvSource({"-1, 1, 0", "0, 1, 0.5", "1, 10, 5.5"})
+	public void linearInterpolation_oneStep_average(double left, double right, double expected) {
+		assertEquals(expected, Util.linearInterpolation(left, right, 1).get(0), 1E-12);
 	}
 
-	@Test
-	public void linearInterpolation_twoSteps_minMax() {
-		assertThat(Util.linearInterpolation(-1, 10, 2), contains(-1., 10.));
-		assertThat(Util.linearInterpolation(1, 10, 2), contains(1., 10.));
+	@ParameterizedTest
+	@CsvSource({"-1, 10", "1, 10"})
+	public void linearInterpolation_twoSteps_minMax(double left, double right) {
+		assertThat(Util.linearInterpolation(left, right, 2), contains(left, right));
 	}
 
 	@Test

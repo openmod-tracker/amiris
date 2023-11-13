@@ -14,14 +14,17 @@ import agents.conventionals.PowerPlant;
 import agents.markets.CarbonMarket;
 import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
+import agents.markets.FuelsTrader;
 import agents.trader.Trader;
 import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
 import communications.message.Co2Cost;
+import communications.message.FuelBid;
 import communications.message.FuelCost;
 import communications.message.FuelData;
 import communications.message.MarginalCost;
 import communications.message.PointInTime;
+import communications.message.FuelBid.BidType;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
@@ -33,7 +36,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
 
 /** Operates a portfolio of conventional power plant units of same type, e.g. nuclear or hard-coal power plant unit. */
-public class ConventionalPlantOperator extends PowerPlantOperator {
+public class ConventionalPlantOperator extends PowerPlantOperator implements FuelsTrader {
 	static final String ERR_MISSING_CO2_COST = "Missing at least one CO2 cost item to match corresponding fuel cost item(s).";
 	static final String ERR_MISSING_FUEL_COST = "Missing at least one fuel cost item to match corresponding CO2 cost item(s).";
 	static final String ERR_MISSING_POWER = "Missing power to fulfil dispatch: ";
@@ -47,12 +50,6 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 		Co2PriceForecastRequest,
 		/** Request for a Co2 Price at given time */
 		Co2PriceRequest,
-		/** Request for Fuel price forecast at a given time and for a given fuel */
-		FuelPriceForecastRequest,
-		/** Request for Fuel price at a given time and for a given fuel */
-		FuelPriceRequest,
-		/** Total actual fuel consumption */
-		ConsumedFuel
 	}
 
 	@Output
@@ -86,16 +83,17 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 
 		call(this::updatePortfolio).on(PlantBuildingManager.Products.PowerPlantPortfolio)
 				.use(PlantBuildingManager.Products.PowerPlantPortfolio);
-		call(this::requestFuelPrice).on(Products.FuelPriceForecastRequest).use(Trader.Products.ForecastRequestForward);
+		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
+				.use(Trader.Products.ForecastRequestForward);
 		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest).use(Trader.Products.ForecastRequestForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(CarbonMarket.Products.Co2PriceForecast, FuelsMarket.Products.FuelPriceForecast);
-		call(this::requestFuelPrice).on(Products.FuelPriceRequest).use(Trader.Products.GateClosureForward);
+		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceRequest).use(Trader.Products.GateClosureForward);
 		call(this::requestCo2Price).on(Products.Co2PriceRequest).use(Trader.Products.GateClosureForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost).use(CarbonMarket.Products.Co2Price,
 				FuelsMarket.Products.FuelPrice);
 		call(this::reportCo2Emissions).on(Products.Co2Emissions);
-		call(this::reportFuelConsumption).on(Products.ConsumedFuel);
+		call(this::reportFuelConsumption).on(FuelsTrader.Products.FuelBid);
 	}
 
 	/** updates {@link #portfolio} to match that received from {@link PlantBuildingManager} */
@@ -113,7 +111,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		Message message = CommUtils.getExactlyOneEntry(input);
 		ClearingTimes requestedTimes = message.getDataItemOfType(ClearingTimes.class);
-		fulfilNext(contract, myFuelData, requestedTimes);
+		sendFuelPriceRequest(contract, myFuelData, requestedTimes);
 	}
 
 	/** sends {@link PointInTime} message to specify time of delivery for CO2 price forecast request */
@@ -273,7 +271,8 @@ public class ConventionalPlantOperator extends PowerPlantOperator {
 	private void reportFuelConsumption(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		for (AmountAtTime fuelDataItem : fuelConsumption) {
-			fulfilNext(contract, myFuelData, fuelDataItem);
+			FuelBid fuelBid = new FuelBid(fuelDataItem.validAt, fuelDataItem.amount, BidType.Demand, myFuelData.fuelType);
+			sendFuelBid(contract, fuelBid);
 		}
 		fuelConsumption.clear();
 	}

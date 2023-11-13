@@ -1,0 +1,232 @@
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
+package agents.trader;
+
+import java.util.ArrayList;
+import java.util.List;
+import agents.electrolysis.Electrolyzer;
+import agents.electrolysis.ElectrolyzerStrategist;
+import agents.flexibility.DispatchSchedule;
+import agents.flexibility.Strategist;
+import agents.forecast.Forecaster;
+import agents.forecast.MarketForecaster;
+import agents.markets.EnergyExchange;
+import agents.markets.FuelsMarket;
+import agents.markets.FuelsMarket.FuelType;
+import agents.markets.FuelsTrader;
+import agents.markets.meritOrder.Bid;
+import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Constants;
+import agents.storage.arbitrageStrategists.FileDispatcher;
+import communications.message.AmountAtTime;
+import communications.message.AwardData;
+import communications.message.BidData;
+import communications.message.ClearingTimes;
+import communications.message.FuelBid;
+import communications.message.FuelBid.BidType;
+import communications.message.FuelCost;
+import communications.message.FuelData;
+import communications.message.PointInTime;
+import de.dlr.gitlab.fame.agent.input.DataProvider;
+import de.dlr.gitlab.fame.agent.input.Input;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.communication.CommUtils;
+import de.dlr.gitlab.fame.communication.Contract;
+import de.dlr.gitlab.fame.communication.message.Message;
+import de.dlr.gitlab.fame.service.output.Output;
+import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeSpan;
+import de.dlr.gitlab.fame.time.TimeStamp;
+
+/** A flexible Trader demanding electricity and producing hydrogen from it via electrolysis.
+ * 
+ * @author Christoph Schimeczek */
+public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader {
+	@Input private static final Tree parameters = Make.newTree()
+			.addAs("Device", Electrolyzer.parameters)
+			.addAs("Strategy", ElectrolyzerStrategist.parameters)
+			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds"))
+			.buildTree();
+
+	@Output
+	private static enum Outputs {
+		RequestedEnergyInMWH, OfferedEnergyPriceInEURperMWH, AwardedEnergyInMWH, ProducedHydrogenInMWH
+	};
+
+	private static final FuelData FUEL_HYDROGEN = new FuelData(FuelType.HYDROGEN);
+	private final Electrolyzer electrolyzer;
+	private final ElectrolyzerStrategist strategist;
+	private final TimeSpan hydrogenForecastRequestOffset;
+
+	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
+	 * 
+	 * @param data configured input
+	 * @throws MissingDataException if any required input is missing */
+	public ElectrolysisTrader(DataProvider data) throws MissingDataException {
+		super(data);
+		ParameterData input = parameters.join(data);
+		electrolyzer = new Electrolyzer(input.getGroup("Device"));
+		strategist = ElectrolyzerStrategist.newStrategist(input.getGroup("Strategy"), electrolyzer);
+		hydrogenForecastRequestOffset = new TimeSpan(input.getInteger("HydrogenForecastRequestOffsetInSeconds"));
+
+		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
+		call(this::requestElectricityPriceForecast).on(Trader.Products.PriceForecastRequest);
+		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest);
+		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
+				.use(Forecaster.Products.PriceForecast);
+		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
+				.use(FuelsMarket.Products.FuelPriceForecast);
+		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
+		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(EnergyExchange.Products.Awards);
+		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
+	}
+
+	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
+	 * Strategists other than {@link FileDispatcher}
+	 * 
+	 * @param input one ClearingTimes message specifying for which TimeStamps to calculate the forecasts
+	 * @param contracts one partner to send the forecasts to */
+	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		List<TimeStamp> targetTimes = clearingTimes.getTimes();
+		for (TimeStamp targetTime : targetTimes) {
+			double electricDemandInMW = strategist.getElectricDemandForecastInMW(targetTime);
+			Bid bid = new Bid(electricDemandInMW, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN, getId(),
+					Type.Demand);
+			fulfilNext(contractToFulfil, bid, new PointInTime(targetTime));
+		}
+	}
+
+	/** Requests electricity price forecast from one contracted {@link MarketForecaster}
+	 * 
+	 * @param input not used
+	 * @param contracts single contracted Forecaster to request forecast from */
+	private void requestElectricityPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
+				Strategist.OPERATION_PERIOD);
+		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingElectricityPriceForecasts(nextTime);
+		for (TimeStamp missingForecastTime : missingForecastTimes) {
+			PointInTime pointInTime = new PointInTime(missingForecastTime);
+			fulfilNext(contract, pointInTime);
+		}
+	}
+
+	/** Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}
+	 * 
+	 * @param input not used
+	 * @param contracts single contracted fuels market to request hydrogen price(s) from */
+	private void requestHydrogenPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimePeriod nextTime = new TimePeriod(now().laterBy(hydrogenForecastRequestOffset),
+				Strategist.OPERATION_PERIOD);
+		ArrayList<TimeStamp> missingForecastTimes = strategist.getMissingHydrogenPriceForecastsTimes(nextTime);
+		ClearingTimes clearingTimes = new ClearingTimes(
+				missingForecastTimes.toArray(new TimeStamp[missingForecastTimes.size()]));
+		sendFuelPriceRequest(contract, FUEL_HYDROGEN, clearingTimes);
+	}
+
+	/** Digests one or multiple incoming price forecasts
+	 * 
+	 * @param input one or multiple price forecast message(s)
+	 * @param contracts not used */
+	private void updateElectricityPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+		for (Message inputMessage : input) {
+			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
+			double priceForecastInEURperMWH = priceForecastMessage.amount;
+			TimePeriod timeSegment = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
+			strategist.storeElectricityPriceForecast(timeSegment, priceForecastInEURperMWH);
+		}
+	}
+
+	/** Digests one or multiple incoming hydrogen price forecasts
+	 * 
+	 * @param input one or multiple hydrogen price forecast message(s)
+	 * @param contracts not used */
+	private void updateHydrogenPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+		for (Message inputMessage : input) {
+			FuelCost priceForecastMessage = readFuelPriceMessage(inputMessage);
+			double priceForecastInEURperThermalMWH = priceForecastMessage.amount;
+			TimePeriod timeSegment = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
+			strategist.storeHydrogenPriceForecast(timeSegment, priceForecastInEURperThermalMWH);
+		}
+	}
+
+	/** Prepares and sends Bids to one contracted exchange
+	 * 
+	 * @param input one GateClosureInfo message containing ClearingTimes
+	 * @param contracts one partner */
+	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		List<TimeStamp> targetTimes = clearingTimes.getTimes();
+		for (TimeStamp targetTime : targetTimes) {
+			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
+			BidData bidData = prepareHourlyDemandBid(targetTime, schedule);
+			store(Outputs.RequestedEnergyInMWH, bidData.offeredEnergyInMWH);
+			fulfilNext(contractToFulfil, bidData, new PointInTime(targetTime));
+		}
+	}
+
+	/** Prepares hourly demand bids
+	 * 
+	 * @param requestedTime TimeStamp at which the demand bid should be defined
+	 * @return demand bid for requestedTime */
+	private BidData prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
+		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
+		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
+		BidData demandBid = new BidData(demandPower, price, Double.NaN, getId(), Type.Demand, targetTime);
+		store(Outputs.OfferedEnergyPriceInEURperMWH, price);
+		return demandBid;
+	}
+
+	/** Digests award information from {@link EnergyExchange}, writes dispatch and sells hydrogen at fuels market using a "negative
+	 * purchase" message
+	 * 
+	 * @param messages award information received from {@link EnergyExchange}
+	 * @param contracts a contract with one {@link FuelsMarket} */
+	private void sellProducedHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
+		Message awardMessage = CommUtils.getExactlyOneEntry(messages);
+		AwardData award = awardMessage.getDataItemOfType(AwardData.class);
+
+		double awardedEnergyInMWH = award.demandEnergyInMWH;
+		double costs = award.powerPriceInEURperMWH * awardedEnergyInMWH;
+		TimeStamp deliveryTime = award.beginOfDeliveryInterval;
+
+		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH, deliveryTime);
+		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
+		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
+
+		store(Outputs.AwardedEnergyInMWH, awardedEnergyInMWH);
+		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
+		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
+	}
+
+	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
+	private void sendHydrogenSellMessage(List<Contract> contracts, double producedHydrogenInThermalMWH,
+			TimeStamp deliveryTime) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		FuelBid fuelBid = new FuelBid(deliveryTime, producedHydrogenInThermalMWH, BidType.Supply, FuelType.HYDROGEN);
+		sendFuelBid(contract, fuelBid);
+	}
+
+	/** Evaluate revenues (i.e. negative purchase cost) from selling hydrogen at the fuels market
+	 * 
+	 * @param messages one AmountAtTime message from fuels market
+	 * @param contracts ignored */
+	private void digestSaleReturns(ArrayList<Message> messages, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(messages);
+		double cost = readFuelBillMessage(message);
+		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
+	}
+
+	@Override
+	protected double getInstalledCapacityInMW() {
+		return electrolyzer.getPeakPower(now());
+	}
+}
