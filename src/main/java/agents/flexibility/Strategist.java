@@ -1,0 +1,180 @@
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
+package agents.flexibility;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeMap;
+import agents.markets.meritOrder.Constants;
+import agents.markets.meritOrder.books.DemandOrderBook;
+import agents.markets.meritOrder.books.SupplyOrderBook;
+import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
+import agents.storage.arbitrageStrategists.ArbitrageStrategist;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.time.Constants.Interval;
+import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeSpan;
+import de.dlr.gitlab.fame.time.TimeStamp;
+
+/** Base class for strategists that operate some kind of flexibility, e.g., an energy storage or flexible electrolysis
+ * 
+ * @author Christoph Schimeczek */
+public abstract class Strategist {
+	protected static final String ERR_PROVIDE_FORECAST = "Cannot provide bid forecasts with flexibility strategist of type: ";
+	protected static final String ERR_USE_PRICE_FORECAST = "Cannot use price forecasts with flexibility strategist of type: ";
+	protected static final String ERR_USE_MERIT_ORDER_FORECAST = "Cannot use merit order forecasts with flexibility strategist of type: ";
+	protected static final String ERR_UNKNOWN_STRATEGIST = "This type of flexibility strategist is not implemented: ";
+
+	public final static TimeSpan OPERATION_PERIOD = new TimeSpan(1, Interval.HOURS);
+
+	protected final int forecastSteps;
+	protected final int scheduleDurationPeriods;
+	private final double bidTolerance;
+
+	protected double[] demandScheduleInMWH;
+	protected double[] priceScheduleInEURperMWH;
+	protected double[] scheduledBidPricesInEURperMWH;
+
+	private TreeMap<TimePeriod, MeritOrderSensitivity> sensitivities = new TreeMap<>();
+
+	public static final ParameterBuilder forecastPeriodParam = Make.newInt("ForecastPeriodInHours");
+	public static final ParameterBuilder scheduleDurationParam = Make.newInt("ScheduleDurationInHours");
+	public static final ParameterBuilder bidToleranceParam = Make.newDouble("BidToleranceInEURperMWH").optional();
+
+	/** Creates new Strategist based on the given input
+	 * 
+	 * @param input parameters associated with strategists
+	 * @throws MissingDataException if any required input is missing */
+	protected Strategist(ParameterData input) throws MissingDataException {
+		forecastSteps = input.getInteger("ForecastPeriodInHours");
+		scheduleDurationPeriods = input.getInteger("ScheduleDurationInHours");
+		bidTolerance = input.getDoubleOrDefault("BidToleranceInEURperMWH", 1E-3);
+		allocateSchedulingArrays();
+	}
+
+	/** initialises general permanent arrays used for schedule preparation */
+	private void allocateSchedulingArrays() {
+		demandScheduleInMWH = new double[scheduleDurationPeriods];
+		priceScheduleInEURperMWH = new double[scheduleDurationPeriods];
+		scheduledBidPricesInEURperMWH = new double[scheduleDurationPeriods];
+	}
+
+	/** Removes any stored MeritOrderSensitivity whose associated TimePeriod ends before the given time
+	 *
+	 * @param time limiting TimeStamp - earlier events to be deleted */
+	public void clearSensitivitiesBefore(TimeStamp time) {
+		Iterator<TimePeriod> mapIterator = sensitivities.keySet().iterator();
+		while (mapIterator.hasNext()) {
+			TimePeriod timePeriod = mapIterator.next();
+			if (timePeriod.getLastTime().isLessThan(time)) {
+				mapIterator.remove();
+			} else {
+				break;
+			}
+		}
+	}
+
+	/** Returns list of times at which electricity price forecasts are missing needed for schedule planning
+	 * 
+	 * @param firstTime first time period to be covered by a created schedule
+	 * @return List of {@link TimeStamp}s at which {@link MeritOrderSensitivity} is not yet defined */
+	public ArrayList<TimeStamp> getTimesMissingElectricityPriceForecasts(TimePeriod firstTime) {
+		return getMissingForecastTimes(sensitivities, firstTime);
+	}
+
+	/** Returns list of times at which given TreeMap misses entries needed for schedule planning
+	 * 
+	 * @param map to be inspected for existing TimeSegment keys
+	 * @param firstTime first time period to be covered by a created schedule
+	 * @return List of {@link TimeStamp}s at which given map misses entries */
+	protected ArrayList<TimeStamp> getMissingForecastTimes(TreeMap<TimePeriod, ?> map, TimePeriod firstTime) {
+		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
+		for (int period = 0; period < forecastSteps; period++) {
+			TimePeriod timeSegment = firstTime.shiftByDuration(period);
+			if (!map.containsKey(timeSegment)) {
+				missingTimes.add(timeSegment.getStartTime());
+			}
+		}
+		return missingTimes;
+	}
+
+	/** Stores given supply and demand bid forecasts for the associated TimePeriod: merit-order forecasting method
+	 * 
+	 * @param timePeriod associated with the forecast data
+	 * @param supplyForecast forecasted supply OrderBook
+	 * @param demandForecast forecasted demand OrderBook */
+	public void storeMeritOrderForesight(TimePeriod timePeriod, SupplyOrderBook supplyForecast,
+			DemandOrderBook demandForecast) {
+		MeritOrderSensitivity sensitivity = createBlankSensitivity();
+		callOnSensitivity(sensitivity);
+		sensitivity.updateSensitivities(supplyForecast, demandForecast);
+		sensitivities.put(timePeriod, sensitivity);
+	}
+
+	/** @return an empty {@link MeritOrderSensitivity} item of the type used by this {@link ArbitrageStrategist}-type */
+	protected abstract MeritOrderSensitivity createBlankSensitivity();
+
+	/** optional action called on given MeritOrderSensitivities
+	 * 
+	 * @param sensitivity to be modified */
+	protected void callOnSensitivity(MeritOrderSensitivity sensitivity) {};
+
+	/** Stores given electricity price forecast for the associated TimePeriod: price-forecasting method
+	 * 
+	 * @param timePeriod associated with the forecast data
+	 * @param electricityPriceForecastInEURperMWH forecast for the electricity price in EUR per MWh */
+	public void storeElectricityPriceForecast(TimePeriod timePeriod, double electricityPriceForecastInEURperMWH) {
+		MeritOrderSensitivity sensitivity = createBlankSensitivity();
+		sensitivity.updatePriceForecast(electricityPriceForecastInEURperMWH);
+		sensitivities.put(timePeriod, sensitivity);
+	}
+
+	/** Returns MeritOrderSensitivity associated with the given TimePeriod
+	 * 
+	 * @param timePeriod to search for associated MeritOrderSensitivity
+	 * @return MeritOrderSensitivity associated with the given TimePeriod */
+	protected MeritOrderSensitivity getSensitivityForPeriod(TimePeriod timePeriod) {
+		return sensitivities.get(timePeriod);
+	}
+
+	/** Creates a {@link DispatchSchedule} for the connected flexibility
+	 * 
+	 * @param timePeriod first TimePeriod element of the schedule to be created
+	 * @return created {@link DispatchSchedule} for the specified {@link TimePeriod} */
+	public DispatchSchedule createSchedule(TimePeriod timePeriod) {
+		updateSchedule(timePeriod);
+		updateBidSchedule();
+		DispatchSchedule schedule = new DispatchSchedule(timePeriod, scheduleDurationPeriods);
+		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
+		schedule.setChargingPerPeriod(demandScheduleInMWH);
+		schedule.setExpectedInitialInternalEnergyScheduleInMWH(getInternalEnergySchedule());
+		return schedule;
+	}
+	
+	/** Updates the bid schedules considering safety margins for the bid prices and market price limits */
+	protected void updateBidSchedule() {
+		for (int period = 0; period < scheduleDurationPeriods; period++) {
+			if (demandScheduleInMWH[period] > 0) {
+				scheduledBidPricesInEURperMWH[period] = Math.min(Constants.SCARCITY_PRICE_IN_EUR_PER_MWH,
+						priceScheduleInEURperMWH[period] + bidTolerance);
+			} else if (demandScheduleInMWH[period] < 0) {
+				scheduledBidPricesInEURperMWH[period] = Math.max(Constants.MINIMAL_PRICE_IN_EUR_PER_MWH,
+						priceScheduleInEURperMWH[period] - bidTolerance);
+			} else {
+				scheduledBidPricesInEURperMWH[period] = 0;
+			}
+		}
+	}	
+
+	/** Updates schedule arrays starting at the given TimePeriod with the given initial energy level
+	 * 
+	 * @param timePeriod first period of the schedule to be created */
+	protected abstract void updateSchedule(TimePeriod timePeriod);
+
+	/** @return array representing the expected internal energy state of the controlled flexibility */
+	protected abstract double[] getInternalEnergySchedule();
+}

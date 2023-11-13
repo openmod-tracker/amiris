@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -6,9 +6,10 @@ package agents.markets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import agents.plantOperator.ConventionalPlantOperator;
 import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
+import communications.message.FuelBid;
+import communications.message.FuelBid.BidType;
 import communications.message.FuelCost;
 import communications.message.FuelData;
 import de.dlr.gitlab.fame.agent.Agent;
@@ -39,13 +40,13 @@ public class FuelsMarket extends Agent {
 		FuelPriceForecast,
 		/** actual fuel price */
 		FuelPrice,
-		/** sum of costs for purchased fuel */
-		FuelsBill
+		/** cost of purchased fuel amounts - negative for revenues from fuel offers */
+		FuelBill,
 	};
 
 	/** Available types of fuel traded at {@link FuelsMarket} */
 	public static enum FuelType {
-		NATURAL_GAS, LIGNITE, HARD_COAL, OIL, WASTE, NUCLEAR, HYDROGEN
+		NATURAL_GAS, LIGNITE, HARD_COAL, OIL, WASTE, NUCLEAR, HYDROGEN, BIOMASS, OTHER
 	};
 
 	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("FuelPrices").list()
@@ -64,10 +65,9 @@ public class FuelsMarket extends Agent {
 		ParameterData input = parameters.join(dataProvider);
 		loadFuelPrices(input.getGroupList("FuelPrices"));
 
-		call(this::sendPrices).on(Products.FuelPriceForecast)
-				.use(ConventionalPlantOperator.Products.FuelPriceForecastRequest);
-		call(this::sendPrices).on(Products.FuelPrice).use(ConventionalPlantOperator.Products.FuelPriceRequest);
-		call(this::sendBill).on(Products.FuelsBill).use(ConventionalPlantOperator.Products.ConsumedFuel);
+		call(this::sendPrices).on(Products.FuelPriceForecast).use(FuelsTrader.Products.FuelPriceForecastRequest);
+		call(this::sendPrices).on(Products.FuelPrice).use(FuelsTrader.Products.FuelPriceRequest);
+		call(this::sendBill).on(Products.FuelBill).use(FuelsTrader.Products.FuelBid);
 	}
 
 	/** Loads fuel prices specified as list elements, each with (FuelType, Price) items
@@ -137,7 +137,7 @@ public class FuelsMarket extends Agent {
 		}
 	}
 
-	/** Sends bills to contracted partners for their ordered fuel(s)
+	/** Sends bill to contracted partners for their ordered & offered fuel(s)
 	 * 
 	 * @param input messages that specify amount of consumed fuel(s)
 	 * @param contracts to return invoice to - each receiver should issue request(s) first */
@@ -146,10 +146,10 @@ public class FuelsMarket extends Agent {
 			ArrayList<Message> connectedMessages = CommUtils.extractMessagesFrom(input, contract.getReceiverId());
 			double fuelCostTotal = 0;
 			for (Message message : connectedMessages) {
-				AmountAtTime fuelConsumption = message.getDataItemOfType(AmountAtTime.class);
-				FuelType fuelType = message.getDataItemOfType(FuelData.class).fuelType;
-				double fuelPrice = getFuelPrice(fuelType, fuelConsumption.validAt);
-				fuelCostTotal += fuelPrice * fuelConsumption.amount;
+				FuelBid fuelBid = message.getDataItemOfType(FuelBid.class);
+				double fuelPrice = getFuelPrice(fuelBid.fuelType, fuelBid.validAt);
+				double fuelValueInEUR = fuelPrice * fuelBid.amount;
+				fuelCostTotal += (fuelBid.bidType == BidType.Demand ? 1 : -1) * fuelValueInEUR;
 			}
 			AmountAtTime bill = new AmountAtTime(now(), fuelCostTotal);
 			fulfilNext(contract, bill);

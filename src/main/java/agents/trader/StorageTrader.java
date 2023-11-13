@@ -5,6 +5,8 @@ package agents.trader;
 
 import java.util.ArrayList;
 import java.util.List;
+import agents.flexibility.DispatchSchedule;
+import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.EnergyExchange;
@@ -13,11 +15,9 @@ import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.storage.Device;
-import agents.storage.DispatchSchedule;
 import agents.storage.arbitrageStrategists.ArbitrageStrategist;
-import agents.storage.arbitrageStrategists.ArbitrageStrategist.StrategistType;
 import agents.storage.arbitrageStrategists.FileDispatcher;
-import agents.storage.arbitrageStrategists.SystemCostMinimiser;
+import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
@@ -32,39 +32,26 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
-import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.service.output.Output;
-import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimePeriod;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Sells and buys energy utilising a Storage {@link Device} at the EnergyExchange
  * 
  * @author Christoph Schimeczek, Johannes Kochems, Farzad Sarfarazi, Felix Nitsch */
-public class StorageTrader extends Trader {
+public class StorageTrader extends FlexibilityTrader {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters)
-			.add(Make.newInt("ForecastRequestOffsetInSeconds"),
-					Make.newGroup("Strategy").add(Make.newInt("ForecastPeriodInHours"), Make.newInt("ScheduleDurationInHours"),
-							Make.newEnum("StrategistType", StrategistType.class),
-							Make.newGroup("SingleAgent").add(Make.newInt("ModelledChargingSteps").optional(),
-									Make.newDouble("PurchaseLeviesAndTaxesInEURperMWH").optional()),
-							Make.newGroup("MultiAgent").add(Make.newDouble("AssessmentFunctionPrefactors").optional().list()),
-							Make.newGroup("FixedDispatch").add(Make.newSeries("Schedule").optional())))
-			.buildTree();
+			.addAs("Strategy", ArbitrageStrategist.parameters).buildTree();
 
 	@Output
 	private static enum OutputFields {
 		OfferedPowerInMW, OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargePowerInMWH,
-		AwardedDischargePowerInMWH,
-		AwardedPowerInMWH, StoredEnergyInMWH, ReceivedMoneyInEUR, CostsInEUR
+		AwardedDischargePowerInMWH, AwardedPowerInMWH, StoredEnergyInMWH
 	};
 
-	private final TimeSpan forecastRequestOffset;
 	private final Device storage;
 	private final ArbitrageStrategist strategist;
 	private DispatchSchedule schedule;
-	private TimeSpan operationPeriod = new TimeSpan(1, Interval.HOURS);
 
 	/** Creates a {@link StorageTrader}
 	 * 
@@ -74,40 +61,17 @@ public class StorageTrader extends Trader {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		this.storage = new Device(input.getGroup("Device"));
-		this.strategist = createStrategist(input.getGroup("Strategy"));
-		forecastRequestOffset = new TimeSpan(input.getInteger("ForecastRequestOffsetInSeconds"));
+		this.strategist = ArbitrageStrategist.createStrategist(input.getGroup("Strategy"), storage);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
 		call(this::requestMeritOrderForecast).on(Trader.Products.MeritOrderForecastRequest);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
 		call(this::requestPriceForecast).on(Trader.Products.PriceForecastRequest);
+		call(this::updatePriceForecast).on(Forecaster.Products.PriceForecast)
+				.use(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
 		call(this::digestAwards).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
-	}
-
-	/** Creates new {@link ArbitrageStrategist} based on given Strategy information
-	 * 
-	 * @param data parameter group for "Strategy" parameters
-	 * @return created Strategist
-	 * @throws MissingDataException if any required data is not provided */
-	private ArbitrageStrategist createStrategist(ParameterData data) throws MissingDataException {
-		StrategistType strategistType = data.getEnum("StrategistType", StrategistType.class);
-		int forecastPeriodInHours = data.getInteger("ForecastPeriodInHours");
-		int scheduleDurationInHours = data.getInteger("ScheduleDurationInHours");
-
-		switch (strategistType) {
-			case SINGLE_AGENT_MIN_SYSTEM_COST: {
-				int chargingSteps = data.getInteger("SingleAgent.ModelledChargingSteps");
-				return new SystemCostMinimiser(forecastPeriodInHours, storage, scheduleDurationInHours, chargingSteps);
-			}
-			case DISPATCH_FILE: {
-				TimeSeries dispatchSchedule = data.getTimeSeries("FixedDispatch.Schedule");
-				return new FileDispatcher(forecastPeriodInHours, storage, scheduleDurationInHours, dispatchSchedule);
-			}
-			default:
-				throw new RuntimeException("Storage Strategist not implemented: " + strategistType);
-		}
 	}
 
 	/** Requests MeritOrderForecast from contracted partner (Forecaster)
@@ -116,8 +80,9 @@ public class StorageTrader extends Trader {
 	 * @param contracts single contracted Forecaster to request forecast from */
 	private void requestMeritOrderForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(forecastRequestOffset), operationPeriod);
-		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingForecasts(nextTime);
+		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
+				Strategist.OPERATION_PERIOD);
+		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingElectricityPriceForecasts(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
@@ -133,7 +98,7 @@ public class StorageTrader extends Trader {
 			MeritOrderMessage meritOrderMessage = inputMessage.getAllPortableItemsOfType(MeritOrderMessage.class).get(0);
 			SupplyOrderBook supplyOrderBook = meritOrderMessage.getSupplyOrderBook();
 			DemandOrderBook demandOrderBook = meritOrderMessage.getDemandOrderBook();
-			TimePeriod timeSegment = new TimePeriod(meritOrderMessage.getTimeStamp(), operationPeriod);
+			TimePeriod timeSegment = new TimePeriod(meritOrderMessage.getTimeStamp(), Strategist.OPERATION_PERIOD);
 			strategist.storeMeritOrderForesight(timeSegment, supplyOrderBook, demandOrderBook);
 		}
 	}
@@ -144,11 +109,25 @@ public class StorageTrader extends Trader {
 	 * @param contracts single contracted Forecaster to request forecast from */
 	private void requestPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(forecastRequestOffset), operationPeriod);
-		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingForecasts(nextTime);
+		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
+				Strategist.OPERATION_PERIOD);
+		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingElectricityPriceForecasts(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
+		}
+	}
+
+	/** Digests incoming price forecasts
+	 * 
+	 * @param input one or multiple price forecast message(s)
+	 * @param contracts not used */
+	private void updatePriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+		for (Message inputMessage : input) {
+			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
+			double priceForecast = priceForecastMessage.amount;
+			TimePeriod timeSegment = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
+			strategist.storeElectricityPriceForecast(timeSegment, priceForecast);
 		}
 	}
 
@@ -199,8 +178,8 @@ public class StorageTrader extends Trader {
 	private void excuteBeforeBidPreparation(TimeStamp targetTime) {
 		if (schedule == null || !schedule.isApplicable(targetTime, storage.getCurrentEnergyInStorageInMWH())) {
 			strategist.clearSensitivitiesBefore(now());
-			TimePeriod targetTimeSegment = new TimePeriod(targetTime, operationPeriod);
-			schedule = strategist.createSchedule(targetTimeSegment, storage.getCurrentEnergyInStorageInMWH());
+			TimePeriod targetTimeSegment = new TimePeriod(targetTime, Strategist.OPERATION_PERIOD);
+			schedule = strategist.createSchedule(targetTimeSegment);
 		}
 	}
 
@@ -246,7 +225,12 @@ public class StorageTrader extends Trader {
 		store(OutputFields.AwardedChargePowerInMWH, awardedChargePower);
 		store(OutputFields.AwardedPowerInMWH, externalPowerDelta);
 		store(OutputFields.StoredEnergyInMWH, storage.getCurrentEnergyInStorageInMWH());
-		store(OutputFields.ReceivedMoneyInEUR, revenues);
-		store(OutputFields.CostsInEUR, costs);
+		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, revenues);
+		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
+	}
+
+	@Override
+	protected double getInstalledCapacityInMW() {
+		return storage.getInternalPowerInMW();
 	}
 }

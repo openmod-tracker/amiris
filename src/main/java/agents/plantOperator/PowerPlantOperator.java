@@ -30,7 +30,7 @@ public abstract class PowerPlantOperator extends Agent {
 
 	@Output
 	protected static enum OutputFields {
-		AwardedPowerInMWH, OfferedPowerInMW, ReceivedMoneyInEUR, CostsInEUR,
+		AwardedPowerInMWH, OfferedPowerInMW, ReceivedMoneyInEUR, VariableCostsInEUR,
 	}
 
 	/** Creates a {@link PowerPlantOperator}
@@ -50,7 +50,7 @@ public abstract class PowerPlantOperator extends Agent {
 		AmountAtTime award = CommUtils.getExactlyOneEntry(input).getDataItemOfType(AmountAtTime.class);
 		store(OutputFields.AwardedPowerInMWH, award.amount);
 		double costs = dispatchPlants(award.amount, award.validAt);
-		store(OutputFields.CostsInEUR, costs);
+		store(OutputFields.VariableCostsInEUR, costs);
 	}
 
 	/** Dispatches associated power plants to generate the specified awarded power

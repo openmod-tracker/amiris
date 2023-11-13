@@ -13,8 +13,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
@@ -38,7 +38,7 @@ public class UrlModelServiceTest {
 
 	private HttpURLConnection mockedConnection;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		mockedConnection = mock(HttpURLConnection.class);
 	}

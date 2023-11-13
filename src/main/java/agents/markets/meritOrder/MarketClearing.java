@@ -46,7 +46,11 @@ public class MarketClearing {
 		demandBook.clear();
 		supplyBook.clear();
 		for (Message message : input) {
-			Bid bid = message.getDataItemOfType(BidData.class).getBid();
+			BidData bidData = message.getDataItemOfType(BidData.class);
+			if (bidData == null) {
+				throw new RuntimeException("No BidData in message from " + message.getSenderId());
+			}
+			Bid bid = bidData.getBid();
 			switch (bid.getType()) {
 				case Supply:
 					supplyBook.addBid(bid);

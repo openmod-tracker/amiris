@@ -6,6 +6,10 @@ package agents.storage.arbitrageStrategists;
 import agents.markets.meritOrder.sensitivities.MarginalCostSensitivity;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
 import agents.storage.Device;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -16,6 +20,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class SystemCostMinimiser extends ArbitrageStrategist {
+	public static final Tree parameters = Make.newTree()
+			.add(Make.newInt("ModelledChargingSteps").optional()
+					.help("Resolution of discretisation, total levels = ModelledChargingSteps * Device.EnergyToPowerRatio + 1"))
+			.buildTree();
+
 	private final int numberOfEnergyStates;
 	private final int numberOfTransitionStates;
 
@@ -26,23 +35,25 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	/** Creates a {@link SystemCostMinimiser}
 	 * 
-	 * @param forecastPeriod number of time segments of the forecast
+	 * @param generalInput general parameters associated with strategists
+	 * @param specificInput specific parameters for this strategist
 	 * @param storage device to be optimised
-	 * @param scheduleDuration number of time segments that shall be scheduled
-	 * @param transitionSteps resolution of energy level discretisation: total energy levels = transitionSteps * Device.E2P + 1 */
-	public SystemCostMinimiser(int forecastPeriod, Device storage, int scheduleDuration, int transitionSteps) {
-		super(forecastPeriod, storage, scheduleDuration);
-		this.numberOfTransitionStates = transitionSteps;
+	 * @throws MissingDataException if any required input is missing */
+	public SystemCostMinimiser(ParameterData generalInput, ParameterData specificInput, Device storage)
+			throws MissingDataException {
+		super(generalInput, storage);
+		this.numberOfTransitionStates = specificInput.getInteger("ModelledChargingSteps");
 		this.numberOfEnergyStates = (int) Math.floor(numberOfTransitionStates * storage.getEnergyToPowerRatio()) + 1;
 
-		followUpCostSum = new double[forecastPeriod][numberOfEnergyStates];
-		bestNextState = new int[forecastPeriod][numberOfEnergyStates];
+		followUpCostSum = new double[forecastSteps][numberOfEnergyStates];
+		bestNextState = new int[forecastSteps][numberOfEnergyStates];
 	}
 
 	@Override
-	public void updateSchedule(TimePeriod startTimePeriod, double initialEnergyInStorageInMWh) {
+	public void updateSchedule(TimePeriod startTimePeriod) {
 		clearPlanningArrays();
 		optimiseDispatch(startTimePeriod);
+		double initialEnergyInStorageInMWh = storage.getCurrentEnergyInStorageInMWH();
 		updateScheduleArrays(initialEnergyInStorageInMWh);
 		correctForRoundingErrors(initialEnergyInStorageInMWh);
 	}
@@ -90,7 +101,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	/** @return marginal cost delta for each charging or discharging option, i.e. 2 * transitionStates + 1 options */
 	private double[] calcCostSteps(TimePeriod timePeriod) {
-		MarginalCostSensitivity sensitivity = (MarginalCostSensitivity) getSensitivityForSegment(timePeriod);
+		MarginalCostSensitivity sensitivity = (MarginalCostSensitivity) getSensitivityForPeriod(timePeriod);
 		if (sensitivity != null) {
 			return sensitivity.getValuesInSteps(numberOfTransitionStates);
 		} else {
@@ -118,16 +129,16 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 		double internalEnergyPerState = storage.getInternalPowerInMW() / numberOfTransitionStates;
 		int initialState = (int) Math.round(initialEnergyInStorageInMWh / internalEnergyPerState);
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			periodScheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState;
+			scheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState;
 
 			int nextState = bestNextState[period][initialState];
 			int stateDelta = nextState - initialState;
 			double externalEnergyDelta = storage.internalToExternalEnergy(stateDelta * internalEnergyPerState);
-			periodChargingScheduleInMW[period] = externalEnergyDelta;
+			demandScheduleInMWH[period] = externalEnergyDelta;
 			if (stateDelta == 0) {
-				periodPriceScheduleInEURperMWH[period] = Double.NaN;
+				priceScheduleInEURperMWH[period] = Double.NaN;
 			} else {
-				periodPriceScheduleInEURperMWH[period] = externalEnergyDelta > 0 ? Double.MAX_VALUE : -Double.MAX_VALUE;
+				priceScheduleInEURperMWH[period] = externalEnergyDelta > 0 ? Double.MAX_VALUE : -Double.MAX_VALUE;
 			}
 			initialState = nextState;
 		}
@@ -141,6 +152,11 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	@Override
 	public double getChargingPowerForecastInMW(TimeStamp targetTime) {
-		throw new RuntimeException(ERR_CANNOT_PROVIDE_FORECAST + StrategistType.SINGLE_AGENT_MIN_SYSTEM_COST);
+		throw new RuntimeException(ERR_PROVIDE_FORECAST + StrategistType.SINGLE_AGENT_MIN_SYSTEM_COST);
+	}
+	
+	@Override
+	public void storeElectricityPriceForecast(TimePeriod timePeriod, double electricityPriceForecastInEURperMWH) {
+		throw new RuntimeException(ERR_USE_PRICE_FORECAST + StrategistType.SINGLE_AGENT_MIN_SYSTEM_COST);
 	}
 }

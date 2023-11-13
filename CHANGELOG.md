@@ -8,15 +8,34 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 
 ### Changed
 - **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, Evelyn Sperber, Seyerfarzad Sarfarazi, @kriniti)
+- **Breaking**: FuelsMarket product `FuelsBill` renamed to `FuelBill` #54 (@dlr-cjs, @dlr_jk)
+- **Breaking**: ConventionalPlantOperator now based on `FuelsTrader` interface using new `FuelBid` message #54 (@dlr-cjs, @dlr_jk)
+- **Breaking**: StorageTrader input field `forecastRequestOffset` renamed to `electricityForecastRequestOffset` #54 (@dlr-cjs, @dlr_jk)
+- **Breaking**: Output field `CostsInEUR` in PowerPlantOperator & StorageTrader renamed to `VariableCostsInEUR` #54 (@dlr-cjs, @dlr_jk)
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
+- ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
+- FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
+- SystemCostMinimizer modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
+- StorageTrader now extends FlexibilityTrader #54 (@dlr-cjs, @dlr_jk)
 - Refactoring of SupportPolicy, PolicyInfo, RenewableTrader and bidding strategies #66 (@dlr-cjs, @dlr_jk)
 - CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs)
 
 ### Added
-- PriceForecaster: New forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
+- Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
+- `ElectrolysisTrader`: new Trader demanding electricity and producing hydrogen from it via electrolysis #54 (@dlr-cjs, @dlr_jk)
+- `FlexibilityTrader`: new abstract Trader operating a type of flexibility asset #54 (@dlr-cjs, @dlr_jk)
+- PriceForecaster: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)
+- Package `flexibility`: Basic classes for flexibility's dispatch planning #54 (@dlr-cjs, @dlr_jk)
+- Package `accounting`: including class AnnualCostCalculator #54 (@dlr-cjs, @dlr_jk)
+- `FuelsMarket`: new Fuels `BIOMASS` and `OTHER` #54 (@dlr-cjs, @dlr_jk)
+- `FuelsTrader`: interface to trade with FuelsMarket #54 (@dlr-cjs, @dlr_jk)
+- `FuelBid` message to send bids for fuels to FuelsMarket #54 (@dlr-cjs, @dlr_jk)
+- `Trader`: has new product `AnnualCostReport` #54 (@dlr-cjs, @dlr_jk)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
-- UPGRADING.md: help people with upgrading tasks
+- Tests in packages `accounting` and `util` #54 (@dlr-cjs, @dlr_jk)
+- UPGRADING.md: help people with upgrading tasks #58 (@dlr-cjs)
+- MarketClearing: Checks for Bid message integrity #54 (@dlr-cjs, @dlr_jk)
 - CI: Automatic checks for changelog updates #60 (@dlr-cjs)
 
 ### Removed
