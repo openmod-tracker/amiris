@@ -11,6 +11,7 @@ import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -28,11 +29,13 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected Electrolyzer electrolyzer;
 	private DispatchSchedule schedule;
 	private TreeMap<TimePeriod, Double> hydrogenPrices = new TreeMap<>();
+	private TimeSeries priceLimitOverrideInEURperMWH;
 
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
 			.addAs("FixedDispatch", FileDispatcher.parameters).addAs("Simple", SingleAgentSimple.parameters)
+			.add(Make.newSeries("PriceLimitOverrideInEURperMWH").optional().help("Overrides hydrogen prices"))
 			.buildTree();
 
 	/** Create new {@link ElectrolyzerStrategist}
@@ -42,6 +45,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected ElectrolyzerStrategist(ParameterData input) throws MissingDataException {
 		super(input);
 		scheduledChargedHydrogenTotal = new double[scheduleDurationPeriods];
+		priceLimitOverrideInEURperMWH = input.getTimeSeriesOrDefault("PriceLimitOverrideInEURperMWH", null);
 	}
 
 	/** Creates new electrolysis Strategist based on its associated input group
@@ -109,7 +113,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	public void updateProducedHydrogenTotal(double producedHydrogenInMWH) {
 		actualProducedHydrogen += producedHydrogenInMWH;
 	}
-	
+
 	/** Returns list of times at which hydrogen price forecasts are missing needed for schedule planning
 	 * 
 	 * @param firstTime first time period to be covered by a created schedule
@@ -117,15 +121,19 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	public ArrayList<TimeStamp> getMissingHydrogenPriceForecastsTimes(TimePeriod firstTime) {
 		return getMissingForecastTimes(hydrogenPrices, firstTime);
 	}
-	
+
 	/** Stores given hydrogen price forecast for the associated TimePeriod: price-forecasting method
 	 * 
 	 * @param timePeriod associated with the forecast data
 	 * @param priceForecastInEURperThermalMWH forecast for the hydrogen price in EUR per thermal MWh */
 	public void storeHydrogenPriceForecast(TimePeriod timePeriod, double priceForecastInEURperThermalMWH) {
-		hydrogenPrices.put(timePeriod, priceForecastInEURperThermalMWH);
+		if (priceLimitOverrideInEURperMWH == null) {
+			hydrogenPrices.put(timePeriod, priceForecastInEURperThermalMWH);
+		} else {
+			hydrogenPrices.put(timePeriod, priceLimitOverrideInEURperMWH.getValueLinear(timePeriod.getStartTime()));
+		}
 	}
-	
+
 	/** Returns hydrogen price forecast associated with given TimePeriod
 	 * 
 	 * @param timePeriod to search for associated hydrogen price
@@ -133,5 +141,5 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected double getHydrogenPriceForPeriod(TimePeriod timePeriod) {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
-	}	
+	}
 }

@@ -32,6 +32,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - `FuelsTrader`: interface to trade with FuelsMarket #54 (@dlr-cjs, @dlr_jk)
 - `FuelBid` message to send bids for fuels to FuelsMarket #54 (@dlr-cjs, @dlr_jk)
 - `Trader`: has new product `AnnualCostReport` #54 (@dlr-cjs, @dlr_jk)
+- `ElectrolysisTrader`: add optional bidding price limit override #57 (@dlr_jk, @dlr-cjs)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
 - Tests in packages `accounting` and `util` #54 (@dlr-cjs, @dlr_jk)
 - UPGRADING.md: help people with upgrading tasks #58 (@dlr-cjs)
