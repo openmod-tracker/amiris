@@ -629,7 +629,11 @@ AgentTypes:
           BidToleranceInEURperMWH:
             AttributeType: double
             Mandatory: false
-            List: false            
+            List: false       
+          PriceLimitOverrideInEURperMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
           FixedDispatch:
             AttributeType: block
             Mandatory: false
