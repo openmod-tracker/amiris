@@ -25,6 +25,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - `ElectrolysisTrader`: new Trader demanding electricity and producing hydrogen from it via electrolysis #54 (@dlr-cjs, @dlr_jk)
 - `FlexibilityTrader`: new abstract Trader operating a type of flexibility asset #54 (@dlr-cjs, @dlr_jk)
 - PriceForecaster: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
+- Package `storage.arbitrageStrategists`: added new strategist `ProfitMaximiser` # 72 (@dlr-cjs)
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)
 - Package `flexibility`: Basic classes for flexibility's dispatch planning #54 (@dlr-cjs, @dlr_jk)
 - Package `accounting`: including class AnnualCostCalculator #54 (@dlr-cjs, @dlr_jk)

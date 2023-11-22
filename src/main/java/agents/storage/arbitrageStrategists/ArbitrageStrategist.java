@@ -62,6 +62,8 @@ public abstract class ArbitrageStrategist extends Strategist {
 			case DISPATCH_FILE: {
 				return new FileDispatcher(input, input.getGroup("FixedDispatch"), storage);
 			}
+			case SINGLE_AGENT_MAX_PROFIT:
+				return new ProfitMaximiser(input, input.getGroup("SingleAgent"), storage);
 			default:
 				throw new RuntimeException("Storage Strategist not implemented: " + strategistType);
 		}
