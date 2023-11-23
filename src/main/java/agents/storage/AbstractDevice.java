@@ -8,7 +8,9 @@ package agents.storage;
  * 
  * @author Christoph Schimeczek */
 public abstract class AbstractDevice {
+	/** internal maximum charging / discharging power in MW */
 	protected double internalPowerInMW;
+	/** internal energy storage capacity in MWh */
 	protected double energyStorageCapacityInMWH;
 	private double energyToPowerRatio;
 	private double selfDischargeRatePerHour;

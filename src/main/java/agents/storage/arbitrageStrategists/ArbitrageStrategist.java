@@ -21,20 +21,21 @@ public abstract class ArbitrageStrategist extends Strategist {
 	public static enum StrategistType {
 		/** Creates a the schedule according to a given TimeSeries. */
 		DISPATCH_FILE,
-		/** Uses the storage {@link Device} in order to minimize the total system costs. */
+		/** Uses the storage {@link Device} in order to minimise the total system costs. */
 		SINGLE_AGENT_MIN_SYSTEM_COST,
-		/** Optimizes the {@link Device} dispatch in order to maximize the profits of the {@link StorageTrader}. A perfect forecast of
-		 * upcoming prices (and their changes due to charging) is used for the optimization. */
+		/** Optimises the {@link Device} dispatch in order to maximise the profits of the {@link StorageTrader}. A perfect forecast of
+		 * upcoming prices (and their changes due to charging) is used for the optimisation. */
 		SINGLE_AGENT_MAX_PROFIT,
-		/** Calculates the {@link Device} dispatch in order to maximize the profits of the {@link StorageTrader}. A median of the
+		/** Calculates the {@link Device} dispatch in order to maximise the profits of the {@link StorageTrader}. A median of the
 		 * forecasted prices is used to estimate a good dispatch strategy in an environment with more than one flexible agent. */
-		MULTI_AGENT_SIMPLE
+		MULTI_AGENT_MEDIAN
 	}
 
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
 			.addAs("SingleAgent", SystemCostMinimiser.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
+			.addAs("MultiAgent", MultiAgentMedian.parameters)
 			.buildTree();
 
 	public static final ParameterBuilder StrategistTypeParam = Make.newEnum("StrategistType", StrategistType.class);
@@ -56,14 +57,14 @@ public abstract class ArbitrageStrategist extends Strategist {
 	public static ArbitrageStrategist createStrategist(ParameterData input, Device storage) throws MissingDataException {
 		StrategistType strategistType = input.getEnum("StrategistType", StrategistType.class);
 		switch (strategistType) {
-			case SINGLE_AGENT_MIN_SYSTEM_COST: {
+			case SINGLE_AGENT_MIN_SYSTEM_COST:
 				return new SystemCostMinimiser(input, input.getGroup("SingleAgent"), storage);
-			}
-			case DISPATCH_FILE: {
+			case DISPATCH_FILE:
 				return new FileDispatcher(input, input.getGroup("FixedDispatch"), storage);
-			}
 			case SINGLE_AGENT_MAX_PROFIT:
 				return new ProfitMaximiser(input, input.getGroup("SingleAgent"), storage);
+			case MULTI_AGENT_MEDIAN:
+				return new MultiAgentMedian(input, input.getGroup("MultiAgent"), storage);
 			default:
 				throw new RuntimeException("Storage Strategist not implemented: " + strategistType);
 		}
