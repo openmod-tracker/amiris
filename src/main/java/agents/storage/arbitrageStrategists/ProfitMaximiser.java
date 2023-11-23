@@ -156,8 +156,7 @@ public class ProfitMaximiser extends ArbitrageStrategist {
 
 			int nextState = bestNextState[period][initialState];
 			int stateDelta = nextState - initialState;
-			double externalEnergyDelta = storage.internalToExternalEnergy(stateDelta * internalEnergyPerState);
-			demandScheduleInMWH[period] = externalEnergyDelta;
+			demandScheduleInMWH[period] = storage.internalToExternalEnergy(stateDelta * internalEnergyPerState);
 			if (stateDelta == 0) {
 				priceScheduleInEURperMWH[period] = Double.NaN;
 			} else {

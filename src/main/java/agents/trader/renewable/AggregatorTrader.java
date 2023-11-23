@@ -48,8 +48,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek, Felix Nitsch, Farzad Sarfarazi, Kristina Nienhaus */
 public abstract class AggregatorTrader extends Trader {
-	@Input
-	private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
+	@Input private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
 			.buildTree();
 
 	static final String ERR_NO_MESSAGE_FOUND = "No client data received for client: ";
@@ -57,6 +56,7 @@ public abstract class AggregatorTrader extends Trader {
 	static final String ERR_NO_CLIENT_FOR_SET = " has no client with technology set type: ";
 	static final String ERR_TIMESTAMP_LEFTOVER = "Accounting period mismatch; No payout was obtained for dispatch at time stamp: ";
 
+	/** Columns of the output file */
 	@Output
 	protected static enum OutputColumns {
 		/** amount of energy offered */
@@ -73,6 +73,7 @@ public abstract class AggregatorTrader extends Trader {
 		TruePowerPotentialInMWH
 	};
 
+	/** Products of this Agent */
 	@Product
 	public static enum Products {
 		/** Request for support information for contracted technology set(s) */
@@ -83,7 +84,7 @@ public abstract class AggregatorTrader extends Trader {
 		YieldPotential
 	};
 
-	/** bids submitted */
+	/** Submitted Bids */
 	protected final TreeMap<TimeStamp, ArrayList<BidData>> submittedBidsByTime = new TreeMap<>();
 	/** Map to store all client, i.e. {@link RenewablePlantOperator}, specific data */
 	protected final HashMap<Long, ClientData> clientMap = new HashMap<>();
