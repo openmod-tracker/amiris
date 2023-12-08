@@ -68,5 +68,12 @@ public abstract class PowerPlantOperator extends Agent {
 		Message message = CommUtils.getExactlyOneEntry(input);
 		AmountAtTime payout = message.getDataItemOfType(AmountAtTime.class);
 		store(OutputFields.ReceivedMoneyInEUR, payout.amount);
+		digestPaymentPerPlant(payout.validAt, payout.amount);
 	}
+
+	/** Optional function to digest payments for individual plants of plant operator
+	 * 
+	 * @param dispatchTime time at which the payment is received
+	 * @param totalPaymentInEUR total money to be paid out to plant operator */
+	protected void digestPaymentPerPlant(TimeStamp dispatchTime, double totalPaymentInEUR) {}
 }

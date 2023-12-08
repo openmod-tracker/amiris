@@ -16,6 +16,7 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	private double efficiency;
 	private double installedGenerationPowerInMW;
 	private double currentLoadLevel = 0;
+	private double currentPowerOutputInMW = 0;
 	private long constructionTimeStep = Long.MIN_VALUE;
 	private long tearDownTimeStep = Long.MAX_VALUE;
 	private String id;
@@ -116,6 +117,7 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 		double newLoadLevel = calcLoadLevel(marginal[0], requestedPowerInMW);
 		double rampingCostInEUR = calcSpecificCostOfLoadChangeInEURperMW(currentLoadLevel, newLoadLevel) * marginal[0];
 		currentLoadLevel = newLoadLevel;
+		currentPowerOutputInMW = currentLoadLevel * getAvailablePowerInMW(time);
 		double fuelConsumptionInThermalMWH = requestedPowerInMW / efficiency;
 		double co2EmissionsInTons = calcCo2EmissionInTons(fuelConsumptionInThermalMWH);
 		double variableCost = rampingCostInEUR + marginal[1] * requestedPowerInMW;
@@ -127,6 +129,13 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 		double newLoadLevel = requestedPower / availablePowerInMW;
 		return ensureValidLoadLevel(newLoadLevel);
 	}
+	
+	/** Returns electricity production from last update of load level
+	 * 
+	 * @return power production as set by last update */
+	public double getCurrentPowerOutputInMW() {
+		return currentPowerOutputInMW;
+	}	
 
 	/** Throws an Exception if given load level is not between [0..1], else returns given load level
 	 * 

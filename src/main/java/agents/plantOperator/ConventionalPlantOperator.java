@@ -20,11 +20,11 @@ import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
 import communications.message.Co2Cost;
 import communications.message.FuelBid;
+import communications.message.FuelBid.BidType;
 import communications.message.FuelCost;
 import communications.message.FuelData;
 import communications.message.MarginalCost;
 import communications.message.PointInTime;
-import communications.message.FuelBid.BidType;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
@@ -54,7 +54,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 	@Output
 	private static enum OutputFields {
-		DispatchedPowerInMWHperPlant, VariableCostsInEURperPlant
+		DispatchedPowerInMWHperPlant, VariableCostsInEURperPlant, ReceivedMoneyInEURperPlant
 	}
 
 	/** The list of all power plants to be operated (now and possibly power plants to become active in the near future) */
@@ -65,6 +65,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 	private HashMap<TimeStamp, Double> fuelPrice = new HashMap<>();
 	private HashMap<TimeStamp, Double> co2Price = new HashMap<>();
+	private double lastDispatchedTotalInMW = 0;
 
 	private enum PlantsKey {
 		ID
@@ -74,6 +75,8 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 			OutputFields.DispatchedPowerInMWHperPlant, PlantsKey.class);
 	private static final ComplexIndex<PlantsKey> variableCosts = ComplexIndex.build(
 			OutputFields.VariableCostsInEURperPlant, PlantsKey.class);
+	private static final ComplexIndex<PlantsKey> money = ComplexIndex.build(OutputFields.ReceivedMoneyInEURperPlant,
+			PlantsKey.class);
 
 	/** Creates a {@link ConventionalPlantOperator}
 	 * 
@@ -231,6 +234,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 	 * @param time to dispatch at
 	 * @return {@link DispatchResult} showing emissions, fuel consumption and variable costs */
 	private DispatchResult updatePowerPlantStatus(double requiredEnergy, TimeStamp time) {
+		lastDispatchedTotalInMW = requiredEnergy;
 		double currentFuelPrice = fuelPrice.remove(time);
 		double currentCo2Price = co2Price.remove(time);
 		DispatchResult totals = new DispatchResult();
@@ -275,5 +279,16 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 			sendFuelBid(contract, fuelBid);
 		}
 		fuelConsumption.clear();
+	}
+
+	@Override
+	protected void digestPaymentPerPlant(TimeStamp dispatchTime, double totalPaymentInEUR) {
+		for (PowerPlant plant : portfolio.getPowerPlantList()) {
+			double shareOfLastDispatch = plant.getCurrentPowerOutputInMW() / lastDispatchedTotalInMW;
+			double plantPaymentInEUR = totalPaymentInEUR * shareOfLastDispatch;
+			if (Math.abs(plantPaymentInEUR) > 1E-10) {
+				store(money.key(PlantsKey.ID, plant.getId()), plantPaymentInEUR);
+			}
+		}
 	}
 }
