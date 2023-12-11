@@ -9,7 +9,7 @@ import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
@@ -70,8 +70,8 @@ public class StorageTrader extends FlexibilityTrader {
 		call(this::requestPriceForecast).on(Trader.Products.PriceForecastRequest);
 		call(this::updatePriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
-		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
-		call(this::digestAwards).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
+		call(this::prepareBids).on(Trader.Products.Bids).use(DayAheadMarketSingleZone.Products.GateClosureInfo);
+		call(this::digestAwards).on(DayAheadMarketSingleZone.Products.Awards).use(DayAheadMarketSingleZone.Products.Awards);
 	}
 
 	/** Requests MeritOrderForecast from contracted partner (Forecaster)
@@ -207,9 +207,9 @@ public class StorageTrader extends FlexibilityTrader {
 		return supplyBid;
 	}
 
-	/** Digests award information from {@link EnergyExchange} and writes out award data
+	/** Digests award information from {@link DayAheadMarketSingleZone} and writes out award data
 	 * 
-	 * @param input award information received from {@link EnergyExchange}
+	 * @param input award information received from {@link DayAheadMarketSingleZone}
 	 * @param contracts not used */
 	private void digestAwards(ArrayList<Message> input, List<Contract> contracts) {
 		Message awards = CommUtils.getExactlyOneEntry(input);

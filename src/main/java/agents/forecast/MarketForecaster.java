@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
@@ -29,7 +29,7 @@ import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Common base class related to {@link EnergyExchange} market forecasting; issues {@link Products#ForecastRequest}s to ask for
+/** Common base class related to {@link DayAheadMarketSingleZone} market forecasting; issues {@link Products#ForecastRequest}s to ask for
  * required forecasts; uses forecasted bids to clear market ahead of time and thus provide forecasts
  * 
  * @author Christoph Schimeczek */
@@ -74,7 +74,7 @@ public abstract class MarketForecaster extends Forecaster {
 	/** Requests bid forecast for all future hours within forecast period
 	 * 
 	 * @param input not used
-	 * @param contracts with all agents that start an {@link EnergyExchange} bidding chain */
+	 * @param contracts with all agents that start an {@link DayAheadMarketSingleZone} bidding chain */
 	private void sendForecastRequests(ArrayList<Message> input, List<Contract> contracts) {
 		List<TimeStamp> missingForecastTimes = findTimesMissing(now().laterBy(forecastRequestOffset));
 		fulfilForecastRequestContracts(contracts, missingForecastTimes);

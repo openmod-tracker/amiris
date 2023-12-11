@@ -7,6 +7,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 
 ### Changed
+- **Breaking**: Rename `EnergyExchange` to `DayAheadMarketSingleZone` #41 (@dlr-cjs)
 - **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, Evelyn Sperber, Seyerfarzad Sarfarazi, @kriniti)
 - **Breaking**: FuelsMarket product `FuelsBill` renamed to `FuelBill` #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: ConventionalPlantOperator now based on `FuelsTrader` interface using new `FuelBid` message #54 (@dlr-cjs, @dlr_jk)

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import agents.forecast.MarketForecaster;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarketSingleZone;
 import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
 import de.dlr.gitlab.fame.agent.Agent;
@@ -18,7 +18,7 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Abstract base class for all traders with {@link EnergyExchange}
+/** Abstract base class for all traders with {@link DayAheadMarketSingleZone}
  *
  * @author Christoph Schimeczek */
 public abstract class Trader extends Agent {
@@ -34,7 +34,7 @@ public abstract class Trader extends Agent {
 
 	public Trader(DataProvider dataProvider) {
 		super(dataProvider);
-		call(this::forwardClearingTimes).on(Products.GateClosureForward).use(EnergyExchange.Products.GateClosureInfo);
+		call(this::forwardClearingTimes).on(Products.GateClosureForward).use(DayAheadMarketSingleZone.Products.GateClosureInfo);
 		call(this::forwardClearingTimes).on(Products.ForecastRequestForward).use(MarketForecaster.Products.ForecastRequest);
 	}
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import agents.forecast.MarketForecaster;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.meritOrder.Bid.Type;
 import agents.plantOperator.ConventionalPlantOperator;
 import agents.plantOperator.PowerPlantOperator;
@@ -60,8 +60,8 @@ public class ConventionalTrader extends Trader {
 		call(this::prepareForecastBids).on(Trader.Products.BidsForecast)
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::sendBids).on(Trader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
-		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(EnergyExchange.Products.Awards);
-		call(this::payout).on(Trader.Products.Payout).use(EnergyExchange.Products.Awards);
+		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(DayAheadMarketSingleZone.Products.Awards);
+		call(this::payout).on(Trader.Products.Payout).use(DayAheadMarketSingleZone.Products.Awards);
 	}
 
 	/** @throws RuntimeException if {@link #minMarkup} > {@link #maxMarkup} */
@@ -76,7 +76,7 @@ public class ConventionalTrader extends Trader {
 	/** Sends supply {@link BidData bids} to partner and stores offered power
 	 * 
 	 * @param messages marginal cost data from client
-	 * @param contracts single contract with typically {@link EnergyExchange} */
+	 * @param contracts single contract with typically {@link DayAheadMarketSingleZone} */
 	private void sendBids(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		prepareBids(messages, contractToFulfil);
@@ -116,7 +116,7 @@ public class ConventionalTrader extends Trader {
 		}
 	}
 
-	/** Assigns dispatch from {@link EnergyExchange} to power plant operators and writes information to output
+	/** Assigns dispatch from {@link DayAheadMarketSingleZone} to power plant operators and writes information to output
 	 * 
 	 * @param messages one single message containing award information (price, awarded power)
 	 * @param contracts single contract with associated PowerPlantOperator to order the energy to deliver */

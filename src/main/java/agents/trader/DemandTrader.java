@@ -6,7 +6,7 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.List;
 import agents.forecast.MarketForecaster;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.meritOrder.Bid.Type;
 import communications.message.AwardData;
 import communications.message.BidData;
@@ -24,7 +24,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Purchases energy at {@link EnergyExchange} according to given {@link TimeSeries} of energy demand
+/** Purchases energy at {@link DayAheadMarketSingleZone} according to given {@link TimeSeries} of energy demand
  *
  * @author Christoph Schimeczek, Ulrich Frey, Marc Deissenroth, Johannes Kochems */
 public class DemandTrader extends Trader {
@@ -65,8 +65,8 @@ public class DemandTrader extends Trader {
 		}
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
-		call(this::evaluateAwardedDemandBids).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
+		call(this::prepareBids).on(Trader.Products.Bids).use(DayAheadMarketSingleZone.Products.GateClosureInfo);
+		call(this::evaluateAwardedDemandBids).on(DayAheadMarketSingleZone.Products.Awards).use(DayAheadMarketSingleZone.Products.Awards);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster} */
@@ -104,7 +104,7 @@ public class DemandTrader extends Trader {
 		return bids;
 	}
 
-	/** Prepares demand bids and sends them to the {@link EnergyExchange} */
+	/** Prepares demand bids and sends them to the {@link DayAheadMarketSingleZone} */
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		double totalRequestedEnergyInMWH = prepareBidsMultipleTimes(input, contracts);
 		store(OutputColumns.RequestedEnergyInMWH, totalRequestedEnergyInMWH);
