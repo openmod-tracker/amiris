@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import agents.forecast.MarketForecaster;
+import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.meritOrder.Bid.Type;
 import agents.plantOperator.ConventionalPlantOperator;
@@ -30,7 +31,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import de.dlr.gitlab.fame.logging.Logging;
 import util.Util;
 
-/** Sells energy of one conventional PowerPlantOperator at the EnergyExchange
+/** Sells energy of one conventional PowerPlantOperator at the {@link DayAheadMarket}
  *
  * @author Christoph Schimeczek, Marc Deissenroth, Ulrich Frey */
 public class ConventionalTrader extends Trader {
