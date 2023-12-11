@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -29,10 +29,10 @@ import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Energy exchange performs market clearing for day-ahead energy market
+/** Performs market clearing for a single day-ahead energy market zone
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
-public class EnergyExchange extends Agent {
+public class DayAheadMarketSingleZone extends Agent {
 	static final String LONE_LIST = "At most one element is expected in this list: ";
 	
 	@Product
@@ -58,11 +58,11 @@ public class EnergyExchange extends Agent {
 	private final TimeSpan gateClosureInfoOffset;
 	private ClearingTimes clearingTimes;
 
-	/** Creates an {@link EnergyExchange}
+	/** Creates an {@link DayAheadMarketSingleZone}
 	 * 
 	 * @param dataProvider provides input from config
 	 * @throws MissingDataException if any required data is not provided */
-	public EnergyExchange(DataProvider dataProvider) throws MissingDataException {
+	public DayAheadMarketSingleZone(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		marketClearing = new MarketClearing(input.getEnum("DistributionMethod", DistributionMethod.class));

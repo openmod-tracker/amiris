@@ -5,7 +5,7 @@ package agents.policy;
 
 import java.util.ArrayList;
 import java.util.List;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarketSingleZone;
 import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.trader.renewable.AggregatorTrader;
@@ -86,7 +86,7 @@ public class SupportPolicy extends Agent {
 		call(this::sendSupportInfo).on(Products.SupportInfo).use(AggregatorTrader.Products.SupportInfoRequest);
 		call(this::logYieldPotentials).on(AggregatorTrader.Products.YieldPotential)
 				.use(AggregatorTrader.Products.YieldPotential);
-		call(this::logPowerPrice).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
+		call(this::logPowerPrice).on(DayAheadMarketSingleZone.Products.Awards).use(DayAheadMarketSingleZone.Products.Awards);
 		call(this::calcSupportPayout).on(Products.SupportPayout).use(AggregatorTrader.Products.SupportPayoutRequest);
 		call(this::calculateAndStoreMarketValues).on(Products.MarketValueCalculation);
 	}
@@ -126,7 +126,7 @@ public class SupportPolicy extends Agent {
 		}
 	}
 
-	/** Extract and store power prices and volumes reported from {@link EnergyExchange}
+	/** Extract and store power prices and volumes reported from {@link DayAheadMarketSingleZone}
 	 * 
 	 * @param input single power price message to read
 	 * @param contracts not used */

@@ -11,7 +11,7 @@ import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
@@ -80,8 +80,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(Forecaster.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
-		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
-		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(EnergyExchange.Products.Awards);
+		call(this::prepareBids).on(Trader.Products.Bids).use(DayAheadMarketSingleZone.Products.GateClosureInfo);
+		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarketSingleZone.Products.Awards);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
 	}
 
@@ -185,10 +185,10 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		return demandBid;
 	}
 
-	/** Digests award information from {@link EnergyExchange}, writes dispatch and sells hydrogen at fuels market using a "negative
+	/** Digests award information from {@link DayAheadMarketSingleZone}, writes dispatch and sells hydrogen at fuels market using a "negative
 	 * purchase" message
 	 * 
-	 * @param messages award information received from {@link EnergyExchange}
+	 * @param messages award information received from {@link DayAheadMarketSingleZone}
 	 * @param contracts a contract with one {@link FuelsMarket} */
 	private void sellProducedHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
 		Message awardMessage = CommUtils.getExactlyOneEntry(messages);
