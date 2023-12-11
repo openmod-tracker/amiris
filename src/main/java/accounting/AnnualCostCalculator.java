@@ -13,6 +13,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class AnnualCostCalculator {
+	/** Input parameters used by {@link AnnualCostCalculator} */
 	@Input public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("InvestmentExpensensesInEURperMW").optional(),
 					Make.newDouble("AnnuityFactor").optional(),
@@ -72,14 +73,17 @@ public class AnnualCostCalculator {
 		return fixedCostsInEURperYearMW * installedCapacityInMW;
 	}
 
+	/** @return investment expenses in EUR per MW of installed capacity */
 	public double getInvestmentExpensesInEURperMW() {
 		return investmentExpensesInEURperMW;
 	}
 
+	/** @return annuity factor applied to calculate annual annuity of investment */
 	public double getAnnuityFactor() {
 		return annuityFactor;
 	}
 
+	/** @return fixed annual operation and maintenance cost in EUR per MW of installed capacity */
 	public double getFixedCostsInEURperYearMW() {
 		return fixedCostsInEURperYearMW;
 	}
