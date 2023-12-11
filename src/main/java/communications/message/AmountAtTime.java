@@ -17,6 +17,10 @@ public class AmountAtTime extends DataItem {
 	/** The actual amount to be exchanged between the contract parties */
 	public final double amount;
 
+	/** Creates a new {@link AmountAtTime} message
+	 * 
+	 * @param timeStamp to which the specified amount is associated with
+	 * @param amount value associated with the given timeStamp */
 	public AmountAtTime(TimeStamp timeStamp, double amount) {
 		this.validAt = timeStamp;
 		this.amount = amount;
