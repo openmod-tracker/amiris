@@ -9,6 +9,7 @@ import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
+import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
@@ -36,7 +37,7 @@ import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Sells and buys energy utilising a Storage {@link Device} at the EnergyExchange
+/** Sells and buys energy utilising a Storage {@link Device} at the {@link DayAheadMarket}
  * 
  * @author Christoph Schimeczek, Johannes Kochems, Farzad Sarfarazi, Felix Nitsch */
 public class StorageTrader extends FlexibilityTrader {

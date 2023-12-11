@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketSingleZone;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
@@ -40,7 +41,7 @@ public abstract class MarketForecaster extends Forecaster {
 
 	@Product
 	public static enum Products {
-		/** Send this out to every (start) agent of an {@link EnergyExchange} bidding chain (e.g. demand and power plant agents) */
+		/** Send this out to every (start) agent of an {@link DayAheadMarket} bidding chain (e.g. demand and power plant agents) */
 		ForecastRequest
 	};
 
