@@ -18,7 +18,8 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Performs market clearing for a single day-ahead energy market zone
+/** Performs market clearing for a single day-ahead energy market zone. Unlike at actual day-ahead markets, market clearing is
+ * currently implemented on an <b>hour-per-hour</b> basis.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class DayAheadMarketSingleZone extends DayAheadMarket {
