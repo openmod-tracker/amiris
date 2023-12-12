@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import agents.forecast.MarketForecaster;
-import agents.markets.DayAheadMarketSingleZone;
+import agents.markets.DayAheadMarket;
+import agents.markets.DayAheadMarketTrader;
 import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
 import de.dlr.gitlab.fame.agent.Agent;
@@ -18,15 +19,15 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Abstract base class for all traders with {@link DayAheadMarketSingleZone}
+/** Abstract base class for all traders at {@link DayAheadMarket}
  *
  * @author Christoph Schimeczek */
-public abstract class Trader extends Agent {
+public abstract class Trader extends Agent implements DayAheadMarketTrader {
 	static final String ERR_NO_CONTRACT_IN_LIST = "No contract existing for agent: ";
 
 	@Product
 	public static enum Products {
-		Bids, Payout, DispatchAssignment, BidsForecast, MeritOrderForecastRequest, PriceForecastRequest, GateClosureForward,
+		Payout, DispatchAssignment, BidsForecast, MeritOrderForecastRequest, PriceForecastRequest, GateClosureForward,
 		ForecastRequestForward,
 		/** Report annual costs (not sent to other agents, but calculated within operator class) */
 		AnnualCostReport
@@ -34,7 +35,7 @@ public abstract class Trader extends Agent {
 
 	public Trader(DataProvider dataProvider) {
 		super(dataProvider);
-		call(this::forwardClearingTimes).on(Products.GateClosureForward).use(DayAheadMarketSingleZone.Products.GateClosureInfo);
+		call(this::forwardClearingTimes).on(Products.GateClosureForward).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::forwardClearingTimes).on(Products.ForecastRequestForward).use(MarketForecaster.Products.ForecastRequest);
 	}
 

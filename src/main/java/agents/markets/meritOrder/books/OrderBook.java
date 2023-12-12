@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-
-import agents.markets.DayAheadMarketSingleZone;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-/** Handles a list of bids or asks at an energy {@link DayAheadMarketSingleZone} for a single time frame of trading
+/** Handles a list of bids or asks at an energy {@link DayAheadMarket} for a single time frame of trading
  * 
  * @author Martin Klein, Christoph Schimeczek */
 public abstract class OrderBook implements Portable {
