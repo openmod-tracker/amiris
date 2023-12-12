@@ -10,7 +10,6 @@ import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
-import agents.trader.Trader;
 import communications.message.AwardData;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -18,8 +17,7 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Performs market clearing for a single day-ahead energy market zone. Unlike at actual day-ahead markets, market clearing is
- * currently implemented on an <b>hour-per-hour</b> basis.
+/** Performs market clearing for a single day-ahead energy market zone.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class DayAheadMarketSingleZone extends DayAheadMarket {
@@ -33,7 +31,7 @@ public class DayAheadMarketSingleZone extends DayAheadMarket {
 	public DayAheadMarketSingleZone(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		/** Clears market by using incoming bids and sending Awards */
-		call(this::clearMarket).on(Products.Awards).use(Trader.Products.Bids);
+		call(this::clearMarket).on(Products.Awards).use(DayAheadMarketTrader.Products.Bids);
 	}
 
 	/** Clears the market based on all the bids provided; writes out some market-clearing data

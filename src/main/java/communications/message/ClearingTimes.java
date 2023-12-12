@@ -10,7 +10,7 @@ import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Transfers multiple (but at least one!) TimeStamps
+/** Transfers 1..N TimeStamps
  *
  * @author Christoph Schimeczek, A. Achraf El Ghazi */
 public class ClearingTimes extends DataItem {

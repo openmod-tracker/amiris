@@ -4,7 +4,7 @@
 package agents.trader.renewable;
 
 import java.util.ArrayList;
-import agents.markets.DayAheadMarketSingleZone;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid.Type;
 import communications.message.BidData;
 import communications.message.MarginalCost;
@@ -18,7 +18,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Offers energy at {@link DayAheadMarketSingleZone} according to given {@link TimeSeries} of renewable power plants and thereby obtaining
+/** Offers energy at {@link DayAheadMarket} according to given {@link TimeSeries} of renewable power plants and thereby obtaining
  * no support payments
  *
  * @author Johannes Kochems */

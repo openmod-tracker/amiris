@@ -21,7 +21,8 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeSpan;
 
-/** Common market clearing routines for day-ahead energy markets
+/** Common market clearing routines for day-ahead energy markets. Unlike at actual day-ahead markets, market clearing is currently
+ * implemented on an <b>hour-per-hour</b> basis.
  * 
  * @author Christoph Schimeczek, A. Achraf El Ghazi, Felix Nitsch, Johannes Kochems */
 public class DayAheadMarket extends Agent {
@@ -37,7 +38,7 @@ public class DayAheadMarket extends Agent {
 	public static enum Products {
 		/** Awarded energy and price per bidding trader */
 		Awards,
-		/** Information on when the market clearing is performed */
+		/** States when the market clearing is performed and which time intervals it covers */
 		GateClosureInfo
 	};
 
@@ -76,9 +77,14 @@ public class DayAheadMarket extends Agent {
 	 * @param input n/a
 	 * @param contracts connected traders to inform */
 	private void sendGateClosureInfo(ArrayList<Message> input, List<Contract> contracts) {
-		clearingTimes = new ClearingTimes(now().laterBy(gateClosureInfoOffset));
+		updateClearingTimes();
 		for (Contract contract : contracts) {
 			fulfilNext(contract, clearingTimes);
 		}
+	}
+
+	/** Updates the clearing times: adds a single TimeStamp for the next clearing */
+	private void updateClearingTimes() {
+		clearingTimes = new ClearingTimes(now().laterBy(gateClosureInfoOffset));
 	}
 }
