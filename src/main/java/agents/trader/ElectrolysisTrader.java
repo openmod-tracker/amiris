@@ -165,7 +165,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * @param contracts single contract with a {@link DayAheadMarket} */
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
-		for (TimeStamp targetTime : extractClearingTimesFromMessages(input)) {
+		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
 			BidData bidData = prepareHourlyDemandBid(targetTime, schedule);
 			store(Outputs.RequestedEnergyInMWH, bidData.offeredEnergyInMWH);

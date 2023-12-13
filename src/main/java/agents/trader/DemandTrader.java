@@ -77,7 +77,7 @@ public class DemandTrader extends Trader {
 	 * @param contracts single contract with {@link MarketForecaster} to send the bid forecasts to */
 	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		for (TimeStamp targetTime : extractClearingTimesFromMessages(input)) {
+		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			for (BidData bid : prepareBidsFor(targetTime)) {
 				fulfilNext(contract, bid);
 			}
@@ -102,7 +102,7 @@ public class DemandTrader extends Trader {
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		double totalRequestedEnergyInMWH = 0;
-		for (TimeStamp targetTime : extractClearingTimesFromMessages(input)) {
+		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			for (BidData bid : prepareBidsFor(targetTime)) {
 				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
 				sendDayAheadMarketBids(contract, bid);

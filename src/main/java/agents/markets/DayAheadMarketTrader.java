@@ -23,7 +23,7 @@ public interface DayAheadMarketTrader extends AgentAbility {
 	@Product
 	/** Products of traders interacting with {@link DayAheadMarket} */
 	public static enum Products {
-		/** Sell/Buy order to be placed at the {@link DayAheadMarket} */
+		/** Sell/Buy orders to be placed at the {@link DayAheadMarket} */
 		Bids
 	}
 
@@ -42,14 +42,14 @@ public interface DayAheadMarketTrader extends AgentAbility {
 	 * @param messages list of messages to search for a single one with {@link ClearingTimes} payload
 	 * @return {@link TimeStamp}s contained in the found {@link ClearingTimes} payload
 	 * @throws IllegalArgumentException if not exactly one message contained a ClearingTimes payload */
-	public default List<TimeStamp> extractClearingTimesFromMessages(ArrayList<Message> messages) {
+	public default List<TimeStamp> extractTimesFromGateClosureInfoMessages(ArrayList<Message> messages) {
 		ClearingTimes clearingTimes = null;
 		for (Message message : messages) {
 			if (message.containsType(ClearingTimes.class)) {
 				if (clearingTimes != null) {
 					throw new IllegalArgumentException(ERR_CLEARING_TIMES_AMBIGUOUS);
 				} else {
-					clearingTimes = message.getDataItemOfType(ClearingTimes.class);
+					clearingTimes = readGateClosureInfoMessage(message);
 				}
 			}
 		}
@@ -57,5 +57,12 @@ public interface DayAheadMarketTrader extends AgentAbility {
 			throw new IllegalArgumentException(ERR_CLEARING_TIMES_MISSING);
 		}
 		return clearingTimes.getTimes();
+	}
+
+	/** Read a {@link DayAheadMarket.Products#GateClosureInfo} message from a contracted {@link DayAheadMarket} 
+	 * @param message to be read
+*/
+	public default ClearingTimes readGateClosureInfoMessage(Message message) {
+		return message.getDataItemOfType(ClearingTimes.class);
 	}
 }
