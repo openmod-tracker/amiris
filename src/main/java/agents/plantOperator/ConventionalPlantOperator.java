@@ -244,8 +244,9 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 		while (iterator.hasPrevious()) {
 			PowerPlant powerPlant = iterator.previous();
 			double powerToDispatch = 0;
-			if (requiredEnergy > 0) {
-				powerToDispatch = Math.min(requiredEnergy, powerPlant.getAvailablePowerInMW(time));
+			double availablePower = powerPlant.getAvailablePowerInMW(time);
+			if (requiredEnergy > 0 && availablePower > 0) {
+				powerToDispatch = Math.min(requiredEnergy, availablePower);
 				requiredEnergy -= powerToDispatch;
 				store(dispatch.key(PlantsKey.ID, powerPlant.getId()), powerToDispatch);
 			}

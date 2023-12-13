@@ -51,6 +51,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Storage: discretisation of planning no longer causes over-charging or under-depletion #55 (@dlr-cjs)
 - Forecaster: wrote out forecast prices with one hour lag - the time lag is removed #48 (@dlr-cjs)
 - CI: Pipeline to publish javadocs #62 #63 (@dlr-cjs)
+- ConventionalPlantOperator: do not store outputs for inactive plants #75 (@dlr_fn, @dlr-cjs)
 
 ## [1.3](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3) - 2023-03-21
 ### Changed
