@@ -152,3 +152,9 @@ If you use AMIRIS in your scientific work please cite:
 Christoph Schimeczek, Kristina Nienhaus, Ulrich Frey, Evelyn Sperber, Seyedfarzad Sarfarazi, Felix Nitsch, Johannes Kochems & A. Achraf El Ghazi (2023).
 AMIRIS: Agent-based Market model for the Investigation of Renewable and Integrated energy Systems.
 Journal of Open Source Software. [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041)
+
+## Acknowledgements
+Development of AMIRIS was funded by the German Aerospace Center, the German Federal Ministry for Economic Affairs and Climate Action, the German Federal Ministry of Education and Research, and the German Federal for the Environment, Nature Conservation and Nuclear Safety. 
+It received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 864276.
+We express our gratitude to all [contributors](CONTRIBUTING#list-of-contributors).
+
