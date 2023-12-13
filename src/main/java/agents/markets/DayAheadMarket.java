@@ -25,7 +25,7 @@ import de.dlr.gitlab.fame.time.TimeSpan;
  * implemented on an <b>hour-per-hour</b> basis.
  * 
  * @author Christoph Schimeczek, A. Achraf El Ghazi, Felix Nitsch, Johannes Kochems */
-public class DayAheadMarket extends Agent {
+public abstract class DayAheadMarket extends Agent {
 	static final String UNKNOWN_BID_TYPE = " is an unknown type of bid: ";
 	static final String LONE_LIST = "At most one element is expected in this list: ";
 
