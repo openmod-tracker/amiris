@@ -1,4 +1,4 @@
-<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: Apache-2.0 -->
 # AMIRIS
@@ -143,7 +143,7 @@ Thus, there is no paid technical support available.
 However, we will give our best to answer your questions and provide support.
 
 If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/tag/amiris) or via [amiris@dlr.de](mailto:amiris@dlr.de).
-Please report bugs and make feature requests by filing issues following the provided templates (see also [CONTRIBUTING](CONTRIBUTING)).
+Please report bugs and make feature requests by filing issues following the provided templates (see also [CONTRIBUTING](CONTRIBUTING.md)).
 For substantial enhancements, we recommend that you contact us via [amiris@dlr.de](mailto:amiris@dlr.de) for working together on the code in joint projects or towards common publications in order to further develop AMIRIS.
 
 ## Citing AMIRIS
@@ -152,3 +152,9 @@ If you use AMIRIS in your scientific work please cite:
 Christoph Schimeczek, Kristina Nienhaus, Ulrich Frey, Evelyn Sperber, Seyedfarzad Sarfarazi, Felix Nitsch, Johannes Kochems & A. Achraf El Ghazi (2023).
 AMIRIS: Agent-based Market model for the Investigation of Renewable and Integrated energy Systems.
 Journal of Open Source Software. [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041)
+
+## Acknowledgements
+Development of AMIRIS was funded by the German Aerospace Center, the German Federal Ministry for Economic Affairs and Climate Action, the German Federal Ministry of Education and Research, and the German Federal for the Environment, Nature Conservation and Nuclear Safety. 
+It received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 864276.
+We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contributors).
+

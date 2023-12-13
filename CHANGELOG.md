@@ -41,6 +41,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - UPGRADING.md: help people with upgrading tasks #58 (@dlr-cjs)
 - MarketClearing: Checks for Bid message integrity #54 (@dlr-cjs, @dlr_jk)
 - CI: Automatic checks for changelog updates #60 (@dlr-cjs)
+- README.md: added `Acknowledgements` section
 
 ### Removed
 - **Breaking**: Drop support of JDK 8, 9 and 10; new minimum version is JDK 11, associated with #52 (@dlr-cjs)
