@@ -37,15 +37,15 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		}
 	}
 
-	/** Searches for a single message with {@link ClearingTimes} in given messages and returns its {@link TimeStamp}s
+	/** Searches for a single {@link DayAheadMarket.Products#GateClosureInfo} message in given messages and returns its times
 	 * 
 	 * @param messages list of messages to search for a single one with {@link ClearingTimes} payload
 	 * @return {@link TimeStamp}s contained in the found {@link ClearingTimes} payload
 	 * @throws IllegalArgumentException if not exactly one message contained a ClearingTimes payload */
 	public default List<TimeStamp> extractTimesFromGateClosureInfoMessages(ArrayList<Message> messages) {
-		ClearingTimes clearingTimes = null;
+		List<TimeStamp> clearingTimes = null;
 		for (Message message : messages) {
-			if (message.containsType(ClearingTimes.class)) {
+			if (isGateClosureInfoMessage(message)) {
 				if (clearingTimes != null) {
 					throw new IllegalArgumentException(ERR_CLEARING_TIMES_AMBIGUOUS);
 				} else {
@@ -56,13 +56,19 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		if (clearingTimes == null) {
 			throw new IllegalArgumentException(ERR_CLEARING_TIMES_MISSING);
 		}
-		return clearingTimes.getTimes();
+		return clearingTimes;
 	}
 
-	/** Read a {@link DayAheadMarket.Products#GateClosureInfo} message from a contracted {@link DayAheadMarket} 
+	/** Read a {@link DayAheadMarket.Products#GateClosureInfo} message from a contracted {@link DayAheadMarket}
+	 * 
 	 * @param message to be read
-*/
-	public default ClearingTimes readGateClosureInfoMessage(Message message) {
-		return message.getDataItemOfType(ClearingTimes.class);
+	 * @return Extracted times at which the market will be cleared */
+	public default List<TimeStamp> readGateClosureInfoMessage(Message message) {
+		return message.getDataItemOfType(ClearingTimes.class).getTimes();
+	}
+
+	/** @return true if message contains a {@link ClearingTimes} payload */
+	private boolean isGateClosureInfoMessage(Message message) {
+		return message.containsType(ClearingTimes.class);
 	}
 }
