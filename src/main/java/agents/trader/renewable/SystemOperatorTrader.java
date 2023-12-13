@@ -4,7 +4,7 @@
 package agents.trader.renewable;
 
 import java.util.ArrayList;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
 import communications.message.BidData;
@@ -14,7 +14,7 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Offers energy at {@link EnergyExchange} of renewable power plants using a feed-in tariff support scheme
+/** Offers energy at {@link DayAheadMarket} of renewable power plants using a feed-in tariff support scheme
  *
  * @author Christoph Schimeczek, Ulrich Frey, Marc Deissenroth */
 public class SystemOperatorTrader extends AggregatorTrader {
@@ -23,7 +23,7 @@ public class SystemOperatorTrader extends AggregatorTrader {
 		super(dataProvider);
 	}
 
-	/** Send price-independent {@link BidData bids} to {@link EnergyExchange} for marketing RES in FIT scheme */
+	/** Send price-independent {@link BidData bids} to {@link DayAheadMarket} for marketing RES in FIT scheme */
 	@Override
 	protected ArrayList<BidData> submitHourlyBids(TimeStamp targetTime, Contract contract,
 			ArrayList<MarginalCost> sortedMarginals) {

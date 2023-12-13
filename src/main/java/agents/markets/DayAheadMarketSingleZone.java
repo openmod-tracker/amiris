@@ -1,88 +1,37 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
 
 import java.util.ArrayList;
 import java.util.List;
-import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook;
-import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
-import agents.trader.Trader;
 import communications.message.AwardData;
-import communications.message.ClearingTimes;
-import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
-import de.dlr.gitlab.fame.agent.input.Input;
-import de.dlr.gitlab.fame.agent.input.Make;
-import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
-import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.Contract;
-import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
-import de.dlr.gitlab.fame.service.output.Output;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Energy exchange performs market clearing for day-ahead energy market
+/** Performs market clearing for a single day-ahead energy market zone.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
-public class EnergyExchange extends Agent {
-	static final String LONE_LIST = "At most one element is expected in this list: ";
-	
-	@Product
-	public static enum Products {
-		/** Awarded energy and price per bidding trader */
-		Awards,
-		/** Information on when the market clearing is performed */
-		GateClosureInfo
-	};
-
-	@Output
-	private static enum OutputFields {
-		TotalAwardedPowerInMW, ElectricityPriceInEURperMWH, DispatchSystemCostInEUR
-	};
-
-	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-					 Make.newInt("GateClosureInfoOffsetInSeconds")).buildTree();
-
+public class DayAheadMarketSingleZone extends DayAheadMarket {
 	private DemandOrderBook demandBook = new DemandOrderBook();
 	private SupplyOrderBook supplyBook = new SupplyOrderBook();
-	private final MarketClearing marketClearing;
-	private final TimeSpan gateClosureInfoOffset;
-	private ClearingTimes clearingTimes;
 
-	/** Creates an {@link EnergyExchange}
+	/** Creates an {@link DayAheadMarketSingleZone}
 	 * 
 	 * @param dataProvider provides input from config
 	 * @throws MissingDataException if any required data is not provided */
-	public EnergyExchange(DataProvider dataProvider) throws MissingDataException {
+	public DayAheadMarketSingleZone(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
-		ParameterData input = parameters.join(dataProvider);
-		marketClearing = new MarketClearing(input.getEnum("DistributionMethod", DistributionMethod.class));
-		gateClosureInfoOffset = new TimeSpan(input.getInteger("GateClosureInfoOffsetInSeconds"));
-
-		/**Sends out ClearingTimes*/
-		call(this::sendGateClosureInfo).on(Products.GateClosureInfo);
 		/** Clears market by using incoming bids and sending Awards */
-		call(this::clearMarket).on(Products.Awards).use(Trader.Products.Bids);
-	}
-	
-	/** Sends info upon next gate closure to connected traders
-	 * 
-	 * @param input n/a
-	 * @param contracts connected traders to inform */
-	private void sendGateClosureInfo(ArrayList<Message> input, List<Contract> contracts) {
-		clearingTimes = new ClearingTimes(now().laterBy(gateClosureInfoOffset));
-		for (Contract contract : contracts) {
-			fulfilNext(contract, clearingTimes);
-		}
+		call(this::clearMarket).on(Products.Awards).use(DayAheadMarketTrader.Products.Bids);
 	}
 
 	/** Clears the market based on all the bids provided; writes out some market-clearing data

@@ -12,7 +12,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import agents.forecast.MarketForecaster;
 import agents.forecast.PowerForecastError;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarket;
+import agents.markets.DayAheadMarketTrader;
 import agents.plantOperator.PowerPlantOperator;
 import agents.plantOperator.RenewablePlantOperator;
 import agents.plantOperator.RenewablePlantOperator.SetType;
@@ -88,7 +89,7 @@ public abstract class AggregatorTrader extends Trader {
 	protected final TreeMap<TimeStamp, ArrayList<BidData>> submittedBidsByTime = new TreeMap<>();
 	/** Map to store all client, i.e. {@link RenewablePlantOperator}, specific data */
 	protected final HashMap<Long, ClientData> clientMap = new HashMap<>();
-	/** Stores the power prices from {@link EnergyExchange} */
+	/** Stores the power prices from {@link DayAheadMarket} */
 	protected final TreeMap<TimeStamp, Double> powerPrices = new TreeMap<>();
 	/** Adds random errors (normally distributed) to the amount of offered power */
 	protected PowerForecastError errorGenerator;
@@ -111,9 +112,9 @@ public abstract class AggregatorTrader extends Trader {
 		call(this::digestSupportInfo).on(SupportPolicy.Products.SupportInfo).use(SupportPolicy.Products.SupportInfo);
 		call(this::prepareForecastBids).on(Trader.Products.BidsForecast)
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
-		call(this::prepareBids).on(Trader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
-		call(this::sendYieldPotentials).on(Products.YieldPotential).use(EnergyExchange.Products.GateClosureInfo);
-		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(EnergyExchange.Products.Awards);
+		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
+		call(this::sendYieldPotentials).on(Products.YieldPotential).use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
 		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
 		call(this::payoutClients).on(Trader.Products.Payout);
@@ -200,10 +201,10 @@ public abstract class AggregatorTrader extends Trader {
 	protected abstract ArrayList<BidData> submitHourlyBids(TimeStamp time, Contract contract,
 			ArrayList<MarginalCost> sortedMarginals);
 
-	/** Sends supply {@link BidData} bids
+	/** Sends supply {@link BidData} bids to {@link DayAheadMarket}
 	 * 
 	 * @param messages marginal cost to process - typically from {@link RenewablePlantOperator} - possibly for multiple times
-	 * @param contracts one partner to send bid forecasts to, typically {@link EnergyExchange} */
+	 * @param contracts one {@link DayAheadMarket} to send bids to */
 	private void prepareBids(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TreeMap<TimeStamp, ArrayList<MarginalCost>> marginalsByTimeStamp = splitMarginalsByTimeStamp(messages);
@@ -285,10 +286,10 @@ public abstract class AggregatorTrader extends Trader {
 		}
 	}
 
-	/** Determine capacity to be dispatched based on {@link AwardData} from {@link EnergyExchange}; dispatch is assigned in
+	/** Determine capacity to be dispatched based on {@link AwardData} from {@link DayAheadMarket}; dispatch is assigned in
 	 * ascending order of bid prices, thus accounting for marginal cost + expected policy payments
 	 * 
-	 * @param messages single award message from {@link EnergyExchange}
+	 * @param messages single award message from {@link DayAheadMarket}
 	 * @param contracts clients (typically {@link RenewablePlantOperator}s) to receive their dispatch assignment */
 	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);

@@ -9,7 +9,8 @@ import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarket;
+import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
@@ -36,7 +37,7 @@ import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Sells and buys energy utilising a Storage {@link Device} at the EnergyExchange
+/** Sells and buys energy utilising a Storage {@link Device} at the {@link DayAheadMarket}
  * 
  * @author Christoph Schimeczek, Johannes Kochems, Farzad Sarfarazi, Felix Nitsch */
 public class StorageTrader extends FlexibilityTrader {
@@ -70,8 +71,8 @@ public class StorageTrader extends FlexibilityTrader {
 		call(this::requestPriceForecast).on(Trader.Products.PriceForecastRequest);
 		call(this::updatePriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
-		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
-		call(this::digestAwards).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
+		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
 	}
 
 	/** Requests MeritOrderForecast from contracted partner (Forecaster)
@@ -167,8 +168,7 @@ public class StorageTrader extends FlexibilityTrader {
 			BidData demandBid = prepareHourlyDemandBids(targetTime);
 			BidData supplyBid = prepareHourlySupplyBids(targetTime);
 			store(OutputFields.OfferedPowerInMW, supplyBid.offeredEnergyInMWH - demandBid.offeredEnergyInMWH);
-			fulfilNext(contractToFulfil, demandBid);
-			fulfilNext(contractToFulfil, supplyBid);
+			sendDayAheadMarketBids(contractToFulfil, demandBid, supplyBid);
 		}
 	}
 
@@ -207,9 +207,9 @@ public class StorageTrader extends FlexibilityTrader {
 		return supplyBid;
 	}
 
-	/** Digests award information from {@link EnergyExchange} and writes out award data
+	/** Digests award information from {@link DayAheadMarket} and writes out award data
 	 * 
-	 * @param input award information received from {@link EnergyExchange}
+	 * @param input award information received from {@link DayAheadMarket}
 	 * @param contracts not used */
 	private void digestAwards(ArrayList<Message> input, List<Contract> contracts) {
 		Message awards = CommUtils.getExactlyOneEntry(input);

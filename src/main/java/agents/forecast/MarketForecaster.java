@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
@@ -29,8 +29,8 @@ import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Common base class related to {@link EnergyExchange} market forecasting; issues {@link Products#ForecastRequest}s to ask for
- * required forecasts; uses forecasted bids to clear market ahead of time and thus provide forecasts
+/** Common base class related to {@link DayAheadMarket} forecasting; issues {@link Products#ForecastRequest}s to ask for required
+ * forecasts; uses forecasted bids to clear market ahead of time and thus provide forecasts
  * 
  * @author Christoph Schimeczek */
 public abstract class MarketForecaster extends Forecaster {
@@ -40,7 +40,7 @@ public abstract class MarketForecaster extends Forecaster {
 
 	@Product
 	public static enum Products {
-		/** Send this out to every (start) agent of an {@link EnergyExchange} bidding chain (e.g. demand and power plant agents) */
+		/** Send this out to every (start) agent of an {@link DayAheadMarket} bidding chain (e.g. demand and power plant agents) */
 		ForecastRequest
 	};
 
@@ -74,7 +74,7 @@ public abstract class MarketForecaster extends Forecaster {
 	/** Requests bid forecast for all future hours within forecast period
 	 * 
 	 * @param input not used
-	 * @param contracts with all agents that start an {@link EnergyExchange} bidding chain */
+	 * @param contracts with all agents that start an {@link DayAheadMarket} bidding chain */
 	private void sendForecastRequests(ArrayList<Message> input, List<Contract> contracts) {
 		List<TimeStamp> missingForecastTimes = findTimesMissing(now().laterBy(forecastRequestOffset));
 		fulfilForecastRequestContracts(contracts, missingForecastTimes);
@@ -104,7 +104,7 @@ public abstract class MarketForecaster extends Forecaster {
 	/** remove all out-dated market clearing results */
 	private void removeOutdatedForecasts() {
 		Iterator<Entry<TimeStamp, MarketClearingResult>> iterator = calculatedForecastContainer.entrySet().iterator();
-		while(iterator.hasNext()) {
+		while (iterator.hasNext()) {
 			Entry<TimeStamp, MarketClearingResult> entry = iterator.next();
 			if (entry.getKey().isLessThan(now())) {
 				iterator.remove();
@@ -144,7 +144,8 @@ public abstract class MarketForecaster extends Forecaster {
 
 	/** @return stored messages from given Map at given {@link TimeStamp} - if TimeStamp is not yet registered, a new empty list is
 	 *         created, stored to the Map and returned */
-	private ArrayList<Message> getOrCreate(TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp, TimeStamp timeStamp) {
+	private ArrayList<Message> getOrCreate(TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp,
+			TimeStamp timeStamp) {
 		messagesByTimeStamp.computeIfAbsent(timeStamp, k -> new ArrayList<Message>());
 		return messagesByTimeStamp.get(timeStamp);
 	}

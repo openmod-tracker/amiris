@@ -6,11 +6,11 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.List;
 import agents.forecast.MarketForecaster;
-import agents.markets.EnergyExchange;
+import agents.markets.DayAheadMarket;
+import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid.Type;
 import communications.message.AwardData;
 import communications.message.BidData;
-import communications.message.ClearingTimes;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -24,7 +24,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Purchases energy at {@link EnergyExchange} according to given {@link TimeSeries} of energy demand
+/** Purchases energy at {@link DayAheadMarket} according to given {@link TimeSeries} of energy demand
  *
  * @author Christoph Schimeczek, Ulrich Frey, Marc Deissenroth, Johannes Kochems */
 public class DemandTrader extends Trader {
@@ -65,35 +65,26 @@ public class DemandTrader extends Trader {
 		}
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::prepareBids).on(Trader.Products.Bids).use(EnergyExchange.Products.GateClosureInfo);
-		call(this::evaluateAwardedDemandBids).on(EnergyExchange.Products.Awards).use(EnergyExchange.Products.Awards);
+		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids)
+				.use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::evaluateAwardedDemandBids).on(DayAheadMarket.Products.Awards)
+				.use(DayAheadMarket.Products.Awards);
 	}
 
-	/** Prepares forecasts and sends them to the {@link MarketForecaster} */
-	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
-		prepareBidsMultipleTimes(input, contracts);
-	}
-
-	/** Calculates and submits demand bids
+	/** Prepares forecasts and sends them to the {@link MarketForecaster}
 	 * 
-	 * @param input single ClearingTimes message
-	 * @param contracts one contracted partner to receive bids
-	 * @return sum of demand bid energies */
-	private double prepareBidsMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
+	 * @param input single message with ClearingTimes to create bid forecasts for
+	 * @param contracts single contract with {@link MarketForecaster} to send the bid forecasts to */
+	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
-		double totalRequestedEnergyInMWH = 0;
-		for (TimeStamp targetTime : clearingTimes.getTimes()) {
-			List<BidData> bids = prepareBidsFor(targetTime);
-			for (BidData bid : bids) {
+		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
+			for (BidData bid : prepareBidsFor(targetTime)) {
 				fulfilNext(contract, bid);
-				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
 			}
 		}
-		return totalRequestedEnergyInMWH;
 	}
 
-	/** Prepares hourly demand bids */
+	/** Prepares demand bids for the requested time */
 	private ArrayList<BidData> prepareBidsFor(TimeStamp requestedTime) {
 		ArrayList<BidData> bids = new ArrayList<>();
 		for (Load load : loads) {
@@ -104,9 +95,19 @@ public class DemandTrader extends Trader {
 		return bids;
 	}
 
-	/** Prepares demand bids and sends them to the {@link EnergyExchange} */
+	/** Prepares demand bids and sends them to the {@link DayAheadMarket}
+	 * 
+	 * @param input single message with ClearingTimes to create bid forecasts for
+	 * @param contracts single contract with {@link MarketForecaster} to send the bid forecasts to */
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
-		double totalRequestedEnergyInMWH = prepareBidsMultipleTimes(input, contracts);
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		double totalRequestedEnergyInMWH = 0;
+		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
+			for (BidData bid : prepareBidsFor(targetTime)) {
+				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
+				sendDayAheadMarketBids(contract, bid);
+			}
+		}
 		store(OutputColumns.RequestedEnergyInMWH, totalRequestedEnergyInMWH);
 	}
 
