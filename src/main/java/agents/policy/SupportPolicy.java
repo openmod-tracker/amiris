@@ -62,14 +62,14 @@ public class SupportPolicy extends Agent {
 
 	@Output
 	private enum Outputs {
-		MarketValue
+		MarketValueInEURperMWH
 	};
 
 	private enum OutputKey {
 		EnergyCarrier
 	}
 
-	private static final ComplexIndex<OutputKey> marketValue = ComplexIndex.build(Outputs.MarketValue, OutputKey.class);
+	private static final ComplexIndex<OutputKey> marketValue = ComplexIndex.build(Outputs.MarketValueInEURperMWH, OutputKey.class);
 
 	private SetPolicies setPolicies = new SetPolicies();
 	private MarketData marketData = new MarketData();

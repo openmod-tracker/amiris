@@ -46,8 +46,8 @@ public class StorageTrader extends FlexibilityTrader {
 
 	@Output
 	private static enum OutputFields {
-		OfferedPowerInMW, OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargePowerInMWH,
-		AwardedDischargePowerInMWH, AwardedPowerInMWH, StoredEnergyInMWH
+		OfferedEnergyInMWH, OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargeEnergyInMWH,
+		AwardedDischargeEnergyInMWH, AwardedEnergyInMWH, StoredEnergyInMWH
 	};
 
 	private final Device storage;
@@ -167,7 +167,7 @@ public class StorageTrader extends FlexibilityTrader {
 			excuteBeforeBidPreparation(targetTime);
 			BidData demandBid = prepareHourlyDemandBids(targetTime);
 			BidData supplyBid = prepareHourlySupplyBids(targetTime);
-			store(OutputFields.OfferedPowerInMW, supplyBid.offeredEnergyInMWH - demandBid.offeredEnergyInMWH);
+			store(OutputFields.OfferedEnergyInMWH, supplyBid.offeredEnergyInMWH - demandBid.offeredEnergyInMWH);
 			sendDayAheadMarketBids(contractToFulfil, demandBid, supplyBid);
 		}
 	}
@@ -221,9 +221,9 @@ public class StorageTrader extends FlexibilityTrader {
 		double costs = powerPrice * awardedChargePower;
 		storage.chargeInMW(externalPowerDelta);
 
-		store(OutputFields.AwardedDischargePowerInMWH, awardedDischargePower);
-		store(OutputFields.AwardedChargePowerInMWH, awardedChargePower);
-		store(OutputFields.AwardedPowerInMWH, externalPowerDelta);
+		store(OutputFields.AwardedDischargeEnergyInMWH, awardedDischargePower);
+		store(OutputFields.AwardedChargeEnergyInMWH, awardedChargePower);
+		store(OutputFields.AwardedEnergyInMWH, externalPowerDelta);
 		store(OutputFields.StoredEnergyInMWH, storage.getCurrentEnergyInStorageInMWH());
 		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, revenues);
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);

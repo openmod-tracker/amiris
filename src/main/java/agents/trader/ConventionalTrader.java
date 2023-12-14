@@ -40,7 +40,7 @@ public class ConventionalTrader extends Trader {
 
 	@Output
 	private static enum OutputFields {
-		OfferedPowerInMW, AwardedPower
+		OfferedEnergyInMWH, AwardedEnergyInMWH
 	}
 
 	private double minMarkup;
@@ -84,7 +84,7 @@ public class ConventionalTrader extends Trader {
 			totalOfferedPowerInMW += bid.offeredEnergyInMWH;
 			sendDayAheadMarketBids(contractToFulfil, bid);
 		}
-		store(OutputFields.OfferedPowerInMW, totalOfferedPowerInMW);
+		store(OutputFields.OfferedEnergyInMWH, totalOfferedPowerInMW);
 	}
 
 	/** Create {@link BidData bids} from given marginals
@@ -129,7 +129,7 @@ public class ConventionalTrader extends Trader {
 
 		AwardData award = message.getDataItemOfType(AwardData.class);
 		fulfilNext(contract, new AmountAtTime(award.beginOfDeliveryInterval, award.supplyEnergyInMWH));
-		store(OutputFields.AwardedPower, award.supplyEnergyInMWH);
+		store(OutputFields.AwardedEnergyInMWH, award.supplyEnergyInMWH);
 	}
 
 	/** Sends pay-out to {@link ConventionalPlantOperator}

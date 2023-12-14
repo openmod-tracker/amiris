@@ -13,6 +13,20 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - **Breaking**: ConventionalPlantOperator now based on `FuelsTrader` interface using new `FuelBid` message #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: StorageTrader input field `forecastRequestOffset` renamed to `electricityForecastRequestOffset` #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: Output field `CostsInEUR` in PowerPlantOperator & StorageTrader renamed to `VariableCostsInEUR` #54 (@dlr-cjs, @dlr_jk)
+- **Breaking**: Rename output fields to harmonise them across agent types #76 (@dlr-cjs)
+  - `ConventionalPlantOperator`: rename column `DispatchedPowerInMWHperPlant` to `DispatchedEnergyInMWHperPlant`
+  - `ConventionalTrader`: rename column `OfferedPowerInMW` to `OfferedEnergyInMWH`
+  - `ConventionalTrader`: rename column `AwardedPower` to `AwardedEnergyInMWH`
+  - `DayAheadMarket`: rename column `TotalAwardedPowerInMW` to `AwardedEnergyInMWH`
+  - `MarketForecaster`: rename column `AwardedPowerForecast` to `AwardedEnergyForecastInMWH`
+  - `MarketForecaster`: rename column `ElectricityPriceForecast` to `ElectricityPriceForecastInEURperMWH`
+  - `PowerPlantOperator`: rename column `AwardedPowerInMWH` to `AwardedEnergyInMWH`
+  - `PowerPlantOperator`: rename column `OfferedPowerInMW` to `OfferedEnergyInMWH`
+  - `StorageTrader`: rename column `OfferedPowerInMW` to `OfferedEnergyInMWH`
+  - `StorageTrader`: rename column `AwardedChargePowerInMWH` to `AwardedChargeEnergyInMWH`
+  - `StorageTrader`: rename column `AwardedDischargePowerInMWH` to `AwardedDischargeEnergyInMWH`
+  - `StorageTrader`: rename column `AwardedPowerInMWH` to `AwardedEnergyInMWH`
+  - `SupportPolicy`: rename column `MarketValue` to `MarketValueInEURperMWH`
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
@@ -46,6 +60,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 
 ### Removed
 - **Breaking**: Drop support of JDK 8, 9 and 10; new minimum version is JDK 11, associated with #52 (@dlr-cjs)
+- **Breaking**: Remove unused input parameter `PurchaseLeviesAndTaxesInEURperMWH` from `StorageTrader`
 
 ### Fixed
 - PredefinedPlantBuilder: delivering portfolio for second year #65 (@dlr-cjs, @dlr_jk, @dlr_fn)

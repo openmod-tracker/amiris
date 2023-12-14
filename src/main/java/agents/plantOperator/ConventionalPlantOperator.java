@@ -54,7 +54,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 	@Output
 	private static enum OutputFields {
-		DispatchedPowerInMWHperPlant, VariableCostsInEURperPlant, ReceivedMoneyInEURperPlant
+		DispatchedEnergyInMWHperPlant, VariableCostsInEURperPlant, ReceivedMoneyInEURperPlant
 	}
 
 	/** The list of all power plants to be operated (now and possibly power plants to become active in the near future) */
@@ -72,7 +72,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 	}
 
 	private static final ComplexIndex<PlantsKey> dispatch = ComplexIndex.build(
-			OutputFields.DispatchedPowerInMWHperPlant, PlantsKey.class);
+			OutputFields.DispatchedEnergyInMWHperPlant, PlantsKey.class);
 	private static final ComplexIndex<PlantsKey> variableCosts = ComplexIndex.build(
 			OutputFields.VariableCostsInEURperPlant, PlantsKey.class);
 	private static final ComplexIndex<PlantsKey> money = ComplexIndex.build(OutputFields.ReceivedMoneyInEURperPlant,
@@ -143,7 +143,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 			}
 		}
 		if (contract.getProduct() == PowerPlantOperator.Products.MarginalCost) {
-			store(PowerPlantOperator.OutputFields.OfferedPowerInMW, totalPowerPotentialInMW);
+			store(PowerPlantOperator.OutputFields.OfferedEnergyInMWH, totalPowerPotentialInMW);
 		}
 	}
 
