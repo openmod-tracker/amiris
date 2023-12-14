@@ -26,6 +26,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
   - `StorageTrader`: rename column `AwardedChargePowerInMWH` to `AwardedChargeEnergyInMWH`
   - `StorageTrader`: rename column `AwardedDischargePowerInMWH` to `AwardedDischargeEnergyInMWH`
   - `StorageTrader`: rename column `AwardedPowerInMWH` to `AwardedEnergyInMWH`
+  - `AggregatorTrader`: rename column `TruePowerPotentialInMWH` to `TrueGenerationPotentialInMWH`
   - `SupportPolicy`: rename column `MarketValue` to `MarketValueInEURperMWH`
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
