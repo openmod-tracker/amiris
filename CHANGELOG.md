@@ -33,7 +33,8 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - SystemCostMinimizer modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - StorageTrader now extends FlexibilityTrader #54 (@dlr-cjs, @dlr_jk)
 - Refactoring of SupportPolicy, PolicyInfo, RenewableTrader and bidding strategies #66 (@dlr-cjs, @dlr_jk)
-- CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs) 
+- CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs)
+- Update Reference examples to changes in outputs #41, #54, #75, #76 (@dlr-cjs)
 
 ### Added
 - Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
