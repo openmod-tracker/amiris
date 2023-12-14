@@ -1,4 +1,4 @@
-AgentId;TimeStep;OfferedEnergyInMWH;AwardedEnergyInMWH;TruePowerPotentialInMWH
+AgentId;TimeStep;OfferedEnergyInMWH;AwardedEnergyInMWH;TrueGenerationPotentialInMWH
 12;662255999;5500.0;;
 12;662256004;;5500.0;5500.0
 12;662259599;6050.0;;
