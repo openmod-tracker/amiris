@@ -46,7 +46,7 @@ public abstract class MarketForecaster extends Forecaster {
 
 	@Output
 	private static enum OutputFields {
-		AwardedPowerForecast, ElectricityPriceForecast
+		AwardedEnergyForecastInMWH, ElectricityPriceForecastInEURperMWH
 	};
 
 	protected final int forecastPeriodInHours;
@@ -165,7 +165,7 @@ public abstract class MarketForecaster extends Forecaster {
 	/** writes out the nearest upcoming forecast after current time */
 	protected void saveNextForecast() {
 		MarketClearingResult marketClearingResults = calculatedForecastContainer.ceilingEntry(now()).getValue();
-		store(OutputFields.ElectricityPriceForecast, marketClearingResults.getMarketPriceInEURperMWH());
-		store(OutputFields.AwardedPowerForecast, marketClearingResults.getTradedEnergyInMWH());
+		store(OutputFields.ElectricityPriceForecastInEURperMWH, marketClearingResults.getMarketPriceInEURperMWH());
+		store(OutputFields.AwardedEnergyForecastInMWH, marketClearingResults.getTradedEnergyInMWH());
 	}
 }

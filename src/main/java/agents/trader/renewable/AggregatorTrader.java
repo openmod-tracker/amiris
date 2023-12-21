@@ -70,8 +70,8 @@ public abstract class AggregatorTrader extends Trader {
 		RefundedSupportInEUR,
 		/** overall received market revenues from marketing power plants */
 		ReceivedMarketRevenues,
-		/** not dispatched but awarded energy */
-		TruePowerPotentialInMWH
+		/** actual electricity generation potential */
+		TrueGenerationPotentialInMWH
 	};
 
 	/** Products of this Agent */
@@ -298,17 +298,17 @@ public abstract class AggregatorTrader extends Trader {
 		double energyToDispatch = award.supplyEnergyInMWH;
 		ArrayList<BidData> submittedBids = submittedBidsByTime.remove(award.beginOfDeliveryInterval);
 		submittedBids.sort(BidData.BY_PRICE_ASCENDING);
-		double overallPowerPotential = 0;
+		double actualProductionPotentialInMWH = 0;
 		for (BidData bid : submittedBids) {
 			Contract matchingContract = getMatchingContract(contracts, bid.producerUuid);
 			double dispatchedEnergy = Math.min(energyToDispatch, bid.powerPotentialInMW);
-			overallPowerPotential += bid.powerPotentialInMW;
+			actualProductionPotentialInMWH += bid.powerPotentialInMW;
 			logClientDispatchAndRevenues(bid, dispatchedEnergy, award.powerPriceInEURperMWH);
 			fulfilNext(matchingContract, new AmountAtTime(award.beginOfDeliveryInterval, dispatchedEnergy));
 			energyToDispatch = Math.max(0, energyToDispatch - dispatchedEnergy);
 		}
 		powerPrices.put(award.beginOfDeliveryInterval, award.powerPriceInEURperMWH);
-		store(OutputColumns.TruePowerPotentialInMWH, overallPowerPotential);
+		store(OutputColumns.TrueGenerationPotentialInMWH, actualProductionPotentialInMWH);
 	}
 
 	/** Logs actual dispatch and revenue for client of given BidData at its delivery time

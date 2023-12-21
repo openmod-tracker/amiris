@@ -46,7 +46,7 @@ public class DayAheadMarketSingleZone extends DayAheadMarket {
 		sendAwardsToTraders(contracts, powerPrice);
 
 		store(OutputFields.ElectricityPriceInEURperMWH, powerPrice);
-		store(OutputFields.TotalAwardedPowerInMW, result.getTradedEnergyInMWH());
+		store(OutputFields.AwardedEnergyInMWH, result.getTradedEnergyInMWH());
 		store(OutputFields.DispatchSystemCostInEUR, result.getSystemCostTotalInEUR());
 	}
 

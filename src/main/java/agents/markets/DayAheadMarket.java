@@ -45,7 +45,7 @@ public abstract class DayAheadMarket extends Agent {
 	@Output
 	protected static enum OutputFields {
 		/** Total power awarded at last market clearing */
-		TotalAwardedPowerInMW,
+		AwardedEnergyInMWH,
 		/** Market clearing price achieved at last market clearing */
 		ElectricityPriceInEURperMWH,
 		/** System cost for generating the power awarded at last market clearing */

@@ -115,7 +115,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	 * @param contracts single contracted trader to receive calculated marginals */
 	private void sendSupplyMarginals(ArrayList<Message> input, List<Contract> contracts) {
 		double totalPowerPotential = sendSupplyMarginalsMultipleTimes(input, contracts);
-		store(PowerPlantOperator.OutputFields.OfferedPowerInMW, totalPowerPotential);
+		store(PowerPlantOperator.OutputFields.OfferedEnergyInMWH, totalPowerPotential);
 	}
 
 	/** Calculates supply marginals for the given TimeStamp to fulfil the given contract */

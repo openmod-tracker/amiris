@@ -1,4 +1,4 @@
-AgentId;TimeStep;AwardedPowerInMWH;OfferedPowerInMW;CostsInEUR
+AgentId;TimeStep;AwardedEnergyInMWH;OfferedEnergyInMWH;VariableCostsInEUR
 10;662255998;;0.0;
 10;662256005;0.0;;0.0
 10;662259598;;0.0;
