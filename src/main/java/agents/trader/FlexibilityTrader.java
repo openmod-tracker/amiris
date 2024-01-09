@@ -67,7 +67,7 @@ public abstract class FlexibilityTrader extends Trader {
 	 * @return installed capacity in MW */
 	protected abstract double getInstalledCapacityInMW();
 
-	/** Requests MeritOrderForecast or PriceForecast from contracted partner (Forecaster)
+	/** Requests {@link MeritOrderMessage} or PriceForecast from contracted partner (Forecaster)
 	 * 
 	 * @param input not used
 	 * @param contracts single contracted Forecaster to request forecast from */
