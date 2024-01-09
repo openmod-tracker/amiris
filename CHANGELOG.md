@@ -32,6 +32,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - SystemCostMinimizer modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
+- ArbitrageStrategist performs rounding of energy states and throws warning if not within tolerance #78 (@dlr_fn, @dlr-cjs, @dlr_elghazi)
 - StorageTrader now extends FlexibilityTrader #54 (@dlr-cjs, @dlr_jk)
 - Refactoring of SupportPolicy, PolicyInfo, RenewableTrader and bidding strategies #66 (@dlr-cjs, @dlr_jk)
 - CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs)

@@ -37,7 +37,7 @@ public class ProfitMaximiser extends ArbitrageStrategist {
 			throws MissingDataException {
 		super(generalInput, storage);
 		this.numberOfTransitionStates = specificInput.getInteger("ModelledChargingSteps");
-		this.numberOfEnergyStates = (int) Math.ceil(numberOfTransitionStates * storage.getEnergyToPowerRatio()) + 1;
+		this.numberOfEnergyStates = calcNumberOfEnergyStates(numberOfTransitionStates);
 		incomeSum = new double[forecastSteps][numberOfEnergyStates];
 		bestNextState = new int[forecastSteps][numberOfEnergyStates];
 	}
@@ -150,7 +150,8 @@ public class ProfitMaximiser extends ArbitrageStrategist {
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices */
 	private void updateScheduleArrays(TimePeriod firstPeriod, double initialEnergyInStorageInMWh) {
 		double internalEnergyPerState = storage.getInternalPowerInMW() / numberOfTransitionStates;
-		int initialState = (int) Math.round(initialEnergyInStorageInMWh / internalEnergyPerState);
+		int initialState = Math.min(numberOfEnergyStates,
+				(int) Math.round(initialEnergyInStorageInMWh / internalEnergyPerState));
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
 			scheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState;
 
