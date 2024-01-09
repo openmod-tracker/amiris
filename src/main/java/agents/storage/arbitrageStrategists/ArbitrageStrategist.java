@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import agents.flexibility.Strategist;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
 import agents.storage.Device;
@@ -31,6 +33,9 @@ public abstract class ArbitrageStrategist extends Strategist {
 		MULTI_AGENT_MEDIAN
 	}
 
+	static final String WARN_ROUND_UP = "`EnergyToPowerRatio * ModelledChargingSteps` no integer: storage capacity increased by ";
+	static final String WARN_ROUND_DOWN = "`EnergyToPowerRatio * ModelledChargingSteps` no integer: storage capacity decreased by ";
+
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
@@ -39,6 +44,8 @@ public abstract class ArbitrageStrategist extends Strategist {
 			.buildTree();
 
 	public static final ParameterBuilder StrategistTypeParam = Make.newEnum("StrategistType", StrategistType.class);
+	static final double ENERGY_STATE_ROUNDING_TOLERANCE = 1.E-2;
+	protected static Logger logger = LoggerFactory.getLogger(ArbitrageStrategist.class);
 
 	protected double[] scheduledInitialInternalEnergyInMWH;
 	protected Device storage;
@@ -101,5 +108,22 @@ public abstract class ArbitrageStrategist extends Strategist {
 			demandScheduleInMWH[period] = storage.internalToExternalEnergy(nextEnergy - initialEnergyInStorage);
 			initialEnergyInStorage = nextEnergy;
 		}
+	}
+
+	/** Calculates number of energy states, logs warning if rounding is needed
+	 * 
+	 * @param numberOfTransitionStates
+	 * @return numberOfTransitionStates (rounded to closest integer) */
+	protected int calcNumberOfEnergyStates(int numberOfTransitionStates) {
+		double numberOfEnergyStates = numberOfTransitionStates * storage.getEnergyToPowerRatio() + 1;
+		int roundedNumberOfEnergyStates = (int) Math.round(numberOfEnergyStates);
+		double stateDelta = roundedNumberOfEnergyStates - numberOfEnergyStates;
+		double capacityDeltaInMWH = stateDelta * storage.getInternalPowerInMW() / numberOfTransitionStates;
+		if (stateDelta > ENERGY_STATE_ROUNDING_TOLERANCE) {
+			logger.warn(WARN_ROUND_UP + capacityDeltaInMWH + " MWh");
+		} else if (stateDelta < ENERGY_STATE_ROUNDING_TOLERANCE) {
+			logger.warn(WARN_ROUND_DOWN + capacityDeltaInMWH + " MWh");
+		}
+		return roundedNumberOfEnergyStates;
 	}
 }
