@@ -8,8 +8,8 @@ import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
 import agents.storage.Device;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
-import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -18,7 +18,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * states, also considering (dis-)charging efficiencies. The full merit-order forecast information is required to implement a
  * perfect-foresight optimisation.
  * 
- * @author Christoph Schimeczek */
+ * @author Christoph Schimeczek, Felix Nitsch, A. Achraf El Ghazi */
 public class SystemCostMinimiser extends ArbitrageStrategist {
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newInt("ModelledChargingSteps").optional()
@@ -43,7 +43,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 			throws MissingDataException {
 		super(generalInput, storage);
 		this.numberOfTransitionStates = specificInput.getInteger("ModelledChargingSteps");
-		this.numberOfEnergyStates = (int) Math.floor(numberOfTransitionStates * storage.getEnergyToPowerRatio()) + 1;
+		this.numberOfEnergyStates = calcNumberOfEnergyStates(numberOfTransitionStates);
 
 		followUpCostSum = new double[forecastSteps][numberOfEnergyStates];
 		bestNextState = new int[forecastSteps][numberOfEnergyStates];
@@ -127,7 +127,8 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices */
 	private void updateScheduleArrays(double initialEnergyInStorageInMWh) {
 		double internalEnergyPerState = storage.getInternalPowerInMW() / numberOfTransitionStates;
-		int initialState = (int) Math.round(initialEnergyInStorageInMWh / internalEnergyPerState);
+		int initialState = Math.min(numberOfEnergyStates,
+				(int) Math.round(initialEnergyInStorageInMWh / internalEnergyPerState));
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
 			scheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState;
 
@@ -154,7 +155,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 	public double getChargingPowerForecastInMW(TimeStamp targetTime) {
 		throw new RuntimeException(ERR_PROVIDE_FORECAST + StrategistType.SINGLE_AGENT_MIN_SYSTEM_COST);
 	}
-	
+
 	@Override
 	public void storeElectricityPriceForecast(TimePeriod timePeriod, double electricityPriceForecastInEURperMWH) {
 		throw new RuntimeException(ERR_USE_PRICE_FORECAST + StrategistType.SINGLE_AGENT_MIN_SYSTEM_COST);
