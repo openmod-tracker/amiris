@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -60,11 +60,11 @@ public class StorageTrader extends FlexibilityTrader {
 		this.strategist = ArbitrageStrategist.createStrategist(input.getGroup("Strategy"), storage);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestForecast).on(Trader.Products.MeritOrderForecastRequest);
+		call(this::requestElectricityForecast).on(Trader.Products.MeritOrderForecastRequest);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
-		call(this::requestForecast).on(Trader.Products.PriceForecastRequest);
-		call(this::updatePriceForecast).on(Forecaster.Products.PriceForecast)
+		call(this::requestElectricityForecast).on(Trader.Products.PriceForecastRequest);
+		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);

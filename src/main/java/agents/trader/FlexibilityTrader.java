@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -67,15 +67,16 @@ public abstract class FlexibilityTrader extends Trader {
 	 * @return installed capacity in MW */
 	protected abstract double getInstalledCapacityInMW();
 
-	/** Requests {@link MeritOrderMessage} or PriceForecast from contracted partner (Forecaster)
+	/** Requests a forecast from a contracted Forecaster. The type of forecast (either {@link MeritOrderMessage} or PriceForecast)
+	 * is determined by the contract.
 	 * 
 	 * @param input not used
 	 * @param contracts single contracted Forecaster to request forecast from */
-	protected void requestForecast(ArrayList<Message> input, List<Contract> contracts) {
+	protected void requestElectricityForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
 				Strategist.OPERATION_PERIOD);
-		ArrayList<TimeStamp> missingForecastTimes = this.getStrategist().getTimesMissingElectricityPriceForecasts(nextTime);
+		ArrayList<TimeStamp> missingForecastTimes = getStrategist().getTimesMissingElectricityForecasts(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
@@ -95,7 +96,7 @@ public abstract class FlexibilityTrader extends Trader {
 			SupplyOrderBook supplyOrderBook = meritOrderMessage.getSupplyOrderBook();
 			DemandOrderBook demandOrderBook = meritOrderMessage.getDemandOrderBook();
 			TimePeriod timeSegment = new TimePeriod(meritOrderMessage.getTimeStamp(), Strategist.OPERATION_PERIOD);
-			this.getStrategist().storeMeritOrderForesight(timeSegment, supplyOrderBook, demandOrderBook);
+			getStrategist().storeMeritOrderForesight(timeSegment, supplyOrderBook, demandOrderBook);
 		}
 	}
 
@@ -103,12 +104,12 @@ public abstract class FlexibilityTrader extends Trader {
 	 * 
 	 * @param input one or multiple price forecast message(s)
 	 * @param contracts not used */
-	protected void updatePriceForecast(ArrayList<Message> input, List<Contract> contracts) {
+	protected void updateElectricityPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		for (Message inputMessage : input) {
 			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
 			double priceForecast = priceForecastMessage.amount;
 			TimePeriod timeSegment = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
-			this.getStrategist().storeElectricityPriceForecast(timeSegment, priceForecast);
+			getStrategist().storeElectricityPriceForecast(timeSegment, priceForecast);
 		}
 	}
 }

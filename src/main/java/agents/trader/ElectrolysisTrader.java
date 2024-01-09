@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -74,9 +74,9 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		hydrogenForecastRequestOffset = new TimeSpan(input.getInteger("HydrogenForecastRequestOffsetInSeconds"));
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestForecast).on(Trader.Products.PriceForecastRequest);
+		call(this::requestElectricityForecast).on(Trader.Products.PriceForecastRequest);
 		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest);
-		call(this::updatePriceForecast).on(Forecaster.Products.PriceForecast)
+		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
