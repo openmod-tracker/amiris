@@ -65,21 +65,21 @@ public class StorageTrader extends FlexibilityTrader {
 		this.strategist = ArbitrageStrategist.createStrategist(input.getGroup("Strategy"), storage);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestMeritOrderForecast).on(Trader.Products.MeritOrderForecastRequest);
+		call(this::requestForecast).on(Trader.Products.MeritOrderForecastRequest);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
-		call(this::requestPriceForecast).on(Trader.Products.PriceForecastRequest);
+		call(this::requestForecast).on(Trader.Products.PriceForecastRequest);
 		call(this::updatePriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
 	}
 
-	/** Requests MeritOrderForecast from contracted partner (Forecaster)
+	/** Requests MeritOrderForecast or PriceForecast from contracted partner (Forecaster)
 	 * 
 	 * @param input not used
 	 * @param contracts single contracted Forecaster to request forecast from */
-	private void requestMeritOrderForecast(ArrayList<Message> input, List<Contract> contracts) {
+	private void requestForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
 				Strategist.OPERATION_PERIOD);
@@ -101,21 +101,6 @@ public class StorageTrader extends FlexibilityTrader {
 			DemandOrderBook demandOrderBook = meritOrderMessage.getDemandOrderBook();
 			TimePeriod timeSegment = new TimePeriod(meritOrderMessage.getTimeStamp(), Strategist.OPERATION_PERIOD);
 			strategist.storeMeritOrderForesight(timeSegment, supplyOrderBook, demandOrderBook);
-		}
-	}
-
-	/** Requests PriceForecast from contracted partner (Forecaster)
-	 * 
-	 * @param input not used
-	 * @param contracts single contracted Forecaster to request forecast from */
-	private void requestPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
-				Strategist.OPERATION_PERIOD);
-		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingElectricityPriceForecasts(nextTime);
-		for (TimeStamp missingForecastTime : missingForecastTimes) {
-			PointInTime pointInTime = new PointInTime(missingForecastTime);
-			fulfilNext(contract, pointInTime);
 		}
 	}
 
