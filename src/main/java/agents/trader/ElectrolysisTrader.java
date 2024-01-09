@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -20,7 +20,6 @@ import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
 import agents.storage.arbitrageStrategists.FileDispatcher;
-import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
@@ -75,7 +74,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		hydrogenForecastRequestOffset = new TimeSpan(input.getInteger("HydrogenForecastRequestOffsetInSeconds"));
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityPriceForecast).on(Trader.Products.PriceForecastRequest);
+		call(this::requestElectricityForecast).on(Trader.Products.PriceForecastRequest);
 		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest);
 		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
@@ -104,21 +103,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		}
 	}
 
-	/** Requests electricity price forecast from one contracted {@link MarketForecaster}
-	 * 
-	 * @param input not used
-	 * @param contracts single contracted Forecaster to request forecast from */
-	private void requestElectricityPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
-				Strategist.OPERATION_PERIOD);
-		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingElectricityPriceForecasts(nextTime);
-		for (TimeStamp missingForecastTime : missingForecastTimes) {
-			PointInTime pointInTime = new PointInTime(missingForecastTime);
-			fulfilNext(contract, pointInTime);
-		}
-	}
-
 	/** Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}
 	 * 
 	 * @param input not used
@@ -131,19 +115,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		ClearingTimes clearingTimes = new ClearingTimes(
 				missingForecastTimes.toArray(new TimeStamp[missingForecastTimes.size()]));
 		sendFuelPriceRequest(contract, FUEL_HYDROGEN, clearingTimes);
-	}
-
-	/** Digests one or multiple incoming price forecasts
-	 * 
-	 * @param input one or multiple price forecast message(s)
-	 * @param contracts not used */
-	private void updateElectricityPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
-		for (Message inputMessage : input) {
-			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
-			double priceForecastInEURperMWH = priceForecastMessage.amount;
-			TimePeriod timeSegment = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
-			strategist.storeElectricityPriceForecast(timeSegment, priceForecastInEURperMWH);
-		}
 	}
 
 	/** Digests one or multiple incoming hydrogen price forecasts
@@ -185,8 +156,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		return demandBid;
 	}
 
-	/** Digests award information from {@link DayAheadMarket}, writes dispatch and sells hydrogen at fuels market using a
-	 * "negative purchase" message
+	/** Digests award information from {@link DayAheadMarket}, writes dispatch and sells hydrogen at fuels market using a "negative
+	 * purchase" message
 	 * 
 	 * @param messages award information received from {@link DayAheadMarket}
 	 * @param contracts a contract with one {@link FuelsMarket} */
@@ -228,5 +199,10 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	@Override
 	protected double getInstalledCapacityInMW() {
 		return electrolyzer.getPeakPower(now());
+	}
+
+	@Override
+	protected Strategist getStrategist() {
+		return strategist;
 	}
 }

@@ -82,7 +82,7 @@ public abstract class Strategist {
 	 * 
 	 * @param firstTime first time period to be covered by a created schedule
 	 * @return List of {@link TimeStamp}s at which {@link MeritOrderSensitivity} is not yet defined */
-	public ArrayList<TimeStamp> getTimesMissingElectricityPriceForecasts(TimePeriod firstTime) {
+	public ArrayList<TimeStamp> getTimesMissingElectricityForecasts(TimePeriod firstTime) {
 		return getMissingForecastTimes(sensitivities, firstTime);
 	}
 
