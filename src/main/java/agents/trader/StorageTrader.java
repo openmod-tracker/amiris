@@ -13,17 +13,12 @@ import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
-import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.storage.Device;
 import agents.storage.arbitrageStrategists.ArbitrageStrategist;
 import agents.storage.arbitrageStrategists.FileDispatcher;
-import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
-import communications.message.PointInTime;
-import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -73,48 +68,6 @@ public class StorageTrader extends FlexibilityTrader {
 				.use(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
-	}
-
-	/** Requests MeritOrderForecast or PriceForecast from contracted partner (Forecaster)
-	 * 
-	 * @param input not used
-	 * @param contracts single contracted Forecaster to request forecast from */
-	private void requestForecast(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
-				Strategist.OPERATION_PERIOD);
-		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingElectricityPriceForecasts(nextTime);
-		for (TimeStamp missingForecastTime : missingForecastTimes) {
-			PointInTime pointInTime = new PointInTime(missingForecastTime);
-			fulfilNext(contract, pointInTime);
-		}
-	}
-
-	/** Digests incoming {@link MeritOrderMessage} forecasts
-	 * 
-	 * @param input one or multiple merit order forecast message(s)
-	 * @param contracts not used */
-	private void updateMeritOrderForecast(ArrayList<Message> input, List<Contract> contracts) {
-		for (Message inputMessage : input) {
-			MeritOrderMessage meritOrderMessage = inputMessage.getAllPortableItemsOfType(MeritOrderMessage.class).get(0);
-			SupplyOrderBook supplyOrderBook = meritOrderMessage.getSupplyOrderBook();
-			DemandOrderBook demandOrderBook = meritOrderMessage.getDemandOrderBook();
-			TimePeriod timeSegment = new TimePeriod(meritOrderMessage.getTimeStamp(), Strategist.OPERATION_PERIOD);
-			strategist.storeMeritOrderForesight(timeSegment, supplyOrderBook, demandOrderBook);
-		}
-	}
-
-	/** Digests incoming price forecasts
-	 * 
-	 * @param input one or multiple price forecast message(s)
-	 * @param contracts not used */
-	private void updatePriceForecast(ArrayList<Message> input, List<Contract> contracts) {
-		for (Message inputMessage : input) {
-			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
-			double priceForecast = priceForecastMessage.amount;
-			TimePeriod timeSegment = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
-			strategist.storeElectricityPriceForecast(timeSegment, priceForecast);
-		}
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
@@ -217,5 +170,10 @@ public class StorageTrader extends FlexibilityTrader {
 	@Override
 	protected double getInstalledCapacityInMW() {
 		return storage.getInternalPowerInMW();
+	}
+
+	@Override
+	protected Strategist getStrategist() {
+		return strategist;
 	}
 }
