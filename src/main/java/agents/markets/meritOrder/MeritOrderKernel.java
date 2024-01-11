@@ -12,6 +12,18 @@ import agents.markets.meritOrder.books.SupplyOrderBook;
  * 
  * @author Martin Klein, Christoph Schimeczek */
 public class MeritOrderKernel {
+
+	/** MeritOrderKernel could not complete clearing. */
+	public static class MeritOrderClearingException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+		public MeritOrderClearingException(String errorMessage) {
+			super(errorMessage);
+		}
+	}
+
+	static final String ERROR_NON_POSITIVE_DEMAND = "Non positive demand encounterd";
+
 	/** The function takes two sorted (ascending by cumulatedPower) OrderBooks for demand (descending by offerPrice) and supply
 	 * (ascending by offerPrice). It is assumed that the price of the first element from demand exceeds that of the first supply
 	 * element. Additionally, the OrderBooks need to contain a final bid reaching towards (minus) infinity for supply (demand) to
@@ -23,14 +35,18 @@ public class MeritOrderKernel {
 	 * 
 	 * @param supply sorted supply orders
 	 * @param demand sorted demand orders
-	 * @return market clearing data, i.e. awarded power and price */
-	public static MarketClearingResult clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand) {
+	 * @return market clearing data, i.e. awarded power and price
+	 * @throws MeritOrderClearingException */
+	public static MarketClearingResult clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand)
+			throws MeritOrderClearingException {
 		ArrayList<OrderBookItem> supplyBids = supply.getOrderBookItems();
 		ArrayList<OrderBookItem> demandBids = demand.getOrderBookItems();
 
 		double lastSupplyPrice = 0;
 		double lastSupplyPower = 0;
 		double lastDemandPower = 0;
+
+		ensureDemandIsPositive(demandBids);
 
 		int supplyIndex = 0;
 		int demandIndex = 0;
@@ -69,6 +85,16 @@ public class MeritOrderKernel {
 					supplyIndex++;
 				}
 			}
+		}
+	}
+
+	/** Ensures that the demand is positive, throws otherwise an {@link MeritOrderClearingException} exception
+	 * 
+	 * @param demandBids of the demand
+	 * @throws MeritOrderClearingException if demand is non-positive */
+	private static void ensureDemandIsPositive(ArrayList<OrderBookItem> demandBids) throws MeritOrderClearingException {
+		if (demandBids.get(demandBids.size() - 1).getCumulatedPowerLowerValue() <= 0) {
+			throw new MeritOrderClearingException(ERROR_NON_POSITIVE_DEMAND);
 		}
 	}
 }
