@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.policy.SupportPolicy.EnergyCarrier;
-import agents.trader.Trader;
+import agents.trader.TraderWithClients;
 import agents.trader.renewable.AggregatorTrader;
 import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
@@ -72,9 +72,9 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 
 		call(this::registerSet).on(Products.SetRegistration);
 		call(this::sendSupplyMarginalForecasts).on(PowerPlantOperator.Products.MarginalCostForecast)
-				.use(Trader.Products.ForecastRequestForward);
+				.use(TraderWithClients.Products.ForecastRequestForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost)
-				.use(Trader.Products.GateClosureForward);
+				.use(TraderWithClients.Products.GateClosureForward);
 	}
 
 	/** Registers the {@link TechnologySet} to be marketed by a single associated {@link AggregatorTrader} */

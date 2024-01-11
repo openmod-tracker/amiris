@@ -16,6 +16,7 @@ import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
 import agents.trader.Trader;
+import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
 import communications.message.Co2Cost;
@@ -87,12 +88,12 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 		call(this::updatePortfolio).on(PlantBuildingManager.Products.PowerPlantPortfolio)
 				.use(PlantBuildingManager.Products.PowerPlantPortfolio);
 		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
-				.use(Trader.Products.ForecastRequestForward);
-		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest).use(Trader.Products.ForecastRequestForward);
+				.use(TraderWithClients.Products.ForecastRequestForward);
+		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest).use(TraderWithClients.Products.ForecastRequestForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(CarbonMarket.Products.Co2PriceForecast, FuelsMarket.Products.FuelPriceForecast);
-		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceRequest).use(Trader.Products.GateClosureForward);
-		call(this::requestCo2Price).on(Products.Co2PriceRequest).use(Trader.Products.GateClosureForward);
+		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceRequest).use(TraderWithClients.Products.GateClosureForward);
+		call(this::requestCo2Price).on(Products.Co2PriceRequest).use(TraderWithClients.Products.GateClosureForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost).use(CarbonMarket.Products.Co2Price,
 				FuelsMarket.Products.FuelPrice);
 		call(this::reportCo2Emissions).on(Products.Co2Emissions);

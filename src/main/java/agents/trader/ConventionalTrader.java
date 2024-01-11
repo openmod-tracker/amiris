@@ -34,7 +34,7 @@ import util.Util;
 /** Sells energy of one conventional PowerPlantOperator at the {@link DayAheadMarket}
  *
  * @author Christoph Schimeczek, Marc Deissenroth, Ulrich Frey */
-public class ConventionalTrader extends Trader {
+public class ConventionalTrader extends TraderWithClients {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("minMarkup"), Make.newDouble("maxMarkup")).buildTree();
 
