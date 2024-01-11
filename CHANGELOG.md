@@ -28,6 +28,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
   - `StorageTrader`: rename column `AwardedPowerInMWH` to `AwardedEnergyInMWH`
   - `AggregatorTrader`: rename column `TruePowerPotentialInMWH` to `TrueGenerationPotentialInMWH`
   - `SupportPolicy`: rename column `MarketValue` to `MarketValueInEURperMWH`
+- Introduced a new TraderWithClients class to remove errors related to not used actions #81 (@dlr-cjs, @dlr_elghazi)
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)

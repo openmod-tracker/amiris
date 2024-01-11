@@ -6,14 +6,11 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
-import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
-import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
@@ -27,28 +24,13 @@ public abstract class Trader extends Agent implements DayAheadMarketTrader {
 
 	@Product
 	public static enum Products {
-		Payout, DispatchAssignment, BidsForecast, MeritOrderForecastRequest, PriceForecastRequest, GateClosureForward,
-		ForecastRequestForward,
+		Payout, DispatchAssignment, BidsForecast, MeritOrderForecastRequest, PriceForecastRequest,
 		/** Report annual costs (not sent to other agents, but calculated within operator class) */
 		AnnualCostReport
 	};
 
 	public Trader(DataProvider dataProvider) {
 		super(dataProvider);
-		call(this::forwardClearingTimes).on(Products.GateClosureForward).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::forwardClearingTimes).on(Products.ForecastRequestForward).use(MarketForecaster.Products.ForecastRequest);
-	}
-
-	/** Forwards one ClearingTimes to connected clients (if any)
-	 * 
-	 * @param input a single ClearingTimes message
-	 * @param contracts connected clients */
-	private void forwardClearingTimes(ArrayList<Message> input, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(input);
-		ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
-		for (Contract contract : contracts) {
-			fulfilNext(contract, clearingTimes);
-		}
 	}
 
 	/** @param messages to sort by time stamp

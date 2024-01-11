@@ -21,6 +21,7 @@ import agents.policy.SupportPolicy;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import agents.trader.ClientData;
 import agents.trader.Trader;
+import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
@@ -48,7 +49,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Aggregates supply capacity and administers support payments to plant operators
  * 
  * @author Johannes Kochems, Christoph Schimeczek, Felix Nitsch, Farzad Sarfarazi, Kristina Nienhaus */
-public abstract class AggregatorTrader extends Trader {
+public abstract class AggregatorTrader extends TraderWithClients {
 	@Input private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
 			.buildTree();
 
