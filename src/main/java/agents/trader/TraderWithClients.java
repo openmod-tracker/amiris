@@ -42,5 +42,4 @@ public abstract class TraderWithClients extends Trader {
 			fulfilNext(contract, clearingTimes);
 		}
 	}
-
 }
