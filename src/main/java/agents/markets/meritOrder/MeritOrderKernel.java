@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
@@ -10,7 +10,7 @@ import agents.markets.meritOrder.books.SupplyOrderBook;
 
 /** Clears the energy market by matching demand and supply curves
  * 
- * @author Martin Klein, Christoph Schimeczek */
+ * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public class MeritOrderKernel {
 
 	/** MeritOrderKernel could not complete clearing. */
@@ -36,7 +36,7 @@ public class MeritOrderKernel {
 	 * @param supply sorted supply orders
 	 * @param demand sorted demand orders
 	 * @return market clearing data, i.e. awarded power and price
-	 * @throws MeritOrderClearingException */
+	 * @throws MeritOrderClearingException in case the order books resemble no valid market */
 	public static MarketClearingResult clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand)
 			throws MeritOrderClearingException {
 		ArrayList<OrderBookItem> supplyBids = supply.getOrderBookItems();
@@ -46,7 +46,8 @@ public class MeritOrderKernel {
 		double lastSupplyPower = 0;
 		double lastDemandPower = 0;
 
-		ensureDemandIsPositive(demandBids);
+		ensureOrderBookPositiveEnergy(supplyBids);
+		ensureOrderBookPositiveEnergy(demandBids);
 
 		int supplyIndex = 0;
 		int demandIndex = 0;
@@ -88,12 +89,13 @@ public class MeritOrderKernel {
 		}
 	}
 
-	/** Ensures that the demand is positive, throws otherwise an {@link MeritOrderClearingException} exception
+	/** Ensures that the given order book has positive cumulative power, otherwise throws exception
 	 * 
-	 * @param demandBids of the demand
-	 * @throws MeritOrderClearingException if demand is non-positive */
-	private static void ensureDemandIsPositive(ArrayList<OrderBookItem> demandBids) throws MeritOrderClearingException {
-		if (demandBids.get(demandBids.size() - 1).getCumulatedPowerLowerValue() <= 0) {
+	 * @param orderBook to be checked for its power
+	 * @throws MeritOrderClearingException if order book maximum is non-positive */
+	private static void ensureOrderBookPositiveEnergy(ArrayList<OrderBookItem> orderBook)
+			throws MeritOrderClearingException {
+		if (orderBook.get(orderBook.size() - 1).getCumulatedPowerLowerValue() <= 0) {
 			throw new MeritOrderClearingException(ERROR_NON_POSITIVE_DEMAND);
 		}
 	}
