@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
@@ -19,17 +19,20 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Creates {@link DispatchSchedule}s from file for a connected storage {@link Device}
  *
- * @author Christoph Schimeczek */
+ * @author Christoph Schimeczek, Johannes Kochems, Ulrich Frey, Felix Nitsch */
 public class FileDispatcher extends ArbitrageStrategist {
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newSeries("Schedule").optional().help(
-					"Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."))
+					"Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."),
+					Make.newDouble("DispatchTolerance").optional().help("Accepted tolerance for dispatch deviations in MWh."))
 			.buildTree();
 
-	static final String WARN_SUSPICIOUS_DISPATCH = "Warning:: Storage below empty or above full:: Dispatch file may be not suitable";
-	static final String ERR_CANNOT_USE_FORECAST = "Error:: Storage strategist 'FileDispatcher' cannot digest forecasts. Remove contracts.";
+	static final String WARN_BELOW_LOWER_BOUND = "Dispatch file not suitable. Storage below empty at time ";
+	static final String WARN_ABOVE_UPPER_BOUND = "Dispatch file not suitable. Storage above full at time ";
+	static final String ERR_CANNOT_USE_FORECAST = "Storage strategist 'FileDispatcher' cannot digest forecasts. Remove contracts.";
 
-	private static final double ABSOLUTE_TOLERANCE_IN_MWH = 0.1;
+	private double dispatchToleranceInMWH;
+
 	/** TimeSeries of storage charging power (< 0:discharging; >0: charging) relative to internal charging power */
 	private TimeSeries tsDispatch;
 
@@ -43,6 +46,7 @@ public class FileDispatcher extends ArbitrageStrategist {
 			throws MissingDataException {
 		super(generalInput, storage);
 		this.tsDispatch = specificInput.getTimeSeries("Schedule");
+		this.dispatchToleranceInMWH = specificInput.getDoubleOrDefault("DispatchTolerance", 0.1);
 	}
 
 	/** No {@link MeritOrderSensitivity} needed for {@link FileDispatcher}, as dispatch is read from file */
@@ -67,7 +71,7 @@ public class FileDispatcher extends ArbitrageStrategist {
 			demandScheduleInMWH[element] = externalChargePowerInMW;
 			scheduledInitialInternalEnergyInMWH[element] = currentEnergyInStorageInMWH;
 			currentEnergyInStorageInMWH += internalChargePowerInMW;
-			issueWarningIfOutsideTolerance(currentEnergyInStorageInMWH);
+			issueWarningIfOutsideTolerance(currentEnergyInStorageInMWH, planningTime);
 			currentEnergyInStorageInMWH = ensureWithinBounds(currentEnergyInStorageInMWH);
 			setBidPrice(element, externalChargePowerInMW);
 		}
@@ -80,20 +84,15 @@ public class FileDispatcher extends ArbitrageStrategist {
 		return storage.getInternalPowerInMW() * relativeChargePower;
 	}
 
-	/** prints a warning message if storage is significantly outside its constraints */
-	private void issueWarningIfOutsideTolerance(double currentEnergyInStorageInMWH) {
-		if (isOutsideTolerance(currentEnergyInStorageInMWH)) {
-			System.out.println(WARN_SUSPICIOUS_DISPATCH);
+	/** logs a warning message if storage is outside its constraints by more than {@link #dispatchToleranceInMWH} */
+	private void issueWarningIfOutsideTolerance(double currentEnergyInStorageInMWH, TimeStamp timeStamp) {
+		if (currentEnergyInStorageInMWH < -dispatchToleranceInMWH) {
+			logger.warn(WARN_BELOW_LOWER_BOUND + timeStamp);
 		}
-	}
-
-	/** @return true if the {@link Device storage} is operated outside its constraints by more than
-	 *         {@link #ABSOLUTE_TOLERANCE_IN_MWH} */
-	private boolean isOutsideTolerance(double currentEnergyInStorageInMWH) {
 		final double storageCapacityInMWH = storage.getEnergyStorageCapacityInMWH();
-		final boolean tooNegative = currentEnergyInStorageInMWH < -ABSOLUTE_TOLERANCE_IN_MWH;
-		final boolean tooFarAboveCapacity = currentEnergyInStorageInMWH > storageCapacityInMWH + ABSOLUTE_TOLERANCE_IN_MWH;
-		return tooNegative || tooFarAboveCapacity;
+		if (currentEnergyInStorageInMWH > storageCapacityInMWH + dispatchToleranceInMWH) {
+			logger.warn(WARN_ABOVE_UPPER_BOUND + timeStamp);
+		}
 	}
 
 	/** @return energy in storage, ensured to be within the bounds of the connected {@link Device} */
