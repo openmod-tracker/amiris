@@ -1,26 +1,43 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
 
 import java.util.ArrayList;
 import agents.markets.meritOrder.books.DemandOrderBook;
+import agents.markets.meritOrder.books.OrderBook;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import communications.message.BidData;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.message.Message;
 
 /** Performs market clearing of day-ahead market based on provided Bid-messages
  *
  * @author Farzad Sarfarazi, Christoph Schimeczek */
 public class MarketClearing {
+	static final String ERR_SHORTAGE_NOT_IMPLEMENTED = "ShortagePrice type not implemented: ";
+
+	public enum ShortagePrice {
+		ScarcityPrice, LastSupplyPrice
+	};
+
+	public static final Tree parameters = Make.newTree().add(Make.newEnum("DistributionMethod", DistributionMethod.class),
+			Make.newEnum("ShortageMethod", ShortagePrice.class).optional()).buildTree();
+
 	private final DistributionMethod distributionMethod;
+	private final ShortagePrice shortagePrice;
 
 	/** Creates a {@link MarketClearing}
 	 * 
-	 * @param distributionMethod defines method of how to award energy when multiple price-setting bids occur */
-	public MarketClearing(DistributionMethod distributionMethod) {
-		this.distributionMethod = distributionMethod;
+	 * @param input group holding all parameters
+	 * @throws MissingDataException if any required parameters are missing */
+	public MarketClearing(ParameterData input) throws MissingDataException {
+		this.distributionMethod = input.getEnum("DistributionMethod", DistributionMethod.class);
+		this.shortagePrice = input.getEnumOrDefault("ShortageMethod", ShortagePrice.class, ShortagePrice.ScarcityPrice);
 	}
 
 	/** Clears the market based on all the bids provided in form of messages
@@ -33,6 +50,9 @@ public class MarketClearing {
 		fillOrderBooksWithTraderBids(input, supplyBook, demandBook);
 		MarketClearingResult result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
 		result.setBooks(supplyBook, demandBook, distributionMethod);
+		if (hasScarcity(supplyBook, demandBook)) {
+			result = considerScarcity(result, supplyBook, demandBook);
+		}
 		return result;
 	}
 
@@ -61,6 +81,25 @@ public class MarketClearing {
 				default:
 					throw new RuntimeException("Bid type unknown.");
 			}
+		}
+	}
+
+	/** @return true if scarcity occurred according to the cleared {@link OrderBook}s */
+	private boolean hasScarcity(SupplyOrderBook supplyBook, DemandOrderBook demandBook) {
+		return demandBook.getAmountOfPowerShortage(supplyBook.getHighestItem()) > 0;
+	}
+
+	/** @return updated {@link MarketClearingResult} in case of scarcity - depending on the parameterised {@link ShortagePrice}
+	 *         method */
+	private MarketClearingResult considerScarcity(MarketClearingResult result, SupplyOrderBook supplyBook,
+			DemandOrderBook demandBook) {
+		switch (shortagePrice) {
+			case LastSupplyPrice:
+				return new MarketClearingResult(result.getTradedEnergyInMWH(), supplyBook.getHighestItem().getOfferPrice());
+			case ScarcityPrice:
+				return result;
+			default:
+				throw new RuntimeException(ERR_SHORTAGE_NOT_IMPLEMENTED + shortagePrice);
 		}
 	}
 }

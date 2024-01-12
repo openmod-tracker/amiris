@@ -4,11 +4,21 @@
 AgentTypes:
   DayAheadMarketSingleZone:
     Attributes:
-      DistributionMethod:
-        AttributeType: enum
-        Mandatory: true
+      Clearing:
+        AttributeType: block
         List: false
-        Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+        Mandatory: true
+        NestedAttributes:        
+          DistributionMethod:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+          ShortagePrice:
+            AttributeType: enum
+            Mandatory: false
+            List: false
+            Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]
       GateClosureInfoOffsetInSeconds:
         AttributeType: integer
         List: false
@@ -326,11 +336,21 @@ AgentTypes:
  
   MeritOrderForecaster:
     Attributes:
-      DistributionMethod:
-        AttributeType: enum
-        Mandatory: true
+      Clearing:
+        AttributeType: block
         List: false
-        Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+        Mandatory: true
+        NestedAttributes:        
+          DistributionMethod:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+          ShortagePrice:
+            AttributeType: enum
+            Mandatory: false
+            List: false
+            Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]
       ForecastPeriodInHours:
         AttributeType: integer
         Mandatory: true
@@ -343,12 +363,21 @@ AgentTypes:
 
   PriceForecaster:
     Attributes:
-      DistributionMethod:
-        AttributeType: enum
-        Mandatory: true
+      Clearing:
+        AttributeType: block
         List: false
-        Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
-      ForecastPeriodInHours:
+        Mandatory: true
+        NestedAttributes:        
+          DistributionMethod:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+          ShortagePrice:
+            AttributeType: enum
+            Mandatory: false
+            List: false
+            Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]      ForecastPeriodInHours:
         AttributeType: integer
         Mandatory: true
         List: false
