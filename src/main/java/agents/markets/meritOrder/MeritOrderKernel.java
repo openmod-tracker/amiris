@@ -95,7 +95,7 @@ public class MeritOrderKernel {
 	 * @throws MeritOrderClearingException if order book maximum is non-positive */
 	private static void ensureOrderBookPositiveEnergy(ArrayList<OrderBookItem> orderBook)
 			throws MeritOrderClearingException {
-		if (orderBook.get(orderBook.size() - 1).getCumulatedPowerLowerValue() <= 0) {
+		if (orderBook.get(orderBook.size() - 1).getCumulatedPowerUpperValue() <= 0) {
 			throw new MeritOrderClearingException(ERROR_NON_POSITIVE_DEMAND);
 		}
 	}
