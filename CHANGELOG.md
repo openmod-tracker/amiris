@@ -8,10 +8,11 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 
 ### Changed
 - **Breaking**: Rename `EnergyExchange` to `DayAheadMarketSingleZone` #41 (@dlr-cjs)
-- **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, Evelyn Sperber, Seyerfarzad Sarfarazi, @kriniti)
+- **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, dlr_es, Seyerfarzad Sarfarazi, @kriniti)
 - **Breaking**: FuelsMarket product `FuelsBill` renamed to `FuelBill` #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: ConventionalPlantOperator now based on `FuelsTrader` interface using new `FuelBid` message #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: StorageTrader input field `forecastRequestOffset` renamed to `electricityForecastRequestOffset` #54 (@dlr-cjs, @dlr_jk)
+- **Breaking**: input field `DistributionMethod` moved to new group `Clearing` in DayAheadMarkets and MarketForecasters #86 (@dlr-cjs, @dlr_es, @dlr_elghazi, @litotes18)
 - **Breaking**: Output field `CostsInEUR` in PowerPlantOperator & StorageTrader renamed to `VariableCostsInEUR` #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: Rename output fields to harmonise them across agent types #76 (@dlr-cjs)
   - `ConventionalPlantOperator`: rename column `DispatchedPowerInMWHperPlant` to `DispatchedEnergyInMWHperPlant`
@@ -51,6 +52,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)
 - Package `flexibility`: Basic classes for flexibility's dispatch planning #54 (@dlr-cjs, @dlr_jk)
 - Package `accounting`: including class AnnualCostCalculator #54 (@dlr-cjs, @dlr_jk)
+- Added new option `ShortagePrice` to MarketForecaster and DayAheadMarket to dynamically adjust scarcity prices #86 (@dlr-cjs, @dlr_es, @dlr_elghazi, @litotes18)
 - `FuelsMarket`: new Fuels `BIOMASS` and `OTHER` #54 (@dlr-cjs, @dlr_jk)
 - `FuelsTrader`: interface to trade with FuelsMarket #54 (@dlr-cjs, @dlr_jk)
 - `FuelBid` message to send bids for fuels to FuelsMarket #54 (@dlr-cjs, @dlr_jk)
