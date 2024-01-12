@@ -27,8 +27,8 @@ public class FileDispatcher extends ArbitrageStrategist {
 					Make.newDouble("DispatchTolerance").optional().help("Accepted tolerance for dispatch deviations in MWh."))
 			.buildTree();
 
-	static final String WARN_BELOW_LOWER_BOUND = "Dispatch file not suitable. Storage below empty at time ";
-	static final String WARN_ABOVE_UPPER_BOUND = "Dispatch file not suitable. Storage above full at time ";
+	static final String WARN_BELOW_LOWER_TOLERANCE = "Dispatch file not suitable. Storage below tolerance by more than ";
+	static final String WARN_ABOVE_UPPER_TOLERANCE = "Dispatch file not suitable. Storage above tolerance by more than ";
 	static final String ERR_CANNOT_USE_FORECAST = "Storage strategist 'FileDispatcher' cannot digest forecasts. Remove contracts.";
 
 	private double dispatchToleranceInMWH;
@@ -87,11 +87,11 @@ public class FileDispatcher extends ArbitrageStrategist {
 	/** logs a warning message if storage is outside its constraints by more than {@link #dispatchToleranceInMWH} */
 	private void issueWarningIfOutsideTolerance(double currentEnergyInStorageInMWH, TimeStamp timeStamp) {
 		if (currentEnergyInStorageInMWH < -dispatchToleranceInMWH) {
-			logger.warn(WARN_BELOW_LOWER_BOUND + timeStamp);
+			logger.warn(WARN_BELOW_LOWER_TOLERANCE + dispatchToleranceInMWH + " MWh at time " + timeStamp);
 		}
 		final double storageCapacityInMWH = storage.getEnergyStorageCapacityInMWH();
 		if (currentEnergyInStorageInMWH > storageCapacityInMWH + dispatchToleranceInMWH) {
-			logger.warn(WARN_ABOVE_UPPER_BOUND + timeStamp);
+			logger.warn(WARN_ABOVE_UPPER_TOLERANCE + dispatchToleranceInMWH + " MWh at time " + timeStamp);
 		}
 	}
 
