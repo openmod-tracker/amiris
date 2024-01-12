@@ -8,7 +8,7 @@ AgentTypes:
         AttributeType: block
         List: false
         Mandatory: true
-        NestedAttributes:        
+        NestedAttributes:
           DistributionMethod:
             AttributeType: enum
             Mandatory: true
@@ -340,7 +340,7 @@ AgentTypes:
         AttributeType: block
         List: false
         Mandatory: true
-        NestedAttributes:        
+        NestedAttributes:
           DistributionMethod:
             AttributeType: enum
             Mandatory: true
@@ -367,7 +367,7 @@ AgentTypes:
         AttributeType: block
         List: false
         Mandatory: true
-        NestedAttributes:        
+        NestedAttributes:
           DistributionMethod:
             AttributeType: enum
             Mandatory: true
@@ -377,7 +377,8 @@ AgentTypes:
             AttributeType: enum
             Mandatory: false
             List: false
-            Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]      ForecastPeriodInHours:
+            Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]
+      ForecastPeriodInHours:
         AttributeType: integer
         Mandatory: true
         List: false
