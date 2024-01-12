@@ -43,6 +43,15 @@ public class DayAheadMarketSingleZone extends DayAheadMarket {
 		demandBook = result.getDemandBook();
 		supplyBook = result.getSupplyBook();
 		double powerPrice = result.getMarketPriceInEURperMWH();
+
+		if (enableVirtualCapacity) {
+			OrderBookItem highestSupplyItem = supplyBook.getHighestItem();
+			double needPower = demandBook.getAmountOfPowerShortage(highestSupplyItem);
+			if (needPower > 0) {
+				
+			}
+		}
+
 		sendAwardsToTraders(contracts, powerPrice);
 
 		store(OutputFields.ElectricityPriceInEURperMWH, powerPrice);

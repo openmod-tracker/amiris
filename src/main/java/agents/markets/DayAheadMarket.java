@@ -30,8 +30,12 @@ public abstract class DayAheadMarket extends Agent {
 	static final String LONE_LIST = "At most one element is expected in this list: ";
 
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-					Make.newInt("GateClosureInfoOffsetInSeconds"))
+			.add(Make.newEnum("DistributionMethod", DistributionMethod.class), 
+					Make.newInt("GateClosureInfoOffsetInSeconds"),
+					// TODO: change to boolean asap, for now there is no boolean
+					Make.newInt("EnableVirtualCapacity").optional()
+					)
+			
 			.buildTree();
 
 	@Product
@@ -57,6 +61,7 @@ public abstract class DayAheadMarket extends Agent {
 	protected final MarketClearing marketClearing;
 	/** List of times the market will be cleared at the next clearing event */
 	protected ClearingTimes clearingTimes;
+	protected boolean enableVirtualCapacity; 
 
 	/** Creates an {@link DayAheadMarket}
 	 * 
@@ -67,6 +72,7 @@ public abstract class DayAheadMarket extends Agent {
 		ParameterData input = parameters.join(dataProvider);
 		marketClearing = new MarketClearing(input.getEnum("DistributionMethod", DistributionMethod.class));
 		gateClosureInfoOffset = new TimeSpan(input.getInteger("GateClosureInfoOffsetInSeconds"));
+		enableVirtualCapacity = input.getInteger("EnableVirtualCapacity") == 1 ? true : false;
 
 		/** Sends out ClearingTimes */
 		call(this::sendGateClosureInfo).on(Products.GateClosureInfo);
