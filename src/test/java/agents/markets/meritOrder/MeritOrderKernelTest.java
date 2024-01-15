@@ -23,7 +23,7 @@ public class MeritOrderKernelTest {
 		ArrayList<OrderBookItem> demandItems = mockBookItems(1, 2, 3);
 		when(supplyBook.getOrderBookItems()).thenReturn(supplyItems);
 		when(demandBook.getOrderBookItems()).thenReturn(demandItems);
-		assertThrowsMessage(MeritOrderClearingException.class, MeritOrderKernel.ERROR_NON_POSITIVE_DEMAND,
+		assertThrowsMessage(MeritOrderClearingException.class, MeritOrderKernel.ERR_NON_POSITIVE_ORDER_BOOK,
 				() -> MeritOrderKernel.clearMarketSimple(supplyBook, demandBook));
 	}
 	
@@ -47,7 +47,7 @@ public class MeritOrderKernelTest {
 		ArrayList<OrderBookItem> demandItems = mockBookItems(0, 0, 0);
 		when(supplyBook.getOrderBookItems()).thenReturn(supplyItems);
 		when(demandBook.getOrderBookItems()).thenReturn(demandItems);
-		assertThrowsMessage(MeritOrderClearingException.class, MeritOrderKernel.ERROR_NON_POSITIVE_DEMAND,
+		assertThrowsMessage(MeritOrderClearingException.class, MeritOrderKernel.ERR_NON_POSITIVE_ORDER_BOOK,
 				() -> MeritOrderKernel.clearMarketSimple(supplyBook, demandBook));
 	}
 

@@ -22,7 +22,7 @@ public class MeritOrderKernel {
 		}
 	}
 
-	static final String ERROR_NON_POSITIVE_DEMAND = "Non positive demand encounterd";
+	static final String ERR_NON_POSITIVE_ORDER_BOOK = "Demand or Supply order book not strictly positive.";
 
 	/** The function takes two sorted (ascending by cumulatedPower) OrderBooks for demand (descending by offerPrice) and supply
 	 * (ascending by offerPrice). It is assumed that the price of the first element from demand exceeds that of the first supply
@@ -91,12 +91,12 @@ public class MeritOrderKernel {
 
 	/** Ensures that the given order book has positive cumulative power, otherwise throws exception
 	 * 
-	 * @param orderBook to be checked for its power
-	 * @throws MeritOrderClearingException if order book maximum is non-positive */
+	 * @param orderBook to be checked for the cumulated power of the last bid
+	 * @throws MeritOrderClearingException if order book power maximum is non-positive */
 	private static void ensureOrderBookPositiveEnergy(ArrayList<OrderBookItem> orderBook)
 			throws MeritOrderClearingException {
 		if (orderBook.get(orderBook.size() - 1).getCumulatedPowerUpperValue() <= 0) {
-			throw new MeritOrderClearingException(ERROR_NON_POSITIVE_DEMAND);
+			throw new MeritOrderClearingException(ERR_NON_POSITIVE_ORDER_BOOK);
 		}
 	}
 }

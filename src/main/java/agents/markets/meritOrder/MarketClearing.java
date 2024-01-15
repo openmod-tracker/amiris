@@ -10,7 +10,6 @@ import agents.markets.meritOrder.MeritOrderKernel.MeritOrderClearingException;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.SupplyOrderBook;
-import agents.storage.arbitrageStrategists.ArbitrageStrategist;
 import communications.message.BidData;
 import de.dlr.gitlab.fame.communication.message.Message;
 
@@ -19,7 +18,7 @@ import de.dlr.gitlab.fame.communication.message.Message;
  * @author Farzad Sarfarazi, Christoph Schimeczek */
 public class MarketClearing {
 	private final DistributionMethod distributionMethod;
-	protected static Logger logger = LoggerFactory.getLogger(ArbitrageStrategist.class);
+	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
 
 	/** Creates a {@link MarketClearing}
 	 * 
