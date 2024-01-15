@@ -12,8 +12,8 @@ import agents.markets.meritOrder.books.SupplyOrderBook;
  *
  * @author Farzad Sarfarazi, Christoph Schimeczek */
 public class MarketClearingResult {
-	private final double tradedEnergyInMWH;
-	private final double marketPriceInEURperMWH;
+	private double tradedEnergyInMWH;
+	private double marketPriceInEURperMWH;
 	private DemandOrderBook demandBook;
 	private SupplyOrderBook supplyBook;
 
@@ -61,6 +61,10 @@ public class MarketClearingResult {
 	/** @return uniform market clearing price */
 	public double getMarketPriceInEURperMWH() {
 		return marketPriceInEURperMWH;
+	}
+	
+	public void setMarketPriceInEURperMWH(double newPriceInEURperMWH) {
+		marketPriceInEURperMWH = newPriceInEURperMWH;
 	}
 
 	/** @return total system cost from generation based on awarded bids and their associated marginal cost */

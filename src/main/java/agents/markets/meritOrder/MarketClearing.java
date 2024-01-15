@@ -64,7 +64,7 @@ public class MarketClearing {
 		}
 		result.setBooks(supplyBook, demandBook, distributionMethod);
 		if (hasScarcity(supplyBook, demandBook)) {
-			result = considerScarcity(result, supplyBook, demandBook);
+			updateResultForScarcity(result, supplyBook);
 		}
 		return result;
 	}
@@ -102,26 +102,16 @@ public class MarketClearing {
 		return demandBook.getAmountOfPowerShortage(supplyBook.getHighestItem()) > 0;
 	}
 
-	/** @return updated {@link MarketClearingResult} in case of scarcity - depending on the parameterised {@link ShortagePrice}
-	 *         method */
-	private MarketClearingResult considerScarcity(MarketClearingResult oldResult, SupplyOrderBook supplyBook,
-			DemandOrderBook demandBook) {
+	/** Update given {@link MarketClearingResult} scarcity price - depending on the parameterised {@link ShortagePrice} method */
+	private void updateResultForScarcity(MarketClearingResult result, SupplyOrderBook supplyBook) {
 		switch (shortagePrice) {
 			case LastSupplyPrice:
-				return createNewResult(oldResult.getTradedEnergyInMWH(), supplyBook.getHighestItem().getOfferPrice(),
-						supplyBook, demandBook);
+				result.setMarketPriceInEURperMWH(supplyBook.getHighestItem().getOfferPrice());
+				break;
 			case ScarcityPrice:
-				return oldResult;
+				break;
 			default:
 				throw new RuntimeException(ERR_SHORTAGE_NOT_IMPLEMENTED + shortagePrice);
 		}
-	}
-
-	/** @return new {@link MarketClearingResult} with given energy, price and order books */
-	private MarketClearingResult createNewResult(double tradedEnergy, double clearingPrice, SupplyOrderBook supplyBook,
-			DemandOrderBook demandBook) {
-		MarketClearingResult newResult = new MarketClearingResult(tradedEnergy, clearingPrice);
-		newResult.setBooks(supplyBook, demandBook, distributionMethod);
-		return newResult;
 	}
 }
