@@ -4,6 +4,9 @@
 package agents.markets.meritOrder;
 
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import agents.markets.meritOrder.MeritOrderKernel.MeritOrderClearingException;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
@@ -30,6 +33,7 @@ public class MarketClearing {
 
 	private final DistributionMethod distributionMethod;
 	private final ShortagePrice shortagePrice;
+	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
 
 	/** Creates a {@link MarketClearing}
 	 * 
@@ -44,11 +48,17 @@ public class MarketClearing {
 	 * 
 	 * @param input unsorted messages containing demand and supply bids
 	 * @return {@link MarketClearingResult result} of market clearing */
-	public MarketClearingResult calculateMarketClearing(ArrayList<Message> input) {
+	public MarketClearingResult calculateMarketClearing(ArrayList<Message> input, String clearingEventId) {
 		DemandOrderBook demandBook = new DemandOrderBook();
 		SupplyOrderBook supplyBook = new SupplyOrderBook();
 		fillOrderBooksWithTraderBids(input, supplyBook, demandBook);
-		MarketClearingResult result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		MarketClearingResult result;
+		try {
+			result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		} catch (MeritOrderClearingException e) {
+			result = new MarketClearingResult(0.0, Double.NaN);
+			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
+		}
 		result.setBooks(supplyBook, demandBook, distributionMethod);
 		if (hasScarcity(supplyBook, demandBook)) {
 			result = considerScarcity(result, supplyBook, demandBook);

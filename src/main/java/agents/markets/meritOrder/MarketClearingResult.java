@@ -4,9 +4,9 @@
 package agents.markets.meritOrder;
 
 import agents.markets.meritOrder.books.DemandOrderBook;
+import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
-import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 
 /** Holds clearing price, sold energy, and updated {@link DemandOrderBook} and {@link SupplyOrderBook}
  *
