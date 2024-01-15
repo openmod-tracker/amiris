@@ -18,6 +18,7 @@ AgentTypes:
             AttributeType: enum
             Mandatory: false
             List: false
+            help: "Defines which price to use in case of shortage events (default: ScarcityPrice)"
             Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]
       GateClosureInfoOffsetInSeconds:
         AttributeType: integer
@@ -350,6 +351,7 @@ AgentTypes:
             AttributeType: enum
             Mandatory: false
             List: false
+            help: "Defines which price to use in case of shortage events (default: ScarcityPrice)"
             Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]
       ForecastPeriodInHours:
         AttributeType: integer

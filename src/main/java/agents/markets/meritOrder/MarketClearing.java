@@ -29,9 +29,12 @@ public class MarketClearing {
 	};
 
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-			Make.newEnum("ShortageMethod", ShortagePrice.class).optional()).buildTree();
+			Make.newEnum("ShortagePrice", ShortagePrice.class).optional()
+					.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
+			.buildTree();
 
 	private final DistributionMethod distributionMethod;
+	/** Defines which price to use in case of shortage */
 	private final ShortagePrice shortagePrice;
 	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
 
@@ -41,7 +44,7 @@ public class MarketClearing {
 	 * @throws MissingDataException if any required parameters are missing */
 	public MarketClearing(ParameterData input) throws MissingDataException {
 		this.distributionMethod = input.getEnum("DistributionMethod", DistributionMethod.class);
-		this.shortagePrice = input.getEnumOrDefault("ShortageMethod", ShortagePrice.class, ShortagePrice.ScarcityPrice);
+		this.shortagePrice = input.getEnumOrDefault("ShortagePrice", ShortagePrice.class, ShortagePrice.ScarcityPrice);
 	}
 
 	/** Clears the market based on all the bids provided in form of messages
@@ -101,15 +104,24 @@ public class MarketClearing {
 
 	/** @return updated {@link MarketClearingResult} in case of scarcity - depending on the parameterised {@link ShortagePrice}
 	 *         method */
-	private MarketClearingResult considerScarcity(MarketClearingResult result, SupplyOrderBook supplyBook,
+	private MarketClearingResult considerScarcity(MarketClearingResult oldResult, SupplyOrderBook supplyBook,
 			DemandOrderBook demandBook) {
 		switch (shortagePrice) {
 			case LastSupplyPrice:
-				return new MarketClearingResult(result.getTradedEnergyInMWH(), supplyBook.getHighestItem().getOfferPrice());
+				return createNewResult(oldResult.getTradedEnergyInMWH(), supplyBook.getHighestItem().getOfferPrice(),
+						supplyBook, demandBook);
 			case ScarcityPrice:
-				return result;
+				return oldResult;
 			default:
 				throw new RuntimeException(ERR_SHORTAGE_NOT_IMPLEMENTED + shortagePrice);
 		}
+	}
+
+	/** @return new {@link MarketClearingResult} with given energy, price and order books */
+	private MarketClearingResult createNewResult(double tradedEnergy, double clearingPrice, SupplyOrderBook supplyBook,
+			DemandOrderBook demandBook) {
+		MarketClearingResult newResult = new MarketClearingResult(tradedEnergy, clearingPrice);
+		newResult.setBooks(supplyBook, demandBook, distributionMethod);
+		return newResult;
 	}
 }
