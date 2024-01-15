@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static testUtils.Exceptions.assertThrowsMessage;
@@ -19,15 +20,15 @@ public class MeritOrderKernelTest {
 	public void clearMarketSimple_zeroSupply_throws() {
 		SupplyOrderBook supplyBook = mock(SupplyOrderBook.class);
 		DemandOrderBook demandBook = mock(DemandOrderBook.class);
-		ArrayList<OrderBookItem> supplyItems = mockBookItems(0., 0., 0.);
-		ArrayList<OrderBookItem> demandItems = mockBookItems(1, 2, 3);
+		ArrayList<OrderBookItem> supplyItems = mockBookItemsPower(0., 0., 0.);
+		ArrayList<OrderBookItem> demandItems = mockBookItemsPower(1, 2, 3);
 		when(supplyBook.getOrderBookItems()).thenReturn(supplyItems);
 		when(demandBook.getOrderBookItems()).thenReturn(demandItems);
 		assertThrowsMessage(MeritOrderClearingException.class, MeritOrderKernel.ERR_NON_POSITIVE_ORDER_BOOK,
 				() -> MeritOrderKernel.clearMarketSimple(supplyBook, demandBook));
 	}
-	
-	private ArrayList<OrderBookItem> mockBookItems(double... powerValues) {
+
+	private ArrayList<OrderBookItem> mockBookItemsPower(double... powerValues) {
 		ArrayList<OrderBookItem> orderBookItems = new ArrayList<>();
 		double total = 0;
 		for (double powerValue : powerValues) {
@@ -38,18 +39,45 @@ public class MeritOrderKernelTest {
 		}
 		return orderBookItems;
 	}
-	
+
 	@Test
 	public void clearMarketSimple_zeroDemand_throws() {
 		SupplyOrderBook supplyBook = mock(SupplyOrderBook.class);
 		DemandOrderBook demandBook = mock(DemandOrderBook.class);
-		ArrayList<OrderBookItem> supplyItems = mockBookItems(1, 2, 3);
-		ArrayList<OrderBookItem> demandItems = mockBookItems(0, 0, 0);
+		ArrayList<OrderBookItem> supplyItems = mockBookItemsPower(1, 2, 3);
+		ArrayList<OrderBookItem> demandItems = mockBookItemsPower(0, 0, 0);
 		when(supplyBook.getOrderBookItems()).thenReturn(supplyItems);
 		when(demandBook.getOrderBookItems()).thenReturn(demandItems);
 		assertThrowsMessage(MeritOrderClearingException.class, MeritOrderKernel.ERR_NON_POSITIVE_ORDER_BOOK,
 				() -> MeritOrderKernel.clearMarketSimple(supplyBook, demandBook));
 	}
 
-	
+	@Test
+	public void clearMarketSimple_positiveDemandAndSupply_returnsCut() throws MeritOrderClearingException {
+		SupplyOrderBook supplyBook = mock(SupplyOrderBook.class);
+		DemandOrderBook demandBook = mock(DemandOrderBook.class);
+		ArrayList<OrderBookItem> supplyItems = mockBookItemsPowerAndPrice(
+				new double[] {100, 0}, new double[] {21, Double.MAX_VALUE});
+		ArrayList<OrderBookItem> demandItems = mockBookItemsPowerAndPrice(
+				new double[] {50, 0}, new double[] {3000, -Double.MAX_VALUE});
+		when(supplyBook.getOrderBookItems()).thenReturn(supplyItems);
+		when(demandBook.getOrderBookItems()).thenReturn(demandItems);
+		MarketClearingResult result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		assertEquals(21, result.getMarketPriceInEURperMWH(), 1E-10);
+		assertEquals(50, result.getTradedEnergyInMWH(), 1E-10);
+	}
+
+	/** @return List of mocked {@link OrderBookItem}s create from given power and price value pairs */
+	private ArrayList<OrderBookItem> mockBookItemsPowerAndPrice(double[] powers, double[] prices) {
+		ArrayList<OrderBookItem> orderBookItems = new ArrayList<>();
+		double total = 0;
+		for (int index = 0; index < powers.length; index++) {
+			OrderBookItem orderBookItem = mock(OrderBookItem.class);
+			when(orderBookItem.getCumulatedPowerUpperValue()).thenReturn(total + powers[index]);
+			when(orderBookItem.getOfferPrice()).thenReturn(prices[index]);
+			orderBookItems.add(orderBookItem);
+			total += powers[index];
+		}
+		return orderBookItems;
+	}
 }
