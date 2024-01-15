@@ -1,9 +1,12 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
 
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import agents.markets.meritOrder.MeritOrderKernel.MeritOrderClearingException;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -15,6 +18,7 @@ import de.dlr.gitlab.fame.communication.message.Message;
  * @author Farzad Sarfarazi, Christoph Schimeczek */
 public class MarketClearing {
 	private final DistributionMethod distributionMethod;
+	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
 
 	/** Creates a {@link MarketClearing}
 	 * 
@@ -27,11 +31,17 @@ public class MarketClearing {
 	 * 
 	 * @param input unsorted messages containing demand and supply bids
 	 * @return {@link MarketClearingResult result} of market clearing */
-	public MarketClearingResult calculateMarketClearing(ArrayList<Message> input) {
+	public MarketClearingResult calculateMarketClearing(ArrayList<Message> input, String clearingEventId) {
 		DemandOrderBook demandBook = new DemandOrderBook();
 		SupplyOrderBook supplyBook = new SupplyOrderBook();
 		fillOrderBooksWithTraderBids(input, supplyBook, demandBook);
-		MarketClearingResult result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		MarketClearingResult result;
+		try {
+			result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		} catch (MeritOrderClearingException e) {
+			result = new MarketClearingResult(0.0, Double.NaN);
+			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
+		}
 		result.setBooks(supplyBook, demandBook, distributionMethod);
 		return result;
 	}

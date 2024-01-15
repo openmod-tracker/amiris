@@ -5,8 +5,8 @@ package agents.markets.meritOrder.books;
 
 import java.util.Comparator;
 import agents.markets.meritOrder.Bid;
-import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Constants;
 
 /** {@link OrderBook} that manages all {@link OrderBookItem}s from demand-{@link Bid}s
  * 

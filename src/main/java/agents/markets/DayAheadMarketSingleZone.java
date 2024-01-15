@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -39,7 +39,7 @@ public class DayAheadMarketSingleZone extends DayAheadMarket {
 	 * @param input supply and demand bids
 	 * @param contracts with anyone who wants to receive information about the market clearing outcome */
 	protected void clearMarket(ArrayList<Message> input, List<Contract> contracts) {
-		MarketClearingResult result = marketClearing.calculateMarketClearing(input);
+		MarketClearingResult result = marketClearing.calculateMarketClearing(input, this.toString() + " " + now());
 		demandBook = result.getDemandBook();
 		supplyBook = result.getSupplyBook();
 		double powerPrice = result.getMarketPriceInEURperMWH();
