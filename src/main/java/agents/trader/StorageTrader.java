@@ -30,6 +30,7 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Sells and buys energy utilising a Storage {@link Device} at the {@link DayAheadMarket}
@@ -118,6 +119,7 @@ public class StorageTrader extends FlexibilityTrader {
 			strategist.clearSensitivitiesBefore(now());
 			TimePeriod targetTimeSegment = new TimePeriod(targetTime, Strategist.OPERATION_PERIOD);
 			schedule = strategist.createSchedule(targetTimeSegment);
+			storage.clearDischargingDeviationBefore(targetTime.earlierBy(Strategist.OPERATION_PERIOD));
 		}
 	}
 
@@ -157,7 +159,8 @@ public class StorageTrader extends FlexibilityTrader {
 		double powerPrice = awards.getDataItemOfType(AwardData.class).powerPriceInEURperMWH;
 		double revenues = powerPrice * awardedDischargePower;
 		double costs = powerPrice * awardedChargePower;
-		storage.chargeInMW(externalPowerDelta);
+		TimeStamp time = awards.getDataItemOfType(AwardData.class).beginOfDeliveryInterval;
+		storage.chargeInMW(externalPowerDelta, time);
 
 		store(OutputFields.AwardedDischargeEnergyInMWH, awardedDischargePower);
 		store(OutputFields.AwardedChargeEnergyInMWH, awardedChargePower);

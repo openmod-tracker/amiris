@@ -3,10 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage;
 
+import java.util.TreeMap;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Represents a physical energy storage device (e.g. LiIon battery or pumped-hydro plant)
  *
@@ -15,6 +17,7 @@ public class Device extends AbstractDevice {
 	private double currentEnergyInStorageInMWH;
 	private double accountedInternalEnergyFlowsInMWH = 0;
 	private double accountedFullStorageCycles = 0;
+	private TreeMap<TimeStamp, Double> dischargingDeviation;
 
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("EnergyToPowerRatio"), Make.newDouble("SelfDischargeRatePerHour"),
@@ -52,6 +55,13 @@ public class Device extends AbstractDevice {
 		accountedFullStorageCycles = 0;
 	}
 
+	/** Removes any discharging deviation data with TimeStamp before given TimeStamp
+	 * 
+	 * @param timeStamp any stored data associated with earlier times are removed */
+	public void clearDischargingDeviationBefore(TimeStamp timeStamp) {
+		dischargingDeviation.headMap(timeStamp).clear();
+	}
+
 	/** (Dis-)charges this device according to given external energy delta
 	 * 
 	 * @param externalChargingPower
@@ -60,12 +70,13 @@ public class Device extends AbstractDevice {
 	 *          <li>externalChargingPower &lt; 0: depleting</li>
 	 *          </ul>
 	 * @return actual external charging power, considering power and energy capacity restrictions of this device */
-	public double chargeInMW(double externalChargingPower) {
+	public double chargeInMW(double externalChargingPower, TimeStamp timeStamp) {
 		double internalChargingPowerInMW = externalToInternalEnergy(externalChargingPower);
 		internalChargingPowerInMW = considerPowerLimits(internalChargingPowerInMW);
 		double internalSelfDischargeInMWH = calcInternalSelfDischargeInMWH(currentEnergyInStorageInMWH);
 		double nextEnergyInStorageInMWH = currentEnergyInStorageInMWH + internalChargingPowerInMW
 				- internalSelfDischargeInMWH;
+		trackInternalLosses(internalSelfDischargeInMWH, timeStamp);
 		nextEnergyInStorageInMWH = considerEnergyRestrictions(nextEnergyInStorageInMWH);
 
 		double internalEnergyDelta = nextEnergyInStorageInMWH - currentEnergyInStorageInMWH;
@@ -82,6 +93,15 @@ public class Device extends AbstractDevice {
 			return Math.min(internalChargingPowerInMW, internalPowerInMW);
 		} else {
 			return Math.max(internalChargingPowerInMW, -internalPowerInMW);
+		}
+	}
+
+	/** track the internal self discharge by adding it to {@link dischargingDeviation} */
+	private void trackInternalLosses(double internalSelfDischargeInMWH, TimeStamp timeStamp) {
+		if (!dischargingDeviation.isEmpty()) {
+			dischargingDeviation.put(timeStamp, internalSelfDischargeInMWH);
+		} else {
+			dischargingDeviation.put(timeStamp, 0.);
 		}
 	}
 
