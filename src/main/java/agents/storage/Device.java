@@ -55,11 +55,20 @@ public class Device extends AbstractDevice {
 		accountedFullStorageCycles = 0;
 	}
 
-	/** Removes any discharging deviation data with TimeStamp before given TimeStamp
+	/** Removes any discharging deviation data with time stamp before given time stamp
 	 * 
 	 * @param timeStamp any stored data associated with earlier times are removed */
 	public void clearDischargingDeviationBefore(TimeStamp timeStamp) {
 		dischargingDeviation.headMap(timeStamp).clear();
+	}
+
+	/** @return actual discharging deviation of storage at given time stamp or 0 if not yet initialized */
+	public double getDischargingDeviationFor(TimeStamp timeStamp) {
+		if (!dischargingDeviation.isEmpty()) {
+			return dischargingDeviation.get(timeStamp);
+		} else {
+			return 0.;
+		}
 	}
 
 	/** (Dis-)charges this device according to given external energy delta
