@@ -17,7 +17,7 @@ public class Device extends AbstractDevice {
 	private double currentEnergyInStorageInMWH;
 	private double accountedInternalEnergyFlowsInMWH = 0;
 	private double accountedFullStorageCycles = 0;
-	private TreeMap<TimeStamp, Double> dischargingDeviation;
+	private TreeMap<TimeStamp, Double> dischargingDeviation = new TreeMap<>();
 
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("EnergyToPowerRatio"), Make.newDouble("SelfDischargeRatePerHour"),
