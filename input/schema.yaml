@@ -14,12 +14,12 @@ AgentTypes:
             Mandatory: true
             List: false
             Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
-          ShortagePrice:
+          ShortagePriceMethod:
             AttributeType: enum
             Mandatory: false
             List: false
             help: "Defines which price to use in case of shortage events (default: ScarcityPrice)"
-            Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]
+            Values: [ 'LastSupplyPrice', 'ValueOfLostLoad' ]
       GateClosureInfoOffsetInSeconds:
         AttributeType: integer
         List: false
@@ -347,12 +347,12 @@ AgentTypes:
             Mandatory: true
             List: false
             Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
-          ShortagePrice:
+          ShortagePriceMethod:
             AttributeType: enum
             Mandatory: false
             List: false
             help: "Defines which price to use in case of shortage events (default: ScarcityPrice)"
-            Values: [ 'LastSupplyPrice', 'ScarcityPrice' ]
+            Values: [ 'LastSupplyPrice', 'ValueOfLostLoad' ]
       ForecastPeriodInHours:
         AttributeType: integer
         Mandatory: true
