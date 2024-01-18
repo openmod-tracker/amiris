@@ -24,18 +24,18 @@ import de.dlr.gitlab.fame.communication.message.Message;
 public class MarketClearing {
 	static final String ERR_SHORTAGE_NOT_IMPLEMENTED = "ShortagePrice type not implemented: ";
 
-	public enum ShortagePrice {
-		ScarcityPrice, LastSupplyPrice
+	public enum ShortagePriceMethod {
+		ValueOfLostLoad, LastSupplyPrice
 	};
 
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-			Make.newEnum("ShortagePrice", ShortagePrice.class).optional()
+			Make.newEnum("ShortagePriceMethod", ShortagePriceMethod.class).optional()
 					.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
 			.buildTree();
 
 	private final DistributionMethod distributionMethod;
 	/** Defines which price to use in case of shortage */
-	private final ShortagePrice shortagePrice;
+	private final ShortagePriceMethod shortagePriceMethod;
 	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
 
 	/** Creates a {@link MarketClearing}
@@ -44,7 +44,8 @@ public class MarketClearing {
 	 * @throws MissingDataException if any required parameters are missing */
 	public MarketClearing(ParameterData input) throws MissingDataException {
 		this.distributionMethod = input.getEnum("DistributionMethod", DistributionMethod.class);
-		this.shortagePrice = input.getEnumOrDefault("ShortagePrice", ShortagePrice.class, ShortagePrice.ScarcityPrice);
+		this.shortagePriceMethod = input.getEnumOrDefault("ShortagePriceMethod", ShortagePriceMethod.class,
+				ShortagePriceMethod.ValueOfLostLoad);
 	}
 
 	/** Clears the market based on all the bids provided in form of messages
@@ -102,16 +103,17 @@ public class MarketClearing {
 		return demandBook.getAmountOfPowerShortage(supplyBook.getHighestItem()) > 0;
 	}
 
-	/** Update given {@link MarketClearingResult} scarcity price - depending on the parameterised {@link ShortagePrice} method */
+	/** Update given {@link MarketClearingResult} scarcity price - depending on the parameterised {@link ShortagePriceMethod}
+	 * method */
 	private void updateResultForScarcity(MarketClearingResult result, SupplyOrderBook supplyBook) {
-		switch (shortagePrice) {
+		switch (shortagePriceMethod) {
 			case LastSupplyPrice:
 				result.setMarketPriceInEURperMWH(supplyBook.getHighestItem().getOfferPrice());
 				break;
-			case ScarcityPrice:
+			case ValueOfLostLoad:
 				break;
 			default:
-				throw new RuntimeException(ERR_SHORTAGE_NOT_IMPLEMENTED + shortagePrice);
+				throw new RuntimeException(ERR_SHORTAGE_NOT_IMPLEMENTED + shortagePriceMethod);
 		}
 	}
 }
