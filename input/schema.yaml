@@ -255,6 +255,11 @@ AgentTypes:
                 Mandatory: false
                 List: false
                 help: "Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."
+              DispatchToleranceInMWH:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                help: "Accepted tolerance for dispatch deviations in MWh." 
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
 
   RenewableTrader:

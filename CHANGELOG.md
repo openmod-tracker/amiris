@@ -1,4 +1,4 @@
-<!-- SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
@@ -61,6 +61,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - `Trader`: has new product `AnnualCostReport` #54 (@dlr-cjs, @dlr_jk)
 - `ElectrolysisTrader`: add optional bidding price limit override #57 (@dlr_jk, @dlr-cjs)
 - `ConventionalOperator`: add output `ReceivedMoneyInEUR` for received money per plant #74 (@dlr_cjs)
+- FileDispatcher(Storage): added optional input parameter `DispatchTolerance` #50 (@dlr_jk, @litotes18, @dlr_fn)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
 - Tests in packages `accounting` and `util` #54 (@dlr-cjs, @dlr_jk)
 - UPGRADING.md: help people with upgrading tasks #58 (@dlr-cjs)
