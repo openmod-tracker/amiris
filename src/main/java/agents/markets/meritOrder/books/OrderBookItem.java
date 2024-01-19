@@ -15,6 +15,8 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Christoph Schimeczek, Martin Klein , Evelyn Sperber, Farzad Sarfarazi */
 public class OrderBookItem implements Portable {
+	static final String ERR_NEGATIVE_POWER = "OrderBookItems with negative power received from Trader: ";
+	
 	public static final Comparator<OrderBookItem> BY_PRICE = Comparator.comparing(item -> item.getOfferPrice());
 	private Bid bid;
 	private double cumulatedPowerUpperValue = Double.NaN;
@@ -28,6 +30,9 @@ public class OrderBookItem implements Portable {
 	 * @param bid associated with this order book item */
 	public OrderBookItem(Bid bid) {
 		this.bid = bid;
+		if (bid.getEnergyAmountInMWH() < 0.) {
+			throw new RuntimeException(ERR_NEGATIVE_POWER + bid.getTraderUuid());
+		}
 	}
 
 	/** Sets the cumulated power upper value in the context of the containing {@link OrderBook}

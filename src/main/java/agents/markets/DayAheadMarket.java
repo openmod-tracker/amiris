@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -6,7 +6,6 @@ package agents.markets;
 import java.util.ArrayList;
 import java.util.List;
 import agents.markets.meritOrder.MarketClearing;
-import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import communications.message.ClearingTimes;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -29,10 +28,8 @@ public abstract class DayAheadMarket extends Agent {
 	static final String UNKNOWN_BID_TYPE = " is an unknown type of bid: ";
 	static final String LONE_LIST = "At most one element is expected in this list: ";
 
-	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-					Make.newInt("GateClosureInfoOffsetInSeconds"))
-			.buildTree();
+	@Input private static final Tree parameters = Make.newTree().addAs("Clearing", MarketClearing.parameters)
+			.add(Make.newInt("GateClosureInfoOffsetInSeconds")).buildTree();
 
 	@Product
 	public static enum Products {
@@ -64,8 +61,8 @@ public abstract class DayAheadMarket extends Agent {
 	 * @throws MissingDataException if any required data is not provided */
 	public DayAheadMarket(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
-		ParameterData input = parameters.join(dataProvider);
-		marketClearing = new MarketClearing(input.getEnum("DistributionMethod", DistributionMethod.class));
+		ParameterData input = parameters.join(dataProvider); 
+		marketClearing = new MarketClearing(input.getGroup("Clearing"));
 		gateClosureInfoOffset = new TimeSpan(input.getInteger("GateClosureInfoOffsetInSeconds"));
 
 		/** Sends out ClearingTimes */

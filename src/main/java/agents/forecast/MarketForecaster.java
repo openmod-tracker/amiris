@@ -11,7 +11,6 @@ import java.util.TreeMap;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.trader.Trader;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
@@ -35,8 +34,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek */
 public abstract class MarketForecaster extends Forecaster {
 	@Input private static final Tree parameters = Make.newTree().add(Make.newInt("ForecastPeriodInHours"),
-			Make.newInt("ForecastRequestOffsetInSeconds"), Make.newEnum("DistributionMethod", DistributionMethod.class))
-			.buildTree();
+			Make.newInt("ForecastRequestOffsetInSeconds")).addAs("Clearing", MarketClearing.parameters).buildTree();
 
 	@Product
 	public static enum Products {
@@ -61,7 +59,7 @@ public abstract class MarketForecaster extends Forecaster {
 	public MarketForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
-		marketClearing = new MarketClearing(input.getEnum("DistributionMethod", DistributionMethod.class));
+		marketClearing = new MarketClearing(input.getGroup("Clearing"));
 		forecastPeriodInHours = input.getInteger("ForecastPeriodInHours");
 		forecastRequestOffset = new TimeSpan(input.getInteger("ForecastRequestOffsetInSeconds"));
 
@@ -123,7 +121,7 @@ public abstract class MarketForecaster extends Forecaster {
 		for (Entry<TimeStamp, ArrayList<Message>> entry : messagesByTimeStamp.entrySet()) {
 			TimeStamp requestedTime = entry.getKey();
 			ArrayList<Message> bidsAtRequestedTime = entry.getValue();
-			MarketClearingResult marketClearingResult = marketClearing.calculateMarketClearing(bidsAtRequestedTime);
+			MarketClearingResult marketClearingResult = marketClearing.calculateMarketClearing(bidsAtRequestedTime, this.toString() + " " + now());
 			calculatedForecastContainer.put(requestedTime, marketClearingResult);
 		}
 	}
