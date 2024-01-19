@@ -24,7 +24,7 @@ public class FileDispatcher extends ArbitrageStrategist {
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newSeries("Schedule").optional().help(
 					"Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."),
-					Make.newDouble("DispatchTolerance").optional().help("Accepted tolerance for dispatch deviations in MWh."))
+					Make.newDouble("DispatchToleranceInMWH").optional().help("Accepted tolerance for dispatch deviations in MWh."))
 			.buildTree();
 
 	static final String WARN_BELOW_TOLERANCE= ": Dispatch file may not be suitable - Storage below minimum by MWh ";
@@ -46,7 +46,7 @@ public class FileDispatcher extends ArbitrageStrategist {
 			throws MissingDataException {
 		super(generalInput, storage);
 		this.tsDispatch = specificInput.getTimeSeries("Schedule");
-		this.dispatchToleranceInMWH = specificInput.getDoubleOrDefault("DispatchTolerance", 0.1);
+		this.dispatchToleranceInMWH = specificInput.getDoubleOrDefault("DispatchToleranceInMWH", 0.1);
 	}
 
 	/** No {@link MeritOrderSensitivity} needed for {@link FileDispatcher}, as dispatch is read from file */
@@ -93,7 +93,7 @@ public class FileDispatcher extends ArbitrageStrategist {
 		final double storageCapacityInMWH = storage.getEnergyStorageCapacityInMWH();
 		if (currentEnergyInStorageInMWH > storageCapacityInMWH + dispatchToleranceInMWH) {
 			double violation = currentEnergyInStorageInMWH - storageCapacityInMWH;
-			logger.warn(timeStamp + WARN_BELOW_TOLERANCE + violation);
+			logger.warn(timeStamp + WARN_ABOVE_TOLERANCE + violation);
 		}
 	}
 

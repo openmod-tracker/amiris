@@ -244,7 +244,7 @@ AgentTypes:
                 Mandatory: false
                 List: false
                 help: "Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."
-              DispatchTolerance:
+              DispatchToleranceInMWH:
                 AttributeType: double
                 Mandatory: false
                 List: false
