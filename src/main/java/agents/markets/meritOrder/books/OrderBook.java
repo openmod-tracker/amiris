@@ -10,16 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
+import agents.markets.meritOrder.Bid.Type;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-/** Handles a list of bids or asks at an energy {@link DayAheadMarket} for a single time frame of trading
+/** Handles a list of bids or asks at an energy {@link EnergyExchange} for a single time frame of trading
  * 
- * @author Martin Klein, Christoph Schimeczek */
+ * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public abstract class OrderBook implements Portable {
+	public static final String ERR_NEGATIVE_SUPPLY_POWER = "Negative supply bid power is forbidded. Bid: ";
+	public static final String ERR_NEGATIVE_DEMAND_POWER = "Negative demand bid power is forbidded - use ImportTrader. Bid: ";
 
 	/** required for {@link Portable}s */
 	public OrderBook() {}
@@ -67,6 +69,19 @@ public abstract class OrderBook implements Portable {
 		}
 	}
 
+	/** Ensures the {@link OrderBook}'s items have non-negative block power.
+	 * 
+	 * @throws RuntimeException if bid's block power is negative */
+	protected void ensurePositiveBidPower() {
+		for (OrderBookItem item : orderBookItems) {
+			if (item.getBlockPower() < 0) {
+				Bid bid = item.getBid();
+				String message = bid.getType() == Type.Supply ? ERR_NEGATIVE_SUPPLY_POWER : ERR_NEGATIVE_DEMAND_POWER;
+				throw new RuntimeException(message + bid);
+			}
+		}
+	}
+
 	/** Adds multiple {@link Bid}s to this {@link OrderBook}; the OrderBook must not be sorted yet
 	 * 
 	 * @param bids to add to this unsorted OrderBook */
@@ -89,6 +104,7 @@ public abstract class OrderBook implements Portable {
 	/** @return a list of items, which are sorted and have assigned cumulated power values */
 	public ArrayList<OrderBookItem> getOrderBookItems() {
 		if (!isSorted) {
+			ensurePositiveBidPower();
 			addVirtualLastBid();
 			orderBookItems.sort(getSortComparator());
 			cumulatePowerOfItems();
@@ -99,7 +115,13 @@ public abstract class OrderBook implements Portable {
 
 	/** Adds bid with 0 power and very high or low price to orderBookItems, ensuring the crossing of supply and demand */
 	private void addVirtualLastBid() {
-		addBid(getLastBid());
+		Bid lastBid = getLastBid();
+		for (OrderBookItem orderBookItem : orderBookItems) {
+			if (orderBookItem.getBid().matches(lastBid)) {
+				return;
+			}
+		}
+		addBid(lastBid);
 	}
 
 	/** @return the last virtual {@link Bid} depending on the type of order book */
@@ -128,7 +150,7 @@ public abstract class OrderBook implements Portable {
 		this.awardedCumulativePower = totalAwardedPower;
 
 		awardNonPriceSettingBids();
-		List<OrderBookItem> priceSettingBids = orderBookItems.stream().filter(item -> item.getOfferPrice() == awardedPrice)
+		List<OrderBookItem> priceSettingBids = orderBookItems.stream().filter(item -> item.getPrice() == awardedPrice)
 				.collect(Collectors.toList());
 		priceSettingBids.stream().filter(item -> item.getBlockPower() <= 0).forEach(item -> item.setAwardedPower(0));
 		priceSettingBids.removeIf(item -> item.getBlockPower() <= 0);
@@ -141,7 +163,7 @@ public abstract class OrderBook implements Portable {
 	/** Awards powers for bids that are not price setting and therefore are either fully awarded or not at all */
 	private void awardNonPriceSettingBids() {
 		Map<Boolean, List<OrderBookItem>> bidsByAwardStatus = orderBookItems.stream()
-				.filter(item -> item.getOfferPrice() != awardedPrice).collect(Collectors
+				.filter(item -> item.getPrice() != awardedPrice).collect(Collectors
 						.partitioningBy(item -> item.getCumulatedPowerUpperValue() <= awardedCumulativePower));
 		bidsByAwardStatus.get(true).stream().forEach(item -> item.setAwardedPower(item.getBlockPower()));
 		bidsByAwardStatus.get(false).stream().forEach(item -> item.setAwardedPower(0));
@@ -213,7 +235,7 @@ public abstract class OrderBook implements Portable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder("[");
 		for (OrderBookItem item : orderBookItems) {
-			builder.append("[" + item.getCumulatedPowerUpperValue() + "," + item.getOfferPrice() + "],");
+			builder.append("[" + item.getCumulatedPowerUpperValue() + "," + item.getPrice() + "],");
 		}
 		builder.append("]");
 		return builder.toString();
@@ -236,6 +258,26 @@ public abstract class OrderBook implements Portable {
 		awardedCumulativePower = provider.nextDouble();
 		orderBookItems = provider.nextComponentList(OrderBookItem.class);
 		isSorted = provider.nextBoolean();
+	}
 
+	/** Return sum of power across all bids in this OrderBook for given trader
+	 * 
+	 * @param traderUuid UUID of trader to sum up awarded power
+	 * @return awarded power of given trader */
+	public double getTradersSumOfPower(long traderUuid) {
+		double totalAwardedPower = 0;
+		for (OrderBookItem item : orderBookItems) {
+			totalAwardedPower += item.getTraderUuid() == traderUuid ? item.getAwardedPower() : 0;
+		}
+		return totalAwardedPower;
+	}
+
+	/** @return sum of power value of {@link #orderBookItems} */
+	public double getCumulatePowerOfItems() {
+		double summedPower = 0;
+		for (OrderBookItem entry : orderBookItems) {
+			summedPower += entry.getBlockPower();
+		}
+		return summedPower;
 	}
 }

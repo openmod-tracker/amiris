@@ -9,7 +9,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 
 /** A bid offering or requesting a given amount of energy for a specified price
  * 
- * @author Martin Klein, Christoph Schimeczek */
+ * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public class Bid implements Portable {
 	public static enum Type {
 		/** Offering energy */
@@ -28,7 +28,7 @@ public class Bid implements Portable {
 	public Bid() {}
 
 	/** Creates a {@link Bid}
-	 * 
+	 *
 	 * @param energyAmountInMWH amount of energy requested or offered (depending on Type of this Bid)
 	 * @param offerPriceInEURperMWH maximum / minimum offer price (depending on Type of this Bid)
 	 * @param marginalCostInEURperMWH actual marginal cost associated with this Bid
@@ -56,6 +56,13 @@ public class Bid implements Portable {
 	/** @return amount of energy requested or offered (depending on Type of this Bid) */
 	public double getEnergyAmountInMWH() {
 		return energyAmountInMWH;
+	}
+
+	/** set amount of energy requested or offered (depending on Type of this Bid)
+	 * 
+	 * @param energyAmountInMWH energy amount to set (in MHW). */
+	public void setEnergyAmountInMWH(double energyAmountInMWH) {
+		this.energyAmountInMWH = energyAmountInMWH;
 	}
 
 	/** @return id of the Trader that issued this Bid */
@@ -89,5 +96,20 @@ public class Bid implements Portable {
 		marginalCostInEURperMWH = provider.nextDouble();
 		traderUuid = provider.nextLong();
 		type = Type.values()[provider.nextInt()];
+	}
+
+	/** @return a deep-copy of {@link Bid} */
+	public Bid clone() {
+		return new Bid(energyAmountInMWH, offerPriceInEURperMWH, marginalCostInEURperMWH, traderUuid, type);
+	}
+
+	/** @return true if this object's content matches that of the given Bid.
+	 * @param bid to check for match. */
+	public boolean matches(Bid bid) {
+		return bid.offerPriceInEURperMWH == offerPriceInEURperMWH &&
+				bid.traderUuid == traderUuid &&
+				bid.energyAmountInMWH == energyAmountInMWH &&
+				bid.marginalCostInEURperMWH == marginalCostInEURperMWH &&
+				bid.type == type;
 	}
 }

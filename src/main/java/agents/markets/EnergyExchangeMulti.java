@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import agents.markets.meritOrder.Bid;
+import agents.markets.meritOrder.ClearingResult;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.MeritOrderKernel;
@@ -198,24 +199,26 @@ public class EnergyExchangeMulti extends DayAheadMarket {
 			importBook = new TransferOrderBook();
 			exportBook = new TransferOrderBook();
 		}
-		MarketClearingResult result;
+		ClearingResult clearingResult;
 		String clearingEventId = this.toString() + " " + now();
 		try {
-			result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
 		} catch (MeritOrderClearingException e) {
-			result = new MarketClearingResult(0.0, Double.NaN);
+			clearingResult = new ClearingResult(0.0, Double.NaN);
 			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
 		}
+		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
+		marketClearingResult.setBooks(supplyBook, demandBook, marketClearing.distributionMethod);
 		NetEnergyTransfer energyTransfer = computeNetEngergyTransfer(importBook, exportBook);
 
-		store(DayAheadMarket.OutputFields.ElectricityPriceInEURperMWH, result.getMarketPriceInEURperMWH());
-		store(DayAheadMarket.OutputFields.AwardedEnergyInMWH, result.getTradedEnergyInMWH());
-		store(DayAheadMarket.OutputFields.DispatchSystemCostInEUR, result.getSystemCostTotalInEUR());
+		store(DayAheadMarket.OutputFields.ElectricityPriceInEURperMWH, marketClearingResult.getMarketPriceInEURperMWH());
+		store(DayAheadMarket.OutputFields.AwardedEnergyInMWH, marketClearingResult.getTradedEnergyInMWH());
+		store(DayAheadMarket.OutputFields.DispatchSystemCostInEUR, marketClearingResult.getSystemCostTotalInEUR());
 
 		store(DayAheadMarket.OutputFields.AwardedNetEnergyFromImportInMWH, energyTransfer.netImportsInMWH);
 		store(DayAheadMarket.OutputFields.AwardedNetEnergyToExportInMWH, energyTransfer.netExportsInMWH);
 
-		sendAwardsToTraders(contracts, result, importBook, exportBook);
+		sendAwardsToTraders(contracts, marketClearingResult, importBook, exportBook);
 	}
 
 	/** Computes the net accumulated export and import of energy according to the given import and export TransferOrderBook. Thereby

@@ -4,20 +4,23 @@
 package agents.markets.meritOrder.books;
 
 import java.util.Comparator;
-
 import agents.markets.meritOrder.Bid;
-import agents.markets.meritOrder.Bid.Type;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
 /** An item of an {@link OrderBook}, either bid or ask
  * 
- * @author Christoph Schimeczek, Martin Klein , Evelyn Sperber, Farzad Sarfarazi */
+ * @author Christoph Schimeczek, Martin Klein , Evelyn Sperber, Farzad Sarfarazi, A. Achraf El Ghazi */
 public class OrderBookItem implements Portable {
 	static final String ERR_NEGATIVE_POWER = "OrderBookItems with negative power received from Trader: ";
 	
-	public static final Comparator<OrderBookItem> BY_PRICE = Comparator.comparing(item -> item.getOfferPrice());
+	public static final Comparator<OrderBookItem> BY_PRICE = Comparator.comparing(item -> item.getPrice());
+	public static final Comparator<OrderBookItem> BY_POWER = Comparator.comparing(item -> item.getBlockPower());
+	public static final Comparator<OrderBookItem> BY_PRICE_THEN_POWER = Comparator.comparing(OrderBookItem::getPrice)
+			.thenComparing(OrderBookItem::getBlockPower);
+	public static final Comparator<OrderBookItem> BY_PRICE_REVERSED_THEN_POWER = Comparator
+			.comparing(OrderBookItem::getPrice).reversed().thenComparing(OrderBookItem::getBlockPower);
 	private Bid bid;
 	private double cumulatedPowerUpperValue = Double.NaN;
 	private double awardedPower = Double.NaN;
@@ -35,18 +38,9 @@ public class OrderBookItem implements Portable {
 		}
 	}
 
-	/** Sets the cumulated power upper value in the context of the containing {@link OrderBook}
-	 * 
-	 * @param cumulatedPower sum of all previous bids in the merit-order plus the amount of power in this item's {@link Bid} */
-	void setCumulatedPowerUpperValue(double cumulatedPower) {
-		this.cumulatedPowerUpperValue = cumulatedPower;
-	}
-
-	/** Sets the actual awarded power in the context of the containing {@link OrderBook}
-	 * 
-	 * @param awardedPower of this bid; any value between 0 and {@link #getBlockPower()} */
-	void setAwardedPower(double awardedPower) {
-		this.awardedPower = awardedPower;
+	/** @return the bid of the OrderBookItem */
+	public Bid getBid() {
+		return bid;
 	}
 
 	/** @return actual awarded power; call only after market clearing */
@@ -59,9 +53,23 @@ public class OrderBookItem implements Portable {
 		return getBlockPower() - awardedPower;
 	}
 
+	/** Sets the actual awarded power in the context of the containing {@link OrderBook}
+	 * 
+	 * @param awardedPower of this bid; any value between 0 and {@link #getBlockPower()} */
+	public void setAwardedPower(double awardedPower) {
+		this.awardedPower = awardedPower;
+	}
+
 	/** @return sum of all previous bids in the merit-order <b>plus</b> the amount of power in this item's {@link Bid} */
 	public double getCumulatedPowerUpperValue() {
 		return cumulatedPowerUpperValue;
+	}
+
+	/** Sets the cumulated power upper value in the context of the containing {@link OrderBook}
+	 * 
+	 * @param cumulatedPower sum of all previous bids in the merit-order plus the amount of power in this item's {@link Bid} */
+	public void setCumulatedPowerUpperValue(double cumulatedPower) {
+		this.cumulatedPowerUpperValue = cumulatedPower;
 	}
 
 	/** @return sum of all previous bids in the merit-order <b>without</b> the amount of power in this item's {@link Bid} */
@@ -74,8 +82,8 @@ public class OrderBookItem implements Portable {
 		return bid.getEnergyAmountInMWH();
 	}
 
-	/** @return maximum / minimum offered price associated with this {@link Bid}, depending on its {@link Type} */
-	public double getOfferPrice() {
+	/** @return maximum / minimum offered price associated with this {@link Bid}, depending on its {@link Bid.Type} */
+	public double getPrice() {
 		return bid.getOfferPriceInEURperMWH();
 	}
 
@@ -84,25 +92,25 @@ public class OrderBookItem implements Portable {
 		return bid.getMarginalCost();
 	}
 
+	@Override
+	public String toString() {
+		return "Awarded: " + awardedPower + " " + bid;
+	}
+
 	/** @return ID of the traded that issued the associated {@link Bid} */
 	public long getTraderUuid() {
 		return bid.getTraderUuid();
 	}
 
 	@Override
-	public String toString() {
-		return "Awarded: " + awardedPower + " " + bid;
-	}
-
 	/** required for {@link Portable}s */
-	@Override
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeComponents(bid);
 		collector.storeDoubles(cumulatedPowerUpperValue, awardedPower);
 	}
 
-	/** required for {@link Portable}s */
 	@Override
+	/** required for {@link Portable}s */
 	public void populate(ComponentProvider provider) {
 		bid = provider.nextComponent(Bid.class);
 		cumulatedPowerUpperValue = provider.nextDouble();

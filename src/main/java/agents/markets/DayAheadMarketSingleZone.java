@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.OrderBook;
-import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import communications.message.AwardData;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -57,8 +55,8 @@ public class DayAheadMarketSingleZone extends DayAheadMarket {
 	private void sendAwardsToTraders(List<Contract> contracts, double powerPrice) {
 		for (Contract contract : contracts) {
 			long receiverId = contract.getReceiverId();
-			double awardedSupplyPower = calcAwardedEnergyForAgent(supplyBook, receiverId);
-			double awardedDemandPower = calcAwardedEnergyForAgent(demandBook, receiverId);
+			double awardedSupplyPower = supplyBook.getTradersSumOfPower(receiverId);
+			double awardedDemandPower = demandBook.getTradersSumOfPower(receiverId);
 			List<TimeStamp> clearingTimeList = clearingTimes.getTimes();
 			if (clearingTimeList.size() > 1) {
 				throw new RuntimeException(LONE_LIST + clearingTimeList);
@@ -70,14 +68,14 @@ public class DayAheadMarketSingleZone extends DayAheadMarket {
 		}
 	}
 
-	/** @return sum of awarded energy from all bids in given order book from the agent with given UUID */
-	private double calcAwardedEnergyForAgent(OrderBook orderBook, long agentUuid) {
-		double awardedEnergySum = 0;
-		for (OrderBookItem item : orderBook.getOrderBookItems()) {
-			if (item.getTraderUuid() == agentUuid) {
-				awardedEnergySum += item.getAwardedPower();
-			}
-		}
-		return awardedEnergySum;
-	}
+	// /** @return sum of awarded energy from all bids in given order book from the agent with given UUID */
+	// private double calcAwardedEnergyForAgent(OrderBook orderBook, long agentUuid) {
+	// double awardedEnergySum = 0;
+	// for (OrderBookItem item : orderBook.getOrderBookItems()) {
+	// if (item.getTraderUuid() == agentUuid) {
+	// awardedEnergySum += item.getAwardedPower();
+	// }
+	// }
+	// return awardedEnergySum;
+	// }
 }

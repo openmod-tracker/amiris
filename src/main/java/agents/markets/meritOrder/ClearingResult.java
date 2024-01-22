@@ -1,0 +1,51 @@
+package agents.markets.meritOrder;
+
+/** Result of market clearing
+ * 
+ * @author Christoph Schimeczek, A. Achraf El Ghazi */
+public class ClearingResult {
+	public final double tradedEnergyInMWH;
+	public final double marketPriceInEURperMWH;
+
+	/** The first bid in the demand-bid curve that is below or equal the supply-bid curve. Here: the bids of the demand-bid curve
+	 * are sorted ascending by cumulatedPower and then descending by offerPrice, and the bids of the supply-bid curve are sorted
+	 * ascending by cumulatedPower and then by offerPrice */
+	public final Integer priceSettingDemandBidIdx;
+	/** The first bid in the supply-bid curve that is over or equal the demand-bid curve. Here: the bids of the demand-bid curve are
+	 * sorted ascending by cumulatedPower and then descending by offerPrice, and the bids of the supply-bid curve are sorted
+	 * ascending by cumulatedPower and then by offerPrice */
+	public final Integer priceSettingSupplyBidIdx;
+	/** The maximum demand amount that can be reduced from the entire demand without reducing the clearing-price */
+	public final Double minPriceSettingDemand;
+
+	/** Creates {@link ClearingResult}
+	 * 
+	 * @param tradedEnergyInMWH total traded energy (in MWH)
+	 * @param marketPriceInEURperMWH electricity clearing price (in EUR per MWH) */
+	public ClearingResult(double tradedEnergyInMWH, double marketPriceInEURperMWH) {
+		this.tradedEnergyInMWH = tradedEnergyInMWH;
+		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
+		this.priceSettingDemandBidIdx = null;
+		this.priceSettingSupplyBidIdx = null;
+		this.minPriceSettingDemand = Double.NaN;
+	}
+	
+	/** Creates {@link ClearingResult}
+	 * 
+	 * @param tradedEnergyInMWH total traded energy (in MWH)
+	 * @param marketPriceInEURperMWH electricity clearing price (in EUR per MWH)
+	 * @param priceSettingDemandBidIdx index of the price setting demand bid, i.e., last awarded demand bid
+	 * @param priceSettingSupplyBidIdx index of the price setting supply bid, i.e., last awarded supply bid
+	 * @param minPriceSettingDemand the maximal amount that the demand can be reduced without causing a price change */
+	public ClearingResult(double tradedEnergyInMWH, double marketPriceInEURperMWH,
+			Integer priceSettingDemandBidIdx,
+			Integer priceSettingSupllyBidIdx,
+			Double minPriceSettingDemand) {
+		this.tradedEnergyInMWH = tradedEnergyInMWH;
+		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
+		this.priceSettingDemandBidIdx = priceSettingDemandBidIdx;
+		this.priceSettingSupplyBidIdx = priceSettingSupllyBidIdx;
+		this.minPriceSettingDemand = minPriceSettingDemand;
+	}
+
+}

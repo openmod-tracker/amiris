@@ -4,13 +4,13 @@
 package agents.markets.meritOrder;
 
 import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
+import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 
 /** Holds clearing price, sold energy, and updated {@link DemandOrderBook} and {@link SupplyOrderBook}
  *
- * @author Farzad Sarfarazi, Christoph Schimeczek */
+ * @author Farzad Sarfarazi, Christoph Schimeczek, A. Achraf El Ghazi */
 public class MarketClearingResult {
 	private double tradedEnergyInMWH;
 	private double marketPriceInEURperMWH;
@@ -26,12 +26,26 @@ public class MarketClearingResult {
 		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
 	}
 
+	/** Instantiate with tradedEnergyInMWH, marketPriceInEURperMWH, priceSettingDemandBidIdx, priceSettingSupplyBidIdx, and
+	 * minPriceSettingDemand from a ClearingResult object; and with demandBook, and supplyBook. The priceSettingDemandBidIdx,
+	 * priceSettingSupplyBidIdx, and minPriceSettingDemand are optional in a ClearingResult object, they are only set if not null.
+	 * 
+	 * @param clearingResult result of market clearing
+	 * @param demandBook book of demand bids
+	 * @param supplyBook book of supply bids */
+	public MarketClearingResult(ClearingResult clearingResult, DemandOrderBook demandBook, SupplyOrderBook supplyBook) {
+		tradedEnergyInMWH = clearingResult.tradedEnergyInMWH;
+		marketPriceInEURperMWH = clearingResult.marketPriceInEURperMWH;
+		this.demandBook = demandBook;
+		this.supplyBook = supplyBook;
+	}
+	
 	/** Set and update books, i.e. award contained bids according to their individual results
 	 * 
 	 * @param supplyBook Supply book used to clear the market
 	 * @param demandBook Demand book used to clear the market
 	 * @param distributionMethod defines method of how to award energy when multiple price-setting bids occur */
-	void setBooks(SupplyOrderBook supplyBook, DemandOrderBook demandBook, DistributionMethod distributionMethod) {
+	public void setBooks(SupplyOrderBook supplyBook, DemandOrderBook demandBook, DistributionMethod distributionMethod) {
 		this.demandBook = demandBook;
 		this.supplyBook = supplyBook;
 		updateBooks(distributionMethod);
@@ -62,10 +76,6 @@ public class MarketClearingResult {
 	public double getMarketPriceInEURperMWH() {
 		return marketPriceInEURperMWH;
 	}
-	
-	public void setMarketPriceInEURperMWH(double newPriceInEURperMWH) {
-		marketPriceInEURperMWH = newPriceInEURperMWH;
-	}
 
 	/** @return total system cost from generation based on awarded bids and their associated marginal cost */
 	public double getSystemCostTotalInEUR() {
@@ -79,5 +89,12 @@ public class MarketClearingResult {
 			totalSystemCost += awardedPower * marginalCost;
 		}
 		return totalSystemCost;
+	}
+
+	/**
+	 * @param marketPriceInEURperMWH the marketPriceInEURperMWH to set
+	 */
+	public void setMarketPriceInEURperMWH(double marketPriceInEURperMWH) {
+		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
 	}
 }

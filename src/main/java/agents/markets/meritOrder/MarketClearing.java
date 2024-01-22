@@ -33,7 +33,7 @@ public class MarketClearing {
 					.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
 			.buildTree();
 
-	private final DistributionMethod distributionMethod;
+	public final DistributionMethod distributionMethod;
 	/** Defines which price to use in case of shortage */
 	private final ShortagePriceMethod shortagePriceMethod;
 	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
@@ -56,18 +56,19 @@ public class MarketClearing {
 		DemandOrderBook demandBook = new DemandOrderBook();
 		SupplyOrderBook supplyBook = new SupplyOrderBook();
 		fillOrderBooksWithTraderBids(input, supplyBook, demandBook);
-		MarketClearingResult result;
+		ClearingResult clearingResult;
 		try {
-			result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
 		} catch (MeritOrderClearingException e) {
-			result = new MarketClearingResult(0.0, Double.NaN);
+			clearingResult = new ClearingResult(0.0, Double.NaN);
 			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
 		}
-		result.setBooks(supplyBook, demandBook, distributionMethod);
+		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
+		marketClearingResult.setBooks(supplyBook, demandBook, distributionMethod);
 		if (hasScarcity(supplyBook, demandBook)) {
-			updateResultForScarcity(result, supplyBook);
+			updateResultForScarcity(marketClearingResult, supplyBook);
 		}
-		return result;
+		return marketClearingResult;
 	}
 
 	/** Fills received Bids into provided demand or supply OrderBook
@@ -108,7 +109,7 @@ public class MarketClearing {
 	private void updateResultForScarcity(MarketClearingResult result, SupplyOrderBook supplyBook) {
 		switch (shortagePriceMethod) {
 			case LastSupplyPrice:
-				result.setMarketPriceInEURperMWH(supplyBook.getHighestItem().getOfferPrice());
+				result.setMarketPriceInEURperMWH(supplyBook.getHighestItem().getPrice());
 				break;
 			case ValueOfLostLoad:
 				break;

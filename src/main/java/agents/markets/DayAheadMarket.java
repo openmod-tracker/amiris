@@ -46,7 +46,11 @@ public abstract class DayAheadMarket extends Agent {
 		/** Market clearing price achieved at last market clearing */
 		ElectricityPriceInEURperMWH,
 		/** System cost for generating the power awarded at last market clearing */
-		DispatchSystemCostInEUR
+		DispatchSystemCostInEUR,
+		/** Net energy awarded to exports */
+		AwardedNetEnergyToExportInMWH,
+		/** Net energy awarded from imports */
+		AwardedNetEnergyFromImportInMWH
 	};
 
 	private final TimeSpan gateClosureInfoOffset;
