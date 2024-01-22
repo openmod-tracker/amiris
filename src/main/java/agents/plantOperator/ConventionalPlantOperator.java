@@ -40,6 +40,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 	static final String ERR_MISSING_CO2_COST = "Missing at least one CO2 cost item to match corresponding fuel cost item(s).";
 	static final String ERR_MISSING_FUEL_COST = "Missing at least one fuel cost item to match corresponding CO2 cost item(s).";
 	static final String ERR_MISSING_POWER = "Missing power to fulfil dispatch: ";
+	static final String ERR_PAYOUT_VANISH = "ERROR: ConventionalPlants received money but were not dispatched! Ensure Payout contracts are scheduled after DispatchAssignment contracts for ";
 	private static final double NUMERIC_TOLERANCE = 1E-10;
 
 	@Product
@@ -88,10 +89,12 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 				.use(PlantBuildingManager.Products.PowerPlantPortfolio);
 		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(TraderWithClients.Products.ForecastRequestForward);
-		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest).use(TraderWithClients.Products.ForecastRequestForward);
+		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest)
+				.use(TraderWithClients.Products.ForecastRequestForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(CarbonMarket.Products.Co2PriceForecast, FuelsMarket.Products.FuelPriceForecast);
-		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceRequest).use(TraderWithClients.Products.GateClosureForward);
+		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceRequest)
+				.use(TraderWithClients.Products.GateClosureForward);
 		call(this::requestCo2Price).on(Products.Co2PriceRequest).use(TraderWithClients.Products.GateClosureForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost).use(CarbonMarket.Products.Co2Price,
 				FuelsMarket.Products.FuelPrice);
@@ -284,12 +287,17 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 	@Override
 	protected void digestPaymentPerPlant(TimeStamp dispatchTime, double totalPaymentInEUR) {
+		double actualPaymentTotalInEUR = 0;
 		for (PowerPlant plant : portfolio.getPowerPlantList()) {
 			double shareOfLastDispatch = plant.getCurrentPowerOutputInMW() / lastDispatchedTotalInMW;
 			double plantPaymentInEUR = totalPaymentInEUR * shareOfLastDispatch;
 			if (Math.abs(plantPaymentInEUR) > 1E-10) {
+				actualPaymentTotalInEUR += plantPaymentInEUR;
 				store(money.key(PlantsKey.ID, plant.getId()), plantPaymentInEUR);
 			}
+		}
+		if (Math.abs(actualPaymentTotalInEUR - totalPaymentInEUR) > 1) {
+			throw new RuntimeException(ERR_PAYOUT_VANISH + this);
 		}
 	}
 }
