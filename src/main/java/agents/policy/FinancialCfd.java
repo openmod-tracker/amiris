@@ -18,31 +18,27 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class FinancialCfd extends PolicyItem {
 	public static final Tree parameters = Make.newTree()
-			.add(premiumParam, Make.newSeries("ReferenceYieldProfile").optional(),
-					Make.newSeries("ReferenceVariableCostInEURperMWH").optional())
+			.add(premiumParam, Make.newSeries("ReferenceYieldProfile").optional())
 			.buildTree();
 
 	private TimeSeries referenceYieldProfile;
-	private TimeSeries referenceVariableCostInEURperMWH;
 	private TimeSeries premiumPerMW;
 
 	@Override
 	protected void setDataFromConfig(ParameterData group) throws MissingDataException {
 		referenceYieldProfile = group.getTimeSeries("ReferenceYieldProfile");
 		premiumPerMW = group.getTimeSeries("Premium");
-		referenceVariableCostInEURperMWH = group.getTimeSeries("ReferenceVariableCostInEURperMWH");
 	}
 
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
-		collector.storeTimeSeries(referenceYieldProfile, premiumPerMW, referenceVariableCostInEURperMWH);
+		collector.storeTimeSeries(referenceYieldProfile, premiumPerMW);
 	}
 
 	@Override
 	public void populate(ComponentProvider provider) {
 		referenceYieldProfile = provider.nextTimeSeries();
 		premiumPerMW = provider.nextTimeSeries();
-		referenceVariableCostInEURperMWH = provider.nextTimeSeries();
 	}
 
 	@Override
@@ -56,10 +52,9 @@ public class FinancialCfd extends PolicyItem {
 		double referenceProfit = 0;
 		for (TimeStamp time : request.infeed.keySet()) {
 			double powerPrice = powerPrices.get(time);
-			double variableCostInEURperMWH = referenceVariableCostInEURperMWH.getValueLinear(time);
-			if (powerPrice > variableCostInEURperMWH) {
+			if (powerPrice > 0) {
 				double referenceYield = referenceYieldProfile.getValueLinear(time);
-				referenceProfit += (powerPrice - variableCostInEURperMWH) * referenceYield;
+				referenceProfit += powerPrice * referenceYield;
 			}
 		}
 		return -request.installedCapacityInMW * referenceProfit;

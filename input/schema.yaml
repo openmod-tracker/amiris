@@ -134,10 +134,6 @@ AgentTypes:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
-              ReferenceVariableCostInEURperMWH:
-                AttributeType: time_series
-                Mandatory: false
-                List: false
     Products: [ 'SupportInfo', 'SupportPayout', 'MarketValueCalculation' ]
 
   DemandTrader:
