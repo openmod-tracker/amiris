@@ -38,6 +38,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - SystemCostMinimizer modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - ArbitrageStrategist performs rounding of energy states and throws warning if not within tolerance #78 (@dlr_fn, @dlr-cjs, @dlr_elghazi)
+- Newly raised error if in ConventionalPlantOperator no money foreseen for `Payout` is assigned to plants #89 (@litotes18, @dlr_jk, @dlr-cjs)
 - StorageTrader now extends FlexibilityTrader #54 (@dlr-cjs, @dlr_jk)
 - Refactoring of SupportPolicy, PolicyInfo, RenewableTrader and bidding strategies #66 (@dlr-cjs, @dlr_jk)
 - CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs)
@@ -82,6 +83,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - CI: Pipeline to publish javadocs #62 #63 (@dlr-cjs)
 - ConventionalPlantOperator: do not store outputs for inactive plants #75 (@dlr_fn, @dlr-cjs)
 - Paper: corrected year in reference Weidlich et al. (2008) #88 (@dlr_fn)
+- Error messages in example `input.pb` file #87 (@dlr_jk, @dlr-cjs, @litotes18)
 
 ## [1.3](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3) - 2023-03-21
 ### Changed
