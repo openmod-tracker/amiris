@@ -434,7 +434,7 @@ AgentTypes:
         AttributeType: enum
         Mandatory: false
         List: false
-        Values: [ 'FIT', 'MPVAR', 'MPFIX', 'CFD', 'CP' ]
+        Values: [ 'FIT', 'MPVAR', 'MPFIX', 'CFD', 'CP', 'FINANCIAL_CFD' ]
       InstalledPowerInMW:
         AttributeType: time_series
         Mandatory: true
