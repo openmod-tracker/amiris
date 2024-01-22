@@ -52,12 +52,12 @@ public class SupportPolicy extends Agent {
 		MarketValueCalculation
 	}
 
-	@Input
-	private static final Tree parameters = Make.newTree()
+	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("SetSupportData").list().add(Make.newEnum("Set", SetType.class))
 					.addAs(SupportInstrument.FIT.name(), Fit.parameters).addAs(SupportInstrument.MPFIX.name(), Mpfix.parameters)
 					.addAs(SupportInstrument.MPVAR.name(), Mpvar.parameters).addAs(SupportInstrument.CFD.name(), Cfd.parameters)
-					.addAs(SupportInstrument.CP.name(), Cp.parameters))
+					.addAs(SupportInstrument.CP.name(), Cp.parameters)
+					.addAs(SupportInstrument.FINANCIAL_CFD.name(), FinancialCfd.parameters))
 			.buildTree();
 
 	@Output
@@ -69,7 +69,8 @@ public class SupportPolicy extends Agent {
 		EnergyCarrier
 	}
 
-	private static final ComplexIndex<OutputKey> marketValue = ComplexIndex.build(Outputs.MarketValueInEURperMWH, OutputKey.class);
+	private static final ComplexIndex<OutputKey> marketValue = ComplexIndex.build(Outputs.MarketValueInEURperMWH,
+			OutputKey.class);
 
 	private SetPolicies setPolicies = new SetPolicies();
 	private MarketData marketData = new MarketData();

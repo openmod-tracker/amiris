@@ -56,6 +56,7 @@ public class RenewableTrader extends AggregatorTrader {
 		strategies.put(SupportInstrument.MPVAR, new VariablePremium(input));
 		strategies.put(SupportInstrument.CFD, new ContractForDifferences(input));
 		strategies.put(SupportInstrument.CP, new AtMarginalCost());
+		strategies.put(SupportInstrument.FINANCIAL_CFD, new AtMarginalCost());
 	}
 
 	@Override

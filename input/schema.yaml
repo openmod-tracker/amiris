@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+# SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 #
 # SPDX-License-Identifier: Apache-2.0
 AgentTypes:
@@ -118,6 +118,23 @@ AgentTypes:
             List: false
             NestedAttributes:
               Premium:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+          FINANCIAL_CFD:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            NestedAttributes:
+              Premium:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+              ReferenceYieldProfile:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+              ReferenceVariableCostInEURperMWH:
                 AttributeType: time_series
                 Mandatory: false
                 List: false

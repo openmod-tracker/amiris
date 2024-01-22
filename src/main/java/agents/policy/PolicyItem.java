@@ -41,6 +41,8 @@ public abstract class PolicyItem implements Portable {
 		CFD,
 		/** A capacity premium (CP) scheme */
 		CP,
+		/** A financial contract for differences (FINANCIAL_CFD) scheme */
+		FINANCIAL_CFD
 	}
 
 	public static final EnumMap<SupportInstrument, Class<? extends PolicyItem>> policyClasses = new EnumMap<>(
@@ -51,6 +53,7 @@ public abstract class PolicyItem implements Portable {
 		policyClasses.put(SupportInstrument.MPVAR, Mpvar.class);
 		policyClasses.put(SupportInstrument.CFD, Cfd.class);
 		policyClasses.put(SupportInstrument.CP, Cp.class);
+		policyClasses.put(SupportInstrument.FINANCIAL_CFD, FinancialCfd.class);
 	}
 
 	/** Instantiates a {@link PolicyItem} from given configuration - returns null if matching configuration is not present
