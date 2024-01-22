@@ -134,6 +134,7 @@ AgentTypes:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
+                help: "yield profile of the reference plant to calculate payback obligation from its market revenues"
     Products: [ 'SupportInfo', 'SupportPayout', 'MarketValueCalculation' ]
 
   DemandTrader:
