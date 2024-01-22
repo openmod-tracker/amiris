@@ -81,6 +81,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - CI: Pipeline to publish javadocs #62 #63 (@dlr-cjs)
 - ConventionalPlantOperator: do not store outputs for inactive plants #75 (@dlr_fn, @dlr-cjs)
 - Paper: corrected year in reference Weidlich et al. (2008) #88 (@dlr_fn)
+- Error messages in example `input.pb` file #87 (@dlr_jk, @dlr-cjs, @litotes18)
 
 ## [1.3](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3) - 2023-03-21
 ### Changed
