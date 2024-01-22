@@ -62,9 +62,9 @@ public class MeritOrderKernelTest {
 				new double[] {50, 0}, new double[] {3000, -Double.MAX_VALUE});
 		when(supplyBook.getOrderBookItems()).thenReturn(supplyItems);
 		when(demandBook.getOrderBookItems()).thenReturn(demandItems);
-		MarketClearingResult result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
-		assertEquals(21, result.getMarketPriceInEURperMWH(), 1E-10);
-		assertEquals(50, result.getTradedEnergyInMWH(), 1E-10);
+		ClearingResult result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		assertEquals(21, result.marketPriceInEURperMWH, 1E-10);
+		assertEquals(50, result.tradedEnergyInMWH, 1E-10);
 	}
 
 	/** @return List of mocked {@link OrderBookItem}s create from given power and price value pairs */
@@ -74,7 +74,7 @@ public class MeritOrderKernelTest {
 		for (int index = 0; index < powers.length; index++) {
 			OrderBookItem orderBookItem = mock(OrderBookItem.class);
 			when(orderBookItem.getCumulatedPowerUpperValue()).thenReturn(total + powers[index]);
-			when(orderBookItem.getOfferPrice()).thenReturn(prices[index]);
+			when(orderBookItem.getPrice()).thenReturn(prices[index]);
 			orderBookItems.add(orderBookItem);
 			total += powers[index];
 		}

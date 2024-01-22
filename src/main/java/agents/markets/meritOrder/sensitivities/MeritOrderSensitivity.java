@@ -86,10 +86,10 @@ public abstract class MeritOrderSensitivity {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			chargingItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			chargingItems.add(new SensitivityItem(notAwardedPower, item.getPrice(), item.getMarginalCost()));
 		}
 		if (awardedPower > 0) {
-			dischargingItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			dischargingItems.add(new SensitivityItem(awardedPower, item.getPrice(), item.getMarginalCost()));
 		}
 	}
 
@@ -98,10 +98,10 @@ public abstract class MeritOrderSensitivity {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			dischargingItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			dischargingItems.add(new SensitivityItem(notAwardedPower, item.getPrice(), item.getMarginalCost()));
 		}
 		if (awardedPower > 0) {
-			chargingItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			chargingItems.add(new SensitivityItem(awardedPower, item.getPrice(), item.getMarginalCost()));
 		}
 	}
 
