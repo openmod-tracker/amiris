@@ -11,6 +11,7 @@ import java.util.ListIterator;
 import agents.conventionals.PlantBuildingManager;
 import agents.conventionals.Portfolio;
 import agents.conventionals.PowerPlant;
+import agents.conventionals.PowerPlant.MarginalCostItem;
 import agents.markets.CarbonMarket;
 import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
@@ -215,8 +216,9 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 		ArrayList<MarginalCost> marginalCosts = new ArrayList<>();
 		for (PowerPlant plant : portfolio.getPowerPlantList()) {
-			double[] marginal = plant.calcMarginalCost(targetTime, fuelCost, co2Cost);
-			marginalCosts.add(new MarginalCost(getId(), marginal[0], marginal[1], targetTime));
+			MarginalCostItem costItem = plant.calcMarginalCostItem(targetTime, fuelCost, co2Cost);
+			marginalCosts
+					.add(new MarginalCost(getId(), costItem.availablePowerInMW, costItem.marginalCostInEURperMWH, targetTime));
 		}
 		return marginalCosts;
 	}

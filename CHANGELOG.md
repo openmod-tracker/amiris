@@ -44,6 +44,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs)
 - Update Reference examples to changes in outputs #41, #54, #75, #76 (@dlr-cjs)
 - Move flexibility agents' forecasting to FlexibilityTrader #79 (@litotes18, @dlr_jk)
+- Refactorings of `PowerPlant` to improve code clarity #94 (@dlr-cjs)
 
 ### Added
 - Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
