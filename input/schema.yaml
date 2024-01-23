@@ -277,10 +277,12 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          Variance:
+            help: "Relative offset of the power forecasts"
+          StandardDeviation:
             AttributeType: double
             Mandatory: false
             List: false
+            help: "Standard deviation of the relative power forecasting errors"
       MarketValueForecastMethod:
         AttributeType: enum
         List: false
@@ -317,10 +319,12 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          Variance:
+            help: "Relative offset of the power forecasts"
+          StandardDeviation:
             AttributeType: double
             Mandatory: false
-            List: false        
+            List: false
+            help: "Standard deviation of the relative power forecasting errors"
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
     
   SystemOperatorTrader:
@@ -334,10 +338,12 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          Variance:
+            help: "Relative offset of the power forecasts"
+          StandardDeviation:
             AttributeType: double
             Mandatory: false
             List: false
+            help: "Standard deviation of the relative power forecasting errors"
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
  
   MeritOrderForecaster:
