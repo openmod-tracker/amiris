@@ -6,19 +6,15 @@ package agents.markets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.ClearingResult;
-import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.MeritOrderKernel;
 import agents.markets.meritOrder.MeritOrderKernel.MeritOrderClearingException;
 import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
 import agents.markets.meritOrder.books.TransmissionBook;
 import communications.message.AwardData;
-import communications.message.BidData;
 import communications.message.CouplingData;
 import communications.message.TransmissionCapacity;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -45,7 +41,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 
 	/** All available market regions */
 	public static enum Region {
-		DE, FR, PL, AT, BE, NL, NO, LU, SE, DKW, DKO, CZ, CH
+		DE, FR, PL, AT, BE, NL, NO, LU, SE, DKW, DKO, CZ, CH, A, B
 	};
 
 	@Product
@@ -61,7 +57,6 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(
-					Make.newEnum("DistributionMethod", DistributionMethod.class),
 					Make.newEnum("Region", Region.class).optional(),
 					Make.newGroup("Transmission").list()
 							.add(
@@ -69,7 +64,6 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 									Make.newSeries("CapacityInMW").optional()))
 			.buildTree();
 
-	private final MarketClearing marketClearing;
 	/** Market region of this energy exchange instance */
 	private final Region region;
 	private DemandOrderBook demandBook = new DemandOrderBook();
@@ -92,15 +86,13 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 	public DayAheadMarketMultiZone(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
-
-		marketClearing = new MarketClearing(input);
 		region = input.getEnumOrDefault("Region", Region.class, null);
 		if (region != null) {
 			loadTransmissionCapacities(input.getGroupList("Transmission"));
 		}
 
 		call(this::digestBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarketTrader.Products.Bids);
-		call(this::provideTransmissionAndBids).on(Products.TransmissionAndBids);
+		call(this::provideTransmissionAndBids).on(Products.TransmissionAndBids).use(DayAheadMarketTrader.Products.Bids);
 		call(this::clearMarket).on(DayAheadMarket.Products.Awards).use(MarketCoupling.Products.MarketCouplingResult);
 	}
 
@@ -130,7 +122,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 	 * @param input messages specifying the trader bids
 	 * @param contracts with the Trader Agent's */
 	private void digestBids(ArrayList<Message> input, List<Contract> contracts) {
-		fillOrderBooksWithTraderBids(input, supplyBook, demandBook);
+		marketClearing.fillOrderBooksWithTraderBids(input, supplyBook, demandBook);
 	}
 
 	/** Builds a CouplingRequest and sends it to the contracted MarketCoupling Agent. The CouplingRequest contains: the local
@@ -146,13 +138,8 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		for (Region targetRegion : transmissionCapacities.keySet()) {
 			transmissionBook.add(getTransmissionCapacity(targetRegion, now()));
 		}
-
-		ArrayList<Message> inputCopy = new ArrayList<>();
-		for (Message msg : input) {
-			inputCopy.add(msg.deepCopy());
-		}
-		MarketClearingResult result = marketClearing.calculateMarketClearing(inputCopy, this.toString() + " " + now());
-
+		MarketClearingResult result = marketClearing.calculateMarketClearing(supplyBook.clone(), demandBook.clone(),
+				this.toString() + " " + now());
 		store(OutputFields.PreCouplingElectricityPriceInEURperMWH, result.getMarketPriceInEURperMWH());
 		store(OutputFields.PreCouplingTotalAwardedPowerInMW, result.getTradedEnergyInMWH());
 		store(OutputFields.PreCouplingDispatchSystemCostInEUR, result.getSystemCostTotalInEUR());
@@ -262,34 +249,6 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 			for (TimeStamp clearingTime : clearingTimeList) {
 				AwardData awardData = new AwardData(supplyPower, demandPower, powerPrice, clearingTime);
 				fulfilNext(contract, awardData);
-			}
-		}
-	}
-
-	/** Fills received Bids into provided demand or supply OrderBook
-	 * 
-	 * @param input unsorted messages containing demand and supply bids
-	 * @param supplyBook to be filled with supply bids
-	 * @param demandBook to be filled with demand bids */
-	private void fillOrderBooksWithTraderBids(ArrayList<Message> input, SupplyOrderBook supplyBook,
-			DemandOrderBook demandBook) {
-		demandBook.clear();
-		supplyBook.clear();
-		for (Message message : input) {
-			BidData bidData = message.getDataItemOfType(BidData.class);
-			if (bidData == null) {
-				throw new RuntimeException("No BidData in message from " + message.getSenderId());
-			}
-			Bid bid = bidData.getBid();
-			switch (bid.getType()) {
-				case Supply:
-					supplyBook.addBid(bid);
-					break;
-				case Demand:
-					demandBook.addBid(bid);
-					break;
-				default:
-					throw new RuntimeException("Bid type unknown.");
 			}
 		}
 	}

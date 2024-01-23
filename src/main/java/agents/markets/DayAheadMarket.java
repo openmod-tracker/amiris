@@ -28,7 +28,8 @@ public abstract class DayAheadMarket extends Agent {
 	static final String UNKNOWN_BID_TYPE = " is an unknown type of bid: ";
 	static final String LONE_LIST = "At most one element is expected in this list: ";
 
-	@Input private static final Tree parameters = Make.newTree().addAs("Clearing", MarketClearing.parameters)
+	@Input private static final Tree parameters = Make.newTree()
+			.addAs("Clearing", MarketClearing.parameters)
 			.add(Make.newInt("GateClosureInfoOffsetInSeconds")).buildTree();
 
 	@Product

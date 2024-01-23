@@ -28,9 +28,10 @@ public class MarketClearing {
 		ValueOfLostLoad, LastSupplyPrice
 	};
 
-	public static final Tree parameters = Make.newTree().add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-			Make.newEnum("ShortagePriceMethod", ShortagePriceMethod.class).optional()
-					.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
+	public static final Tree parameters = Make.newTree()
+			.add(Make.newEnum("DistributionMethod", DistributionMethod.class),
+					Make.newEnum("ShortagePriceMethod", ShortagePriceMethod.class).optional()
+							.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
 			.buildTree();
 
 	public final DistributionMethod distributionMethod;
@@ -72,12 +73,34 @@ public class MarketClearing {
 		return marketClearingResult;
 	}
 
+	/** Clears the market based on all the bids provided in form of messages
+	 * 
+	 * @param input unsorted messages containing demand and supply bids
+	 * @param clearingEventId string identifying the calling agent
+	 * @return {@link MarketClearingResult result} of market clearing */
+	public MarketClearingResult calculateMarketClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook,
+			String clearingEventId) {
+		ClearingResult clearingResult;
+		try {
+			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		} catch (MeritOrderClearingException e) {
+			clearingResult = new ClearingResult(0.0, Double.NaN);
+			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
+		}
+		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
+		marketClearingResult.setBooks(supplyBook, demandBook, distributionMethod);
+		if (hasScarcity(supplyBook, demandBook)) {
+			updateResultForScarcity(marketClearingResult, supplyBook);
+		}
+		return marketClearingResult;
+	}
+
 	/** Fills received Bids into provided demand or supply OrderBook
 	 * 
 	 * @param input unsorted messages containing demand and supply bids
 	 * @param supplyBook to be filled with supply bids
 	 * @param demandBook to be filled with demand bids */
-	private void fillOrderBooksWithTraderBids(ArrayList<Message> input, SupplyOrderBook supplyBook,
+	public void fillOrderBooksWithTraderBids(ArrayList<Message> input, SupplyOrderBook supplyBook,
 			DemandOrderBook demandBook) {
 		demandBook.clear();
 		supplyBook.clear();
