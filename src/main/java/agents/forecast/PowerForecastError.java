@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.forecast;
@@ -40,7 +40,6 @@ public class PowerForecastError {
 	 * @param powerWithoutError perfect foresight power forecast
 	 * @return given power multiplied with a randomly generated forecast error factor */
 	public double calcPowerWithError(double powerWithoutError) {
-		// TODO: also consider maximum installed capacity as upper limit
 		double factor = Math.max(0, 1 + getNextNormallyDistributedNumber());
 		return powerWithoutError * factor;
 	}
