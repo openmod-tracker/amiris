@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import agents.markets.EnergyExchangeMulti.Region;
+import agents.markets.DayAheadMarketMultiZone.Region;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.TransmissionBook;
 import communications.message.CouplingData;
@@ -73,7 +73,7 @@ public class MarketCoupling extends Agent {
 		demandBalancer = new DemandBalancer(minEffectiveDemandOffset, now());
 
 		call(this::clearCoupledMarkets).on(Products.MarketCouplingResult)
-				.use(EnergyExchangeMulti.Products.TransmissionAndBids);
+				.use(DayAheadMarketMultiZone.Products.TransmissionAndBids);
 	}
 
 	/** Action for the joint clearing of coupled markets

@@ -5,7 +5,7 @@ package agents.markets.meritOrder.books;
 
 import java.util.ArrayList;
 import agents.markets.DayAheadMarket;
-import agents.markets.EnergyExchangeMulti.Region;
+import agents.markets.DayAheadMarketMultiZone.Region;
 import communications.message.TransmissionCapacity;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;

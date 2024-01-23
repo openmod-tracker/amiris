@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.markets.EnergyExchangeMulti.Region;
+import agents.markets.DayAheadMarketMultiZone.Region;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;

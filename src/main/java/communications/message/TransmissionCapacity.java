@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.markets.EnergyExchangeMulti.Region;
+import agents.markets.DayAheadMarketMultiZone.Region;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;

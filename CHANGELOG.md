@@ -15,6 +15,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - **Breaking**: input field `DistributionMethod` moved to new group `Clearing` in DayAheadMarkets and MarketForecasters #86 (@dlr-cjs, @dlr_es, @dlr_elghazi, @litotes18)
 - **Breaking**: Output field `CostsInEUR` in PowerPlantOperator & StorageTrader renamed to `VariableCostsInEUR` #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: Rename output fields to harmonise them across agent types #76 (@dlr-cjs)
+  - Renamed EnergyExchangeMulti into DayAheadMarketMultiZone
   - Added market coupling functionality
   - `ConventionalPlantOperator`: rename column `DispatchedPowerInMWHperPlant` to `DispatchedEnergyInMWHperPlant`
   - `ConventionalTrader`: rename column `OfferedPowerInMW` to `OfferedEnergyInMWH`

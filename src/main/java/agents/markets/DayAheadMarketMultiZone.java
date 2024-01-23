@@ -39,7 +39,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Energy exchange performs local market clearing for day-ahead energy market.
  * 
  * @author Christoph Schimeczek, A. Achraf El Ghazi, Felix Nitsch, Johannes Kochems */
-public class EnergyExchangeMulti extends DayAheadMarket {
+public class DayAheadMarketMultiZone extends DayAheadMarket {
 	static final String REGION_MISSING = "No region value found";
 	static final String TIME_SERIES_MISSING = "No transmission TIME_SERIES found for region: ";
 
@@ -89,7 +89,7 @@ public class EnergyExchangeMulti extends DayAheadMarket {
 		}
 	}
 
-	public EnergyExchangeMulti(DataProvider dataProvider) throws MissingDataException {
+	public DayAheadMarketMultiZone(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 
