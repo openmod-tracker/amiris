@@ -29,7 +29,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
   - `StorageTrader`: rename column `AwardedPowerInMWH` to `AwardedEnergyInMWH`
   - `AggregatorTrader`: rename column `TruePowerPotentialInMWH` to `TrueGenerationPotentialInMWH`
   - `SupportPolicy`: rename column `MarketValue` to `MarketValueInEURperMWH`
-- **Breaking**: `AggregatorTrader`'s optional input field `Variance` renamed to `StandardDeviation`
+- **Breaking**: `AggregatorTrader`'s optional input field `Variance` renamed to `StandardDeviation` #91 (@dlr-cjs)
 - OrderBookItems with negative power are not allowed #83 (@dlr-cjs, @dlr_elghazi)
 - MeritOrderKernel throws exception if clearing fails #83 (@dlr-cjs, @dlr_elghazi)
 - Introduced a new TraderWithClients class to remove errors related to not used actions #81 (@dlr-cjs, @dlr_elghazi)
