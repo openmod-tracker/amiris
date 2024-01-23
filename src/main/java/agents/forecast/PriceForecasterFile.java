@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.forecast;
 
 import java.util.ArrayList;
