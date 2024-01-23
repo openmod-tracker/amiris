@@ -60,13 +60,13 @@ public class DemandBalancer {
 		this.timeStamp = timeStamp;
 	}
 
-	/** Maximises the overall welfare by balancing the demand among all participant {@link EnergyExchange}s under given transmission
+	/** Maximises the overall welfare by balancing the demand among all participant {@link DayAheadMarket}s under given transmission
 	 * capacity constraints.<br>
 	 * The algorithm guarantees correctness and termination, within some tolerance parameters, by computing and applying two
 	 * criteria: (1) shifting only the minimal-effective-demand at a time, and (2) processing always the most-effective-pair of
 	 * {EnergyExchange}s first. The minimal-effective-demand is the maximum demand that can be shifted from the more expensive
 	 * EnergyExchange to the less one without reducing the clearing-price of the more expensive one plus
-	 * {@link #minEffectiveDemandOffset}. The most-effective-pair are the two {@link EnergyExchange}s with the largest
+	 * {@link #minEffectiveDemandOffset}. The most-effective-pair are the two {@link DayAheadMarket}s with the largest
 	 * market-clearing-price difference and allow to shift the minimal-effective-demand from the more expensive to the less
 	 * (maximal-non-effective-demand). The tolerance parameters are: + {@link #minEffectiveDemandOffset} which sets how much demand
 	 * is added to the computed maximal-non-effective-demand to achieve price change via demand shifting.
@@ -209,9 +209,9 @@ public class DemandBalancer {
 	 * change. To this end, the maximum demand shift without price change is calculated and is incremented by
 	 * MIN_EFFECTIVE_DEMAND_OFFSET.
 	 * 
-	 * @param expensiveMarketId agentId of {@link EnergyExchange} with higher price
-	 * @param cheapMarketId agentId of {@link EnergyExchange} with lower price
-	 * @return result of the applied demand shift for both involved {@link EnergyExchange}s or null if no meaningful shifting can be
+	 * @param expensiveMarketId agentId of {@link DayAheadMarket} with higher price
+	 * @param cheapMarketId agentId of {@link DayAheadMarket} with lower price
+	 * @return result of the applied demand shift for both involved {@link DayAheadMarket}s or null if no meaningful shifting can be
 	 *         applied */
 	private DemandShiftResult calcMinDemandShiftCausingPriceChange(Long expensiveMarketId, Long cheapMarketId) {
 		CouplingData expensiveMarketData = couplingRequests.get(expensiveMarketId);

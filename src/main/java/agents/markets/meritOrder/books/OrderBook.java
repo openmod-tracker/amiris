@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Bid.Type;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-/** Handles a list of bids or asks at an energy {@link EnergyExchange} for a single time frame of trading
+/** Handles a list of bids or asks at an energy {@link DayAheadMarket} for a single time frame of trading
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public abstract class OrderBook implements Portable {

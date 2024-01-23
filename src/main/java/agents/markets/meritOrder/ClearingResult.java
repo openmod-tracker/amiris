@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
 
 /** Result of market clearing
@@ -39,12 +42,12 @@ public class ClearingResult {
 	 * @param minPriceSettingDemand the maximal amount that the demand can be reduced without causing a price change */
 	public ClearingResult(double tradedEnergyInMWH, double marketPriceInEURperMWH,
 			Integer priceSettingDemandBidIdx,
-			Integer priceSettingSupllyBidIdx,
+			Integer priceSettingSupplyBidIdx,
 			Double minPriceSettingDemand) {
 		this.tradedEnergyInMWH = tradedEnergyInMWH;
 		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
 		this.priceSettingDemandBidIdx = priceSettingDemandBidIdx;
-		this.priceSettingSupplyBidIdx = priceSettingSupllyBidIdx;
+		this.priceSettingSupplyBidIdx = priceSettingSupplyBidIdx;
 		this.minPriceSettingDemand = minPriceSettingDemand;
 	}
 

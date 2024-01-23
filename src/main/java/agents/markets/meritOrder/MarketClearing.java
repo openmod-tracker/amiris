@@ -51,6 +51,7 @@ public class MarketClearing {
 	/** Clears the market based on all the bids provided in form of messages
 	 * 
 	 * @param input unsorted messages containing demand and supply bids
+	 * @param clearingEventId string identifying the calling agent
 	 * @return {@link MarketClearingResult result} of market clearing */
 	public MarketClearingResult calculateMarketClearing(ArrayList<Message> input, String clearingEventId) {
 		DemandOrderBook demandBook = new DemandOrderBook();

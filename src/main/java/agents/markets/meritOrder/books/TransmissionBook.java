@@ -1,13 +1,17 @@
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
 
 import java.util.ArrayList;
+import agents.markets.DayAheadMarket;
 import agents.markets.EnergyExchangeMulti.Region;
 import communications.message.TransmissionCapacity;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-/** Handles a list of transmission capacities of an {@link EnergyExchange} for a single time frame of trading.
+/** Handles a list of transmission capacities of an {@link DayAheadMarket} for a single time frame of trading.
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class TransmissionBook implements Portable {

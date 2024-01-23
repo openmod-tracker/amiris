@@ -24,7 +24,7 @@ public abstract class TraderWithClients extends Trader {
 		ForecastRequestForward,
 	};
 
-	/** @param dataProvider */
+	/** @param dataProvider Data provider */
 	public TraderWithClients(DataProvider dataProvider) {
 		super(dataProvider);
 		call(this::forwardClearingTimes).on(Products.GateClosureForward).use(DayAheadMarket.Products.GateClosureInfo);

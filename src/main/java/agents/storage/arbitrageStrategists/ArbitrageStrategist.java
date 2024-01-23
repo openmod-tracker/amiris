@@ -112,7 +112,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 
 	/** Calculates number of energy states, logs warning if rounding is needed
 	 * 
-	 * @param numberOfTransitionStates
+	 * @param numberOfTransitionStates number of discrete transition states between storage levels
 	 * @return numberOfTransitionStates (rounded to closest integer) */
 	protected int calcNumberOfEnergyStates(int numberOfTransitionStates) {
 		double numberOfEnergyStates = numberOfTransitionStates * storage.getEnergyToPowerRatio() + 1;

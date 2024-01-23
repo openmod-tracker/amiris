@@ -1,12 +1,16 @@
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
 
 import java.util.ArrayList;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-/** Handles a list of imported/exported Bids in a {@link EnergyExchange} for a single time frame of trading.
+/** Handles a list of imported/exported Bids in a {@link DayAheadMarket} for a single time frame of trading.
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class TransferOrderBook implements Portable {
