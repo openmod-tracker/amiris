@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 package agents.forecast;
 
 import java.util.ArrayList;
