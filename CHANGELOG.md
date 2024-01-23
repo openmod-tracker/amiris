@@ -62,6 +62,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - `Trader`: has new product `AnnualCostReport` #54 (@dlr-cjs, @dlr_jk)
 - `ElectrolysisTrader`: add optional bidding price limit override #57 (@dlr_jk, @dlr-cjs)
 - `ConventionalOperator`: add output `ReceivedMoneyInEUR` for received money per plant #74 (@dlr_cjs)
+- Package `forecast`: added `PriceForecasterFile` to provide price forecasts from file #95 (@dlr-cjs)
 - FileDispatcher(Storage): added optional input parameter `DispatchTolerance` #50 (@dlr_jk, @litotes18, @dlr_fn)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
 - Tests in packages `accounting` and `util` #54 (@dlr-cjs, @dlr_jk)

@@ -394,6 +394,15 @@ AgentTypes:
         Mandatory: true
         List: false
     Products: [ 'ForecastRequest', 'PriceForecast' ]
+    
+  PriceForecasterFile:
+    Attributes:
+      PriceForecastsInEURperMWH:
+        AttributeType: time_series
+        Mandatory: true
+        List: false
+        help: "Time series of price forecasts"
+    Products: [ 'PriceForecast' ]    
 
   ConventionalPlantOperator:
     Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest' ]
