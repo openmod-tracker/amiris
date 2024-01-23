@@ -58,13 +58,7 @@ public class MarketClearing {
 		DemandOrderBook demandBook = new DemandOrderBook();
 		SupplyOrderBook supplyBook = new SupplyOrderBook();
 		fillOrderBooksWithTraderBids(input, supplyBook, demandBook);
-		ClearingResult clearingResult;
-		try {
-			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
-		} catch (MeritOrderClearingException e) {
-			clearingResult = new ClearingResult(0.0, Double.NaN);
-			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
-		}
+		ClearingResult clearingResult = calculateClearing(supplyBook, demandBook, clearingEventId);
 		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
 		marketClearingResult.setBooks(supplyBook, demandBook, distributionMethod);
 		if (hasScarcity(supplyBook, demandBook)) {
@@ -72,14 +66,29 @@ public class MarketClearing {
 		}
 		return marketClearingResult;
 	}
-
-	/** Clears the market based on all the bids provided in form of messages
+	
+	/** Clears the market based on a SupplyOrderBook and a DemandOrderBook
 	 * 
-	 * @param input unsorted messages containing demand and supply bids
+	 * @param supplyBook book of all supply bids
+	 * @param demandBook book of all demand bids
 	 * @param clearingEventId string identifying the calling agent
 	 * @return {@link MarketClearingResult result} of market clearing */
-	public MarketClearingResult calculateMarketClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook,
-			String clearingEventId) {
+	public MarketClearingResult calculateMarketClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook, String clearingEventId) {
+		ClearingResult clearingResult = calculateClearing(supplyBook, demandBook, clearingEventId);
+		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
+		marketClearingResult.setBooks(supplyBook, demandBook, distributionMethod);
+		if (hasScarcity(supplyBook, demandBook)) {
+			updateResultForScarcity(marketClearingResult, supplyBook);
+		}
+		return marketClearingResult;
+	}
+	
+	/** Computes the ClearingResult of the specified SupplyOrderBook and DemandOrderBook.
+	 * 
+	 * @param supplyBook book of all supply bids
+	 * @param demandBook book of all demand bids
+	 * @return the ClearingResult of the specified SupplyOrderBook and DemandOrderBook */
+	private ClearingResult calculateClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook, String clearingEventId) {
 		ClearingResult clearingResult;
 		try {
 			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
@@ -87,12 +96,7 @@ public class MarketClearing {
 			clearingResult = new ClearingResult(0.0, Double.NaN);
 			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
 		}
-		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
-		marketClearingResult.setBooks(supplyBook, demandBook, distributionMethod);
-		if (hasScarcity(supplyBook, demandBook)) {
-			updateResultForScarcity(marketClearingResult, supplyBook);
-		}
-		return marketClearingResult;
+		return clearingResult;
 	}
 
 	/** Fills received Bids into provided demand or supply OrderBook
