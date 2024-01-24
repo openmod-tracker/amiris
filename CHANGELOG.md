@@ -17,7 +17,6 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - **Breaking**: Rename output fields to harmonise them across agent types #76 (@dlr-cjs)
   - refactoring MarketClearing to avoid code repetition
   - Renamed EnergyExchangeMulti into DayAheadMarketMultiZone
-  - Added market coupling functionality
   - `ConventionalPlantOperator`: rename column `DispatchedPowerInMWHperPlant` to `DispatchedEnergyInMWHperPlant`
   - `ConventionalTrader`: rename column `OfferedPowerInMW` to `OfferedEnergyInMWH`
   - `ConventionalTrader`: rename column `AwardedPower` to `AwardedEnergyInMWH`
@@ -51,7 +50,9 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
 - `ElectrolysisTrader`: new Trader demanding electricity and producing hydrogen from it via electrolysis #54 (@dlr-cjs, @dlr_jk)
 - `FlexibilityTrader`: new abstract Trader operating a type of flexibility asset #54 (@dlr-cjs, @dlr_jk)
-- PriceForecaster: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
+- `PriceForecaster`: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
+- `MarketCoupling`: new agent which allows coupling of multiple `DayAheadMarketMultiZone` #16 (@dlr-cjs @litotes18 @dlr_elghazi @dlr_fn)
+- `ImportTrader`: new agent which can account for "negative" load from net-import hours #16 (@dlr-cjs @dlr_elghazi @dlr_fn)
 - Package `storage.arbitrageStrategists`: added new strategist `ProfitMaximiser` #72 (@dlr-cjs)
 - Package `storage.arbitrageStrategists`: added new strategist `MultiAgentSimple` #73 (@dlr-cjs)
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)
