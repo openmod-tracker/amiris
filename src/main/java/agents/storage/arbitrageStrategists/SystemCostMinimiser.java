@@ -128,19 +128,20 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices */
 	private void updateScheduleArrays(double initialEnergyInStorageInMWh) {
-		double totalEnergyDeviation = 0;
+		double totalEnergySurplus = 0;
 		int initialState = findNearestState(initialEnergyInStorageInMWh);
-		totalEnergyDeviation += determineEnergyDeviation(initialEnergyInStorageInMWh);
+		totalEnergySurplus += determineEnergyDeviation(initialEnergyInStorageInMWh, initialState);
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			scheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState;
-
+			scheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState + totalEnergySurplus;
 			int nextState = bestNextState[period][initialState];
 
-			double correctedInternalEnergyInMWh = Math.max(0,
-					Math.min(storage.getEnergyStorageCapacityInMWH(), (nextState * internalEnergyPerState
-							+ totalEnergyDeviation) * (1 - storage.getSelfDischargeRatePerHour())));
+			double selfDischarge = storage.getSelfDischargeRatePerHour() * scheduledInitialInternalEnergyInMWH[period];
+			double nextExactEnergy = nextState * internalEnergyPerState + totalEnergySurplus - selfDischarge;
+			nextExactEnergy = Math.max(0, Math.min(storage.getEnergyStorageCapacityInMWH(), nextExactEnergy));
+			double internalEnergyDelta = nextExactEnergy - scheduledInitialInternalEnergyInMWH[period];
+			
 			nextState = findNearestState(correctedInternalEnergyInMWh);
-			totalEnergyDeviation += determineEnergyDeviation(correctedInternalEnergyInMWh);
+			totalEnergySurplus += determineEnergyDeviation(correctedInternalEnergyInMWh);
 
 			int stateDelta = nextState - initialState;
 			double externalEnergyDelta = storage.internalToExternalEnergy(stateDelta * internalEnergyPerState);
@@ -160,14 +161,9 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 				Math.min(numberOfEnergyStates, (int) Math.round(currentEnergyInStorageInMWh / internalEnergyPerState)));
 	}
 
-	/** @return the energy deviation caused by initial state or storage self discharge */
-	private double determineEnergyDeviation(double currentEnergyInStorageInMWh) {
-		double modulo = currentEnergyInStorageInMWh % internalEnergyPerState;
-		if (modulo < internalEnergyPerState / 2) {
-			return modulo;
-		} else {
-			return modulo - internalEnergyPerState;
-		}
+	/** @return the energy deviation caused between the exact energy and its associated state */
+	private double determineEnergyDeviation(double exactEnergyInMWH, int associatedState) {
+		return exactEnergyInMWH - associatedState * internalEnergyPerState;
 	}
 
 	/** @return a blank MarginalCostSensitivity item */
