@@ -27,14 +27,11 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	private final int numberOfEnergyStates;
 	private final int numberOfTransitionStates;
-	private final double internalEnergyPerState;
 
 	/** costSum[t][i]: summed marginal cost of the best sequence of states starting in period t and internal state i */
 	private final double[][] followUpCostSum;
 	/** bestNextState[t][i]: best next internal state identified when current state is i in period t */
 	private final int[][] bestNextState;
-	/** chargingLosses[t][i]: chargingLosses when current state is i in period t */
-	private final double[][] cumulativeChargingLosses;
 
 	/** Creates a {@link SystemCostMinimiser}
 	 * 
@@ -47,16 +44,14 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 		super(generalInput, storage);
 		this.numberOfTransitionStates = specificInput.getInteger("ModelledChargingSteps");
 		this.numberOfEnergyStates = calcNumberOfEnergyStates(numberOfTransitionStates);
-		this.internalEnergyPerState = storage.getInternalPowerInMW() / numberOfTransitionStates;
 
 		followUpCostSum = new double[forecastSteps][numberOfEnergyStates];
 		bestNextState = new int[forecastSteps][numberOfEnergyStates];
-		cumulativeChargingLosses = new double[forecastSteps][numberOfEnergyStates];
 	}
 
 	@Override
 	public void updateSchedule(TimePeriod startTimePeriod) {
-		clearPlanningArrays(startTimePeriod);
+		clearPlanningArrays();
 		optimiseDispatch(startTimePeriod);
 		double initialEnergyInStorageInMWh = storage.getCurrentEnergyInStorageInMWH();
 		updateScheduleArrays(initialEnergyInStorageInMWh);
@@ -64,12 +59,11 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 	}
 
 	/** replaces all entries in the planning arrays with 0 or Integer.MIN_VALUE */
-	private void clearPlanningArrays(TimePeriod startTimePeriod) {
+	private void clearPlanningArrays() {
 		for (int t = 0; t < forecastSteps; t++) {
 			for (int initialState = 0; initialState < numberOfEnergyStates; initialState++) {
 				followUpCostSum[t][initialState] = 0.0;
 				bestNextState[t][initialState] = Integer.MIN_VALUE;
-				cumulativeChargingLosses[t][initialState] = storage.getDischargingDeviationFor(startTimePeriod.getStartTime().earlierBy(OPERATION_PERIOD));
 			}
 		}
 	}
@@ -85,17 +79,10 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 			for (int initialState = 0; initialState < numberOfEnergyStates; initialState++) {
 				double currentLowestCost = Double.MAX_VALUE;
 				int bestFinalState = Integer.MIN_VALUE;
-				double currentCumulativeChargingLosses = Double.MAX_VALUE;
-				currentCumulativeChargingLosses = trackCumulativeChargingLosses(initialState, nextStep);
-				int stateDecrement = getStateDecrementFrom(currentCumulativeChargingLosses);
-				int correctedInitialState = (int) Math.max(0, initialState - stateDecrement);
-				if (correctedInitialState != initialState) {
-					currentCumulativeChargingLosses -= stateDecrement * internalEnergyPerState;
-				}
-				int firstFinalState = calcFinalStateLowerBound(correctedInitialState);
-				int lastFinalState = calcFinalStateUpperBound(correctedInitialState);
+				int firstFinalState = calcFinalStateLowerBound(initialState);
+				int lastFinalState = calcFinalStateUpperBound(initialState);
 				for (int finalState = firstFinalState; finalState <= lastFinalState; finalState++) {
-					int stateDelta = finalState - correctedInitialState;
+					int stateDelta = finalState - initialState;
 					int costStepIndex = numberOfTransitionStates + stateDelta;
 					double cost = marginalCostDeltaPerStep[costStepIndex] + getFollowUpCost(nextStep, finalState);
 					if (cost < currentLowestCost) {
@@ -106,9 +93,8 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 				if (bestFinalState == Integer.MIN_VALUE) {
 					throw new RuntimeException("No valid storage strategy found!");
 				}
-				followUpCostSum[step][correctedInitialState] = currentLowestCost;
-				bestNextState[step][correctedInitialState] = bestFinalState;
-				cumulativeChargingLosses[step][initialState] = currentCumulativeChargingLosses;
+				followUpCostSum[step][initialState] = currentLowestCost;
+				bestNextState[step][initialState] = bestFinalState;
 			}
 		}
 	}
@@ -123,20 +109,6 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 		}
 	}
 
-	private int getStateDecrementFrom(double currentCumulativeChargingLosses) {
-		return (int) Math.floor(currentCumulativeChargingLosses / internalEnergyPerState);
-	}
-
-	private double trackCumulativeChargingLosses(int state, int nextStep) {
-		double additionalChargingLoss = state * internalEnergyPerState * storage.getSelfDischargeRatePerHour();
-		return additionalChargingLoss + getCumulativeChargingLosses(nextStep, state);
-	}
-
-	/** @return cumulative charging losses of best strategy starting in given hour at given state */
-	private double getCumulativeChargingLosses(int hour, int state) {
-		return hour < forecastSteps ? cumulativeChargingLosses[hour][state] : 0;
-	}
-	
 	/** @return lower bound (inclusive) of discrete states reachable from specified initialState */
 	private int calcFinalStateLowerBound(int initialState) {
 		return Math.max(0, initialState - numberOfTransitionStates);
@@ -154,6 +126,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices */
 	private void updateScheduleArrays(double initialEnergyInStorageInMWh) {
+		double internalEnergyPerState = storage.getInternalPowerInMW() / numberOfTransitionStates;
 		int initialState = Math.min(numberOfEnergyStates,
 				(int) Math.round(initialEnergyInStorageInMWh / internalEnergyPerState));
 		for (int period = 0; period < scheduleDurationPeriods; period++) {

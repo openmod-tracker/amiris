@@ -118,7 +118,6 @@ public class StorageTrader extends FlexibilityTrader {
 			strategist.clearSensitivitiesBefore(now());
 			TimePeriod targetTimeSegment = new TimePeriod(targetTime, Strategist.OPERATION_PERIOD);
 			schedule = strategist.createSchedule(targetTimeSegment);
-			storage.clearDischargingDeviationBefore(targetTime.earlierBy(Strategist.OPERATION_PERIOD));
 		}
 	}
 
@@ -158,8 +157,7 @@ public class StorageTrader extends FlexibilityTrader {
 		double powerPrice = awards.getDataItemOfType(AwardData.class).powerPriceInEURperMWH;
 		double revenues = powerPrice * awardedDischargePower;
 		double costs = powerPrice * awardedChargePower;
-		TimeStamp time = awards.getDataItemOfType(AwardData.class).beginOfDeliveryInterval;
-		storage.chargeInMW(externalPowerDelta, time);
+		storage.chargeInMW(externalPowerDelta);
 
 		store(OutputFields.AwardedDischargeEnergyInMWH, awardedDischargePower);
 		store(OutputFields.AwardedChargeEnergyInMWH, awardedChargePower);
