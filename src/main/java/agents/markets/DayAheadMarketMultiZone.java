@@ -92,7 +92,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		}
 
 		call(this::digestBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarketTrader.Products.Bids);
-		call(this::provideTransmissionAndBids).on(Products.TransmissionAndBids).use(DayAheadMarketTrader.Products.Bids);
+		call(this::provideTransmissionAndBids).on(Products.TransmissionAndBids);
 		call(this::clearMarket).on(DayAheadMarket.Products.Awards).use(MarketCoupling.Products.MarketCouplingResult);
 	}
 
