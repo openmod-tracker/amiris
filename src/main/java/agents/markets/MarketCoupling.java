@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import agents.markets.DayAheadMarketMultiZone.Region;
-import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 import agents.markets.meritOrder.books.TransmissionBook;
 import communications.message.CouplingData;
 import communications.message.TransmissionCapacity;
@@ -43,9 +42,8 @@ public class MarketCoupling extends Agent {
 	};
 
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-					Make.newDouble("MinimumDemandOffsetInMWH").optional()
-							.help("Offset added to the demand shift that ensure a price change at the involved markets."))
+			.add(Make.newDouble("MinimumDemandOffsetInMWH").optional()
+							.help("Offset added to the demand shift that ensures a price change at the involved markets."))
 			.buildTree();
 
 	@Output
