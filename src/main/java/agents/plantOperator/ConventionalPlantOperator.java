@@ -302,4 +302,10 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 			throw new RuntimeException(ERR_PAYOUT_VANISH + this);
 		}
 	}
+
+	@Override
+	protected double getInstalledCapacityInMW() {
+		return portfolio.getInstalledCapacityInMW(now());
+	}
+
 }

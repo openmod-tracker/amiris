@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.plantOperator.renewable;
@@ -72,7 +72,7 @@ public class Biogas extends RenewablePlantOperator {
 
 	/** @return the available power at the specified time, considering its {@link OperationMode} */
 	private double calcAvailablePowerAtTime(TimeStamp time) {
-		return getInstalledPowerAtTime(time) * calcFlexibleLoadFactor(time);
+		return getInstalledPowerAtTimeInMW(time) * calcFlexibleLoadFactor(time);
 	}
 
 	/** Calculates the flexible load factor of the {@link Biogas} operator based on stored {@link OperationMode}.

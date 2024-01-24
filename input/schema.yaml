@@ -416,6 +416,24 @@ AgentTypes:
     Products: [ 'ForecastRequest', 'PriceForecast' ]
 
   ConventionalPlantOperator:
+    Attributes:
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          FixedCostsInEURperYearMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
     Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest' ]
 
   VariableRenewableOperator:
@@ -450,6 +468,23 @@ AgentTypes:
         AttributeType: time_series
         Mandatory: true
         List: false
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          FixedCostsInEURperYearMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
     Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration' ]
 
   Biogas:
@@ -485,6 +520,23 @@ AgentTypes:
         AttributeType: time_series
         List: false
         Mandatory: false
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          FixedCostsInEURperYearMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
     Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration' ]
 
   PredefinedPlantBuilder:
