@@ -434,7 +434,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-    Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest' ]
+    Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest', 'AnnualCostReport' ]
 
   VariableRenewableOperator:
     Attributes:
