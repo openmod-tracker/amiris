@@ -26,7 +26,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Offers imported energy at {@link EnergyExchange} according to given {@link TimeSeries} of energy import as supply.
+/** Offers imported energy at {@link DayAheadMarket} according to given {@link TimeSeries} of energy import as supply.
  *
  * @author Christoph Schimeczek, A. Achraf El Ghazi, Felix Nitsch */
 public class ImportTrader extends Trader {
@@ -107,7 +107,7 @@ public class ImportTrader extends Trader {
 		return bids;
 	}
 
-	/** Prepares supply bids and sends them to the {@link EnergyExchange} */
+	/** Prepares supply bids and sends them to the {@link DayAheadMarket} */
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		double totalSupplyedEnergyInMWH = prepareBidsMultipleTimes(input, contracts);
 		store(OutputColumns.OfferedEnergyInMWH, totalSupplyedEnergyInMWH);
