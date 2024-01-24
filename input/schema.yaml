@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+# SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 #
 # SPDX-License-Identifier: Apache-2.0
 AgentTypes:
@@ -121,6 +121,20 @@ AgentTypes:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
+          FINANCIAL_CFD:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            NestedAttributes:
+              Premium:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+              ReferenceYieldProfile:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+                help: "yield profile of the reference plant to calculate payback obligation from its market revenues"
     Products: [ 'SupportInfo', 'SupportPayout', 'MarketValueCalculation' ]
 
   DemandTrader:
@@ -417,7 +431,7 @@ AgentTypes:
         AttributeType: enum
         Mandatory: false
         List: false
-        Values: [ 'FIT', 'MPVAR', 'MPFIX', 'CFD', 'CP' ]
+        Values: [ 'FIT', 'MPVAR', 'MPFIX', 'CFD', 'CP', 'FINANCIAL_CFD' ]
       InstalledPowerInMW:
         AttributeType: time_series
         Mandatory: true
