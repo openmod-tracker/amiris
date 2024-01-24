@@ -73,12 +73,6 @@ AgentTypes:
     Products: [ 'TransmissionAndBids', 'Awards', 'GateClosureInfo' ]
 
   MarketCoupling:
-    Attributes:
-      DistributionMethod:
-        AttributeType: enum
-        Mandatory: true
-        List: false
-        Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
     Products: [ 'MarketCouplingResult' ]
 
   ImportTrader:
