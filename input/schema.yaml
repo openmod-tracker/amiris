@@ -49,6 +49,7 @@ AgentTypes:
         Mandatory: false
         List: false
         Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
+        help: "Identifier specifying the region of the DayAheadMarket"
       Transmission:
         AttributeType: block
         List: true
@@ -59,10 +60,12 @@ AgentTypes:
             List: false
             Mandatory: false
             Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
+            help: "Region to shift demand to"
           CapacityInMW:
             AttributeType: time_series
             List: false
             Mandatory: false
+            help: "Net transfer capacity to shift demand to Region"
       GateClosureInfoOffsetInSeconds:
         AttributeType: integer
         List: false
@@ -89,10 +92,12 @@ AgentTypes:
             AttributeType: time_series
             Mandatory: true
             List: false
+            help: "Amount of Energy from imports to be offered at energy exchange in MW"
           ImportCostInEURperMWH:
             AttributeType: double
             Mandatory: true
             List: false
+            help: "Costs at which imports are offered at energy exchange in EUR/MWh"
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward' ]
 
   CarbonMarket:
