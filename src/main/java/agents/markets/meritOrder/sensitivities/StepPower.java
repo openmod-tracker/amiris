@@ -15,8 +15,8 @@ public class StepPower {
 
 	/** Creates a {@link StepPower}
 	 * 
-	 * @param externalChargingPowerInMW maximum effective charging power (>= 0)
-	 * @param externalDischargingPowerInMW maximum effective discharging power (>= 0)
+	 * @param externalChargingPowerInMW maximum effective charging power (&ge; 0)
+	 * @param externalDischargingPowerInMW maximum effective discharging power (&ge; 0)
 	 * @param numberOfTransitionSteps number of modelled transition steps for each of the two energy flow directions */
 	public StepPower(double externalChargingPowerInMW, double externalDischargingPowerInMW, int numberOfTransitionSteps) {
 		this.chargingStepPowerInMW = externalChargingPowerInMW / numberOfTransitionSteps;
