@@ -82,6 +82,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Storage: bids could exceed market limits - now they abide by the market limits #47 (@dlr-cjs)
 - Storage: discretisation of planning no longer causes over-charging or under-depletion #55 (@dlr-cjs)
 - Forecaster: wrote out forecast prices with one hour lag - the time lag is removed #48 (@dlr-cjs)
+- ConventionalPlantOperator: did not sort power plants for dispatch correctly - sorting now according to marginal cost #97 (@dlr-cjs)
 - CI: Pipeline to publish javadocs #62 #63 (@dlr-cjs)
 - ConventionalPlantOperator: do not store outputs for inactive plants #75 (@dlr_fn, @dlr-cjs)
 - Paper: corrected year in reference Weidlich et al. (2008) #88 (@dlr_fn)

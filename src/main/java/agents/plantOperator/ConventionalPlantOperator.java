@@ -4,6 +4,7 @@
 package agents.plantOperator;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,7 +41,7 @@ import util.Util;
 public class ConventionalPlantOperator extends PowerPlantOperator implements FuelsTrader {
 	static final String ERR_MISSING_CO2_COST = "Missing at least one CO2 cost item to match corresponding fuel cost item(s).";
 	static final String ERR_MISSING_FUEL_COST = "Missing at least one fuel cost item to match corresponding CO2 cost item(s).";
-	static final String ERR_MISSING_POWER = "Missing power to fulfil dispatch: ";
+	static final String ERR_MISSING_POWER = " cannot fulfil dispatch due to missing power in MWh: ";
 	static final String ERR_PAYOUT_VANISH = "ERROR: ConventionalPlants received money but were not dispatched! Ensure Payout contracts are scheduled after DispatchAssignment contracts for ";
 	private static final double NUMERIC_TOLERANCE = 1E-10;
 
@@ -247,19 +248,18 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 		double currentCo2Price = co2Price.remove(time);
 		DispatchResult totals = new DispatchResult();
 
-//		List<PowerPlant> orderedPlantList = getSortedPowerPlantList(time, currentFuelPrice, currentCo2Price);
-		List<PowerPlant> plantList = portfolio.getPowerPlantList();
-		ListIterator<PowerPlant> iterator = plantList.listIterator(plantList.size());
+		List<PowerPlant> orderedPlantList = getSortedPowerPlantList(time, currentFuelPrice, currentCo2Price);
+		ListIterator<PowerPlant> iterator = orderedPlantList.listIterator(orderedPlantList.size());
 		while (iterator.hasPrevious()) {
 			PowerPlant powerPlant = iterator.previous();
-			double powerToDispatch = 0;
-			double availablePower = powerPlant.getAvailablePowerInMW(time);
-			if (remainingAwardedEnergyInMWH > 0 && availablePower > 0) {
-				powerToDispatch = Math.min(remainingAwardedEnergyInMWH, availablePower);
-				remainingAwardedEnergyInMWH -= powerToDispatch;
-				store(dispatch.key(PlantsKey.ID, powerPlant.getId()), powerToDispatch);
+			double energyToDispatchInMWH = 0;
+			double availablePowerInMW = powerPlant.getAvailablePowerInMW(time);
+			if (remainingAwardedEnergyInMWH > 0 && availablePowerInMW > 0) {
+				energyToDispatchInMWH = Math.min(remainingAwardedEnergyInMWH, availablePowerInMW);
+				remainingAwardedEnergyInMWH -= energyToDispatchInMWH;
+				store(dispatch.key(PlantsKey.ID, powerPlant.getId()), energyToDispatchInMWH);
 			}
-			DispatchResult plantDispatchResult = powerPlant.updateGeneration(time, powerToDispatch, currentFuelPrice,
+			DispatchResult plantDispatchResult = powerPlant.updateGeneration(time, energyToDispatchInMWH, currentFuelPrice,
 					currentCo2Price);
 			if (plantDispatchResult.getVariableCostsInEUR() > 0) {
 				store(variableCosts.key(PlantsKey.ID, powerPlant.getId()), plantDispatchResult.getVariableCostsInEUR());
@@ -267,19 +267,18 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 			totals.add(plantDispatchResult);
 		}
 		if (remainingAwardedEnergyInMWH > NUMERIC_TOLERANCE) {
-			logger.error(ERR_MISSING_POWER + remainingAwardedEnergyInMWH);
+			logger.error(this + ERR_MISSING_POWER + remainingAwardedEnergyInMWH);
 		}
 		return totals;
 	}
 
-//	/** Returns a list of power plants sorted by marginal costs, descending */
-//	private List<PowerPlant> getSortedPowerPlantList(TimeStamp time, double fuelPrice, double co2Price) {
-//		List<PowerPlant> plants = new ArrayList<>(portfolio.getPowerPlantList());
-//		plants.sort(Comparator.comparing(p -> -p.calcMarginalCost(time, fuelPrice, co2Price)));
-//		return plants;
-//	}
-	
-	
+	/** Returns a list of power plants sorted by marginal costs, descending */
+	private List<PowerPlant> getSortedPowerPlantList(TimeStamp time, double fuelPrice, double co2Price) {
+		List<PowerPlant> plants = new ArrayList<>(portfolio.getPowerPlantList());
+		plants.sort(Comparator.comparing(p -> -p.calcMarginalCost(time, fuelPrice, co2Price)));
+		return plants;
+	}
+
 	/** send co2 emissions caused by power generation to single contract receiver */
 	private void reportCo2Emissions(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
