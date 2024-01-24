@@ -27,6 +27,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	private final int numberOfEnergyStates;
 	private final int numberOfTransitionStates;
+	private final double internalEnergyPerState;
 
 	/** costSum[t][i]: summed marginal cost of the best sequence of states starting in period t and internal state i */
 	private final double[][] followUpCostSum;
@@ -44,6 +45,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 		super(generalInput, storage);
 		this.numberOfTransitionStates = specificInput.getInteger("ModelledChargingSteps");
 		this.numberOfEnergyStates = calcNumberOfEnergyStates(numberOfTransitionStates);
+		this.internalEnergyPerState = storage.getInternalPowerInMW() / numberOfTransitionStates;
 
 		followUpCostSum = new double[forecastSteps][numberOfEnergyStates];
 		bestNextState = new int[forecastSteps][numberOfEnergyStates];
@@ -126,13 +128,20 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices */
 	private void updateScheduleArrays(double initialEnergyInStorageInMWh) {
-		double internalEnergyPerState = storage.getInternalPowerInMW() / numberOfTransitionStates;
-		int initialState = Math.min(numberOfEnergyStates,
-				(int) Math.round(initialEnergyInStorageInMWh / internalEnergyPerState));
+		double totalEnergyDeviation = 0;
+		int initialState = findNearestState(initialEnergyInStorageInMWh);
+		totalEnergyDeviation += determineEnergyDeviation(initialEnergyInStorageInMWh);
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
 			scheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState;
 
 			int nextState = bestNextState[period][initialState];
+
+			double correctedInternalEnergyInMWh = Math.max(0,
+					Math.min(storage.getEnergyStorageCapacityInMWH(), (nextState * internalEnergyPerState
+							+ totalEnergyDeviation) * (1 - storage.getSelfDischargeRatePerHour())));
+			nextState = findNearestState(correctedInternalEnergyInMWh);
+			totalEnergyDeviation += determineEnergyDeviation(correctedInternalEnergyInMWh);
+
 			int stateDelta = nextState - initialState;
 			double externalEnergyDelta = storage.internalToExternalEnergy(stateDelta * internalEnergyPerState);
 			demandScheduleInMWH[period] = externalEnergyDelta;
@@ -142,6 +151,22 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 				priceScheduleInEURperMWH[period] = externalEnergyDelta > 0 ? Double.MAX_VALUE : -Double.MAX_VALUE;
 			}
 			initialState = nextState;
+		}
+	}
+
+	/** @return the nearest energy state */
+	private int findNearestState(double currentEnergyInStorageInMWh) {
+		return Math.max(0,
+				Math.min(numberOfEnergyStates, (int) Math.round(currentEnergyInStorageInMWh / internalEnergyPerState)));
+	}
+
+	/** @return the energy deviation caused by initial state or storage self discharge */
+	private double determineEnergyDeviation(double currentEnergyInStorageInMWh) {
+		double modulo = currentEnergyInStorageInMWh % internalEnergyPerState;
+		if (modulo < internalEnergyPerState / 2) {
+			return modulo;
+		} else {
+			return modulo - internalEnergyPerState;
 		}
 	}
 
