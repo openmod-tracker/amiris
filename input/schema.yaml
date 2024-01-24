@@ -26,6 +26,75 @@ AgentTypes:
         Mandatory: true
     Products: [ 'Awards', 'GateClosureInfo' ]
 
+  DayAheadMarketMultiZone:
+    Attributes:
+      Clearing:
+        AttributeType: block
+        List: false
+        Mandatory: true
+        NestedAttributes:
+          DistributionMethod:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+          ShortagePriceMethod:
+            AttributeType: enum
+            Mandatory: false
+            List: false
+            help: "Defines which price to use in case of shortage events (default: ScarcityPrice)"
+            Values: [ 'LastSupplyPrice', 'ValueOfLostLoad' ]
+      Region:
+        AttributeType: enum
+        Mandatory: false
+        List: false
+        Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
+      Transmission:
+        AttributeType: block
+        List: true
+        Mandatory: false
+        NestedAttributes:
+          Region:
+            AttributeType: enum
+            List: false
+            Mandatory: false
+            Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
+          CapacityInMW:
+            AttributeType: time_series
+            List: false
+            Mandatory: false
+      GateClosureInfoOffsetInSeconds:
+        AttributeType: integer
+        List: false
+        Mandatory: true
+    Products: [ 'TransmissionAndBids', 'Awards', 'GateClosureInfo' ]
+
+  MarketCoupling:
+    Attributes:
+      DistributionMethod:
+        AttributeType: enum
+        Mandatory: true
+        List: false
+        Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+    Products: [ 'MarketCouplingResult' ]
+
+  ImportTrader:
+    Attributes:
+      Imports:
+        AttributeType: block
+        List: true
+        Mandatory: true
+        NestedAttributes:
+          AvailableEnergyForImport:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+          ImportCostInEURperMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward' ]
+
   CarbonMarket:
     Attributes:
       Co2Prices:
