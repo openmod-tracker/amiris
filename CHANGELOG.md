@@ -14,7 +14,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - **Breaking**: StorageTrader input field `forecastRequestOffset` renamed to `electricityForecastRequestOffset` #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: input field `DistributionMethod` moved to new group `Clearing` in DayAheadMarkets and MarketForecasters #86 (@dlr-cjs, @dlr_es, @dlr_elghazi, @litotes18)
 - **Breaking**: Output field `CostsInEUR` in PowerPlantOperator & StorageTrader renamed to `VariableCostsInEUR` #54 (@dlr-cjs, @dlr_jk)
-- **Breaking**: Rename output fields to harmonise them across agent types #76 (@dlr-cjs)
+- **Breaking**: Renamed output fields to harmonise them across agent types #76 (@dlr-cjs)
   - `ConventionalPlantOperator`: rename column `DispatchedPowerInMWHperPlant` to `DispatchedEnergyInMWHperPlant`
   - `ConventionalTrader`: rename column `OfferedPowerInMW` to `OfferedEnergyInMWH`
   - `ConventionalTrader`: rename column `AwardedPower` to `AwardedEnergyInMWH`
@@ -29,6 +29,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
   - `StorageTrader`: rename column `AwardedPowerInMWH` to `AwardedEnergyInMWH`
   - `AggregatorTrader`: rename column `TruePowerPotentialInMWH` to `TrueGenerationPotentialInMWH`
   - `SupportPolicy`: rename column `MarketValue` to `MarketValueInEURperMWH`
+- **Breaking**: `AggregatorTrader`'s optional input field `Variance` renamed to `StandardDeviation` #91 (@dlr-cjs)
 - OrderBookItems with negative power are not allowed #83 (@dlr-cjs, @dlr_elghazi)
 - MeritOrderKernel throws exception if clearing fails #83 (@dlr-cjs, @dlr_elghazi)
 - Introduced a new TraderWithClients class to remove errors related to not used actions #81 (@dlr-cjs, @dlr_elghazi)
