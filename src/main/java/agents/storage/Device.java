@@ -67,7 +67,7 @@ public class Device extends AbstractDevice {
 		if (!dischargingDeviation.isEmpty()) {
 			return dischargingDeviation.get(timeStamp);
 		} else {
-			return 0.;
+			return currentEnergyInStorageInMWH * getSelfDischargeRatePerHour();
 		}
 	}
 
