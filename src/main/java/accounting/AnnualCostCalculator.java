@@ -17,7 +17,7 @@ public class AnnualCostCalculator {
 	@Input public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("InvestmentExpensensesInEURperMW").optional(),
 					Make.newDouble("AnnuityFactor").optional(),
-					Make.newDouble("FixedCostsInEURperYearMW").optional())
+					Make.newDouble("AnnualFixedCostsInEURperMW").optional())
 			.buildTree();
 
 	/** Investment expenses for power plant (in nominal terms) */
@@ -25,7 +25,7 @@ public class AnnualCostCalculator {
 	/** Annuity factor of power plant (fleet) */
 	private double annuityFactor = 0;
 	/** Annual fixed costs of power plant (in nominal terms) */
-	private double fixedCostsInEURperYearMW = 0;
+	private double annualFixedCostsInEURperMW = 0;
 
 	/** Returns {@link AnnualCostCalculator} built from group of given input and group name.
 	 * <p>
@@ -51,7 +51,7 @@ public class AnnualCostCalculator {
 	AnnualCostCalculator(ParameterData input) {
 		investmentExpensesInEURperMW = input.getDoubleOrDefault("InvestmentExpensensesInEURperMW", 0.0);
 		annuityFactor = input.getDoubleOrDefault("AnnuityFactor", 0.0);
-		fixedCostsInEURperYearMW = input.getDoubleOrDefault("FixedCostsInEURperYearMW", 0.0);
+		annualFixedCostsInEURperMW = input.getDoubleOrDefault("AnnualFixedCostsInEURperMW", 0.0);
 	}
 
 	/** Constructs a new AnnualCost item with default parameters */
@@ -70,7 +70,7 @@ public class AnnualCostCalculator {
 	 * @param installedCapacityInMW total installed capacity to be considered
 	 * @return calculated fixed cost total */
 	public double calcFixedCostInEUR(double installedCapacityInMW) {
-		return fixedCostsInEURperYearMW * installedCapacityInMW;
+		return annualFixedCostsInEURperMW * installedCapacityInMW;
 	}
 
 	/** @return investment expenses in EUR per MW of installed capacity */
@@ -85,6 +85,6 @@ public class AnnualCostCalculator {
 
 	/** @return fixed annual operation and maintenance cost in EUR per MW of installed capacity */
 	public double getFixedCostsInEURperYearMW() {
-		return fixedCostsInEURperYearMW;
+		return annualFixedCostsInEURperMW;
 	}
 }

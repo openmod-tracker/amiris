@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.plantOperator;
@@ -133,7 +133,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	 * 
 	 * @param time to get the installed power for
 	 * @return installed peak power in MW at the specified time */
-	protected double getInstalledPowerAtTime(TimeStamp time) {
+	protected double getInstalledPowerAtTimeInMW(TimeStamp time) {
 		return tsInstalledPowerInMW.getValueLinear(time);
 	}
 
@@ -148,5 +148,10 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	@Override
 	protected double dispatchPlants(double awardedPower, TimeStamp time) {
 		return getVariableOpexAtTime(time) * awardedPower;
+	}
+
+	@Override
+	protected double getInstalledCapacityInMW() {
+		return getInstalledPowerAtTimeInMW(now());
 	}
 }

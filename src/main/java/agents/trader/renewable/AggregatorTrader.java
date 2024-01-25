@@ -240,18 +240,11 @@ public abstract class AggregatorTrader extends TraderWithClients {
 			ListIterator<MarginalCost> iterator = marginals.listIterator();
 			while (iterator.hasNext()) {
 				MarginalCost item = iterator.next();
-				// TODO: also consider maximum installed capacity as upper limit
-				double powerForecastWithError = calcPowerWithError(item.powerPotentialInMW);
+				double powerForecastWithError = errorGenerator.calcPowerWithError(item.powerPotentialInMW);
 				iterator.set(new MarginalCost(item, powerForecastWithError));
 			}
 		}
 		return marginals;
-	}
-
-	/** @return given power multiplied with a randomly generated forecast error */
-	private double calcPowerWithError(double powerWithoutError) {
-		double factor = Math.max(0, 1 + errorGenerator.getNextError());
-		return powerWithoutError * factor;
 	}
 
 	/** Store {@link YieldPotential}s for RES market value calculation **/

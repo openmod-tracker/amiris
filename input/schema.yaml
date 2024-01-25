@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+# SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 #
 # SPDX-License-Identifier: Apache-2.0
 AgentTypes:
@@ -121,6 +121,20 @@ AgentTypes:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
+          FINANCIAL_CFD:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            NestedAttributes:
+              Premium:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+              ReferenceYieldProfile:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+                help: "yield profile of the reference plant to calculate payback obligation from its market revenues"
     Products: [ 'SupportInfo', 'SupportPayout', 'MarketValueCalculation' ]
 
   DemandTrader:
@@ -135,7 +149,7 @@ AgentTypes:
             Mandatory: true
             List: false
           ValueOfLostLoad:
-            AttributeType: double
+            AttributeType: time_series
             Mandatory: true
             List: false
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
@@ -171,7 +185,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false        
@@ -277,10 +291,12 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          Variance:
+            help: "Relative offset of the power forecasts"
+          StandardDeviation:
             AttributeType: double
             Mandatory: false
             List: false
+            help: "Standard deviation of the relative power forecasting errors"
       MarketValueForecastMethod:
         AttributeType: enum
         List: false
@@ -317,10 +333,12 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          Variance:
+            help: "Relative offset of the power forecasts"
+          StandardDeviation:
             AttributeType: double
             Mandatory: false
-            List: false        
+            List: false
+            help: "Standard deviation of the relative power forecasting errors"
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
     
   SystemOperatorTrader:
@@ -334,10 +352,12 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          Variance:
+            help: "Relative offset of the power forecasts"
+          StandardDeviation:
             AttributeType: double
             Mandatory: false
             List: false
+            help: "Standard deviation of the relative power forecasting errors"
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
  
   MeritOrderForecaster:
@@ -405,7 +425,25 @@ AgentTypes:
     Products: [ 'PriceForecast' ]    
 
   ConventionalPlantOperator:
-    Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest' ]
+    Attributes:
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnualFixedCostsInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+    Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest', 'AnnualCostReport' ]
 
   VariableRenewableOperator:
     Attributes:
@@ -426,7 +464,7 @@ AgentTypes:
         AttributeType: enum
         Mandatory: false
         List: false
-        Values: [ 'FIT', 'MPVAR', 'MPFIX', 'CFD', 'CP' ]
+        Values: [ 'FIT', 'MPVAR', 'MPFIX', 'CFD', 'CP', 'FINANCIAL_CFD' ]
       InstalledPowerInMW:
         AttributeType: time_series
         Mandatory: true
@@ -439,6 +477,23 @@ AgentTypes:
         AttributeType: time_series
         Mandatory: true
         List: false
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnualFixedCostsInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
     Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration' ]
 
   Biogas:
@@ -474,6 +529,23 @@ AgentTypes:
         AttributeType: time_series
         List: false
         Mandatory: false
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnualFixedCostsInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
     Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration' ]
 
   PredefinedPlantBuilder:
@@ -646,7 +718,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false
