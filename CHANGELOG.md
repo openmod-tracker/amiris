@@ -60,6 +60,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Package `flexibility`: Basic classes for flexibility's dispatch planning #54 (@dlr-cjs, @dlr_jk)
 - Added new support instrument `FINANCIAL_CFD` in SupportPolicy and RenewableTrader #68 (@dlr-cjs, @litotes18, @dlr_jk)
 - Package `accounting`: including class AnnualCostCalculator #54 (@dlr-cjs, @dlr_jk)
+- New inputs and actions for `PowerPlantOperator`s to use AnnualCostCalculator #99 (@dlr-cjs)
 - Added new option `ShortagePrice` to MarketForecaster and DayAheadMarket to dynamically adjust scarcity prices #86 (@dlr-cjs, @dlr_es, @dlr_elghazi, @litotes18)
 - `FuelsMarket`: new Fuels `BIOMASS` and `OTHER` #54 (@dlr-cjs, @dlr_jk)
 - `FuelsTrader`: interface to trade with FuelsMarket #54 (@dlr-cjs, @dlr_jk)

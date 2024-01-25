@@ -5,10 +5,15 @@ package agents.plantOperator;
 
 import java.util.ArrayList;
 import java.util.List;
+import accounting.AnnualCostCalculator;
 import agents.trader.Trader;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
+import de.dlr.gitlab.fame.agent.input.Input;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
@@ -25,21 +30,33 @@ public abstract class PowerPlantOperator extends Agent {
 		/** Cost(s) for the production of a given amount of energy at a specific time */
 		MarginalCost,
 		/** Forecasted cost(s) for the production of a given amount of energy at a specific time */
-		MarginalCostForecast
+		MarginalCostForecast,
+		/** Report annual costs (not sent to other agents, but calculated within operator class) */
+		AnnualCostReport,
 	};
+
+	@Input private static final Tree parameters = Make.newTree().addAs("Refinancing", AnnualCostCalculator.parameters)
+			.buildTree();
 
 	@Output
 	protected static enum OutputFields {
-		AwardedEnergyInMWH, OfferedEnergyInMWH, ReceivedMoneyInEUR, VariableCostsInEUR,
+		AwardedEnergyInMWH, OfferedEnergyInMWH, ReceivedMoneyInEUR, VariableCostsInEUR, FixedCostsInEUR,
+		InvestmentAnnuityInEUR
 	}
+
+	private final AnnualCostCalculator annualCost;
 
 	/** Creates a {@link PowerPlantOperator}
 	 * 
 	 * @param dataProvider provides input from config file - not required here, but in super class */
 	public PowerPlantOperator(DataProvider dataProvider) {
 		super(dataProvider);
+		ParameterData input = parameters.join(dataProvider);
+		annualCost = AnnualCostCalculator.build(input, "Refinancing");
+
 		call(this::executeDispatch).on(Trader.Products.DispatchAssignment).use(Trader.Products.DispatchAssignment);
 		call(this::digestPayment).on(Trader.Products.Payout).use(Trader.Products.Payout);
+		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 
 	/** Runs power plant(s) according to received dispatch instructions
@@ -49,8 +66,8 @@ public abstract class PowerPlantOperator extends Agent {
 	public void executeDispatch(ArrayList<Message> input, List<Contract> contracts) {
 		AmountAtTime award = CommUtils.getExactlyOneEntry(input).getDataItemOfType(AmountAtTime.class);
 		store(OutputFields.AwardedEnergyInMWH, award.amount);
-		double costs = dispatchPlants(award.amount, award.validAt);
-		store(OutputFields.VariableCostsInEUR, costs);
+		double variableCosts = dispatchPlants(award.amount, award.validAt);
+		store(OutputFields.VariableCostsInEUR, variableCosts);
 	}
 
 	/** Dispatches associated power plants to generate the specified awarded power
@@ -76,4 +93,16 @@ public abstract class PowerPlantOperator extends Agent {
 	 * @param dispatchTime time at which the payment is received
 	 * @param totalPaymentInEUR total money to be paid out to plant operator */
 	protected void digestPaymentPerPlant(TimeStamp dispatchTime, double totalPaymentInEUR) {}
+
+	/** Write annual costs to output
+	 * 
+	 * @param input not used
+	 * @param contracts not used */
+	protected void reportCosts(ArrayList<Message> input, List<Contract> contracts) {
+		store(OutputFields.InvestmentAnnuityInEUR, annualCost.calcInvestmentAnnuityInEUR(getInstalledCapacityInMW()));
+		store(OutputFields.FixedCostsInEUR, annualCost.calcFixedCostInEUR(getInstalledCapacityInMW()));
+	}
+
+	/** @return current installed capacity */
+	protected abstract double getInstalledCapacityInMW();
 }

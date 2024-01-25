@@ -185,7 +185,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false        
@@ -416,7 +416,25 @@ AgentTypes:
     Products: [ 'ForecastRequest', 'PriceForecast' ]
 
   ConventionalPlantOperator:
-    Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest' ]
+    Attributes:
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnualFixedCostsInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+    Products: [ 'Co2Emissions', 'Co2PriceForecastRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'MarginalCost', 'MarginalCostForecast', 'Co2PriceRequest', 'AnnualCostReport' ]
 
   VariableRenewableOperator:
     Attributes:
@@ -450,6 +468,23 @@ AgentTypes:
         AttributeType: time_series
         Mandatory: true
         List: false
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnualFixedCostsInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
     Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration' ]
 
   Biogas:
@@ -485,6 +520,23 @@ AgentTypes:
         AttributeType: time_series
         List: false
         Mandatory: false
+      Refinancing:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          InvestmentExpensensesInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnuityFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AnnualFixedCostsInEURperMW:
+            AttributeType: double
+            Mandatory: false
+            List: false
     Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration' ]
 
   PredefinedPlantBuilder:
@@ -657,7 +709,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false

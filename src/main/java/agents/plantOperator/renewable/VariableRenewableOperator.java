@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.plantOperator.renewable;
@@ -38,7 +38,7 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		if (tsYieldProfile == null) {
 			throw new RuntimeException("Yield profile is missing for " + this);
 		}
-		double availablePower = getInstalledPowerAtTime(time) * getYieldAtTime(time);
+		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
 		double marginalCost = getVariableOpexAtTime(time);
 		return new MarginalCost(getId(), availablePower, marginalCost, time);
 	}
