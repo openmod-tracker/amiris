@@ -5,6 +5,7 @@ package agents.forecast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.trader.Trader;
 import communications.message.AmountAtTime;
@@ -34,7 +35,8 @@ public class PriceForecasterFile extends Forecaster {
 		ElectricityPriceForecastInEURperMWH
 	};
 
-	protected final TimeSeries priceForecasts;
+	private final TimeSeries priceForecasts;
+	private final TreeMap<TimeStamp, Double> nextForecasts = new TreeMap<>();
 
 	public PriceForecasterFile(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
@@ -46,15 +48,16 @@ public class PriceForecasterFile extends Forecaster {
 
 	/** sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */
 	private void sendPriceForecast(ArrayList<Message> messages, List<Contract> contracts) {
+		nextForecasts.headMap(now()).clear();
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
 				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).timeStamp;
-				double forecastedPriceInEURperMWH = priceForecasts.getValueLinear(requestedTime);
-				AmountAtTime priceForecastMessage = new AmountAtTime(requestedTime, forecastedPriceInEURperMWH);
+				nextForecasts.putIfAbsent(requestedTime, priceForecasts.getValueLinear(requestedTime));
+				AmountAtTime priceForecastMessage = new AmountAtTime(requestedTime, nextForecasts.get(requestedTime));
 				fulfilNext(contract, priceForecastMessage);
 			}
 		}
-		store(OutputFields.ElectricityPriceForecastInEURperMWH, priceForecasts.getValueLinear(now()));
+		store(OutputFields.ElectricityPriceForecastInEURperMWH, nextForecasts.firstEntry().getValue());
 	}
 }
