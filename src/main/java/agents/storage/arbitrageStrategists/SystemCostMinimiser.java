@@ -128,9 +128,8 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices */
 	private void updateScheduleArrays(double initialEnergyInStorageInMWh) {
-		double totalEnergySurplus = 0;
 		int initialState = findNearestState(initialEnergyInStorageInMWh);
-		totalEnergySurplus += determineEnergyDeviation(initialEnergyInStorageInMWh, initialState);
+		double totalEnergySurplus = determineEnergyDeviation(initialEnergyInStorageInMWh, initialState);
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
 			double initialInternalEnergyInMWH = internalEnergyPerState * initialState + totalEnergySurplus;
 			scheduledInitialInternalEnergyInMWH[period] = ensureWithinEnergyBounds(initialInternalEnergyInMWH);
@@ -143,7 +142,7 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 			nextExactInternalEnergy = ensureWithinEnergyBounds(nextExactInternalEnergy);
 
 			nextState = findNearestState(nextExactInternalEnergy);
-			totalEnergySurplus += determineEnergyDeviation(nextExactInternalEnergy, nextState);
+			totalEnergySurplus = determineEnergyDeviation(nextExactInternalEnergy, nextState);
 
 			double externalEnergyDelta = storage
 					.internalToExternalEnergy(scheduledInitialInternalEnergyInMWH[period] - nextExactInternalToExternalEnergy);
