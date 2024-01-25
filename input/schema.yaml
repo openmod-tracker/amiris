@@ -185,7 +185,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false        
@@ -430,7 +430,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false
@@ -481,7 +481,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false
@@ -533,7 +533,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false
@@ -709,7 +709,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-          FixedCostsInEURperYearMW:
+          AnnualFixedCostsInEURperMW:
             AttributeType: double
             Mandatory: false
             List: false
