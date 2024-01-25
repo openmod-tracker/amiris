@@ -132,21 +132,23 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 		int initialState = findNearestState(initialEnergyInStorageInMWh);
 		totalEnergySurplus += determineEnergyDeviation(initialEnergyInStorageInMWh, initialState);
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			scheduledInitialInternalEnergyInMWH[period] = internalEnergyPerState * initialState + totalEnergySurplus;
+			double initialInternalEnergyInMWH = internalEnergyPerState * initialState + totalEnergySurplus;
+			scheduledInitialInternalEnergyInMWH[period] = ensureWithinEnergyBounds(initialInternalEnergyInMWH);
 			int nextState = bestNextState[period][initialState];
 
 			double selfDischarge = storage.getSelfDischargeRatePerHour() * scheduledInitialInternalEnergyInMWH[period];
-			double nextExactEnergy = nextState * internalEnergyPerState + totalEnergySurplus - selfDischarge;
-			nextExactEnergy = Math.max(0, Math.min(storage.getEnergyStorageCapacityInMWH(), nextExactEnergy));
-			double internalEnergyDelta = nextExactEnergy - scheduledInitialInternalEnergyInMWH[period];
-			
-			nextState = findNearestState(correctedInternalEnergyInMWh);
-			totalEnergySurplus += determineEnergyDeviation(correctedInternalEnergyInMWh);
+			double nextExactInternalToExternalEnergy = nextState * internalEnergyPerState + totalEnergySurplus;
+			double nextExactInternalEnergy = nextExactInternalToExternalEnergy - selfDischarge;
+			nextExactInternalToExternalEnergy = ensureWithinEnergyBounds(nextExactInternalToExternalEnergy);
+			nextExactInternalEnergy = ensureWithinEnergyBounds(nextExactInternalEnergy);
 
-			int stateDelta = nextState - initialState;
-			double externalEnergyDelta = storage.internalToExternalEnergy(stateDelta * internalEnergyPerState);
+			nextState = findNearestState(nextExactInternalEnergy);
+			totalEnergySurplus += determineEnergyDeviation(nextExactInternalEnergy, nextState);
+
+			double externalEnergyDelta = storage
+					.internalToExternalEnergy(scheduledInitialInternalEnergyInMWH[period] - nextExactInternalToExternalEnergy);
 			demandScheduleInMWH[period] = externalEnergyDelta;
-			if (stateDelta == 0) {
+			if (externalEnergyDelta == 0) {
 				priceScheduleInEURperMWH[period] = Double.NaN;
 			} else {
 				priceScheduleInEURperMWH[period] = externalEnergyDelta > 0 ? Double.MAX_VALUE : -Double.MAX_VALUE;
@@ -164,6 +166,11 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 	/** @return the energy deviation caused between the exact energy and its associated state */
 	private double determineEnergyDeviation(double exactEnergyInMWH, int associatedState) {
 		return exactEnergyInMWH - associatedState * internalEnergyPerState;
+	}
+
+	/** @return internal energy value that is secured to lie within storage bounds */
+	private double ensureWithinEnergyBounds(double internalEnergyInMWH) {
+		return Math.max(0, Math.min(storage.getEnergyStorageCapacityInMWH(), internalEnergyInMWH));
 	}
 
 	/** @return a blank MarginalCostSensitivity item */
