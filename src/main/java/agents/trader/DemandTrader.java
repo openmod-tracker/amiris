@@ -88,8 +88,7 @@ public class DemandTrader extends Trader {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		double totalRequestedEnergyInMWH = 0;
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
-			List<BidData> bids = prepareBidsFor(targetTime);
-			for (BidData bid : bids) {
+			for (BidData bid : prepareBidsFor(targetTime)) {
 				fulfilNext(contract, bid);
 				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
 			}
