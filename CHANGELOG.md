@@ -30,10 +30,11 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
   - `AggregatorTrader`: rename column `TruePowerPotentialInMWH` to `TrueGenerationPotentialInMWH`
   - `SupportPolicy`: rename column `MarketValue` to `MarketValueInEURperMWH`
 - **Breaking**: `AggregatorTrader`'s optional input field `Variance` renamed to `StandardDeviation` #91 (@dlr-cjs)
+- **Breaking**: `DemandTrader` changed type of input for `ValueOfLostLoad` from `double` to `time_series` allowing time-dependent value of lost load #100 (@dlr-cjs, @dlr_jk, @dlr_es)
 - OrderBookItems with negative power are not allowed #83 (@dlr-cjs, @dlr_elghazi)
 - MeritOrderKernel throws exception if clearing fails #83 (@dlr-cjs, @dlr_elghazi)
 - Introduced a new TraderWithClients class to remove errors related to not used actions #81 (@dlr-cjs, @dlr_elghazi)
-- Changed default log level from FATAL to WARN  #81 (@dlr-cjs, @dlr_elghazi)
+- Changed default log level from FATAL to ERROR  #81 (@dlr-cjs, @dlr_elghazi)
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
@@ -42,6 +43,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Newly raised error if in ConventionalPlantOperator no money foreseen for `Payout` is assigned to plants #89 (@litotes18, @dlr_jk, @dlr-cjs)
 - StorageTrader now extends FlexibilityTrader #54 (@dlr-cjs, @dlr_jk)
 - Refactoring of SupportPolicy, PolicyInfo, RenewableTrader and bidding strategies #66 (@dlr-cjs, @dlr_jk)
+- Refactoring of StepPower #96 (@dlr-cjs)
 - CITATION.cff harmonised with related JOSS paper #51 (@dlr-cjs)
 - Update Reference examples to changes in outputs #41, #54, #75, #76 (@dlr-cjs)
 - Move flexibility agents' forecasting to FlexibilityTrader #79 (@litotes18, @dlr_jk)
@@ -83,6 +85,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Storage: bids could exceed market limits - now they abide by the market limits #47 (@dlr-cjs)
 - Storage: discretisation of planning no longer causes over-charging or under-depletion #55 (@dlr-cjs)
 - Forecaster: wrote out forecast prices with one hour lag - the time lag is removed #48 (@dlr-cjs)
+- ConventionalPlantOperator: did not sort power plants for dispatch correctly - sorting now according to marginal cost #97 (@dlr-cjs)
 - CI: Pipeline to publish javadocs #62 #63 (@dlr-cjs)
 - ConventionalPlantOperator: do not store outputs for inactive plants #75 (@dlr_fn, @dlr-cjs)
 - Paper: corrected year in reference Weidlich et al. (2008) #88 (@dlr_fn)
