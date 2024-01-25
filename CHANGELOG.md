@@ -30,7 +30,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
   - `AggregatorTrader`: rename column `TruePowerPotentialInMWH` to `TrueGenerationPotentialInMWH`
   - `SupportPolicy`: rename column `MarketValue` to `MarketValueInEURperMWH`
 - **Breaking**: `AggregatorTrader`'s optional input field `Variance` renamed to `StandardDeviation` #91 (@dlr-cjs)
-- **Breaking**: `DemandTrader` changed type of input for `ValueOfLostLoad` from `double` to `time_series` allowing variable value of lost load #100 (@dlr-cjs, @dlr_jk, @dlr_es)
+- **Breaking**: `DemandTrader` changed type of input for `ValueOfLostLoad` from `double` to `time_series` allowing time-dependent value of lost load #100 (@dlr-cjs, @dlr_jk, @dlr_es)
 - OrderBookItems with negative power are not allowed #83 (@dlr-cjs, @dlr_elghazi)
 - MeritOrderKernel throws exception if clearing fails #83 (@dlr-cjs, @dlr_elghazi)
 - Introduced a new TraderWithClients class to remove errors related to not used actions #81 (@dlr-cjs, @dlr_elghazi)
