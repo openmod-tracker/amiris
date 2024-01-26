@@ -24,10 +24,15 @@ import de.dlr.gitlab.fame.communication.message.Message;
 public class MarketClearing {
 	static final String ERR_SHORTAGE_NOT_IMPLEMENTED = "ShortagePrice type not implemented: ";
 
-	public enum ShortagePriceMethod {
-		ValueOfLostLoad, LastSupplyPrice
+	/** Defines what market clearing price results in case of shortage */
+	enum ShortagePriceMethod {
+		/** The value of lost load is used as the market clearing price */
+		ValueOfLostLoad,
+		/** The last available supply bid determines the market clearing price */
+		LastSupplyPrice
 	};
 
+	/** Input parameters of {@link MarketClearing} */
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("DistributionMethod", DistributionMethod.class),
 			Make.newEnum("ShortagePriceMethod", ShortagePriceMethod.class).optional()
 					.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
@@ -36,6 +41,7 @@ public class MarketClearing {
 	private final DistributionMethod distributionMethod;
 	/** Defines which price to use in case of shortage */
 	private final ShortagePriceMethod shortagePriceMethod;
+	/** Logs errors of {@link MarketClearing} */
 	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
 
 	/** Creates a {@link MarketClearing}
@@ -51,6 +57,7 @@ public class MarketClearing {
 	/** Clears the market based on all the bids provided in form of messages
 	 * 
 	 * @param input unsorted messages containing demand and supply bids
+	 * @param clearingEventId text to specify in what context the market clearing was attempted in case of an error
 	 * @return {@link MarketClearingResult result} of market clearing */
 	public MarketClearingResult calculateMarketClearing(ArrayList<Message> input, String clearingEventId) {
 		DemandOrderBook demandBook = new DemandOrderBook();

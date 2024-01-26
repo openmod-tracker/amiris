@@ -161,7 +161,7 @@ public class SupportPolicy extends Agent {
 	private SupportResponseData calcSupportPerRequest(SupportRequestData request, double marketValue) {
 		SetType setType = request.setType;
 		PolicyItem policyItem = setPolicies.getPolicyItem(setType, request.supportInstrument);
-		double infeedInMWH = policyItem.calcEligibleInfeed(marketData.getPowerPrices(), request);
+		double infeedInMWH = policyItem.calcEligibleInfeed(marketData.getEnergyPrices(), request);
 		double infeedSupportRateInEURperMWH = policyItem.calcInfeedSupportRate(request.accountingPeriod, marketValue);
 		double marketPremium = policyItem.isTypeOfMarketPremium() ? infeedSupportRateInEURperMWH : 0;
 		double capacityInMW = policyItem.calcEligibleCapacity(request);

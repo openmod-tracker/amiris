@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
@@ -16,8 +16,8 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * @author Christoph Schimeczek, Martin Klein , Evelyn Sperber, Farzad Sarfarazi */
 public class OrderBookItem implements Portable {
 	static final String ERR_NEGATIVE_POWER = "OrderBookItems with negative power received from Trader: ";
-	
-	public static final Comparator<OrderBookItem> BY_PRICE = Comparator.comparing(item -> item.getOfferPrice());
+
+	static final Comparator<OrderBookItem> BY_PRICE = Comparator.comparing(item -> item.getOfferPrice());
 	private Bid bid;
 	private double cumulatedPowerUpperValue = Double.NaN;
 	private double awardedPower = Double.NaN;

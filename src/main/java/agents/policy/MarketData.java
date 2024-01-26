@@ -96,7 +96,8 @@ public class MarketData {
 		}
 	}
 
-	public TreeMap<TimeStamp, Double> getPowerPrices() {
+	/** @return previously logged market prices */
+	public TreeMap<TimeStamp, Double> getEnergyPrices() {
 		return powerPrices;
 	}
 

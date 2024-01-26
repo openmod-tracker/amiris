@@ -69,7 +69,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 
 	/** Create an {@link ArbitrageStrategist} - its actual type is determined based on the given
 	 * 
-	 * @param all parameters associated with strategists
+	 * @param input all parameters associated with strategists
 	 * @param storage Device for which schedules are to be created
 	 * @return newly instantiated {@link ArbitrageStrategist} based on the given input
 	 * @throws MissingDataException if any required input is missing */

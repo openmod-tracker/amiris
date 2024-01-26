@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
@@ -26,6 +26,7 @@ import util.Util;
  * 
  * @author Christoph Schimeczek */
 public class MultiAgentMedian extends ArbitrageStrategist {
+	/** Input parameters for the {@link MultiAgentMedian} strategist */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("AssessmentFunctionPrefactors").optional().list()
 					.help("Prefactors `a`,`b`,`c`, ... of a polynomial `a + bx + cx² + ...`, "
