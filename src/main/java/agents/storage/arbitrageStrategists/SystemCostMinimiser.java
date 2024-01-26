@@ -57,7 +57,6 @@ public class SystemCostMinimiser extends ArbitrageStrategist {
 		optimiseDispatch(startTimePeriod);
 		double initialEnergyInStorageInMWh = storage.getCurrentEnergyInStorageInMWH();
 		updateScheduleArrays(initialEnergyInStorageInMWh);
-		correctForRoundingErrors(initialEnergyInStorageInMWh);
 	}
 
 	/** replaces all entries in the planning arrays with 0 or Integer.MIN_VALUE */

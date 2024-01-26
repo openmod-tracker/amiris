@@ -94,22 +94,6 @@ public abstract class ArbitrageStrategist extends Strategist {
 	 * @throws RuntimeException if this strategist cannot provide forecasts */
 	public abstract double getChargingPowerForecastInMW(TimeStamp targetTime);
 
-	/** Update scheduled initial energies and charging schedules to correct errors due to rounding of energies caused by
-	 * discretisation of internal energy states
-	 * 
-	 * @param initialEnergyInStorage initial internal energy level in MWh of the storage at the beginning of the first hour of
-	 *          planning interval */
-	protected void correctForRoundingErrors(double initialEnergyInStorage) {
-		double maxCapacity = storage.getEnergyStorageCapacityInMWH();
-		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			scheduledInitialInternalEnergyInMWH[period] = initialEnergyInStorage;
-			double internalChargingPower = storage.externalToInternalEnergy(demandScheduleInMWH[period]);
-			double nextEnergy = Math.max(0, Math.min(maxCapacity, initialEnergyInStorage + internalChargingPower));
-			demandScheduleInMWH[period] = storage.internalToExternalEnergy(nextEnergy - initialEnergyInStorage);
-			initialEnergyInStorage = nextEnergy;
-		}
-	}
-
 	/** Calculates number of energy states, logs warning if rounding is needed
 	 * 
 	 * @param numberOfTransitionStates

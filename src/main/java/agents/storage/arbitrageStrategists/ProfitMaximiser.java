@@ -48,7 +48,6 @@ public class ProfitMaximiser extends ArbitrageStrategist {
 		optimiseDispatch(firstPeriod);
 		double initialEnergyInStorageInMWh = storage.getCurrentEnergyInStorageInMWH();
 		updateScheduleArrays(firstPeriod, initialEnergyInStorageInMWh);
-		correctForRoundingErrors(initialEnergyInStorageInMWh);
 	}
 
 	/** replaces all entries in the planning arrays with 0 or Integer.MIN_VALUE */
