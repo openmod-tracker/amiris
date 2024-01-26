@@ -39,7 +39,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
-			.addAs("SingleAgent", SystemCostMinimiser.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
+			.addAs("SingleAgent", DynamicProgrammingStrategist.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
 			.addAs("MultiAgent", MultiAgentMedian.parameters)
 			.buildTree();
 
