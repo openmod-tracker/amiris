@@ -44,6 +44,10 @@ public abstract class FlexibilityTrader extends Trader {
 
 	private AnnualCostCalculator annualCost;
 
+	/** Creates a {@link FlexibilityTrader}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public FlexibilityTrader(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);

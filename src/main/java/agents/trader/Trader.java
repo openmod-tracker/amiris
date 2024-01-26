@@ -29,6 +29,9 @@ public abstract class Trader extends Agent implements DayAheadMarketTrader {
 		AnnualCostReport
 	};
 
+	/** Creates a {@link Trader}
+	 * 
+	 * @param dataProvider provides input from config */
 	public Trader(DataProvider dataProvider) {
 		super(dataProvider);
 	}

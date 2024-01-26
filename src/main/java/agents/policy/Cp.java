@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class Cp extends PolicyItem {
-	public static final Tree parameters = Make.newTree().add(premiumParam).buildTree();
+	static final Tree parameters = Make.newTree().add(premiumParam).buildTree();
 
 	/** The capacity premium in EUR/MW installed */
 	private TimeSeries premium;

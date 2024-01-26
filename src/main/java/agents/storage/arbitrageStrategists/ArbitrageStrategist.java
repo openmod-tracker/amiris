@@ -20,6 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class ArbitrageStrategist extends Strategist {
+	/** Types of Strategists for storage operators */
 	public static enum StrategistType {
 		/** Creates a the schedule according to a given TimeSeries. */
 		DISPATCH_FILE,
@@ -36,6 +37,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	static final String WARN_ROUND_UP = "`EnergyToPowerRatio * ModelledChargingSteps` no integer: storage capacity increased by ";
 	static final String WARN_ROUND_DOWN = "`EnergyToPowerRatio * ModelledChargingSteps` no integer: storage capacity decreased by ";
 
+	/** Specific input parameters for storage strategists */
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
@@ -43,11 +45,15 @@ public abstract class ArbitrageStrategist extends Strategist {
 			.addAs("MultiAgent", MultiAgentMedian.parameters)
 			.buildTree();
 
+	/** General input parameter of storage strategists to determine its type */
 	public static final ParameterBuilder StrategistTypeParam = Make.newEnum("StrategistType", StrategistType.class);
 	static final double ENERGY_STATE_ROUNDING_TOLERANCE = 1.E-2;
+	/** Logs errors for this class and its subclasses */
 	protected static Logger logger = LoggerFactory.getLogger(ArbitrageStrategist.class);
 
+	/** Expected initial energy levels of the associated storage for each operation period */
 	protected double[] scheduledInitialInternalEnergyInMWH;
+	/** The associated storage device this strategists plans for */
 	protected Device storage;
 
 	/** Create {@link ArbitrageStrategist}
@@ -55,12 +61,18 @@ public abstract class ArbitrageStrategist extends Strategist {
 	 * @param input parameters associated with strategists
 	 * @param storage Device for which schedules are to be created
 	 * @throws MissingDataException if any required input is missing */
-	public ArbitrageStrategist(ParameterData input, Device storage) throws MissingDataException {
+	protected ArbitrageStrategist(ParameterData input, Device storage) throws MissingDataException {
 		super(input);
 		this.storage = storage;
 		scheduledInitialInternalEnergyInMWH = new double[scheduleDurationPeriods];
 	}
 
+	/** Create an {@link ArbitrageStrategist} - its actual type is determined based on the given
+	 * 
+	 * @param all parameters associated with strategists
+	 * @param storage Device for which schedules are to be created
+	 * @return newly instantiated {@link ArbitrageStrategist} based on the given input
+	 * @throws MissingDataException if any required input is missing */
 	public static ArbitrageStrategist createStrategist(ParameterData input, Device storage) throws MissingDataException {
 		StrategistType strategistType = input.getEnum("StrategistType", StrategistType.class);
 		switch (strategistType) {
@@ -110,9 +122,11 @@ public abstract class ArbitrageStrategist extends Strategist {
 		}
 	}
 
-	/** Calculates number of energy states, logs warning if rounding is needed
+	/** Calculates number of energy states based on the storage capacity, its energy to power ratio and the number of discretisation
+	 * steps used for internal energy changes. Logs warning if the discretised total capacity of the storage significantly deviates
+	 * from its parameterised value.
 	 * 
-	 * @param numberOfTransitionStates
+	 * @param numberOfTransitionStates number of states the (dis-)charging power is discretised with
 	 * @return numberOfTransitionStates (rounded to closest integer) */
 	protected int calcNumberOfEnergyStates(int numberOfTransitionStates) {
 		double numberOfEnergyStates = numberOfTransitionStates * storage.getEnergyToPowerRatio() + 1;

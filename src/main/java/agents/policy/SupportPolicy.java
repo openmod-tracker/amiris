@@ -42,6 +42,7 @@ public class SupportPolicy extends Agent {
 		Other
 	}
 
+	/** Products of {@link SupportPolicy} */
 	@Product
 	public enum Products {
 		/** Info on the support scheme to be applied to a set of plants */

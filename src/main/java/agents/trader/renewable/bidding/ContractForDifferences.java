@@ -15,6 +15,10 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class ContractForDifferences extends PremiumBased implements BiddingStrategy {
 
+	/** Creates new instance
+	 * 
+	 * @param input from config
+	 * @throws MissingDataException if any required input is missing */
 	public ContractForDifferences(ParameterData input)
 			throws MissingDataException {
 		super(input);

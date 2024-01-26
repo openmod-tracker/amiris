@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class Mpvar extends PolicyItem {
-	public static final Tree parameters = Make.newTree().add(lcoeParam, maxNumberOfNegativeHoursParam).buildTree();
+	static final Tree parameters = Make.newTree().add(lcoeParam, maxNumberOfNegativeHoursParam).buildTree();
 
 	/** The levelised cost of electricity (value applied) */
 	private TimeSeries lcoe;

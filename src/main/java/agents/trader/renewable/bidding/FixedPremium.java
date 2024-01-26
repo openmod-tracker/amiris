@@ -14,6 +14,10 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class FixedPremium extends PremiumBased implements BiddingStrategy {
 
+	/** Creates new instance
+	 * 
+	 * @param input from config
+	 * @throws MissingDataException if any required input is missing */
 	public FixedPremium(ParameterData input) throws MissingDataException {
 		super(input);
 	}
