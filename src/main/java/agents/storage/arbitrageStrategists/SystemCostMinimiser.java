@@ -40,7 +40,7 @@ public class SystemCostMinimiser extends DynamicProgrammingStrategist {
 		}
 	}
 
-	/** calculates least costly & reachable final state for every initial state in every period */
+	/** calculates least costly and reachable final state for every initial state in every period */
 	@Override
 	protected void optimiseDispatch(TimePeriod startPeriod) {
 		for (int k = 0; k < forecastSteps; k++) {

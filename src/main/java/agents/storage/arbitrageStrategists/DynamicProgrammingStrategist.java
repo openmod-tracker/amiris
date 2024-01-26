@@ -59,7 +59,7 @@ public abstract class DynamicProgrammingStrategist extends ArbitrageStrategist {
 
 	protected abstract void optimiseDispatch(TimePeriod startPeriod);
 
-	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices */
+	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power and bidding prices */
 	protected final void updateScheduleArrays(TimePeriod firstPeriod) {
 		double initialEnergyInStorageInMWh = storage.getCurrentEnergyInStorageInMWH();
 		int initialState = findNearestState(initialEnergyInStorageInMWh);
