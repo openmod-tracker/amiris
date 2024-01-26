@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.electrolysis;
@@ -19,18 +19,25 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class ElectrolyzerStrategist extends Strategist {
-	public static enum StrategistType {
-		/** Creates a the schedule according to a given TimeSeries. */
-		DISPATCH_FILE, SINGLE_AGENT_SIMPLE
+	/** The type of strategist for electrolysis unit operation */
+	static enum StrategistType {
+		/** Creates the schedule according to a given TimeSeries. */
+		DISPATCH_FILE,
+		/** Schedules based on a moving target of hydrogen production totals and electricity prices */
+		SINGLE_AGENT_SIMPLE,
 	}
 
+	/** Planned production schedule for hydrogen in thermal MWh */
 	protected double[] scheduledChargedHydrogenTotal;
+	/** total actual hydrogen produced in thermal MWH */
 	protected double actualProducedHydrogen = 0;
+	/** the associated electrolysis unit */
 	protected Electrolyzer electrolyzer;
 	private DispatchSchedule schedule;
 	private TreeMap<TimePeriod, Double> hydrogenPrices = new TreeMap<>();
 	private TimeSeries priceLimitOverrideInEURperMWH;
 
+	/** Input parameters of {@link ElectrolyzerStrategist} */
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))

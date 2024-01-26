@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
@@ -10,8 +10,12 @@ import de.dlr.gitlab.fame.communication.message.DataItem;
 
 /** Transmitting Data concerning a {@link FuelType} */
 public class FuelData extends DataItem {
+	/** The type of fuel in question */
 	public final FuelType fuelType;
 
+	/** Creates a new instance
+	 * 
+	 * @param fuelType the type of fuel in question */
 	public FuelData(FuelType fuelType) {
 		this.fuelType = fuelType;
 	}

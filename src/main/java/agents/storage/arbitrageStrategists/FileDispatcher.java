@@ -21,14 +21,16 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  *
  * @author Christoph Schimeczek, Johannes Kochems, Ulrich Frey, Felix Nitsch */
 public class FileDispatcher extends ArbitrageStrategist {
+	/** Input for the {@link FileDispatcher} */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newSeries("Schedule").optional().help(
 					"Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."),
-					Make.newDouble("DispatchToleranceInMWH").optional().help("Accepted tolerance for dispatch deviations in MWh."))
+					Make.newDouble("DispatchToleranceInMWH").optional()
+							.help("Accepted tolerance for dispatch deviations in MWh."))
 			.buildTree();
 
-	static final String WARN_BELOW_TOLERANCE= ": Dispatch file may not be suitable - Storage below minimum by MWh ";
-	static final String WARN_ABOVE_TOLERANCE= ": Dispatch file may not be suitable - Storage above maximum by MWh ";
+	static final String WARN_BELOW_TOLERANCE = ": Dispatch file may not be suitable - Storage below minimum by MWh ";
+	static final String WARN_ABOVE_TOLERANCE = ": Dispatch file may not be suitable - Storage above maximum by MWh ";
 	static final String ERR_CANNOT_USE_FORECAST = "Storage strategist 'FileDispatcher' cannot digest forecasts. Remove contracts.";
 
 	private double dispatchToleranceInMWH;

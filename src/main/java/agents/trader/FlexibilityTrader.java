@@ -35,11 +35,21 @@ public abstract class FlexibilityTrader extends Trader {
 			.addAs("Refinancing", AnnualCostCalculator.parameters)
 			.buildTree();
 
+	/** Offset in seconds at which the forecast contracts are sent before the actual marketing time - must equal the associated
+	 * configured contract time -1 */
 	protected final TimeSpan electricityForecastRequestOffset;
 
+	/** Output columns of {@link FlexibilityTrader}s */
 	@Output
 	protected static enum Outputs {
-		FixedCostsInEUR, InvestmentAnnuityInEUR, VariableCostsInEUR, ReceivedMoneyInEUR
+		/** Fixed operation and maintenance costs in EUR */
+		FixedCostsInEUR,
+		/** Investment annuity in EUR */
+		InvestmentAnnuityInEUR,
+		/** Variable operation and maintenance costs in EUR */
+		VariableCostsInEUR,
+		/** Total received money in EUR */
+		ReceivedMoneyInEUR
 	}
 
 	private AnnualCostCalculator annualCost;
