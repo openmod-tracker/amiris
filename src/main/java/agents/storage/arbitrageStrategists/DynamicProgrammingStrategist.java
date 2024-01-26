@@ -96,11 +96,6 @@ public abstract class DynamicProgrammingStrategist extends ArbitrageStrategist {
 		return exactEnergyInMWH - associatedState * internalEnergyPerState;
 	}
 
-	/** @return internal energy value that is secured to lie within storage bounds */
-	private double ensureWithinEnergyBounds(double internalEnergyInMWH) {
-		return Math.max(0, Math.min(storage.getEnergyStorageCapacityInMWH(), internalEnergyInMWH));
-	}
-
 	/** Calculates bidding price for given time period and planned external energy delta
 	 * 
 	 * @param timePeriod at which the (dis-)charging action happens
