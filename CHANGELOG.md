@@ -36,7 +36,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Changed default log level from FATAL to WARN  #81 (@dlr-cjs, @dlr_elghazi)
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
-- Include accounting for storage self-discharge in storage strategies (@dlr-cjs, @dlr_jk, @dlr_es, @dlr_elghazi)
+- Include accounting for storage self-discharge in storage strategies #21 (@dlr-cjs, @dlr_jk, @dlr_es, @dlr_elghazi)
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - SystemCostMinimizer modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - ArbitrageStrategist performs rounding of energy states and throws warning if not within tolerance #78 (@dlr_fn, @dlr-cjs, @dlr_elghazi)
