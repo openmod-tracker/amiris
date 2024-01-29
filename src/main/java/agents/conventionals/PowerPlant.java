@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
@@ -13,6 +13,16 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerPlant>, Portable {
+	public class MarginalCostItem {
+		public final double availablePowerInMW;
+		public final double marginalCostInEURperMWH;
+
+		public MarginalCostItem(double availablePowerInMW, double marginalCostInEURperMWH) {
+			this.availablePowerInMW = availablePowerInMW;
+			this.marginalCostInEURperMWH = marginalCostInEURperMWH;
+		}
+	}
+
 	private double efficiency;
 	private double installedGenerationPowerInMW;
 	private double currentLoadLevel = 0;
@@ -57,19 +67,30 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 		id = provider.nextString();
 	}
 
-	/** Calculates marginal costs and available power this {@link PowerPlant}
+	/** Calculates marginal costs and available power for this {@link PowerPlant} at given time
 	 * 
 	 * @param time the targeted time of generation
 	 * @param fuelCostInEURperThermalMWH cost fuel of the associated fuel
 	 * @param co2CostInEURperTon cost for CO2 emission certificates in Euro per ton
 	 * @return array of [availablePower, marginalCost] for this power plant at the given time */
-	public double[] calcMarginalCost(TimeStamp time, double fuelCostInEURperThermalMWH, double co2CostInEURperTon) {
+	public MarginalCostItem calcMarginalCostItem(TimeStamp time, double fuelCostInEURperThermalMWH,
+			double co2CostInEURperTon) {
+		double marginalCostValue = calcMarginalCost(time, fuelCostInEURperThermalMWH, co2CostInEURperTon);
+		double availablePower = getAvailablePowerInMW(time);
+		return new MarginalCostItem(availablePower, marginalCostValue);
+	}
+
+	/** Calculates specific marginal costs of this {@link PowerPlant} at given time
+	 * 
+	 * @param time the targeted time of generation
+	 * @param fuelCostInEURperThermalMWH cost fuel of the associated fuel
+	 * @param co2CostInEURperTon cost for CO2 emission certificates in Euro per ton
+	 * @return specific marginalCost for one additional MWh of energy by this power plant at the given time */
+	public double calcMarginalCost(TimeStamp time, double fuelCostInEURperThermalMWH, double co2CostInEURperTon) {
 		double co2CostInEURperThermalMWH = co2CostInEURperTon * getSpecificCo2EmissionsInTonsPerThermalMWH();
 		double thermalEnergyCostInEURperThermalMWH = fuelCostInEURperThermalMWH + co2CostInEURperThermalMWH;
 		double variableCostInEURperMWH = getVariableCostInEURperMWH(time);
-		double availablePower = getAvailablePowerInMW(time);
-		double marginalCostValue = thermalEnergyCostInEURperThermalMWH / efficiency + variableCostInEURperMWH;
-		return new double[] {availablePower, marginalCostValue};
+		return thermalEnergyCostInEURperThermalMWH / efficiency + variableCostInEURperMWH;
 	}
 
 	/** @param time at which to calculate
@@ -113,29 +134,30 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	 * @return {@link DispatchResult result} from the dispatch */
 	public DispatchResult updateGeneration(TimeStamp time, double requestedPowerInMW, double fuelPriceInEURperMWH,
 			double co2PriceInEURperTon) {
-		double[] marginal = calcMarginalCost(time, fuelPriceInEURperMWH, co2PriceInEURperTon);
-		double newLoadLevel = calcLoadLevel(marginal[0], requestedPowerInMW);
-		double rampingCostInEUR = calcSpecificCostOfLoadChangeInEURperMW(currentLoadLevel, newLoadLevel) * marginal[0];
+		MarginalCostItem costItem = calcMarginalCostItem(time, fuelPriceInEURperMWH, co2PriceInEURperTon);
+		double newLoadLevel = calcLoadLevel(costItem.availablePowerInMW, requestedPowerInMW);
+		double rampingCostInEUR = calcSpecificCostOfLoadChangeInEURperMW(currentLoadLevel, newLoadLevel)
+				* costItem.availablePowerInMW;
 		currentLoadLevel = newLoadLevel;
 		currentPowerOutputInMW = currentLoadLevel * getAvailablePowerInMW(time);
 		double fuelConsumptionInThermalMWH = requestedPowerInMW / efficiency;
 		double co2EmissionsInTons = calcCo2EmissionInTons(fuelConsumptionInThermalMWH);
-		double variableCost = rampingCostInEUR + marginal[1] * requestedPowerInMW;
+		double variableCost = rampingCostInEUR + costItem.marginalCostInEURperMWH * requestedPowerInMW;
 		return new DispatchResult(requestedPowerInMW, variableCost, fuelConsumptionInThermalMWH, co2EmissionsInTons);
 	}
 
 	/** @returns new load level based on the available and requested power */
-	private double calcLoadLevel(double availablePowerInMW, double requestedPower) {
-		double newLoadLevel = requestedPower / availablePowerInMW;
+	private double calcLoadLevel(double availablePowerInMW, double requestedPowerInMW) {
+		double newLoadLevel = requestedPowerInMW / availablePowerInMW;
 		return ensureValidLoadLevel(newLoadLevel);
 	}
-	
+
 	/** Returns electricity production from last update of load level
 	 * 
 	 * @return power production as set by last update */
 	public double getCurrentPowerOutputInMW() {
 		return currentPowerOutputInMW;
-	}	
+	}
 
 	/** Throws an Exception if given load level is not between [0..1], else returns given load level
 	 * 

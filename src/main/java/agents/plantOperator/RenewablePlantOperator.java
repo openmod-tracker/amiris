@@ -133,7 +133,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	 * 
 	 * @param time to get the installed power for
 	 * @return installed peak power in MW at the specified time */
-	protected double getInstalledPowerAtTime(TimeStamp time) {
+	protected double getInstalledPowerAtTimeInMW(TimeStamp time) {
 		return tsInstalledPowerInMW.getValueLinear(time);
 	}
 
@@ -148,5 +148,10 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	@Override
 	protected double dispatchPlants(double awardedPower, TimeStamp time) {
 		return getVariableOpexAtTime(time) * awardedPower;
+	}
+
+	@Override
+	protected double getInstalledCapacityInMW() {
+		return getInstalledPowerAtTimeInMW(now());
 	}
 }
