@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
@@ -32,6 +32,10 @@ public class SupportRequestData extends DataItem {
 	/** the accounting period for calculating the support payments */
 	public final TimePeriod accountingPeriod;
 
+	/** Create new {@link SupportRequestData}
+	 * 
+	 * @param clientData containing data about the client
+	 * @param accountingPeriod the time period for which the client data apply */
 	public SupportRequestData(ClientData clientData, TimePeriod accountingPeriod) {
 		this.setType = clientData.getTechnologySet().setType;
 		this.supportInstrument = clientData.getTechnologySet().supportInstrument;
@@ -65,7 +69,7 @@ public class SupportRequestData extends DataItem {
 		builder.addDoubleValue(installedCapacityInMW);
 		builder.addLongValue(accountingPeriod.getStartTime().getStep());
 		builder.addLongValue(accountingPeriod.getDuration().getSteps());
-		
+
 		int counter = 0;
 		for (Entry<TimeStamp, Double> entry : infeed.entrySet()) {
 			if (entry.getKey().isLessThan(accountingPeriod.getStartTime())) {

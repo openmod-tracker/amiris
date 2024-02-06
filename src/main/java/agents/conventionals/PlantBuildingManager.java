@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
@@ -31,6 +31,7 @@ public abstract class PlantBuildingManager extends Agent {
 			.addAs("Prototype", PowerPlantPrototype.parameters)
 			.buildTree();
 
+	/** Products of {@link PlantBuildingManager}s */
 	@Product
 	public static enum Products {
 		/** Collection of power plants created and managed by this {@link PlantBuildingManager} */
@@ -39,7 +40,9 @@ public abstract class PlantBuildingManager extends Agent {
 
 	/** Offset between time the portfolio created and time it becomes active */
 	private final TimeSpan portfolioBuildingOffset;
+	/** Prototype for all power plants in the {@link Portfolio} of this {@link PlantBuildingManager} */
 	protected final PrototypeData prototypeData;
+	/** The set of power plants controlled by this {@link PlantBuildingManager} */
 	protected final Portfolio portfolio;
 
 	/** Creates a {@link PlantBuildingManager}
@@ -67,7 +70,7 @@ public abstract class PlantBuildingManager extends Agent {
 		TimeStamp targetTime = currentDeliveryTime.laterBy(portfolioBuildingOffset);
 		TimeStamp nextDeliveryTime = contract.getNextTimeOfDeliveryAfter(targetTime);
 		TimeSpan deliveryInterval = new TimeSpan(nextDeliveryTime.getStep() - currentDeliveryTime.getStep());
-		
+
 		portfolio.tearDownPlants(targetTime.getStep());
 		updatePortfolio(targetTime, deliveryInterval);
 		fulfilNext(contract, portfolio, (DataItem) null);

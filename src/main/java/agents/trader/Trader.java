@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -22,11 +22,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public abstract class Trader extends Agent implements DayAheadMarketTrader {
 	static final String ERR_NO_CONTRACT_IN_LIST = "No contract existing for agent: ";
 
+	/** Products of {@link Trader}s */
 	@Product
 	public static enum Products {
-		Payout, DispatchAssignment, BidsForecast, MeritOrderForecastRequest, PriceForecastRequest,
-		/** Report annual costs (not sent to other agents, but calculated within operator class) */
-		AnnualCostReport
+		/** Forecasts of Bids sent to Forecasters */
+		BidsForecast,
 	};
 
 	/** Creates a {@link Trader}

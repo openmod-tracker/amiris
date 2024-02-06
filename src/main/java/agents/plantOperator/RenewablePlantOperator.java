@@ -29,11 +29,55 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public abstract class RenewablePlantOperator extends PowerPlantOperator {
+
+	/** Available sets for energy-carrier-specific remuneration */
 	public static enum SetType {
-		PVRooftop, WindOn, WindOff, RunOfRiver, OtherPV, Biogas, Undefined,
-		PvFit, PvMpvarCluster1, PvMpvarCluster2, PvMpvarCluster3, PvMpvarCluster4, PvMpvarCluster5,
-		WindOnFit, WindOnMpvarCluster1, WindOnMpvarCluster2, WindOnMpvarCluster3, WindOnMpvarCluster4, WindOnMpvarCluster5,
-		WindOffMpvarCluster1, WindOffMpvarCluster2, WindOffMpvarCluster3, WindOffMpvarCluster4
+		/** Rooftop PV devices */
+		PVRooftop,
+		/** Onshore wind power plants */
+		WindOn,
+		/** Offshore wind power plants */
+		WindOff,
+		/** Run of river power plants */
+		RunOfRiver,
+		/** Any other type of PV power plant */
+		OtherPV,
+		/** Biogas power plants */
+		Biogas,
+		/** unspecified power plant */
+		Undefined,
+		/** PV power plant with feed-in tariff */
+		PvFit,
+		/** PV power plant cluster 1 with variable market premium */
+		PvMpvarCluster1,
+		/** PV power plant cluster 2 with variable market premium */
+		PvMpvarCluster2,
+		/** PV power plant cluster 3 with variable market premium */
+		PvMpvarCluster3,
+		/** PV power plant cluster 4 with variable market premium */
+		PvMpvarCluster4,
+		/** PV power plant cluster 5 with variable market premium */
+		PvMpvarCluster5,
+		/** Wind onshore power plant with feed-in tariff */
+		WindOnFit,
+		/** Wind onshore power plant cluster 1 with variable market premium */
+		WindOnMpvarCluster1,
+		/** Wind onshore power plant cluster 2 with variable market premium */
+		WindOnMpvarCluster2,
+		/** Wind onshore power plant cluster 3 with variable market premium */
+		WindOnMpvarCluster3,
+		/** Wind onshore power plant cluster 4 with variable market premium */
+		WindOnMpvarCluster4,
+		/** Wind onshore power plant cluster 5 with variable market premium */
+		WindOnMpvarCluster5,
+		/** Wind offshore power plant cluster 1 with variable market premium */
+		WindOffMpvarCluster1,
+		/** Wind offshore power plant cluster 2 with variable market premium */
+		WindOffMpvarCluster2,
+		/** Wind offshore power plant cluster 3 with variable market premium */
+		WindOffMpvarCluster3,
+		/** Wind offshore power plant cluster 4 with variable market premium */
+		WindOffMpvarCluster4
 	}
 
 	@Input private static final Tree parameters = Make.newTree()
@@ -42,8 +86,10 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 					Make.newSeries("OpexVarInEURperMWH"))
 			.buildTree();
 
+	/** Products of {@link RenewablePlantOperator}s */
 	@Product
 	public static enum Products {
+		/** A registration message to the marketing agent */
 		SetRegistration
 	};
 

@@ -74,7 +74,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		hydrogenForecastRequestOffset = new TimeSpan(input.getInteger("HydrogenForecastRequestOffsetInSeconds"));
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityForecast).on(Trader.Products.PriceForecastRequest);
+		call(this::requestElectricityForecast).on(FlexibilityTrader.Products.PriceForecastRequest);
 		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest);
 		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
@@ -22,6 +22,10 @@ public final class SupportData implements Portable {
 	/** required for {@link Portable}s */
 	public SupportData() {}
 
+	/** Create a new {@link SupportData}
+	 * 
+	 * @param setType associated with a {@link PolicyItem}
+	 * @param policyItem associated with a {@link SetType} */
 	public SupportData(SetType setType, PolicyItem policyItem) {
 		this.setType = setType;
 		this.policyItem = policyItem;

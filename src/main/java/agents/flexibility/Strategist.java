@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility;
@@ -24,25 +24,39 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class Strategist {
+	/** Error message */
 	protected static final String ERR_PROVIDE_FORECAST = "Cannot provide bid forecasts with flexibility strategist of type: ";
+	/** Error message */
 	protected static final String ERR_USE_PRICE_FORECAST = "Cannot use price forecasts with flexibility strategist of type: ";
+	/** Error message */
 	protected static final String ERR_USE_MERIT_ORDER_FORECAST = "Cannot use merit order forecasts with flexibility strategist of type: ";
+	/** Error message */
 	protected static final String ERR_UNKNOWN_STRATEGIST = "This type of flexibility strategist is not implemented: ";
 
+	/** Hard coded time granularity of {@link Strategist} */
 	public final static TimeSpan OPERATION_PERIOD = new TimeSpan(1, Interval.HOURS);
 
+	/** number of time steps of available forecasts */
 	protected final int forecastSteps;
+	/** number of time steps of the created schedules */
 	protected final int scheduleDurationPeriods;
+	/** safety margins at bidding */
 	private final double bidTolerance;
 
+	/** schedule for the electricity demand (or charging) schedule */
 	protected double[] demandScheduleInMWH;
+	/** schedule for the expected electricity prices */
 	protected double[] priceScheduleInEURperMWH;
+	/** schedule for the electricity bid prices */
 	protected double[] scheduledBidPricesInEURperMWH;
 
 	private TreeMap<TimePeriod, MeritOrderSensitivity> sensitivities = new TreeMap<>();
 
+	/** Strategist input parameter: number of forecast time periods */
 	public static final ParameterBuilder forecastPeriodParam = Make.newInt("ForecastPeriodInHours");
+	/** Strategist input parameter: number of time steps of the created schedules */
 	public static final ParameterBuilder scheduleDurationParam = Make.newInt("ScheduleDurationInHours");
+	/** Strategist input parameter: safety margin at bidding */
 	public static final ParameterBuilder bidToleranceParam = Make.newDouble("BidToleranceInEURperMWH").optional();
 
 	/** Creates new Strategist based on the given input
@@ -154,7 +168,7 @@ public abstract class Strategist {
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(getInternalEnergySchedule());
 		return schedule;
 	}
-	
+
 	/** Updates the bid schedules considering safety margins for the bid prices and market price limits */
 	protected void updateBidSchedule() {
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
@@ -168,7 +182,7 @@ public abstract class Strategist {
 				scheduledBidPricesInEURperMWH[period] = 0;
 			}
 		}
-	}	
+	}
 
 	/** Updates schedule arrays starting at the given TimePeriod with the given initial energy level
 	 * 

@@ -37,7 +37,16 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class SupportPolicy extends Agent {
 	/** Available energy carriers eligible for support - and "Other" */
 	public enum EnergyCarrier {
-		PV, WindOn, WindOff, RunOfRiver, Biogas,
+		/** Photovoltaic */
+		PV,
+		/** onshore wind turbines */
+		WindOn,
+		/** offshore wind turbines */
+		WindOff,
+		/** run-of-river hydro-power */
+		RunOfRiver,
+		/** Biogenic ethane */
+		Biogas,
 		/** Not eligible for support */
 		Other
 	}

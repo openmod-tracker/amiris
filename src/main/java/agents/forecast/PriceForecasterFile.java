@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.trader.Trader;
+import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
 import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -38,12 +38,17 @@ public class PriceForecasterFile extends Forecaster {
 	private final TimeSeries priceForecasts;
 	private final TreeMap<TimeStamp, Double> nextForecasts = new TreeMap<>();
 
+	/** Creates new {@link PriceForecasterFile}
+	 * 
+	 * @param dataProvider holding input for this type of Forecaster
+	 * @throws MissingDataException in case mandatory input is missing */
 	public PriceForecasterFile(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		priceForecasts = input.getTimeSeries("PriceForecastsInEURperMWH");
 
-		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast).use(Trader.Products.PriceForecastRequest);
+		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
+				.use(FlexibilityTrader.Products.PriceForecastRequest);
 	}
 
 	/** sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */

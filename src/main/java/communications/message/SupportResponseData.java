@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
@@ -24,6 +24,11 @@ public class SupportResponseData extends DataItem {
 	/** the market premium (if applicable, i.e. a MPVAR, MPFIX or CFD scheme) */
 	public final double marketPremium;
 
+	/** Create new {@link SupportRequestData}
+	 * 
+	 * @param supportRequestData original support request
+	 * @param payment to the client
+	 * @param marketPremium applicable for the client */
 	public SupportResponseData(SupportRequestData supportRequestData, double payment, double marketPremium) {
 		this.setType = supportRequestData.setType;
 		this.accountingPeriod = supportRequestData.accountingPeriod;

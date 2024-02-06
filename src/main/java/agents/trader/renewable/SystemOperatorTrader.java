@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable;
@@ -19,6 +19,9 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek, Ulrich Frey, Marc Deissenroth */
 public class SystemOperatorTrader extends AggregatorTrader {
 
+	/** Create new {@link SystemOperatorTrader}
+	 * 
+	 * @param dataProvider no specific data required here */
 	public SystemOperatorTrader(DataProvider dataProvider) {
 		super(dataProvider);
 	}
