@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
@@ -39,7 +39,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
-			.addAs("SingleAgent", SystemCostMinimiser.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
+			.addAs("SingleAgent", DynamicProgrammingStrategist.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
 			.addAs("MultiAgent", MultiAgentMedian.parameters)
 			.buildTree();
 
@@ -94,22 +94,6 @@ public abstract class ArbitrageStrategist extends Strategist {
 	 * @throws RuntimeException if this strategist cannot provide forecasts */
 	public abstract double getChargingPowerForecastInMW(TimeStamp targetTime);
 
-	/** Update scheduled initial energies and charging schedules to correct errors due to rounding of energies caused by
-	 * discretisation of internal energy states
-	 * 
-	 * @param initialEnergyInStorage initial internal energy level in MWh of the storage at the beginning of the first hour of
-	 *          planning interval */
-	protected void correctForRoundingErrors(double initialEnergyInStorage) {
-		double maxCapacity = storage.getEnergyStorageCapacityInMWH();
-		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			scheduledInitialInternalEnergyInMWH[period] = initialEnergyInStorage;
-			double internalChargingPower = storage.externalToInternalEnergy(demandScheduleInMWH[period]);
-			double nextEnergy = Math.max(0, Math.min(maxCapacity, initialEnergyInStorage + internalChargingPower));
-			demandScheduleInMWH[period] = storage.internalToExternalEnergy(nextEnergy - initialEnergyInStorage);
-			initialEnergyInStorage = nextEnergy;
-		}
-	}
-
 	/** Calculates number of energy states, logs warning if rounding is needed
 	 * 
 	 * @param numberOfTransitionStates
@@ -125,5 +109,10 @@ public abstract class ArbitrageStrategist extends Strategist {
 			logger.warn(WARN_ROUND_DOWN + capacityDeltaInMWH + " MWh");
 		}
 		return roundedNumberOfEnergyStates;
+	}
+	
+	/** @return internal energy value that is secured to lie within storage bounds */
+	protected double ensureWithinEnergyBounds(double internalEnergyInMWH) {
+		return Math.max(0, Math.min(storage.getEnergyStorageCapacityInMWH(), internalEnergyInMWH));
 	}
 }

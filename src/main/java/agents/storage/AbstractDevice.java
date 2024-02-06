@@ -59,11 +59,6 @@ public abstract class AbstractDevice {
 		return selfDischargeRatePerHour;
 	}
 
-	/** @return gross self discharge <b>rate</b> per hour; includes additional energy losses due to immediate recharge */
-	public double getGrossSelfDischargeRatePerHour() {
-		return selfDischargeRatePerHour * (1 + getNetChargingLossFactor());
-	}
-
 	/** Returns energy losses due to self discharge based on given energy in storage
 	 * 
 	 * @param energyInStorageInMWH to be considered

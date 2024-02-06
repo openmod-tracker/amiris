@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.sensitivities;
@@ -32,19 +32,31 @@ public class PriceSensitivity extends MeritOrderSensitivity {
 		return item.getPrice();
 	}
 
-	/** Returns price considering given addition power demand
+	/** Calculates expected energy price at given (dis-)charging amount
 	 * 
-	 * @param powerDemandInMW additional power to consider
-	 * @return price at a given power demand level induced by the additional power demand */
-	public double calcPriceAtPowerDemand(double powerDemandInMW) {
-		int chargingIndex = 0;
-		while (chargingItems.get(chargingIndex).getCumulatedUpperPower() < powerDemandInMW) {
-			chargingIndex++;
-			if (chargingIndex >= chargingItems.size()) {
-				throw new RuntimeException("Sensitivity: No price could be found for power demand.");
+	 * @param externalEnergyDelta &gt; 0: charging, &lt; 0: discharging
+	 * @return expected energy price at given (dis-)charging amount */
+	public double calcPriceForExternalEnergyDelta(double externalEnergyDelta) {
+		int index = 0;
+		SensitivityItem sensitivityItem;
+		if (externalEnergyDelta > 0) {
+			while (chargingItems.get(index).getCumulatedUpperPower() < externalEnergyDelta) {
+				index++;
+				if (index >= chargingItems.size()) {
+					throw new RuntimeException("Sensitivity: No price could be determined for flexibility charging.");
+				}
 			}
+			sensitivityItem = chargingItems.get(index);
+		} else {
+			while (dischargingItems.get(index).getCumulatedUpperPower() < -externalEnergyDelta) {
+				index++;
+				if (index >= dischargingItems.size()) {
+					throw new RuntimeException("Sensitivity: No price could be found for flexibility discharging.");
+				}
+			}
+			sensitivityItem = dischargingItems.get(index);
 		}
-		return chargingItems.get(chargingIndex).getPrice();
+		return sensitivityItem.getPrice();
 	}
 
 	/** @return price without any (dis-)charging activity in €/MWh */
