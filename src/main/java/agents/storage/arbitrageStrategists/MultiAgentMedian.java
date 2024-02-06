@@ -194,13 +194,13 @@ public class MultiAgentMedian extends ArbitrageStrategist {
 
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices based on the
 	 * planned dispatch */
-	private void updateScheduleArrays(double currentEnergyInStorageInMWh) {
+	private void updateScheduleArrays(double currentInternalEnergyInMWh) {
 		for (int element = 0; element < scheduleDurationPeriods; element++) {
-			double selfDischargeInMWH = storage.calcInternalSelfDischargeInMWH(currentEnergyInStorageInMWh);
-			double nextEnergyInStorageInMWH = currentEnergyInStorageInMWh + internalChargingPowersInMW[element]
+			double selfDischargeInMWH = storage.calcInternalSelfDischargeInMWH(currentInternalEnergyInMWh);
+			double nextInternalEnergyInMWH = currentInternalEnergyInMWh + internalChargingPowersInMW[element]
 					- selfDischargeInMWH;
-			nextEnergyInStorageInMWH = ensureWithinEnergyBounds(nextEnergyInStorageInMWH);
-			double availableEnergyDeltaInMWH = nextEnergyInStorageInMWH - currentEnergyInStorageInMWh + selfDischargeInMWH;
+			nextInternalEnergyInMWH = ensureWithinEnergyBounds(nextInternalEnergyInMWH);
+			double availableEnergyDeltaInMWH = nextInternalEnergyInMWH - currentInternalEnergyInMWh + selfDischargeInMWH;
 			double externalEnergyInMWH = storage.internalToExternalEnergy(availableEnergyDeltaInMWH);
 
 			demandScheduleInMWH[element] = externalEnergyInMWH;
@@ -211,8 +211,8 @@ public class MultiAgentMedian extends ArbitrageStrategist {
 			} else {
 				priceScheduleInEURperMWH[element] = forecastPrices[element];
 			}
-			scheduledInitialInternalEnergyInMWH[element] = currentEnergyInStorageInMWh;
-			currentEnergyInStorageInMWh = nextEnergyInStorageInMWH;
+			scheduledInitialInternalEnergyInMWH[element] = currentInternalEnergyInMWh;
+			currentInternalEnergyInMWh = nextInternalEnergyInMWH;
 		}
 	}
 
