@@ -125,7 +125,10 @@ public abstract class ArbitrageStrategist extends Strategist {
 		return roundedNumberOfEnergyStates;
 	}
 	
-	/** @return internal energy value that is secured to lie within storage bounds */
+	/** Corrects given internal energy value if it is below Zero or above maximum capacity. 
+	 * 
+	 * @param internalEnergyInMWH to be corrected (if necessary)
+	 * @return internal energy value that is secured to lie within storage bounds */
 	protected double ensureWithinEnergyBounds(double internalEnergyInMWH) {
 		return Math.max(0, Math.min(storage.getEnergyStorageCapacityInMWH(), internalEnergyInMWH));
 	}
