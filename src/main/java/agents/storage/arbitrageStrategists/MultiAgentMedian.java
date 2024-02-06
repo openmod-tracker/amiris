@@ -62,11 +62,11 @@ public class MultiAgentMedian extends ArbitrageStrategist {
 	@Override
 	public void updateSchedule(TimePeriod timePeriod) {
 		updatePriceForecast(timePeriod);
-		updatePriceLimits();
+		updateBidPriceLimits();
 		updateAssessmentValues(priceMedian);
 		Arrays.fill(internalChargingPowersInMW, 0);
 		double initialEnergyInStorageInMWh = storage.getCurrentEnergyInStorageInMWH();
-		optimiseDispatch(initialEnergyInStorageInMWh, priceMedian);
+		optimiseDispatch(initialEnergyInStorageInMWh);
 		updateScheduleArrays(initialEnergyInStorageInMWh);
 	}
 
@@ -80,7 +80,7 @@ public class MultiAgentMedian extends ArbitrageStrategist {
 	}
 
 	/** Set median price, maximum charge price and minimum discharge price, considering losses for charging & discharging */
-	private void updatePriceLimits() {
+	private void updateBidPriceLimits() {
 		priceMedian = Util.calcMedian(forecastPrices);
 		double roundTripEfficiency = storage.getChargingEfficiency() * storage.getDischargingEfficiency();
 		double lossMargin = priceMedian * (1 - roundTripEfficiency) / (1 + roundTripEfficiency);
@@ -101,12 +101,12 @@ public class MultiAgentMedian extends ArbitrageStrategist {
 			} else {
 				assessmentValues[period] = 0;
 			}
-			assessmentValues[period] = Math.max(assessmentValues[period], 0);
+			assessmentValues[period] = Math.max(0, assessmentValues[period]);
 		}
 	}
 
 	/** Distributes powers proportional to assessment values */
-	private void optimiseDispatch(double initialEnergyInStorageInMWh, double priceMedian) {
+	private void optimiseDispatch(double initialEnergyInStorageInMWh) {
 		double maxInternalEnergyInMWH = storage.getEnergyStorageCapacityInMWH();
 		double energyLevelInMWH = initialEnergyInStorageInMWh;
 		int intervalBegin = 0;
@@ -195,20 +195,25 @@ public class MultiAgentMedian extends ArbitrageStrategist {
 
 	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power & bidding prices based on the
 	 * planned dispatch */
-	private void updateScheduleArrays(double currentEnergyInStorageInMWh) {
+	private void updateScheduleArrays(double currentInternalEnergyInMWh) {
 		for (int element = 0; element < scheduleDurationPeriods; element++) {
-			demandScheduleInMWH[element] = storage.internalToExternalEnergy(internalChargingPowersInMW[element]);
-			if (internalChargingPowersInMW[element] < 0) {
+			double selfDischargeInMWH = storage.calcInternalSelfDischargeInMWH(currentInternalEnergyInMWh);
+			double nextInternalEnergyInMWH = currentInternalEnergyInMWh + internalChargingPowersInMW[element]
+					- selfDischargeInMWH;
+			nextInternalEnergyInMWH = ensureWithinEnergyBounds(nextInternalEnergyInMWH);
+			double availableEnergyDeltaInMWH = nextInternalEnergyInMWH - currentInternalEnergyInMWh + selfDischargeInMWH;
+			double externalEnergyInMWH = storage.internalToExternalEnergy(availableEnergyDeltaInMWH);
+
+			demandScheduleInMWH[element] = externalEnergyInMWH;
+			if (externalEnergyInMWH < 0) {
 				priceScheduleInEURperMWH[element] = minDischargePrice;
-			} else if (internalChargingPowersInMW[element] > 0) {
+			} else if (externalEnergyInMWH > 0) {
 				priceScheduleInEURperMWH[element] = maxChargePrice;
 			} else {
 				priceScheduleInEURperMWH[element] = forecastPrices[element];
 			}
-			scheduledInitialInternalEnergyInMWH[element] = currentEnergyInStorageInMWh;
-			currentEnergyInStorageInMWh += internalChargingPowersInMW[element];
-			currentEnergyInStorageInMWh = Math.max(0, currentEnergyInStorageInMWh);
-			currentEnergyInStorageInMWh = Math.min(storage.getEnergyStorageCapacityInMWH(), currentEnergyInStorageInMWh);
+			scheduledInitialInternalEnergyInMWH[element] = currentInternalEnergyInMWh;
+			currentInternalEnergyInMWh = nextInternalEnergyInMWH;
 		}
 	}
 
