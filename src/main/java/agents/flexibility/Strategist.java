@@ -6,6 +6,7 @@ package agents.flexibility;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
+import agents.forecast.MeritOrderForecaster;
 import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -24,13 +25,13 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class Strategist {
-	/** Error message */
+	/** Error message if used {@link Strategist} type cannot provide forecasts */
 	protected static final String ERR_PROVIDE_FORECAST = "Cannot provide bid forecasts with flexibility strategist of type: ";
-	/** Error message */
+	/** Error message  if used {@link Strategist} type cannot deal with incoming forecasts */
 	protected static final String ERR_USE_PRICE_FORECAST = "Cannot use price forecasts with flexibility strategist of type: ";
-	/** Error message */
+	/** Error message  if used {@link Strategist} type cannot process merit order forecast */
 	protected static final String ERR_USE_MERIT_ORDER_FORECAST = "Cannot use merit order forecasts with flexibility strategist of type: ";
-	/** Error message */
+	/** Error message  if used {@link Strategist} type is not implemented */
 	protected static final String ERR_UNKNOWN_STRATEGIST = "This type of flexibility strategist is not implemented: ";
 
 	/** Hard coded time granularity of {@link Strategist} */
@@ -52,7 +53,7 @@ public abstract class Strategist {
 
 	private TreeMap<TimePeriod, MeritOrderSensitivity> sensitivities = new TreeMap<>();
 
-	/** Strategist input parameter: number of forecast time periods */
+	/** Strategist input parameter: number of time steps of the used forecast */
 	public static final ParameterBuilder forecastPeriodParam = Make.newInt("ForecastPeriodInHours");
 	/** Strategist input parameter: number of time steps of the created schedules */
 	public static final ParameterBuilder scheduleDurationParam = Make.newInt("ScheduleDurationInHours");

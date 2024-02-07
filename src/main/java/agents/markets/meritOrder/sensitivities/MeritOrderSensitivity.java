@@ -19,9 +19,9 @@ public abstract class MeritOrderSensitivity {
 	protected double externalChargingPowerInMW;
 	/** maximum external discharging power &gt; 0 of the associated flexibility device */
 	protected double externalDischargingPowerInMW;
-	/** list of changes in the merit order for all possible charging events of the associated flexibility device */
+	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the associated flexibility device */
 	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();
-	/** list of changes in the merit order for all possible discharging events of the associated flexibility device */
+	/** list of changes (in terms of cumulated power and price) in the merit order for all possible discharging events of the associated flexibility device */
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
 
 	/** sets maximum charging and discharging powers in MW according to specified values

@@ -45,7 +45,7 @@ public class SupportPolicy extends Agent {
 		WindOff,
 		/** run-of-river hydro-power */
 		RunOfRiver,
-		/** Biogenic ethane */
+		/** Biogas */
 		Biogas,
 		/** Not eligible for support */
 		Other

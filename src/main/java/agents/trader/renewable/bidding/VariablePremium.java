@@ -15,7 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class VariablePremium extends PremiumBased implements BiddingStrategy {
 
-	/** Creates new instance
+	/** Creates new {@link VariablePremium} bidding strategy
 	 * 
 	 * @param input from config
 	 * @throws MissingDataException if any required input is missing */

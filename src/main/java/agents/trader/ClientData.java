@@ -86,7 +86,7 @@ public class ClientData {
 
 	/** Save received support revenues to the client it is associated with
 	 * 
-	 * @param accountingPeriod in which the support was received
+	 * @param accountingPeriod for which the support is received
 	 * @param amountPaymentInEUR of the associated client */
 	public void appendSupportRevenue(TimePeriod accountingPeriod, double amountPaymentInEUR) {
 		supportRevenueInEUR.put(accountingPeriod, amountPaymentInEUR);
@@ -94,8 +94,8 @@ public class ClientData {
 
 	/** Save market premium to the client it is associated with
 	 * 
-	 * @param accountingPeriod in which the market premium applied
-	 * @param marketPremiumInEURperMWH the associated client receives in the specified accounting period */
+	 * @param accountingPeriod for which the market premium applies
+	 * @param marketPremiumInEURperMWH the associated client receives for the specified accounting period */
 	public void appendMarketPremium(TimePeriod accountingPeriod, double marketPremiumInEURperMWH) {
 		marketPremiaInEURperMWH.put(accountingPeriod, marketPremiumInEURperMWH);
 	}

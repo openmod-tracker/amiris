@@ -12,7 +12,7 @@ import de.dlr.gitlab.fame.communication.Product;
  *
  * @author Christoph Schimeczek */
 public abstract class Forecaster extends Agent {
-	/** Products of {@link DayAheadMarket} {link Forecaster}s */
+	/** Products of {@link DayAheadMarket} {@link Forecaster}s */
 	@Product
 	public static enum Products {
 		/** Perfect foresight merit-order forecasts - issue a Request to obtain it */

@@ -11,7 +11,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  *
  * @author Christoph Schimeczek */
 public class Co2Cost extends AmountAtTime {
-	/** Creates new instance
+	/** Creates new {@link Co2Cost} instance
 	 * 
 	 * @param timeStamp at which the costs apply
 	 * @param co2PriceInEURperT specific CO2 price in EUR per ton of CO2 emissions */

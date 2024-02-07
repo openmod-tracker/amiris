@@ -49,9 +49,9 @@ public class FuelsMarket extends Agent {
 	public static enum FuelType {
 		/** Natural Gas */
 		NATURAL_GAS,
-		/** Brown coal */
+		/** Lignite */
 		LIGNITE,
-		/** Black coal */
+		/** Hard coal */
 		HARD_COAL,
 		/** Fuel oils */
 		OIL,

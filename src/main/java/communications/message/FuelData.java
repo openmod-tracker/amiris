@@ -13,7 +13,7 @@ public class FuelData extends DataItem {
 	/** The type of fuel in question */
 	public final FuelType fuelType;
 
-	/** Creates a new instance
+	/** Creates a new {@link FuelData} instance
 	 * 
 	 * @param fuelType the type of fuel in question */
 	public FuelData(FuelType fuelType) {
