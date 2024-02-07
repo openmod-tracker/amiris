@@ -19,13 +19,17 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Evelyn Sperber, Christoph Schimeczek */
 public abstract class DynamicProgrammingStrategist extends ArbitrageStrategist {
+	/** Specific input parameters for storage strategists using dynamic programming */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newInt("ModelledChargingSteps").optional()
 					.help("Resolution of discretisation, total levels = ModelledChargingSteps * Device.EnergyToPowerRatio + 1"))
 			.buildTree();
 
+	/** number of discrete states to model an energy state transition */
 	protected final int numberOfTransitionStates;
+	/** total number of discrete states representing the storage state of charge */
 	protected final int numberOfEnergyStates;
+	/** delta of internal energy in MWH associated with an increase of one discrete charging state */
 	protected final double internalEnergyPerState;
 
 	/** bestNextState[t][i]: best next internal state identified when current state is i in period t */
@@ -57,9 +61,14 @@ public abstract class DynamicProgrammingStrategist extends ArbitrageStrategist {
 	/** replaces all entries in the planning arrays with 0 or Integer.MIN_VALUE */
 	protected abstract void clearPlanningArrays();
 
+	/** optimise the dispatch based on the specific optimisation target
+	 * 
+	 * @param startPeriod first period of the schedule to be created */
 	protected abstract void optimiseDispatch(TimePeriod startPeriod);
 
-	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power and bidding prices */
+	/** For scheduling period: updates arrays for expected initial energy levels, (dis-)charging power and bidding prices
+	 * 
+	 * @param firstPeriod of the new schedule */
 	protected final void updateScheduleArrays(TimePeriod firstPeriod) {
 		double initialEnergyInStorageInMWh = storage.getCurrentEnergyInStorageInMWH();
 		int initialState = findNearestState(initialEnergyInStorageInMWh);
@@ -103,12 +112,18 @@ public abstract class DynamicProgrammingStrategist extends ArbitrageStrategist {
 	 * @return bidding price depending on time and type of action */
 	protected abstract double calcBidPrice(TimePeriod timePeriod, double externalEnergyDelta);
 
-	/** @return lower bound (inclusive) of discrete states reachable from specified initialState */
+	/** Calculates lowest final state reachable from given initial state
+	 * 
+	 * @param initialState internal energy state at the beginning of the transition
+	 * @return lower bound (inclusive) of discrete states reachable from specified initialState */
 	protected final int calcFinalStateLowerBound(int initialState) {
 		return Math.max(0, initialState - numberOfTransitionStates);
 	}
 
-	/** @return upper bound (inclusive) of discrete states reachable from specified initialState */
+	/** Calculates highest final state reachable from given initial state
+	 * 
+	 * @param initialState internal energy state at the beginning of the transition
+	 * @return upper bound (inclusive) of discrete states reachable from specified initialState */
 	protected final int calcFinalStateUpperBound(int initialState) {
 		return Math.min(numberOfEnergyStates - 1, initialState + numberOfTransitionStates);
 	}

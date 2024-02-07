@@ -20,6 +20,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
+import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
@@ -35,15 +36,40 @@ public abstract class FlexibilityTrader extends Trader {
 			.addAs("Refinancing", AnnualCostCalculator.parameters)
 			.buildTree();
 
+	/** Offset in seconds at which the forecast contracts are sent before the actual marketing time - must equal the associated
+	 * configured contract time -1 */
 	protected final TimeSpan electricityForecastRequestOffset;
 
+	/** Products of {@link FlexibilityTrader}s */
+	@Product
+	public static enum Products {
+		/** Requests for merit-order forecasts */
+		MeritOrderForecastRequest,
+		/** Requests for price-forecasts */
+		PriceForecastRequest,
+		/** Report annual costs (not sent to other agents, but calculated within an agent) */
+		AnnualCostReport,
+	}
+
+	/** Output columns of {@link FlexibilityTrader}s */
 	@Output
 	protected static enum Outputs {
-		FixedCostsInEUR, InvestmentAnnuityInEUR, VariableCostsInEUR, ReceivedMoneyInEUR
+		/** Fixed operation and maintenance costs in EUR */
+		FixedCostsInEUR,
+		/** Investment annuity in EUR */
+		InvestmentAnnuityInEUR,
+		/** Variable operation and maintenance costs in EUR */
+		VariableCostsInEUR,
+		/** Total received money in EUR */
+		ReceivedMoneyInEUR
 	}
 
 	private AnnualCostCalculator annualCost;
 
+	/** Creates a {@link FlexibilityTrader}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public FlexibilityTrader(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);

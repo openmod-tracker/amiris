@@ -19,6 +19,12 @@ public class AwardData extends DataItem {
 	/** the begin of the delivery interval (hour) */
 	public final TimeStamp beginOfDeliveryInterval;
 
+	/** Creates new instance
+	 * 
+	 * @param supplyEnergyInMWH awarded supply energy
+	 * @param demandEnergyInMWH awarded demand energy
+	 * @param powerPriceInEURperMWH market clearing price
+	 * @param timeStamp begin of the associated delivery interval */
 	public AwardData(double supplyEnergyInMWH, double demandEnergyInMWH, double powerPriceInEURperMWH,
 			TimeStamp timeStamp) {
 		this.demandEnergyInMWH = demandEnergyInMWH;

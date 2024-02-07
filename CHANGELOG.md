@@ -49,6 +49,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Update Reference examples to changes in outputs #41, #54, #75, #76 (@dlr-cjs)
 - Move flexibility agents' forecasting to FlexibilityTrader #79 (@litotes18, @dlr_jk)
 - Refactorings of `PowerPlant` to improve code clarity #94 (@dlr-cjs)
+- CI: Any `javadoc` warning will now fail the pipeline #101 (@dlr-cjs)
 
 ### Added
 - Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
@@ -71,6 +72,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - `ConventionalOperator`: add output `ReceivedMoneyInEUR` for received money per plant #74 (@dlr_cjs)
 - Package `forecast`: added `PriceForecasterFile` to provide price forecasts from file #95 (@dlr-cjs)
 - FileDispatcher(Storage): added optional input parameter `DispatchTolerance` #50 (@dlr_jk, @litotes18, @dlr_fn)
+- Added missing javadocs #101 (@dlr-cjs, @dlr_jk)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
 - Tests in packages `accounting` and `util` #54 (@dlr-cjs, @dlr_jk)
 - UPGRADING.md: help people with upgrading tasks #58 (@dlr-cjs)

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -60,8 +60,8 @@ public class ConventionalTrader extends TraderWithClients {
 		call(this::sendForecastBids).on(Trader.Products.BidsForecast)
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::sendBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
-		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
-		call(this::payout).on(Trader.Products.Payout).use(DayAheadMarket.Products.Awards);
+		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+		call(this::payout).on(TraderWithClients.Products.Payout).use(DayAheadMarket.Products.Awards);
 	}
 
 	/** @throws RuntimeException if {@link #minMarkup} > {@link #maxMarkup} */

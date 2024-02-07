@@ -13,6 +13,7 @@ import agents.markets.meritOrder.Bid.Type;
 
 /** Transfers a {@link Bid} */
 public class BidData extends DataItem {
+	/** Compares two {@link BidData} objects with respect to their bidding price (ascending) */
 	public static final Comparator<BidData> BY_PRICE_ASCENDING = new Comparator<BidData>() {
 		@Override
 		public int compare(BidData b1, BidData b2) {
@@ -25,9 +26,11 @@ public class BidData extends DataItem {
 	public final double priceInEURperMWH;
 	/** the marginal cost information of the producer resp. plant segment */
 	public final double marginalCostInEURperMWH;
+	/** the actual (perfect foresight) power potential of a supplier */
 	public final double powerPotentialInMW;
 	/** the unique Id of the trader */
 	public final long traderUuid;
+	/** the unique Id of the power plant operator */
 	public final long producerUuid;
 	/** the bid type (demand or supply) */
 	public final Type type;

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
@@ -13,11 +13,17 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class FuelBid extends AmountAtTime {
+	/** Type of fuel bid */
 	public enum BidType {
-		Supply, Demand
+		/** Offering fuel for sale */
+		Supply,
+		/** Requesting fuel to buy */
+		Demand
 	}
 
+	/** whether fuel is to be offered or purchased */
 	public final BidType bidType;
+	/** the type of fuel this bid is associated with */
 	public final FuelType fuelType;
 
 	/** Constructs a new {@link FuelBid}

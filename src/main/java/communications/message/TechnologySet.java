@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
@@ -23,6 +23,12 @@ public class TechnologySet extends DataItem {
 	/** installed capacity at this set - assumed constant */
 	public final double installedCapacity;
 
+	/** Create new {@link TechnologySet}
+	 * 
+	 * @param technologySetType clients technology set
+	 * @param energyCarrier client's type of energy carrier
+	 * @param supportInstrument support instrument the client applies for
+	 * @param installedCapacity of the client */
 	public TechnologySet(SetType technologySetType, EnergyCarrier energyCarrier,
 			SupportInstrument supportInstrument, double installedCapacity) {
 		this.setType = technologySetType;

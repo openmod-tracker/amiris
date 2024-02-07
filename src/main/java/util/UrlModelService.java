@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package util;
@@ -48,13 +48,15 @@ public abstract class UrlModelService<T, U> {
 	static final String ERR_NO_JSON = " did not respond with a valid JSON String.";
 	static final String ERR_MAPPING = " response not matching. Ensure response POJO model is a normal or >static inner< class, setter types match with service response, and all returned data from service are addressed.";
 
+	/** Default timeout: indefinite */
 	public static final int DEFAULT_TIMEOUT = 0;
+	/** Inputs specific for {@link UrlModelService}s */
 	public static final Tree parameters = Make.newTree().add(
 			Make.newString("ServiceUrl").help("URL to which POST requests are sent; must begin with 'http://' or 'https://'"),
 			Make.newInt("TimeoutInMilliseconds").optional().help("Max delay for service to respond (default: indefinite)"))
 			.buildTree();
 
-	protected static Logger logger = LoggerFactory.getLogger(UrlModelService.class);
+	private static Logger logger = LoggerFactory.getLogger(UrlModelService.class);
 	private final Configuration configuration = Configuration.builder().mappingProvider(new JacksonMappingProvider())
 			.jsonProvider(new JacksonJsonProvider()).build();
 

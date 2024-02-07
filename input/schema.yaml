@@ -152,7 +152,7 @@ AgentTypes:
             AttributeType: time_series
             Mandatory: true
             List: false
-    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
+    Products: [ 'Bids', 'BidsForecast']
 
   ConventionalTrader:
     Attributes:
@@ -164,7 +164,7 @@ AgentTypes:
         AttributeType: double
         Mandatory: true
         List: false
-    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
+    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward']
 
   StorageTrader:
     Attributes:
@@ -274,7 +274,7 @@ AgentTypes:
                 Mandatory: false
                 List: false
                 help: "Accepted tolerance for dispatch deviations in MWh." 
-    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
+    Products: [ 'Bids', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'AnnualCostReport' ]
 
   RenewableTrader:
     Attributes:
@@ -316,7 +316,7 @@ AgentTypes:
             AttributeType: time_series
             Mandatory: true
             List: false
-    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
+    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', ]
 
   NoSupportTrader:
     Attributes:
@@ -339,7 +339,7 @@ AgentTypes:
             Mandatory: false
             List: false
             help: "Standard deviation of the relative power forecasting errors"
-    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
+    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', ]
     
   SystemOperatorTrader:
     Attributes:
@@ -358,7 +358,7 @@ AgentTypes:
             Mandatory: false
             List: false
             help: "Standard deviation of the relative power forecasting errors"
-    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
+    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', ]
  
   MeritOrderForecaster:
     Attributes:
@@ -807,4 +807,4 @@ AgentTypes:
                 AttributeType: double
                 Mandatory: true
                 List: false
-    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport', 'FuelBid', 'FuelPriceForecastRequest']
+    Products: [ 'Bids', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'AnnualCostReport', 'FuelBid', 'FuelPriceRequest', 'FuelPriceForecastRequest', ]

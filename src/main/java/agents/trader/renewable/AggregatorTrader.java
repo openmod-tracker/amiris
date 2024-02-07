@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable;
@@ -115,10 +115,10 @@ public abstract class AggregatorTrader extends TraderWithClients {
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 		call(this::sendYieldPotentials).on(Products.YieldPotential).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
 		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
-		call(this::payoutClients).on(Trader.Products.Payout);
+		call(this::payoutClients).on(TraderWithClients.Products.Payout);
 	}
 
 	/** Extract information on {@link TechnologySet} and add it to the client data collection

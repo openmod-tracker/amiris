@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.sensitivities;
@@ -9,8 +9,11 @@ import java.util.Comparator;
  * 
  * @author Christoph Schimeczek */
 public class SensitivityItem {
+	/** Compares {@link SensitivityItem}s by price */
 	public static final Comparator<SensitivityItem> BY_PRICE = Comparator.comparing(item -> item.price);
+	/** Compares {@link SensitivityItem}s by power */
 	public static final Comparator<SensitivityItem> BY_POWER = Comparator.comparing(item -> item.power);
+	/** Compares {@link SensitivityItem}s by price and then power */
 	public static final Comparator<SensitivityItem> BY_PRICE_THEN_POWER = BY_PRICE.thenComparing(BY_POWER);
 
 	private final double power;

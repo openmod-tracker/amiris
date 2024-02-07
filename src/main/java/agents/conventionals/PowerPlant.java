@@ -13,10 +13,17 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerPlant>, Portable {
+	/** A marginal, i.e. cost-power pair */
 	public class MarginalCostItem {
+		/** Power to offer */
 		public final double availablePowerInMW;
+		/** Cost of power production */
 		public final double marginalCostInEURperMWH;
 
+		/** Creates a {@link MarginalCostItem}
+		 * 
+		 * @param availablePowerInMW power to offer
+		 * @param marginalCostInEURperMWH cost of power production */
 		public MarginalCostItem(double availablePowerInMW, double marginalCostInEURperMWH) {
 			this.availablePowerInMW = availablePowerInMW;
 			this.marginalCostInEURperMWH = marginalCostInEURperMWH;

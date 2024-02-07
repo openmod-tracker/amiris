@@ -45,6 +45,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 	static final String ERR_PAYOUT_VANISH = "ERROR: ConventionalPlants received money but were not dispatched! Ensure Payout contracts are scheduled after DispatchAssignment contracts for ";
 	private static final double NUMERIC_TOLERANCE = 1E-10;
 
+	/** Products of {@link ConventionalPlantOperator} */
 	@Product
 	public static enum Products {
 		/** Total actual emissions produced during power generation */

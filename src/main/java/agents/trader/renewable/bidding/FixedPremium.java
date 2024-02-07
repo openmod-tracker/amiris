@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable.bidding;
@@ -14,6 +14,10 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class FixedPremium extends PremiumBased implements BiddingStrategy {
 
+	/** Creates new  {@link FixedPremium} bidding strategy
+	 * 
+	 * @param input from config
+	 * @throws MissingDataException if any required input is missing */
 	public FixedPremium(ParameterData input) throws MissingDataException {
 		super(input);
 	}
