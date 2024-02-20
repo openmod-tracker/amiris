@@ -3,18 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package accounting;
 
-import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
-import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 
 /** Calculates annual cost for investment annuity and fixed operating expenses
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class AnnualCostCalculator {
 	/** Input parameters used by {@link AnnualCostCalculator} */
-	@Input public static final Tree parameters = Make.newTree()
+	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("InvestmentExpensensesInEURperMW").optional(),
 					Make.newDouble("AnnuityFactor").optional(),
 					Make.newDouble("AnnualFixedCostsInEURperMW").optional())
