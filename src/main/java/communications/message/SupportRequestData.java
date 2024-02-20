@@ -36,7 +36,7 @@ public class SupportRequestData extends DataItem {
 
 	/** Create new {@link SupportRequestData}
 	 * 
-	 * @param clientData containing data about the client
+	 * @param entry data about the client associated with its UUID
 	 * @param accountingPeriod the time period for which the client data apply */
 	public SupportRequestData(Entry<Long, ClientData> entry, TimePeriod accountingPeriod) {
 		this.clientId = entry.getKey();

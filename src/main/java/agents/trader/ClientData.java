@@ -29,7 +29,8 @@ public class ClientData {
 
 	/** Create a client data object and initialise it with the given technology set
 	 * 
-	 * @param technologySet to be assigned */
+	 * @param technologySet to be assigned
+	 * @param installedCapacityInMW of the associated client */
 	public ClientData(TechnologySet technologySet, double installedCapacityInMW) {
 		this.technologySet = technologySet;
 		this.installedCapacityInMW = installedCapacityInMW;

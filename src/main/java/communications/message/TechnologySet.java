@@ -27,8 +27,7 @@ public class TechnologySet extends DataItem {
 	 * 
 	 * @param technologySetType clients technology set
 	 * @param energyCarrier client's type of energy carrier
-	 * @param supportInstrument support instrument the client applies for
-	 * @param installedCapacity of the client */
+	 * @param supportInstrument support instrument the client applies for */
 	public TechnologySet(SetType technologySetType, EnergyCarrier energyCarrier, SupportInstrument supportInstrument) {
 		this.setType = technologySetType;
 		this.energyCarrier = energyCarrier;
