@@ -138,7 +138,8 @@ public abstract class AggregatorTrader extends TraderWithClients {
 		for (Message message : messages) {
 			if (message.senderId == clientId) {
 				TechnologySet technologySet = message.getDataItemOfType(TechnologySet.class);
-				return new ClientData(technologySet);
+				double installedPowerInMW = message.getDataItemOfType(AmountAtTime.class).amount;
+				return new ClientData(technologySet, installedPowerInMW);
 			}
 		}
 		throw new RuntimeException(ERR_NO_MESSAGE_FOUND + clientId);
@@ -164,19 +165,26 @@ public abstract class AggregatorTrader extends TraderWithClients {
 		for (Message message : messages) {
 			SupportData supportData = message.getFirstPortableItemOfType(SupportData.class);
 			SetType technologySetType = supportData.getSetType();
-			getClientDataForSetType(technologySetType).setSupportData(supportData);
+			for (ClientData clientData : getClientDataForSetType(technologySetType)) {
+				clientData.setSupportData(supportData);
+			}
 		}
 	}
 
-	/** @param setType to search for; assumption: client set types are unique
+	/** Return all data of clients that match the given setType
+	 * @param setType to search for
 	 * @return client data for given set type */
-	protected ClientData getClientDataForSetType(SetType setType) {
+	protected List<ClientData> getClientDataForSetType(SetType setType) {
+		List<ClientData> clients = new ArrayList<>();
 		for (ClientData clientData : clientMap.values()) {
 			if (clientData.getTechnologySet().setType == setType) {
-				return clientData;
+				clients.add(clientData);
 			}
 		}
-		throw new RuntimeException(this + ERR_NO_CLIENT_FOR_SET + setType);
+		if (clients.isEmpty()) {
+			throw new RuntimeException(this + ERR_NO_CLIENT_FOR_SET + setType);
+		}
+		return clients;
 	}
 
 	/** Sends supply {@link BidData bid} forecasts
@@ -323,8 +331,8 @@ public abstract class AggregatorTrader extends TraderWithClients {
 	private void requestSupportPayout(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TimePeriod accountingPeriod = SupportPolicy.extractAccountingPeriod(now(), contract, 1800L);
-		for (ClientData clientData : clientMap.values()) {
-			SupportRequestData supportData = new SupportRequestData(clientData, accountingPeriod);
+		for (Entry<Long, ClientData> entries : clientMap.entrySet()) {
+			SupportRequestData supportData = new SupportRequestData(entries, accountingPeriod);
 			fulfilNext(contract, supportData);
 		}
 		powerPrices.headMap(accountingPeriod.getLastTime()).clear();
@@ -339,7 +347,7 @@ public abstract class AggregatorTrader extends TraderWithClients {
 		double refundedSupport = 0.0;
 		for (Message message : messages) {
 			SupportResponseData supportDataResponse = message.getDataItemOfType(SupportResponseData.class);
-			ClientData clientData = getClientDataForSetType(supportDataResponse.setType);
+			ClientData clientData = clientMap.get(supportDataResponse.clientId);
 			clientData.appendSupportRevenue(supportDataResponse.accountingPeriod, supportDataResponse.payment);
 			clientData.appendMarketPremium(supportDataResponse.accountingPeriod, supportDataResponse.marketPremium);
 			receivedSupport += Math.max(0, supportDataResponse.payment);

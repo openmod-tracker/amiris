@@ -20,8 +20,8 @@ public class TechnologySet extends DataItem {
 	public final EnergyCarrier energyCarrier;
 	/** the support instrument for the technology set */
 	public final SupportInstrument supportInstrument;
+
 	/** installed capacity at this set - assumed constant */
-	public final double installedCapacity;
 
 	/** Create new {@link TechnologySet}
 	 * 
@@ -29,12 +29,10 @@ public class TechnologySet extends DataItem {
 	 * @param energyCarrier client's type of energy carrier
 	 * @param supportInstrument support instrument the client applies for
 	 * @param installedCapacity of the client */
-	public TechnologySet(SetType technologySetType, EnergyCarrier energyCarrier,
-			SupportInstrument supportInstrument, double installedCapacity) {
+	public TechnologySet(SetType technologySetType, EnergyCarrier energyCarrier, SupportInstrument supportInstrument) {
 		this.setType = technologySetType;
 		this.energyCarrier = energyCarrier;
 		this.supportInstrument = supportInstrument;
-		this.installedCapacity = installedCapacity;
 	}
 
 	/** Mandatory for deserialisation of {@link DataItem}s
@@ -44,7 +42,6 @@ public class TechnologySet extends DataItem {
 		energyCarrier = EnergyCarrier.values()[proto.getIntValue(0)];
 		setType = getOrNull(SetType.values(), proto.getIntValue(1));
 		supportInstrument = getOrNull(SupportInstrument.values(), proto.getIntValue(2));
-		installedCapacity = proto.getDoubleValue(0);
 	}
 
 	/** @return if given index >= 0: item with corresponding index in given array of choices, null otherwise */
@@ -61,6 +58,5 @@ public class TechnologySet extends DataItem {
 		builder.addIntValue(energyCarrier.ordinal());
 		builder.addIntValue(setType == null ? -1 : setType.ordinal());
 		builder.addIntValue(supportInstrument == null ? -1 : supportInstrument.ordinal());
-		builder.addDoubleValue(installedCapacity);
 	}
 }

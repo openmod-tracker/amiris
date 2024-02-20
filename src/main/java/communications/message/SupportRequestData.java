@@ -31,16 +31,20 @@ public class SupportRequestData extends DataItem {
 	public final double installedCapacityInMW;
 	/** the accounting period for calculating the support payments */
 	public final TimePeriod accountingPeriod;
+	/** Id of the client receiving support */
+	public final long clientId;
 
 	/** Create new {@link SupportRequestData}
 	 * 
 	 * @param clientData containing data about the client
 	 * @param accountingPeriod the time period for which the client data apply */
-	public SupportRequestData(ClientData clientData, TimePeriod accountingPeriod) {
+	public SupportRequestData(Entry<Long, ClientData> entry, TimePeriod accountingPeriod) {
+		this.clientId = entry.getKey();
+		ClientData clientData = entry.getValue();
 		this.setType = clientData.getTechnologySet().setType;
 		this.supportInstrument = clientData.getTechnologySet().supportInstrument;
 		this.accountingPeriod = accountingPeriod;
-		this.installedCapacityInMW = clientData.getTechnologySet().installedCapacity;
+		this.installedCapacityInMW = clientData.getInstalledCapacity();
 		this.infeed = clientData.getDispatch();
 	}
 
@@ -53,10 +57,11 @@ public class SupportRequestData extends DataItem {
 		this.installedCapacityInMW = proto.getDoubleValue(0);
 		TimeStamp startTime = new TimeStamp(proto.getLongValue(0));
 		TimeSpan duration = new TimeSpan(proto.getLongValue(1));
+		this.clientId = proto.getLongValue(2);
 		this.accountingPeriod = new TimePeriod(startTime, duration);
 		this.infeed = new TreeMap<>();
 		for (int i = 0; i < proto.getIntValue(2); i++) {
-			TimeStamp timeStamp = new TimeStamp(proto.getLongValue(i + 2));
+			TimeStamp timeStamp = new TimeStamp(proto.getLongValue(i + 3));
 			double value = proto.getDoubleValue(i + 1);
 			infeed.put(timeStamp, value);
 		}
@@ -69,6 +74,7 @@ public class SupportRequestData extends DataItem {
 		builder.addDoubleValue(installedCapacityInMW);
 		builder.addLongValue(accountingPeriod.getStartTime().getStep());
 		builder.addLongValue(accountingPeriod.getDuration().getSteps());
+		builder.addLongValue(clientId);
 
 		int counter = 0;
 		for (Entry<TimeStamp, Double> entry : infeed.entrySet()) {
