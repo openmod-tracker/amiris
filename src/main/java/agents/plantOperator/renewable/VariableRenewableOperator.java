@@ -15,11 +15,15 @@ import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+<<<<<<< Upstream, based on origin/dev
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
+=======
+import de.dlr.gitlab.fame.communication.Product;
+>>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -27,6 +31,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class VariableRenewableOperator extends RenewablePlantOperator {
+<<<<<<< Upstream, based on origin/dev
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newSeries("YieldProfile"), Make.newSeries("PpaPriceInEURperMWH").optional()).buildTree();
 
@@ -37,6 +42,17 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		PpaInformation
 	};
 
+=======
+	@Input private static final Tree parameters = Make.newTree().add(Make.newSeries("YieldProfile")).buildTree();
+	
+	/** Products of {@link VariableRenewableOperator}s */
+	@Product
+	public static enum Products {
+		/** Yield potential to inform the ElectrolysisTrader of the amount of electricity*/
+		YieldPotential
+	};
+	
+>>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
 	private TimeSeries tsYieldProfile;
 	private TimeSeries ppaPriceInEURperMWH;
 
