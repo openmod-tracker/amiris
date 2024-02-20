@@ -10,6 +10,7 @@ import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 import de.dlr.gitlab.fame.agent.input.Tree;
@@ -19,7 +20,14 @@ import de.dlr.gitlab.fame.agent.input.Tree;
  * @author Christoph Schimeczek, Johannes Kochems */
 public class VariableRenewableOperator extends RenewablePlantOperator {
 	@Input private static final Tree parameters = Make.newTree().add(Make.newSeries("YieldProfile")).buildTree();
-
+	
+	/** Products of {@link VariableRenewableOperator}s */
+	@Product
+	public static enum Products {
+		/** Yield potential to inform the ElectrolysisTrader of the amount of electricity*/
+		YieldPotential
+	};
+	
 	private TimeSeries tsYieldProfile;
 
 	/** Creates an {@link VariableRenewableOperator}
