@@ -5,6 +5,7 @@ package agents.trader;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import agents.electrolysis.Electrolyzer;
 import agents.electrolysis.ElectrolyzerStrategist;
 import agents.flexibility.DispatchSchedule;
@@ -19,6 +20,7 @@ import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
+import agents.plantOperator.renewable.VariableRenewableOperator;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import communications.message.AwardData;
 import communications.message.BidData;
@@ -42,15 +44,17 @@ import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** A flexible Trader demanding electricity and producing hydrogen from it via electrolysis.
+/**
+ * A flexible Trader demanding electricity and producing hydrogen from it via
+ * electrolysis.
  * 
- * @author Christoph Schimeczek */
+ * @author Christoph Schimeczek
+ */
 public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader {
-	@Input private static final Tree parameters = Make.newTree()
-			.addAs("Device", Electrolyzer.parameters)
+	@Input
+	private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
 			.addAs("Strategy", ElectrolyzerStrategist.parameters)
-			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds"))
-			.buildTree();
+			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
 
 	@Output
 	private static enum Outputs {
@@ -62,10 +66,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	private final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
 
-	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
+	/**
+	 * Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
 	 * @param data configured input
-	 * @throws MissingDataException if any required input is missing */
+	 * @throws MissingDataException if any required input is missing
+	 */
 	public ElectrolysisTrader(DataProvider data) throws MissingDataException {
 		super(data);
 		ParameterData input = parameters.join(data);
@@ -80,17 +86,21 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(Forecaster.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
-		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids)
-				.use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
+		call(this::requestYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
 	}
 
-	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
-	 * Strategists other than {@link FileDispatcher}
+	/**
+	 * Prepares forecasts and sends them to the {@link MarketForecaster}; Calling
+	 * this function will throw an Exception for Strategists other than
+	 * {@link FileDispatcher}
 	 * 
-	 * @param input one ClearingTimes message specifying for which TimeStamps to calculate the forecasts
-	 * @param contracts one partner to send the forecasts to */
+	 * @param input     one ClearingTimes message specifying for which TimeStamps to
+	 *                  calculate the forecasts
+	 * @param contracts one partner to send the forecasts to
+	 */
 	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
@@ -103,24 +113,28 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		}
 	}
 
-	/** Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}
+	/**
+	 * Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}
 	 * 
-	 * @param input not used
-	 * @param contracts single contracted fuels market to request hydrogen price(s) from */
+	 * @param input     not used
+	 * @param contracts single contracted fuels market to request hydrogen price(s)
+	 *                  from
+	 */
 	private void requestHydrogenPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(hydrogenForecastRequestOffset),
-				Strategist.OPERATION_PERIOD);
+		TimePeriod nextTime = new TimePeriod(now().laterBy(hydrogenForecastRequestOffset), Strategist.OPERATION_PERIOD);
 		ArrayList<TimeStamp> missingForecastTimes = strategist.getMissingHydrogenPriceForecastsTimes(nextTime);
 		ClearingTimes clearingTimes = new ClearingTimes(
 				missingForecastTimes.toArray(new TimeStamp[missingForecastTimes.size()]));
 		sendFuelPriceRequest(contract, FUEL_HYDROGEN, clearingTimes);
 	}
 
-	/** Digests one or multiple incoming hydrogen price forecasts
+	/**
+	 * Digests one or multiple incoming hydrogen price forecasts
 	 * 
-	 * @param input one or multiple hydrogen price forecast message(s)
-	 * @param contracts not used */
+	 * @param input     one or multiple hydrogen price forecast message(s)
+	 * @param contracts not used
+	 */
 	private void updateHydrogenPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		for (Message inputMessage : input) {
 			FuelCost priceForecastMessage = readFuelPriceMessage(inputMessage);
@@ -130,10 +144,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		}
 	}
 
-	/** Prepares and sends Bids to one contracted exchange
+	/**
+	 * Prepares and sends Bids to one contracted exchange
 	 * 
-	 * @param input one GateClosureInfo message containing ClearingTimes
-	 * @param contracts single contract with a {@link DayAheadMarket} */
+	 * @param input     one GateClosureInfo message containing ClearingTimes
+	 * @param contracts single contract with a {@link DayAheadMarket}
+	 */
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
@@ -144,10 +160,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		}
 	}
 
-	/** Prepares hourly demand bids
+	/**
+	 * Prepares hourly demand bids
 	 * 
 	 * @param requestedTime TimeStamp at which the demand bid should be defined
-	 * @return demand bid for requestedTime */
+	 * @return demand bid for requestedTime
+	 */
 	private BidData prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
 		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
@@ -156,11 +174,13 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		return demandBid;
 	}
 
-	/** Digests award information from {@link DayAheadMarket}, writes dispatch and sells hydrogen at fuels market using a "negative
-	 * purchase" message
+	/**
+	 * Digests award information from {@link DayAheadMarket}, writes dispatch and
+	 * sells hydrogen at fuels market using a "negative purchase" message
 	 * 
-	 * @param messages award information received from {@link DayAheadMarket}
-	 * @param contracts a contract with one {@link FuelsMarket} */
+	 * @param messages  award information received from {@link DayAheadMarket}
+	 * @param contracts a contract with one {@link FuelsMarket}
+	 */
 	private void sellProducedHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
 		Message awardMessage = CommUtils.getExactlyOneEntry(messages);
 		AwardData award = awardMessage.getDataItemOfType(AwardData.class);
@@ -169,7 +189,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		double costs = award.powerPriceInEURperMWH * awardedEnergyInMWH;
 		TimeStamp deliveryTime = award.beginOfDeliveryInterval;
 
-		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH, deliveryTime);
+		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH,
+				deliveryTime);
 		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
 		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
 
@@ -178,7 +199,10 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}
 
-	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
+	/**
+	 * Sends a single {@link FuelData} message to one contracted {@link FuelsMarket}
+	 * to sell the given amount of hydrogen
+	 */
 	private void sendHydrogenSellMessage(List<Contract> contracts, double producedHydrogenInThermalMWH,
 			TimeStamp deliveryTime) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
@@ -186,14 +210,33 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		sendFuelBid(contract, fuelBid);
 	}
 
-	/** Evaluate revenues (i.e. negative purchase cost) from selling hydrogen at the fuels market
+	/**
+	 * Evaluate revenues (i.e. negative purchase cost) from selling hydrogen at the
+	 * fuels market
 	 * 
-	 * @param messages one AmountAtTime message from fuels market
-	 * @param contracts ignored */
+	 * @param messages  one AmountAtTime message from fuels market
+	 * @param contracts ignored
+	 */
 	private void digestSaleReturns(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		double cost = readFuelBillMessage(message);
 		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
+	}
+
+	/**
+	 * Requests the electricity yield potential of the contracted
+	 * {@link VariableRenewableOperator}}
+	 * 
+	 * @param messages
+	 * @param contracts to find one partner to request the yield potential from
+	 */
+	private void requestYieldPotential(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		// Find contract partner
+		// Send request
+		// 
+		
+		return ;
 	}
 
 	@Override
