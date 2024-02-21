@@ -5,9 +5,17 @@ package agents.plantOperator.renewable;
 
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< Upstream, based on origin/dev
+=======
+
+>>>>>>> 1a6db84 Prepare data exchange between agents and classes
 import agents.plantOperator.RenewablePlantOperator;
+<<<<<<< Upstream, based on origin/dev
 import agents.trader.ElectrolysisTrader;
 import communications.message.ClearingTimes;
+=======
+import communications.message.AmountAtTime;
+>>>>>>> 1a6db84 Prepare data exchange between agents and classes
 import communications.message.MarginalCost;
 import communications.message.PpaInformation;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -16,14 +24,20 @@ import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
+=======
+>>>>>>> 1a6db84 Prepare data exchange between agents and classes
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
+<<<<<<< Upstream, based on origin/dev
 =======
 import de.dlr.gitlab.fame.communication.Product;
 >>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
+=======
+>>>>>>> 1a6db84 Prepare data exchange between agents and classes
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -64,9 +78,14 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
+<<<<<<< Upstream, based on origin/dev
 		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
 
 		call(this::sendPpaInformation).on(Products.PpaInformation).use(ElectrolysisTrader.Products.PpaInformationRequest);
+=======
+		
+		call(this::sendAvailablePowerAtTime).on(Products.YieldPotential);
+>>>>>>> 1a6db84 Prepare data exchange between agents and classes
 	}
 
 	/** @return single {@link MarginalCost} considering variable yield */
@@ -83,6 +102,14 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 	/** @return yield [0..1] relative to peak capacity at given time */
 	private double getYieldAtTime(TimeStamp time) {
 		return tsYieldProfile.getValueLinear(time);
+	}
+	
+	/** @return send available power at given time */
+	private void sendAvailablePowerAtTime(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimeStamp time = now(); 
+		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
+		fulfilNext(contract, new AmountAtTime(time, availablePower));
 	}
 
 	/** @return send price and yield potential at given time */

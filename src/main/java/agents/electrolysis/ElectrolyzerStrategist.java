@@ -155,6 +155,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
 	}
+<<<<<<< Upstream, based on origin/dev
 
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
 	public void updateMaximumConsumption(TimeStamp time, double yieldPotential) {
@@ -164,5 +165,11 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
 	public double getMaximumConsumption() {
 		return Double.NaN;
+=======
+	
+	/** Dummy method to be overwritten in GreenHydrogen strategist */
+	public void setYieldPotentialRenewable(double yieldPotentialRenewable) {
+
+>>>>>>> 1a6db84 Prepare data exchange between agents and classes
 	}
 }
