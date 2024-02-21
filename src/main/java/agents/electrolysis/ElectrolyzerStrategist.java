@@ -154,4 +154,9 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
 	}
+	
+	/** Dummy method to be overwritten in GreenHydrogen strategist */
+	public void setYieldPotentialRenewable(double yieldPotentialRenewable) {
+
+	}
 }
