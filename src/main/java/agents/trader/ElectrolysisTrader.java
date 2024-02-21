@@ -8,6 +8,7 @@ import java.util.List;
 
 import agents.electrolysis.Electrolyzer;
 import agents.electrolysis.ElectrolyzerStrategist;
+import agents.electrolysis.GreenHydrogen;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
@@ -22,6 +23,7 @@ import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
 import agents.plantOperator.renewable.VariableRenewableOperator;
 import agents.storage.arbitrageStrategists.FileDispatcher;
+import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
@@ -65,6 +67,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	private final Electrolyzer electrolyzer;
 	private final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
+	private double yieldPotentialRenewable;
 
 	/**
 	 * Creates a new {@link ElectrolysisTrader} based on given input parameters
@@ -88,8 +91,9 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(FuelsMarket.Products.FuelPriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
+		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
-		call(this::requestYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
+		call(this::logYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
 	}
 
 	/**
@@ -198,6 +202,33 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}
+	
+	/**
+	 * Sell Hydrogen according to production schedule following the contracted renewable power plant
+	 * 
+	 * @param messages  not used
+	 * @param contracts a contract with one {@link FuelsMarket}
+	 */
+	private void sellProducedGreenHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
+		
+		DispatchSchedule schedule = strategist.getValidSchedule(now());
+		TimeStamp deliveryTime = schedule.getTimeOfFirstElement();
+		
+		double chargingPowerInMWH = schedule.getScheduledChargingPowerInMW(deliveryTime);
+		double cost = 0.0;
+		double costs = cost * chargingPowerInMWH;
+
+		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(chargingPowerInMWH,
+				deliveryTime);
+		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
+		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
+
+		store(Outputs.AwardedEnergyInMWH, chargingPowerInMWH);
+		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
+		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
+	}
+	
+	
 
 	/**
 	 * Sends a single {@link FuelData} message to one contracted {@link FuelsMarket}
@@ -224,21 +255,19 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	}
 
 	/**
-	 * Requests the electricity yield potential of the contracted
+	 * Logs the electricity yield potential of the contracted
 	 * {@link VariableRenewableOperator}}
 	 * 
-	 * @param messages
-	 * @param contracts to find one partner to request the yield potential from
+	 * @param messages  Yield potential from power plant
+	 * @param contracts not used
 	 */
-	private void requestYieldPotential(ArrayList<Message> messages, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		// Find contract partner
-		// Send request
-		// 
-		
-		return ;
+	private void logYieldPotential(ArrayList<Message> messages, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(messages);
+		AmountAtTime yieldPotential = message.getDataItemOfType(AmountAtTime.class);
+		yieldPotentialRenewable = yieldPotential.amount;
+		strategist.setYieldPotentialRenewable(yieldPotentialRenewable);
 	}
-
+	
 	@Override
 	protected double getInstalledCapacityInMW() {
 		return electrolyzer.getPeakPower(now());
