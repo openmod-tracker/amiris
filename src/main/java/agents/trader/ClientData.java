@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -17,7 +17,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class ClientData {
 	private TechnologySet technologySet;
-	private double installedCapacity;
+	private double installedCapacityInMW;
 	private final TreeMap<TimeStamp, Double> yieldPotentials = new TreeMap<>();
 	private final TreeMap<TimeStamp, Double> dispatches = new TreeMap<>();
 	private final TreeMap<TimeStamp, Double> marketRevenues = new TreeMap<>();
@@ -29,9 +29,11 @@ public class ClientData {
 
 	/** Create a client data object and initialise it with the given technology set
 	 * 
-	 * @param technologySet to be assigned */
-	public ClientData(TechnologySet technologySet) {
+	 * @param technologySet to be assigned
+	 * @param installedCapacityInMW of the associated client */
+	public ClientData(TechnologySet technologySet, double installedCapacityInMW) {
 		this.technologySet = technologySet;
+		this.installedCapacityInMW = installedCapacityInMW;
 	}
 
 	/** Removes any internal data with TimeStamp before given TimeStamp; other arrays are cleared as well
@@ -57,13 +59,6 @@ public class ClientData {
 				break;
 			}
 		}
-	}
-
-	/** Set installed capacity to given value
-	 * 
-	 * @param installedCapacity of the client in MW */
-	public void setInstalledCapacity(double installedCapacity) {
-		this.installedCapacity = installedCapacity;
 	}
 
 	/** Save the given yield potential at the given time to this {@link ClientData}
@@ -107,7 +102,7 @@ public class ClientData {
 
 	/** @return the installed capacity of the associated client in MW */
 	public double getInstalledCapacity() {
-		return installedCapacity;
+		return installedCapacityInMW;
 	}
 
 	/** @return the actual dispatch previously assigned to the client */

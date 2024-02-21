@@ -87,6 +87,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 ### Fixed
 - PredefinedPlantBuilder: delivering portfolio for second year #65 (@dlr-cjs, @dlr_jk, @dlr_fn)
 - Storage: bids could exceed market limits - now they abide by the market limits #47 (@dlr-cjs)
+- AggregatorTrader: corrected association of support payments in case of multiple clients with similar set #104 (@dlr-cjs)
 - Storage: discretisation of planning no longer causes over-charging or under-depletion #55 (@dlr-cjs)
 - Forecaster: wrote out forecast prices with one hour lag - the time lag is removed #48 (@dlr-cjs)
 - ConventionalPlantOperator: did not sort power plants for dispatch correctly - sorting now according to marginal cost #97 (@dlr-cjs)

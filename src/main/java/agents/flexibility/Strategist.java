@@ -6,7 +6,6 @@ package agents.flexibility;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
-import agents.forecast.MeritOrderForecaster;
 import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;

@@ -9,6 +9,7 @@ import agents.policy.PolicyItem.SupportInstrument;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import agents.trader.TraderWithClients;
 import agents.trader.renewable.AggregatorTrader;
+import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
 import communications.message.TechnologySet;
@@ -113,9 +114,8 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 		SetType technologySetType = input.getEnumOrDefault("Set", SetType.class, null);
 		EnergyCarrier energyCarrier = input.getEnum("EnergyCarrier", EnergyCarrier.class);
 		SupportInstrument supportInstrument = input.getEnumOrDefault("SupportInstrument", SupportInstrument.class, null);
-		technologySet = new TechnologySet(technologySetType, energyCarrier, supportInstrument,
-				tsInstalledPowerInMW.getValueLowerEqual(now()));
-
+		technologySet = new TechnologySet(technologySetType, energyCarrier, supportInstrument);
+		
 		call(this::registerSet).on(Products.SetRegistration);
 		call(this::sendSupplyMarginalForecasts).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(TraderWithClients.Products.ForecastRequestForward);
@@ -126,7 +126,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	/** Registers the {@link TechnologySet} to be marketed by a single associated {@link AggregatorTrader} */
 	private void registerSet(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		fulfilNext(contract, technologySet);
+		fulfilNext(contract, technologySet, new AmountAtTime(now(), getInstalledCapacityInMW()));
 	}
 
 	/** Prepares supply {@link MarginalForecast}s and sends them to contracted trader
