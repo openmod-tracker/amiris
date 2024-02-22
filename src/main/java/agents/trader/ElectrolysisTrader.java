@@ -8,7 +8,6 @@ import java.util.List;
 
 import agents.electrolysis.Electrolyzer;
 import agents.electrolysis.ElectrolyzerStrategist;
-import agents.electrolysis.GreenHydrogen;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
@@ -81,10 +80,14 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	private final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 	private double ppaPriceInEURperMWH;
 =======
 	private double yieldPotentialRenewable;
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
+=======
+	private double ppaPriceInEURperMWH;
+>>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 
 	/**
 	 * Creates a new {@link ElectrolysisTrader} based on given input parameters
@@ -107,7 +110,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 		call(this::forwardClearingTimes).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
+=======
+		call(this::logPpaPrice).on(VariableRenewableOperator.Products.PpaPrice);
+		call(this::logYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
+>>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(VariableRenewableOperator.Products.PpaInformation);
@@ -119,6 +127,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
 =======
 		call(this::requestYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
@@ -126,6 +135,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 =======
 		call(this::logYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
+=======
+>>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 	}
 
 	/**
@@ -194,6 +205,32 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 
 	/** Prepares and sends Bids to one contracted exchange
 =======
+	/**
+	 * Logs the electricity yield potential of the contracted
+	 * {@link VariableRenewableOperator}}
+	 * 
+	 * @param messages  Yield potential from power plant
+	 * @param contracts not used
+	 */
+	private void logYieldPotential(ArrayList<Message> messages, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(messages);
+		AmountAtTime yieldPotential = message.getDataItemOfType(AmountAtTime.class);
+		strategist.calcMaximumConsumption(yieldPotential);
+	}
+	
+	/**
+	 * Logs the PPA price of the contracted
+	 * {@link VariableRenewableOperator}}
+	 * 
+	 * @param messages  Yield potential from power plant
+	 * @param contracts not used
+	 */
+	private void logPpaPrice(ArrayList<Message> messages, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(messages);
+		AmountAtTime ppaPrice = message.getDataItemOfType(AmountAtTime.class);
+		ppaPriceInEURperMWH = ppaPrice.amount;
+	}
+	
 	/**
 	 * Prepares and sends Bids to one contracted exchange
 >>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
@@ -275,14 +312,10 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * @param contracts a contract with one {@link FuelsMarket}
 	 */
 	private void sellProducedGreenHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
-		
 		DispatchSchedule schedule = strategist.getValidSchedule(now());
 		TimeStamp deliveryTime = schedule.getTimeOfFirstElement();
-		
 		double chargingPowerInMWH = schedule.getScheduledChargingPowerInMW(deliveryTime);
-		double cost = 0.0;
-		double costs = cost * chargingPowerInMWH;
-
+		double costs = ppaPriceInEURperMWH * chargingPowerInMWH;
 		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(chargingPowerInMWH,
 				deliveryTime);
 		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
@@ -292,8 +325,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}
-	
-	
 
 <<<<<<< Upstream, based on origin/dev
 	/** Sell Hydrogen according to production schedule following the contracted renewable power plant
@@ -341,6 +372,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		double cost = readFuelBillMessage(message);
 		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
 	}
+<<<<<<< Upstream, based on origin/dev
 
 <<<<<<< Upstream, based on origin/dev
 	/** Pay client according to PPA specification
@@ -380,6 +412,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		strategist.setYieldPotentialRenewable(yieldPotentialRenewable);
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
 	}
+=======
+>>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 	
 	@Override
 	protected double getInstalledCapacityInMW() {

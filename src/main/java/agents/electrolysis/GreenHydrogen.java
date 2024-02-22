@@ -73,6 +73,7 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 package agents.electrolysis;
 
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
+import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -93,7 +94,7 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 			.buildTree();
 
 	private final TemporalCorrelationPeriod temporalCorrelationPeriod;
-	private double yieldPotentialRenewable;
+	private double maximumConsumption;
 
 	/**
 	 * Create new {@link GreenHydrogen}
@@ -113,8 +114,8 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 	}
 
 	@Override
-	public void setYieldPotentialRenewable(double yieldPotentialRenewable) {
-		this.yieldPotentialRenewable = yieldPotentialRenewable;
+	public void calcMaximumConsumption(AmountAtTime yieldPotential) {
+		maximumConsumption = electrolyzer.calcCappedElectricDemandInMW(yieldPotential.amount, yieldPotential.validAt);
 	}
 
 	@Override
@@ -133,7 +134,7 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 	/** transfer optimised dispatch to schedule arrays */
 	private void updateScheduleArrays(double initialHydrogenProductionInMWH) {
 		for (int hour = 0; hour < scheduleDurationPeriods; hour++) {
-			demandScheduleInMWH[hour] = yieldPotentialRenewable;
+			demandScheduleInMWH[hour] = maximumConsumption;
 			scheduledChargedHydrogenTotal[hour] = initialHydrogenProductionInMWH;
 			initialHydrogenProductionInMWH += electrolyzer.calcHydrogenEnergy(demandScheduleInMWH[hour]);
 		}
