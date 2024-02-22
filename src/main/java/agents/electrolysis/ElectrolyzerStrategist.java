@@ -5,8 +5,10 @@ package agents.electrolysis;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
+import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -148,7 +150,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 
 	/** Returns hydrogen price forecast associated with given TimePeriod
 	 * 
-	 * @param timePeriod to search for associated hydrogen price
+	 * @param  timePeriod to search for associated hydrogen price
 	 * @return hydrogen price forecast in EUR per thermal MWh or, if not present, {@link Double#MAX_VALUE} */
 	protected double getHydrogenPriceForPeriod(TimePeriod timePeriod) {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
@@ -156,7 +158,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	}
 	
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
-	public void setYieldPotentialRenewable(double yieldPotentialRenewable) {
+	public void calcMaximumConsumption(AmountAtTime yieldPotential) {
 
 	}
 }
