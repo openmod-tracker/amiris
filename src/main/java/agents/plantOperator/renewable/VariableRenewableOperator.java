@@ -22,30 +22,46 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** An operator of variable renewable energy sources plants that depend on a yield profile.
+/**
+ * An operator of variable renewable energy sources plants that depend on a
+ * yield profile.
  * 
- * @author Christoph Schimeczek, Johannes Kochems */
+ * @author Christoph Schimeczek, Johannes Kochems
+ */
 public class VariableRenewableOperator extends RenewablePlantOperator {
-	@Input private static final Tree parameters = Make.newTree().add(Make.newSeries("YieldProfile")).buildTree();
-	
+	@Input
+	private static final Tree parameters = Make.newTree()
+			.add(Make.newSeries("YieldProfile"), Make.newDouble("PpaPriceInEURperMWH").optional()).buildTree();
+
 	/** Products of {@link VariableRenewableOperator}s */
 	@Product
 	public static enum Products {
-		/** Yield potential to inform the ElectrolysisTrader of the amount of electricity*/
-		YieldPotential
+		/**
+		 * Yield potential to inform the ElectrolysisTrader of the amount of electricity
+		 */
+		YieldPotential,
+		/**
+		 * Price set in PPA between renewable plant and electrolyzer
+		 */
+		PpaPrice
 	};
-	
-	private TimeSeries tsYieldProfile;
 
-	/** Creates an {@link VariableRenewableOperator}
+	private TimeSeries tsYieldProfile;
+	private double ppaPriceInEURperMWH;
+
+	/**
+	 * Creates an {@link VariableRenewableOperator}
 	 * 
 	 * @param dataProvider provides input from config
-	 * @throws MissingDataException if any required data is not provided */
+	 * @throws MissingDataException if any required data is not provided
+	 */
 	public VariableRenewableOperator(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
-		
+		ppaPriceInEURperMWH = input.getDoubleOrDefault("PpaPriceInEURperMWH", null);
+
+		call(this::sendPpaPrice).on(Products.PpaPrice);
 		call(this::sendAvailablePowerAtTime).on(Products.YieldPotential);
 	}
 
@@ -64,11 +80,18 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 	private double getYieldAtTime(TimeStamp time) {
 		return tsYieldProfile.getValueLinear(time);
 	}
+
+	/** @return send price set in PPA at given time */
+	private void sendPpaPrice(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimeStamp time = now();
+		fulfilNext(contract, new AmountAtTime(time, ppaPriceInEURperMWH));
+	}
 	
 	/** @return send available power at given time */
 	private void sendAvailablePowerAtTime(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp time = now(); 
+		TimeStamp time = now();
 		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
 		fulfilNext(contract, new AmountAtTime(time, availablePower));
 	}
