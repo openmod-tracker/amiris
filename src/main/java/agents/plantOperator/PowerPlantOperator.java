@@ -6,7 +6,6 @@ package agents.plantOperator;
 import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
-import agents.trader.PowerPlantScheduler;
 import agents.trader.Trader;
 import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
@@ -68,8 +67,8 @@ public abstract class PowerPlantOperator extends Agent {
 		ParameterData input = parameters.join(dataProvider);
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
 
-		call(this::executeDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
-				.use(PowerPlantScheduler.Products.DispatchAssignment);
+		call(this::executeDispatch).on(TraderWithClients.Products.DispatchAssignment)
+				.use(TraderWithClients.Products.DispatchAssignment);
 		call(this::digestPayment).on(TraderWithClients.Products.Payout).use(TraderWithClients.Products.Payout);
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}

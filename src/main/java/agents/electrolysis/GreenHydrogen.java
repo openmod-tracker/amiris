@@ -1,12 +1,12 @@
 package agents.electrolysis;
 
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
-import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 public class GreenHydrogen extends ElectrolyzerStrategist {
 	public static enum TemporalCorrelationPeriod {
@@ -38,8 +38,8 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 	}
 
 	@Override
-	public void calcMaximumConsumption(AmountAtTime yieldPotential) {
-		maximumConsumption = electrolyzer.calcCappedElectricDemandInMW(yieldPotential.amount, yieldPotential.validAt);
+	public void updateMaximumConsumption(TimeStamp time, double yieldPotential) {
+		maximumConsumption = electrolyzer.calcCappedElectricDemandInMW(yieldPotential, time);
 	}
 
 	@Override
@@ -56,7 +56,6 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 	@Override
 	protected void updateSchedule(TimePeriod timePeriod) {
 		updateScheduleArrays(actualProducedHydrogen);
-
 	}
 
 	/** transfer optimised dispatch to schedule arrays */
