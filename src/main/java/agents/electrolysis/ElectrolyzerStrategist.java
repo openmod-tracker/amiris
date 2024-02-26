@@ -150,15 +150,20 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 
 	/** Returns hydrogen price forecast associated with given TimePeriod
 	 * 
-	 * @param  timePeriod to search for associated hydrogen price
+	 * @param timePeriod to search for associated hydrogen price
 	 * @return hydrogen price forecast in EUR per thermal MWh or, if not present, {@link Double#MAX_VALUE} */
 	protected double getHydrogenPriceForPeriod(TimePeriod timePeriod) {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
 	}
-	
+
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
 	public void calcMaximumConsumption(AmountAtTime yieldPotential) {
 
+	}
+
+	/** Dummy method to be overwritten in GreenHydrogen strategist */
+	public double getMaximumConsumption() {
+		return Double.NaN;
 	}
 }
