@@ -5,10 +5,8 @@ package agents.electrolysis;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
-
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
-import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -162,6 +160,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
 	public void updateMaximumConsumption(TimeStamp time, double yieldPotential) {
+<<<<<<< Upstream, based on origin/dev
 
 	}
 
@@ -175,6 +174,8 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 >>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
 	public void calcMaximumConsumption(AmountAtTime yieldPotential) {
+=======
+>>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
 	}

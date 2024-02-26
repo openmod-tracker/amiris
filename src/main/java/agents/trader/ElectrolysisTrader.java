@@ -19,6 +19,7 @@ import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
+import agents.plantOperator.renewable.VariableRenewableOperator;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
@@ -50,7 +51,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
  * @author Christoph Schimeczek */
-public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
+public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
 =======
  * @author Christoph Schimeczek
@@ -122,6 +123,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 >>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(VariableRenewableOperator.Products.PpaInformation);
 =======
@@ -130,9 +132,14 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 =======
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
 >>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
+=======
+		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment)
+				.use(VariableRenewableOperator.Products.PpaInformation);
+>>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
 		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
+<<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
@@ -145,6 +152,9 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
 =======
 >>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
+=======
+		call(this::payoutClient).on(TraderWithClients.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
+>>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
@@ -274,6 +284,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * @param contracts with the {@link VariableRenewablePlantOperator} to send it the dispatch assignment */
 	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
+<<<<<<< Upstream, based on origin/dev
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
 		strategist.updateMaximumConsumption(ppaInformation.validAt, ppaInformation.yieldPotential);
@@ -295,8 +306,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * @param messages not used
 	 * @param contracts with the {@link VariableRenewablePlantOperator} to send it the dispatch assignment */
 	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
+=======
+>>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		AmountAtTime dispatch = new AmountAtTime(now(), strategist.getMaximumConsumption());
+		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
+		strategist.updateMaximumConsumption(ppaInformation.validAt, ppaInformation.yieldPotential);
+		AmountAtTime dispatch = new AmountAtTime(ppaInformation.validAt, strategist.getMaximumConsumption());
 		fulfilNext(contract, dispatch);
 	}
 
@@ -393,6 +408,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 <<<<<<< Upstream, based on origin/dev
 
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 	/** Pay client according to PPA specification
 	 * 
 	 * @param messages contain PPA information
@@ -436,6 +452,22 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 =======
 
 >>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
+=======
+	/** Pay client according to PPA specification
+	 * 
+	 * @param messages contain PPA information
+	 * @param contracts payment to client from PPA */
+	private void payoutClient(ArrayList<Message> messages, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(messages);
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
+		double payment = strategist.getMaximumConsumption() * ppaInformation.price;
+		AmountAtTime paymentToClient = new AmountAtTime(ppaInformation.validAt, payment);
+		fulfilNext(contract, paymentToClient);
+		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -payment);
+	}
+
+>>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 	@Override
 	protected double getInstalledCapacityInMW() {
 		return electrolyzer.getPeakPower(now());
