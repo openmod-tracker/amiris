@@ -1,3 +1,4 @@
+<<<<<<< Upstream, based on origin/dev
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -19,4 +20,17 @@ public interface PowerPlantScheduler extends AgentAbility {
 		DispatchAssignment
 	};
 
+=======
+package agents.trader;
+
+import de.dlr.gitlab.fame.communication.Product;
+
+public interface PowerPlantScheduler {
+	/** Products of {@link PowerPlantScheduler} */
+	@Product
+	public static enum Products {
+		/** Electricity production assignment to clients */
+		DispatchAssignment
+	};
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 }

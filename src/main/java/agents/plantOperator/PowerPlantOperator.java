@@ -69,7 +69,11 @@ public abstract class PowerPlantOperator extends Agent {
 
 		call(this::executeDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(PowerPlantScheduler.Products.DispatchAssignment);
+<<<<<<< Upstream, based on origin/dev
 		call(this::digestPayment).on(PowerPlantScheduler.Products.Payout).use(PowerPlantScheduler.Products.Payout);
+=======
+		call(this::digestPayment).on(TraderWithClients.Products.Payout).use(TraderWithClients.Products.Payout);
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 

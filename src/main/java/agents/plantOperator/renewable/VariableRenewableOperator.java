@@ -6,16 +6,24 @@ package agents.plantOperator.renewable;
 import java.util.ArrayList;
 import java.util.List;
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 =======
 
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
+=======
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 import agents.plantOperator.RenewablePlantOperator;
+<<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 import agents.trader.ElectrolysisTrader;
 import communications.message.ClearingTimes;
 =======
 import communications.message.AmountAtTime;
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
+=======
+import agents.trader.ElectrolysisTrader;
+import communications.message.ClearingTimes;
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 import communications.message.MarginalCost;
 import communications.message.PpaInformation;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -41,13 +49,11 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/**
- * An operator of variable renewable energy sources plants that depend on a
- * yield profile.
+/** An operator of variable renewable energy sources plants that depend on a yield profile.
  * 
- * @author Christoph Schimeczek, Johannes Kochems
- */
+ * @author Christoph Schimeczek, Johannes Kochems */
 public class VariableRenewableOperator extends RenewablePlantOperator {
+<<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 	@Input private static final Tree parameters = Make.newTree()
@@ -67,19 +73,17 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 	@Input
 	private static final Tree parameters = Make.newTree()
 			.add(Make.newSeries("YieldProfile"), Make.newDouble("PpaPriceInEURperMWH").optional()).buildTree();
+=======
+	@Input private static final Tree parameters = Make.newTree()
+			.add(Make.newSeries("YieldProfile"), Make.newSeries("PpaPriceInEURperMWH").optional()).buildTree();
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 
 >>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 	/** Products of {@link VariableRenewableOperator}s */
 	@Product
 	public static enum Products {
-		/**
-		 * Yield potential to inform the ElectrolysisTrader of the amount of electricity
-		 */
-		YieldPotential,
-		/**
-		 * Price set in PPA between renewable plant and electrolyzer
-		 */
-		PpaPrice
+		/** Price set in PPA and the current yield potential */
+		PpaInformation
 	};
 <<<<<<< Upstream, based on origin/dev
 	
@@ -90,18 +94,17 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 >>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 
 	private TimeSeries tsYieldProfile;
-	private double ppaPriceInEURperMWH;
+	private TimeSeries ppaPriceInEURperMWH;
 
-	/**
-	 * Creates an {@link VariableRenewableOperator}
+	/** Creates an {@link VariableRenewableOperator}
 	 * 
 	 * @param dataProvider provides input from config
-	 * @throws MissingDataException if any required data is not provided
-	 */
+	 * @throws MissingDataException if any required data is not provided */
 	public VariableRenewableOperator(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
+<<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
@@ -111,11 +114,18 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		
 =======
 		ppaPriceInEURperMWH = input.getDoubleOrDefault("PpaPriceInEURperMWH", null);
+=======
+		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 
+<<<<<<< Upstream, based on origin/dev
 		call(this::sendPpaPrice).on(Products.PpaPrice);
 >>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 		call(this::sendAvailablePowerAtTime).on(Products.YieldPotential);
 >>>>>>> 1a6db84 Prepare data exchange between agents and classes
+=======
+		call(this::sendPpaInformation).on(Products.PpaInformation).use(ElectrolysisTrader.Products.PpaInformationRequest);
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 	}
 
 	/** @return single {@link MarginalCost} considering variable yield */
@@ -134,20 +144,17 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		return tsYieldProfile.getValueLinear(time);
 	}
 
-	/** @return send price set in PPA at given time */
-	private void sendPpaPrice(ArrayList<Message> input, List<Contract> contracts) {
+	/** @return send price and yield potential at given time */
+	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp time = now();
-		fulfilNext(contract, new AmountAtTime(time, ppaPriceInEURperMWH));
-	}
-	
-	/** @return send available power at given time */
-	private void sendAvailablePowerAtTime(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp time = now();
+		TimeStamp time = message.getDataItemOfType(ClearingTimes.class).getTimes().get(0);
+		double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);
 		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
-		fulfilNext(contract, new AmountAtTime(time, availablePower));
+		PpaInformation ppaInformation = new PpaInformation(time, ppaPrice, availablePower);
+		fulfilNext(contract, ppaInformation);
 	}
+<<<<<<< Upstream, based on origin/dev
 
 	/** @return send price and yield potential at given time */
 	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
@@ -159,4 +166,6 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		PpaInformation ppaInformation = new PpaInformation(time, ppaPrice, availablePower);
 		fulfilNext(contract, ppaInformation);
 	}
+=======
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 }

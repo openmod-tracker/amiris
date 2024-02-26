@@ -17,10 +17,15 @@ import de.dlr.gitlab.fame.communication.message.Message;
 /** Abstract base class for all traders at {@link DayAheadMarket} that require clients in order to create their bids.
  *
  * @author Christoph Schimeczek, A. Achraf El Ghazi */
-public abstract class TraderWithClients extends Trader {
+public abstract class TraderWithClients extends Trader implements PowerPlantScheduler {
 	/** Products of {@link TraderWithClients} */
 	@Product
 	public static enum Products {
+<<<<<<< Upstream, based on origin/dev
+=======
+		/** Money paid to clients */
+		Payout,
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 		/** Time of market clearing forwarded to clients */
 		GateClosureForward,
 		/** Time of forecast calculation forwarded to clients */

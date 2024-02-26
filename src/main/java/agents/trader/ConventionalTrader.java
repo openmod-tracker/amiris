@@ -61,7 +61,11 @@ public class ConventionalTrader extends TraderWithClients implements PowerPlantS
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::sendBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+<<<<<<< Upstream, based on origin/dev
 		call(this::payout).on(PowerPlantScheduler.Products.Payout).use(DayAheadMarket.Products.Awards);
+=======
+		call(this::payout).on(TraderWithClients.Products.Payout).use(DayAheadMarket.Products.Awards);
+>>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 	}
 
 	/** @throws RuntimeException if {@link #minMarkup} > {@link #maxMarkup} */
