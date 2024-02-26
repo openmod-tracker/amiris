@@ -5,10 +5,11 @@ package agents.plantOperator.renewable;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import agents.plantOperator.RenewablePlantOperator;
-import communications.message.AmountAtTime;
+import agents.trader.ElectrolysisTrader;
+import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
+import communications.message.PpaInformation;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -22,47 +23,34 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/**
- * An operator of variable renewable energy sources plants that depend on a
- * yield profile.
+/** An operator of variable renewable energy sources plants that depend on a yield profile.
  * 
- * @author Christoph Schimeczek, Johannes Kochems
- */
+ * @author Christoph Schimeczek, Johannes Kochems */
 public class VariableRenewableOperator extends RenewablePlantOperator {
-	@Input
-	private static final Tree parameters = Make.newTree()
-			.add(Make.newSeries("YieldProfile"), Make.newDouble("PpaPriceInEURperMWH").optional()).buildTree();
+	@Input private static final Tree parameters = Make.newTree()
+			.add(Make.newSeries("YieldProfile"), Make.newSeries("PpaPriceInEURperMWH").optional()).buildTree();
 
 	/** Products of {@link VariableRenewableOperator}s */
 	@Product
 	public static enum Products {
-		/**
-		 * Yield potential to inform the ElectrolysisTrader of the amount of electricity
-		 */
-		YieldPotential,
-		/**
-		 * Price set in PPA between renewable plant and electrolyzer
-		 */
-		PpaPrice
+		/** Price set in PPA and the current yield potential */
+		PpaInformation
 	};
 
 	private TimeSeries tsYieldProfile;
-	private double ppaPriceInEURperMWH;
+	private TimeSeries ppaPriceInEURperMWH;
 
-	/**
-	 * Creates an {@link VariableRenewableOperator}
+	/** Creates an {@link VariableRenewableOperator}
 	 * 
 	 * @param dataProvider provides input from config
-	 * @throws MissingDataException if any required data is not provided
-	 */
+	 * @throws MissingDataException if any required data is not provided */
 	public VariableRenewableOperator(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
-		ppaPriceInEURperMWH = input.getDoubleOrDefault("PpaPriceInEURperMWH", null);
+		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
 
-		call(this::sendPpaPrice).on(Products.PpaPrice);
-		call(this::sendAvailablePowerAtTime).on(Products.YieldPotential);
+		call(this::sendPpaInformation).on(Products.PpaInformation).use(ElectrolysisTrader.Products.PpaInformationRequest);
 	}
 
 	/** @return single {@link MarginalCost} considering variable yield */
@@ -81,19 +69,14 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		return tsYieldProfile.getValueLinear(time);
 	}
 
-	/** @return send price set in PPA at given time */
-	private void sendPpaPrice(ArrayList<Message> input, List<Contract> contracts) {
+	/** @return send price and yield potential at given time */
+	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
+		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp time = now();
-		fulfilNext(contract, new AmountAtTime(time, ppaPriceInEURperMWH));
-	}
-	
-	/** @return send available power at given time */
-	private void sendAvailablePowerAtTime(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp time = now();
+		TimeStamp time = message.getDataItemOfType(ClearingTimes.class).getTimes().get(0);
+		double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);
 		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
-		fulfilNext(contract, new AmountAtTime(time, availablePower));
+		PpaInformation ppaInformation = new PpaInformation(time, ppaPrice, availablePower);
+		fulfilNext(contract, ppaInformation);
 	}
-
 }

@@ -12,7 +12,7 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 	public static enum TemporalCorrelationPeriod {
 		HOURLY, MONTHLY,
 	}
-	
+
 	static final String ERR_CORRELATION_PERIOD_NOT_IMPLEMENTED = "Correlation period is not implemented yet: ";
 
 	/** Inputs specific to {@link GreenHydrogen} electrolyzer strategists */
@@ -24,15 +24,11 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 	private final TemporalCorrelationPeriod temporalCorrelationPeriod;
 	private double maximumConsumption;
 
-	/**
-	 * Create new {@link GreenHydrogen}
+	/** Create new {@link GreenHydrogen}
 	 * 
-	 * @param generalInput  parameter group associated with flexibility strategists
-	 *                      in general
-	 * @param specificInput parameter group associated with this strategist in
-	 *                      specific
-	 * @throws MissingDataException if any required input data is missing
-	 */
+	 * @param generalInput parameter group associated with flexibility strategists in general
+	 * @param specificInput parameter group associated with this strategist in specific
+	 * @throws MissingDataException if any required input data is missing */
 	public GreenHydrogen(ParameterData generalInput, ParameterData specificInput) throws MissingDataException {
 		super(generalInput);
 		temporalCorrelationPeriod = specificInput.getEnum("TemporalCorrelationPeriod", TemporalCorrelationPeriod.class);
@@ -44,6 +40,11 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 	@Override
 	public void calcMaximumConsumption(AmountAtTime yieldPotential) {
 		maximumConsumption = electrolyzer.calcCappedElectricDemandInMW(yieldPotential.amount, yieldPotential.validAt);
+	}
+
+	@Override
+	public double getMaximumConsumption() {
+		return maximumConsumption;
 	}
 
 	@Override
