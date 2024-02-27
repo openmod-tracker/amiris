@@ -49,7 +49,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** A flexible Trader demanding electricity and producing hydrogen from it via electrolysis.
  * 
  * @author Christoph Schimeczek */
-public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader {
+public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
 			.addAs("Strategy", ElectrolyzerStrategist.parameters)
 			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
@@ -90,12 +90,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(FuelsMarket.Products.FuelPriceForecast);
 		call(this::forwardClearingTimes).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment)
+		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(VariableRenewableOperator.Products.PpaInformation);
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
 		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
-		call(this::payoutClient).on(TraderWithClients.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
+		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for

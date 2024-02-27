@@ -20,6 +20,7 @@ import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.SupportPolicy;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import agents.trader.ClientData;
+import agents.trader.PowerPlantScheduler;
 import agents.trader.Trader;
 import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
@@ -49,7 +50,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Aggregates supply capacity and administers support payments to plant operators
  * 
  * @author Johannes Kochems, Christoph Schimeczek, Felix Nitsch, Farzad Sarfarazi, Kristina Nienhaus */
-public abstract class AggregatorTrader extends TraderWithClients {
+public abstract class AggregatorTrader extends TraderWithClients implements PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
 			.buildTree();
 
@@ -115,10 +116,10 @@ public abstract class AggregatorTrader extends TraderWithClients {
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 		call(this::sendYieldPotentials).on(Products.YieldPotential).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
 		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
-		call(this::payoutClients).on(TraderWithClients.Products.Payout);
+		call(this::payoutClients).on(PowerPlantScheduler.Products.Payout);
 	}
 
 	/** Extract information on {@link TechnologySet} and add it to the client data collection

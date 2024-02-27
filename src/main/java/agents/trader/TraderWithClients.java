@@ -21,14 +21,10 @@ public abstract class TraderWithClients extends Trader {
 	/** Products of {@link TraderWithClients} */
 	@Product
 	public static enum Products {
-		/** Money paid to clients */
-		Payout,
 		/** Time of market clearing forwarded to clients */
 		GateClosureForward,
 		/** Time of forecast calculation forwarded to clients */
-		ForecastRequestForward,
-		/** Electricity production assignment to clients */
-		DispatchAssignment
+		ForecastRequestForward
 	};
 
 	/** Creates a {@link TraderWithClients}

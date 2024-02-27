@@ -1,0 +1,19 @@
+package agents.trader;
+
+import de.dlr.gitlab.fame.agent.AgentAbility;
+import de.dlr.gitlab.fame.communication.Product;
+
+
+
+public interface PowerPlantScheduler extends AgentAbility {
+
+	/** Products of {@link PowerPlantScheduler} */
+	@Product
+	public static enum Products {
+		/** Money paid to clients */
+		Payout,
+		/** Electricity production assignment to clients */
+		DispatchAssignment
+	};
+
+}

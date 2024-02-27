@@ -220,7 +220,7 @@ AgentTypes:
             AttributeType: time_series
             Mandatory: true
             List: false
-    Products: [ 'Bids', 'BidsForecast']
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
 
   ConventionalTrader:
     Attributes:
@@ -232,7 +232,7 @@ AgentTypes:
         AttributeType: double
         Mandatory: true
         List: false
-    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward']
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
 
   StorageTrader:
     Attributes:
@@ -342,7 +342,7 @@ AgentTypes:
                 Mandatory: false
                 List: false
                 help: "Accepted tolerance for dispatch deviations in MWh." 
-    Products: [ 'Bids', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'AnnualCostReport' ]
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
 
   RenewableTrader:
     Attributes:
@@ -384,7 +384,7 @@ AgentTypes:
             AttributeType: time_series
             Mandatory: true
             List: false
-    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', ]
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
 
   NoSupportTrader:
     Attributes:
@@ -407,7 +407,7 @@ AgentTypes:
             Mandatory: false
             List: false
             help: "Standard deviation of the relative power forecasting errors"
-    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', ]
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
     
   SystemOperatorTrader:
     Attributes:
@@ -426,7 +426,7 @@ AgentTypes:
             Mandatory: false
             List: false
             help: "Standard deviation of the relative power forecasting errors"
-    Products: [ 'Bids', 'BidsForecast', 'Payout', 'DispatchAssignment', 'GateClosureForward', 'ForecastRequestForward', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', ]
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'SupportInfoRequest', 'SupportPayoutRequest', 'YieldPotential', 'GateClosureForward', 'ForecastRequestForward', 'AnnualCostReport' ]
  
   MeritOrderForecaster:
     Attributes:
@@ -545,6 +545,10 @@ AgentTypes:
         AttributeType: time_series
         Mandatory: true
         List: false
+      PpaPriceInEURperMWH:
+        AttributeType: time_series
+        Mandatory: false
+        List: false
       Refinancing:
         AttributeType: block
         Mandatory: false
@@ -562,7 +566,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
-    Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration' ]
+    Products: [ 'MarginalCost', 'MarginalCostForecast', 'SetRegistration', 'PpaInformation' ]
 
   Biogas:
     Attributes:
@@ -813,7 +817,7 @@ AgentTypes:
             AttributeType: enum
             Mandatory: true
             List: false
-            Values: [ 'DISPATCH_FILE', 'SINGLE_AGENT_SIMPLE' ]
+            Values: [ 'DISPATCH_FILE', 'SINGLE_AGENT_SIMPLE', 'GREEN_HYDROGEN']
           ForecastPeriodInHours:
             AttributeType: integer
             Mandatory: true
@@ -875,4 +879,15 @@ AgentTypes:
                 AttributeType: double
                 Mandatory: true
                 List: false
-    Products: [ 'Bids', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'AnnualCostReport', 'FuelBid', 'FuelPriceRequest', 'FuelPriceForecastRequest', ]
+          GreenHydrogen:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            NestedAttributes:
+              TemporalCorrelationPeriod:
+                AttributeType: enum
+                Mandatory: true
+                List: false
+                Values: [ 'HOURLY', 'MONTHLY' ]
+                help: "Period in which electrolyzer production must match production of associated renewable plant"
+    Products: [ 'Bids', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'AnnualCostReport', 'FuelBid', 'FuelPriceRequest', 'FuelPriceForecastRequest', 'PpaInformationRequest', 'Payout', 'DispatchAssignment']
