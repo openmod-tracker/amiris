@@ -6,6 +6,7 @@ package agents.plantOperator;
 import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
+import agents.trader.PowerPlantScheduler;
 import agents.trader.Trader;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.Agent;
@@ -67,6 +68,7 @@ public abstract class PowerPlantOperator extends Agent {
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
 
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 		call(this::executeDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(PowerPlantScheduler.Products.DispatchAssignment);
 <<<<<<< Upstream, based on origin/dev
@@ -78,6 +80,11 @@ public abstract class PowerPlantOperator extends Agent {
 >>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 		call(this::digestPayment).on(TraderWithClients.Products.Payout).use(TraderWithClients.Products.Payout);
 >>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
+=======
+		call(this::executeDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
+				.use(PowerPlantScheduler.Products.DispatchAssignment);
+		call(this::digestPayment).on(PowerPlantScheduler.Products.Payout).use(PowerPlantScheduler.Products.Payout);
+>>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 

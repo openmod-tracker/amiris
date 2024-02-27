@@ -34,7 +34,7 @@ import util.Util;
 /** Sells energy of one conventional PowerPlantOperator at the {@link DayAheadMarket}
  *
  * @author Christoph Schimeczek, Marc Deissenroth, Ulrich Frey */
-public class ConventionalTrader extends TraderWithClients {
+public class ConventionalTrader extends TraderWithClients implements PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("minMarkup"), Make.newDouble("maxMarkup")).buildTree();
 
@@ -61,6 +61,7 @@ public class ConventionalTrader extends TraderWithClients {
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::sendBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 <<<<<<< Upstream, based on origin/dev
 		call(this::payout).on(PowerPlantScheduler.Products.Payout).use(DayAheadMarket.Products.Awards);
@@ -70,6 +71,10 @@ public class ConventionalTrader extends TraderWithClients {
 >>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 		call(this::payout).on(TraderWithClients.Products.Payout).use(DayAheadMarket.Products.Awards);
 >>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
+=======
+		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+		call(this::payout).on(PowerPlantScheduler.Products.Payout).use(DayAheadMarket.Products.Awards);
+>>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
 	}
 
 	/** @throws RuntimeException if {@link #minMarkup} > {@link #maxMarkup} */

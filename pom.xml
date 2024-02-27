@@ -5,7 +5,11 @@ SPDX-License-Identifier: Apache-2.0 -->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.dlr.gitlab.amiris</groupId>
 	<artifactId>amiris-core</artifactId>
+<<<<<<< Upstream, based on origin/dev
 	<version>2.2.0</version>
+=======
+	<version>2.0.0-alpha.33</version>
+>>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
 
 	<dependencies>
 		<dependency>

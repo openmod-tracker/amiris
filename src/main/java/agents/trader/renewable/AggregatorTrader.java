@@ -20,6 +20,7 @@ import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.SupportPolicy;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import agents.trader.ClientData;
+import agents.trader.PowerPlantScheduler;
 import agents.trader.Trader;
 import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
@@ -115,7 +116,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 		call(this::sendYieldPotentials).on(Products.YieldPotential).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
 		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
 		call(this::payoutClients).on(PowerPlantScheduler.Products.Payout);

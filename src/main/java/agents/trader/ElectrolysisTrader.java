@@ -51,7 +51,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
  * @author Christoph Schimeczek */
-public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader {
+public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
 =======
  * @author Christoph Schimeczek
@@ -124,6 +124,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(VariableRenewableOperator.Products.PpaInformation);
 =======
@@ -134,11 +135,15 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 >>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 =======
 		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment)
+=======
+		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
+>>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
 				.use(VariableRenewableOperator.Products.PpaInformation);
 >>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
 		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
+<<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
@@ -155,6 +160,9 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 =======
 		call(this::payoutClient).on(TraderWithClients.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
 >>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
+=======
+		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
+>>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
