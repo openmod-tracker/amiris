@@ -44,6 +44,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
 			.addAs("FixedDispatch", FileDispatcher.parameters).addAs("Simple", SingleAgentSimple.parameters)
+			.addAs("GreenHydrogen", GreenHydrogen.parameters)
 			.add(Make.newSeries("PriceLimitOverrideInEURperMWH").optional().help("Overrides hydrogen prices"))
 			.buildTree();
 

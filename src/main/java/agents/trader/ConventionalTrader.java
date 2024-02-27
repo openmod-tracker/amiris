@@ -34,7 +34,7 @@ import util.Util;
 /** Sells energy of one conventional PowerPlantOperator at the {@link DayAheadMarket}
  *
  * @author Christoph Schimeczek, Marc Deissenroth, Ulrich Frey */
-public class ConventionalTrader extends TraderWithClients {
+public class ConventionalTrader extends TraderWithClients implements PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("minMarkup"), Make.newDouble("maxMarkup")).buildTree();
 
@@ -60,8 +60,8 @@ public class ConventionalTrader extends TraderWithClients {
 		call(this::sendForecastBids).on(Trader.Products.BidsForecast)
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::sendBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
-		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
-		call(this::payout).on(TraderWithClients.Products.Payout).use(DayAheadMarket.Products.Awards);
+		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+		call(this::payout).on(PowerPlantScheduler.Products.Payout).use(DayAheadMarket.Products.Awards);
 	}
 
 	/** @throws RuntimeException if {@link #minMarkup} > {@link #maxMarkup} */
