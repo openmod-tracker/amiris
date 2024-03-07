@@ -1,4 +1,7 @@
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
+=======
+>>>>>>> daf2b0e Add license information
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
