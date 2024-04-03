@@ -3,6 +3,11 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
+## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.0.0) - TBA
+
+### Added
+- Metadata functionality added in schema.yaml #102 (@litotes18)
+
 ## [2.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.0.0) - TBA
 _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 
@@ -39,7 +44,6 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - SystemCostMinimizer modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
-- Metadata functionality added in schema.yaml #102 (@litotes18)
 - ArbitrageStrategist performs rounding of energy states and throws warning if not within tolerance #78 (@dlr_fn, @dlr-cjs, @dlr_elghazi)
 - Newly raised error if in ConventionalPlantOperator no money foreseen for `Payout` is assigned to plants #89 (@litotes18, @dlr_jk, @dlr-cjs)
 - StorageTrader now extends FlexibilityTrader #54 (@dlr-cjs, @dlr_jk)
