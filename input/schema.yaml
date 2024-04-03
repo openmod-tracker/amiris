@@ -814,19 +814,19 @@ AgentTypes:
                   Description: "PV"
                   OEONearestConcept:
               WindOn:
-              MetaData:
+                MetaData:
                   Description: "Wind onshore"
                   OEONearestConcept:
               WindOff:
-              MetaData:
+                MetaData:
                   Description: "Wind offshore"
                   OEONearestConcept:
               RunOfRiver:
-              MetaData:
+                MetaData:
                   Description: "Run of river"
                   OEONearestConcept:
               Other:
-              MetaData:
+                MetaData:
                   Description: "Other"
                   OEONearestConcept:
           Forecast:
@@ -1896,7 +1896,10 @@ AgentTypes:
       Strategy:
         AttributeType: block
         Mandatory: true
-        List: false        
+        List: false
+        MetaData:
+          Description: "The strategy."
+          OEONearestConcept:
         NestedAttributes:
           StrategistType:
             AttributeType: enum
@@ -2008,9 +2011,6 @@ AgentTypes:
                 MetaData:
                   Description:
                   OEONearestConcept:
-            MetaData:
-              Description: "The strategy."
-              OEONearestConcept:
     Products:
       Bids:
         MetaData:
