@@ -3,6 +3,10 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
+## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.1.0) - 2024-04-04
+### Changed
+- Increased FAME-Core version to 1.6 #106 (@dlr-cjs, @dlr_fn)
+
 ## [2.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.0.0) - 2024-03-12
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 
