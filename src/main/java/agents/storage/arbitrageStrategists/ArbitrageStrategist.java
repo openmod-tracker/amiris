@@ -110,26 +110,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	 * steps used for internal energy changes. Logs warning if the discretised total capacity of the storage significantly deviates
 	 * from its parameterised value.
 	 * 
-<<<<<<< HEAD
-	 * @param initialEnergyInStorage initial internal energy level in MWh of the storage at the beginning of the first hour of
-	 *          planning interval */
-	protected void correctForRoundingErrors(double initialEnergyInStorage) {
-		double maxCapacity = storage.getEnergyStorageCapacityInMWH();
-		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			scheduledInitialInternalEnergyInMWH[period] = initialEnergyInStorage;
-			double internalChargingPower = storage.externalToInternalEnergy(demandScheduleInMWH[period]);
-			double nextEnergy = Math.max(0, Math.min(maxCapacity, initialEnergyInStorage + internalChargingPower));
-			demandScheduleInMWH[period] = storage.internalToExternalEnergy(nextEnergy - initialEnergyInStorage);
-			initialEnergyInStorage = nextEnergy;
-		}
-	}
-
-	/** Calculates number of energy states, logs warning if rounding is needed
-	 * 
-	 * @param numberOfTransitionStates number of discrete transition states between storage levels
-=======
 	 * @param numberOfTransitionStates number of states the (dis-)charging power is discretised with
->>>>>>> refs/heads/main
 	 * @return numberOfTransitionStates (rounded to closest integer) */
 	protected int calcNumberOfEnergyStates(int numberOfTransitionStates) {
 		double numberOfEnergyStates = numberOfTransitionStates * storage.getEnergyToPowerRatio() + 1;
