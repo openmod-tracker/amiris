@@ -79,15 +79,9 @@ compatibility:jdk21:
   image: maven:3-eclipse-temurin-21
 
 
-# General settings for stage "deploy", only run when merged to branch `main`
-.deploy:
-  stage: deploy
-  only:
-    - main
-
 # Package AMIRIS & build javadoc
 deploy:jdk11:
-  extends: .deploy
+  stage: deploy
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
     - 'mvn javadoc:javadoc'
@@ -101,7 +95,7 @@ deploy:jdk11:
 
 # Publish javadoc to pages
 pages:
-  extends: .post
+  stage: .post
   script:
     - mkdir .public
     - cp -r target/site/apidocs/* .public
