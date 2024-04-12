@@ -36,14 +36,16 @@ public class MarketCoupling extends Agent {
 	static final String NO_AGENT_FOR_REGION = "No exchange agent found with region: ";
 	static final double DEFAULT_DEMAND_SHIFT_OFFSET = 1.0;
 
+	/** Products of {@link MarketCoupling} */
 	@Product
 	public static enum Products {
+		/** Result of the market coupling */
 		MarketCouplingResult
 	};
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("MinimumDemandOffsetInMWH").optional()
-							.help("Offset added to the demand shift that ensures a price change at the involved markets."))
+					.help("Offset added to the demand shift that ensures a price change at the involved markets."))
 			.buildTree();
 
 	@Output
@@ -55,15 +57,19 @@ public class MarketCoupling extends Agent {
 		OriginAgentId, TargetAgentId
 	}
 
-	public static final ComplexIndex<TransferKey> availableCapacity = ComplexIndex
+	private static final ComplexIndex<TransferKey> availableCapacity = ComplexIndex
 			.build(OutputColumns.AvailableTransferCapacityInMWH, TransferKey.class);
-	public static final ComplexIndex<TransferKey> usedCapacity = ComplexIndex.build(
+	private static final ComplexIndex<TransferKey> usedCapacity = ComplexIndex.build(
 			OutputColumns.UsedTransferCapacityInMWH, TransferKey.class);
 
 	private final DemandBalancer demandBalancer;
 	private Map<Long, CouplingData> couplingRequests = new HashMap<>();
 	private Map<Long, TransmissionBook> initialTransmissionBookByMarket = new HashMap<>();
 
+	/** Creates an {@link MarketCoupling}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public MarketCoupling(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
@@ -77,8 +83,8 @@ public class MarketCoupling extends Agent {
 	/** Action for the joint clearing of coupled markets
 	 * <ul>
 	 * <li>Ensures that this agent receives only one message from each contracted {@link EnergyExchange}.</li>
-	 * <li>Reads the CouplingRequest(s) received from the EnergyExchage(s) and stores them in the
-	 * {@link MarketCoupling #couplingRequests} map.</li>
+	 * <li>Reads the CouplingRequest(s) received from the EnergyExchage(s) and stores them in the {@link MarketCoupling
+	 * #couplingRequests} map.</li>
 	 * <li>Starts the actual coupled market-clearing algorithm.</li>
 	 * <li>Sends result of the coupled market-clearing to contracted EnergyExchanges.</li>
 	 * </ul>
@@ -118,8 +124,8 @@ public class MarketCoupling extends Agent {
 			ArrayList<TransmissionCapacity> initialTransmissionBook = initialTransmissionBookByMarket.get(originId)
 					.getTransmissionCapacities();
 			for (int i = 0; i < transmissionBook.size(); i++) {
-				double remainingCapacity = transmissionBook.get(i).getAmount();
-				double initialCapacity = initialTransmissionBook.get(i).getAmount();
+				double remainingCapacity = transmissionBook.get(i).getRemainingTransferCapacityInMW();
+				double initialCapacity = initialTransmissionBook.get(i).getRemainingTransferCapacityInMW();
 				Region targetRegion = transmissionBook.get(i).getTarget();
 				Long targetId = getAgentIdOfRegion(targetRegion);
 				store(

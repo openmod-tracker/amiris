@@ -21,8 +21,8 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public abstract class OrderBook implements Portable {
-	public static final String ERR_NEGATIVE_SUPPLY_POWER = "Negative supply bid power is forbidded. Bid: ";
-	public static final String ERR_NEGATIVE_DEMAND_POWER = "Negative demand bid power is forbidded - use ImportTrader. Bid: ";
+	static final String ERR_NEGATIVE_SUPPLY_POWER = "Negative supply bid power is forbidded. Bid: ";
+	static final String ERR_NEGATIVE_DEMAND_POWER = "Negative demand bid power is forbidded - use ImportTrader. Bid: ";
 
 	/** required for {@link Portable}s */
 	public OrderBook() {}

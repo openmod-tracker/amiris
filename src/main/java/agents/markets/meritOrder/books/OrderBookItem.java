@@ -17,11 +17,6 @@ public class OrderBookItem implements Portable {
 	static final String ERR_NEGATIVE_POWER = "OrderBookItems with negative power received from Trader: ";
 
 	static final Comparator<OrderBookItem> BY_PRICE = Comparator.comparing(item -> item.getOfferPrice());
-	public static final Comparator<OrderBookItem> BY_POWER = Comparator.comparing(item -> item.getBlockPower());
-	public static final Comparator<OrderBookItem> BY_PRICE_THEN_POWER = Comparator.comparing(OrderBookItem::getOfferPrice)
-			.thenComparing(OrderBookItem::getBlockPower);
-	public static final Comparator<OrderBookItem> BY_PRICE_REVERSED_THEN_POWER = Comparator
-			.comparing(OrderBookItem::getOfferPrice).reversed().thenComparing(OrderBookItem::getBlockPower);
 	private Bid bid;
 	private double cumulatedPowerUpperValue = Double.NaN;
 	private double awardedPower = Double.NaN;

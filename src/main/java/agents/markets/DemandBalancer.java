@@ -26,6 +26,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class DemandBalancer {
 	private static final Logger logger = LoggerFactory.getLogger(DemandBalancer.class);
+	/** Minimal amount of energy to be shifted between markets */
 	public static final double MIN_SHIFT_AMOUNT_IN_MWH = 0.1;
 
 	private class DemandShiftResult {
@@ -55,6 +56,10 @@ public class DemandBalancer {
 	private Map<Long, CouplingData> couplingRequests;
 	private Map<Long, ClearingResult> clearingResults = new HashMap<>();
 
+	/** Creates new {@link DemandBalancer}
+	 * 
+	 * @param minEffectiveDemandOffset added to the demand shift in order to enforce price changes
+	 * @param timeStamp for which the demand balancing is done; used to write a clear error message */
 	public DemandBalancer(double minEffectiveDemandOffset, TimeStamp timeStamp) {
 		this.minEffectiveDemandOffset = minEffectiveDemandOffset;
 		this.timeStamp = timeStamp;

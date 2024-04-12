@@ -13,7 +13,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class TransmissionCapacity implements Portable {
 	private Region target;
-	private double amount;
+	private double remainingTransferCapacityInMW;
 
 	/** required for {@link Portable}s */
 	public TransmissionCapacity() {}
@@ -24,19 +24,19 @@ public class TransmissionCapacity implements Portable {
 	 * @param amount of energy that can be maximally transfered from origin {@link Region} to target */
 	public TransmissionCapacity(Region target, double amount) {
 		this.target = target;
-		this.amount = amount;
+		this.remainingTransferCapacityInMW = amount;
 	}
 
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeInts(target.ordinal());
-		collector.storeDoubles(amount);
+		collector.storeDoubles(remainingTransferCapacityInMW);
 	}
 
 	@Override
 	public void populate(ComponentProvider provider) {
 		target = Region.values()[provider.nextInt()];
-		amount = provider.nextDouble();
+		remainingTransferCapacityInMW = provider.nextDouble();
 	}
 
 	@Override
@@ -48,26 +48,31 @@ public class TransmissionCapacity implements Portable {
 			return false;
 		}
 		TransmissionCapacity other = (TransmissionCapacity) o;
-		return other.target.equals(target) && other.amount == amount;
+		return other.target.equals(target) && other.remainingTransferCapacityInMW == remainingTransferCapacityInMW;
 	}
 
 	/** @return a deep copy of TransmissionCapacity caller */
 	public TransmissionCapacity clone() {
 		TransmissionCapacity transmissionCapacity = new TransmissionCapacity();
 		transmissionCapacity.target = this.target;
-		transmissionCapacity.amount = this.amount;
+		transmissionCapacity.remainingTransferCapacityInMW = this.remainingTransferCapacityInMW;
 		return transmissionCapacity;
 	}
 
+	/** @return region that is the target of the transmission */
 	public Region getTarget() {
 		return target;
 	}
 
-	public double getAmount() {
-		return amount;
+	/** @return remaining amount of energy that can be transferred to the target region */
+	public double getRemainingTransferCapacityInMW() {
+		return remainingTransferCapacityInMW;
 	}
 
-	public void setAmount(double amount) {
-		this.amount = amount;
+	/** updates remaining transfer capacity to the given value
+	 * 
+	 * @param newRemainingTransferCapacityInMW to be used as new value */
+	public void setRemainingTransferCapacityInMW(double newRemainingTransferCapacityInMW) {
+		this.remainingTransferCapacityInMW = newRemainingTransferCapacityInMW;
 	}
 }
