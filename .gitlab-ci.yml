@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: CC0-1.0
 
 stages:
+  - changelog
   - lint
   - test
   - compatibility
@@ -24,6 +25,18 @@ cache:
   paths:
     - .m2/repository
 
+
+# Ensure CHANGELOG.md was updated
+lint:changelog:
+  stage: changelog
+  cache: [] # do not use cached files here, as those are not required
+  script:
+    - git fetch
+    - 'echo "Base is: $CI_MERGE_REQUEST_DIFF_BASE_SHA"'
+    - CHANGELOG_CHANGED=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA...HEAD CHANGELOG.md)
+    - 'if [[ "CHANGELOG.md" == $CHANGELOG_CHANGED ]]; then exit 0; else echo "No changes found in CHANGELOG.md compared to target branch."; exit 1; fi'
+
+
 # Include reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
 lint:reuse:
   stage: lint
@@ -37,18 +50,9 @@ lint:reuse:
 # Check if javadoc building works
 lint:javadoc:
   stage: lint
+  cache: [] # do not use cached files here, as maven will not build the project
   script:
     - "mvn '-Dmaven.javadoc.failOnWarnings=true' javadoc:javadoc"
-
-# Ensure CHANGELOG.md was updated
-lint:changelog:
-  stage: lint
-  cache: [] # do not use cached files here, as those will be assessed by the reuse linter
-  script:
-    - git fetch
-    - 'echo "Base is: $CI_MERGE_REQUEST_DIFF_BASE_SHA"'
-    - CHANGELOG_CHANGED=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA...HEAD CHANGELOG.md)
-    - 'if [[ "CHANGELOG.md" == $CHANGELOG_CHANGED ]]; then exit 0; else echo "No changes found in CHANGELOG.md compared to target branch."; exit 1; fi'
 
 
 # Settings for unit tests & coverage analysis
