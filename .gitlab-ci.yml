@@ -30,6 +30,7 @@ cache:
 lint:changelog:
   stage: changelog
   cache: [] # do not use cached files here, as those are not required
+  image: alpine
   script:
     - git fetch
     - 'echo "Base is: $CI_MERGE_REQUEST_DIFF_BASE_SHA"'
@@ -48,6 +49,9 @@ lint:reuse:
   cache: [] # do not use cached files here, as those will be assessed by the reuse linter
   script:
     - reuse lint
+  only:
+    - merge_requests
+    - main
 
 # Check if javadoc building works
 lint:javadoc:
@@ -55,7 +59,9 @@ lint:javadoc:
   cache: [] # do not use cached files here, as maven will not build the project
   script:
     - "mvn '-Dmaven.javadoc.failOnWarnings=true' javadoc:javadoc"
-
+  only:
+    - merge_requests
+    - main
 
 # Settings for unit tests & coverage analysis
 .unittest:
