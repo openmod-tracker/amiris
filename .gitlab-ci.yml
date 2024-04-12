@@ -1,11 +1,15 @@
-# SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+# SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 #
 # SPDX-License-Identifier: CC0-1.0
 
 stages:
+  - lint
   - test
+  - compatibility
   - deploy
-  - publish
+
+default:
+  image: maven:3-eclipse-temurin-11
 
 variables:
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
@@ -20,15 +24,9 @@ cache:
   paths:
     - .m2/repository
 
-# General Settings for jobs in stage "test"
-.test:
-  stage: test
-  only:
-    - merge_requests
-
 # Include reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
-test:reuse:
-  extends: .test
+lint:reuse:
+  stage: lint
   image:
     name: fsfe/reuse:latest
     entrypoint: [""]
@@ -36,39 +34,50 @@ test:reuse:
   script:
     - reuse lint
 
-# Settings for unit tests & coverage analysis
-.unittest:
-  extends: .test
-  script:
-    - 'mvn $MAVEN_CLI_OPTS test'
-    - "cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | grep -o '[0-9.,]* of [0-9.,]*' | sed 's/[,.]//g' | sed 's/ of / /g' | awk '{printf \"COVERAGE::%.2f\\n\", ((1.0 - ($1 / $2)) *100)}'"
-  coverage: '/COVERAGE::\d+\.\d+/'
-
-# Execute unit tests with JDK11
-unittest:jdk11:
-  extends: .unittest
-  image: maven:3-eclipse-temurin-11
-
-# Execute unit tests with JDK11
-unittest:jdk17:
-  extends: .unittest
-  image: maven:3-eclipse-temurin-17
-
-# Test javadoc building
-test:javadoc:
-  extends: .test
-  image: maven:3-eclipse-temurin-11
+# Check if javadoc building works
+lint:javadoc:
+  stage: lint
   script:
     - "mvn '-Dmaven.javadoc.failOnWarnings=true' javadoc:javadoc"
-    
+
 # Ensure CHANGELOG.md was updated
-test:changelog:
-  extends: .test
+lint:changelog:
+  stage: lint
+  cache: [] # do not use cached files here, as those will be assessed by the reuse linter
   script:
     - git fetch
     - 'echo "Base is: $CI_MERGE_REQUEST_DIFF_BASE_SHA"'
     - CHANGELOG_CHANGED=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA...HEAD CHANGELOG.md)
     - 'if [[ "CHANGELOG.md" == $CHANGELOG_CHANGED ]]; then exit 0; else echo "No changes found in CHANGELOG.md compared to target branch."; exit 1; fi'
+
+
+# Settings for unit tests & coverage analysis
+.unittest:
+  script:
+    - 'mvn $MAVEN_CLI_OPTS test'
+
+# Execute unit tests with JDK11
+test:Coverage:jdk11:
+  extends: .unittest
+  stage: test
+  after_script:
+    - "cat target/site/jacoco/index.html | grep -o 'Total[^%]*%' | grep -o '[0-9.,]* of [0-9.,]*' | sed 's/[,.]//g' | sed 's/ of / /g' | awk '{printf \"COVERAGE::%.2f\\n\", ((1.0 - ($1 / $2)) *100)}'"
+  coverage: '/COVERAGE::\d+\.\d+/'
+
+
+.compatibility:
+  extends: .unittest
+  stage: compatibility
+
+# Execute unit tests with JDK11
+compatibility:jdk17:
+  extends: .compatibility
+  image: maven:3-eclipse-temurin-17
+
+compatibility:jdk21:
+  extends: .compatibility
+  image: maven:3-eclipse-temurin-21
+
 
 # General settings for stage "deploy", only run when merged to branch `main`
 .deploy:
@@ -79,7 +88,6 @@ test:changelog:
 # Package AMIRIS & build javadoc
 deploy:jdk11:
   extends: .deploy
-  image: maven:3-eclipse-temurin-11
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
     - 'mvn javadoc:javadoc'
@@ -88,16 +96,12 @@ deploy:jdk11:
       - target/*.jar
       - target/site/apidocs
     expire_in: 2 hrs
-
-# General settings for stage "publish", only run when merged to branch `main`
-.publish:
-  stage: publish
   only:
     - main
 
 # Publish javadoc to pages
 pages:
-  extends: .publish
+  extends: .post
   script:
     - mkdir .public
     - cp -r target/site/apidocs/* .public
@@ -105,3 +109,5 @@ pages:
   artifacts:
     paths:
       - public
+  only:
+    - main
