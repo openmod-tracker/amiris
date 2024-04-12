@@ -30,7 +30,7 @@ cache:
 lint:changelog:
   stage: changelog
   cache: [] # do not use cached files here, as those are not required
-  image: alpine
+  image: alpine/git:latest
   script:
     - git fetch
     - 'echo "Base is: $CI_MERGE_REQUEST_DIFF_BASE_SHA"'
