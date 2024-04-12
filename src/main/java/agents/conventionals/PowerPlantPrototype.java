@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
@@ -32,11 +32,17 @@ public abstract class PowerPlantPrototype implements Portable {
 
 	/** Technical specification template for a group conventional power plants */
 	public static class PrototypeData {
+		/** Type of fuel used */
 		public FuelType fuelType;
+		/** Specific CO2 emissions in tons per use of 1 thermal MWh of fuel */
 		public double specificCo2EmissionsInTonsPerThermalMWH;
+		/** Permanently applied average availability reduction factor */
 		public double unplannedAvailabilityFactor;
+		/** Cost for one ramping cycle */
 		public double cyclingCostInEURperMW;
+		/** Time-dependent availability factor */
 		public TimeSeries tsAvailability;
+		/** Time-dependent variable costs per MWh of produced electricity */
 		public TimeSeries tsVariableCosts;
 
 		/** Creates a new {@link PrototypeData}

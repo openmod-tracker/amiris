@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable.bidding;
@@ -32,8 +32,10 @@ public abstract class PremiumBased {
 		PREVIOUS_MONTH, FROM_FILE
 	};
 
+	/** Inputs for market value forecasting */
 	public static final ParameterBuilder marketValueForecastParam = Make
 			.newEnum("MarketValueForecastMethod", MarketValueForecastMethod.class).optional();
+	/** Specific inputs for file-based market value forecasts */
 	public static final GroupBuilder fileForecastParams = Make.newGroup("MarketValueForecasts").list().add(
 			Make.newEnum("EnergyCarrier", EnergyCarrier.class).optional(),
 			Make.newSeries("Forecast").optional());
@@ -41,6 +43,10 @@ public abstract class PremiumBased {
 	private final MarketValueForecastMethod marketValueForecastMethod;
 	private final HashMap<EnergyCarrier, TimeSeries> marketValueForecasts = new HashMap<>();
 
+	/** Creates a new {@link PremiumBased} bidding strategy
+	 * 
+	 * @param input for this bidding strategy type
+	 * @throws MissingDataException in case any mandatory input is missing */
 	protected PremiumBased(ParameterData input) throws MissingDataException {
 		marketValueForecastMethod = input.getEnumOrDefault("MarketValueForecastMethod", MarketValueForecastMethod.class,
 				MarketValueForecastMethod.PREVIOUS_MONTH);

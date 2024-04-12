@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
@@ -12,8 +12,12 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  *
  * @author Christoph Schimeczek */
 public class PointInTime extends DataItem {
+	/** The transferred TimeStamp */
 	public final TimeStamp timeStamp;
 
+	/** Creates this {@link PointInTime}
+	 * 
+	 * @param timeStamp to be transferred */
 	public PointInTime(TimeStamp timeStamp) {
 		this.timeStamp = timeStamp;
 	}

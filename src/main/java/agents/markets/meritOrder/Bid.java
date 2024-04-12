@@ -11,6 +11,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public class Bid implements Portable {
+	/** Type of market bid */
 	public static enum Type {
 		/** Offering energy */
 		Supply,

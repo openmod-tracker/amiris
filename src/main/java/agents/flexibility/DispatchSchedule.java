@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility;
@@ -11,8 +11,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class DispatchSchedule {
-	public static final String ERROR_OVERRIDE = "Arrays in schedule may not be overridden.";
-	public static final String ERROR_LENGTH = "Array length does not match schedule duration count in periods.";
+	static final String ERROR_OVERRIDE = "Arrays in schedule may not be overridden.";
+	static final String ERROR_LENGTH = "Array length does not match schedule duration count in periods.";
 	private static final double MAX_ABSOLUTE_ENERGY_DEVIATION_IN_MWH = 1.E-3;
 
 	private final TimeStamp timeOfFirstElement;

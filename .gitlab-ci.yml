@@ -59,7 +59,7 @@ test:javadoc:
   extends: .test
   image: maven:3-eclipse-temurin-11
   script:
-    - 'mvn javadoc:javadoc'
+    - "mvn '-Dmaven.javadoc.failOnWarnings=true' javadoc:javadoc"
     
 # Ensure CHANGELOG.md was updated
 test:changelog:

@@ -29,7 +29,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek, Ulrich Frey, Marc Deissenroth, Johannes Kochems */
 public class DemandTrader extends Trader {
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newGroup("Loads").list().add(Make.newSeries("DemandSeries"), Make.newDouble("ValueOfLostLoad")))
+			.add(Make.newGroup("Loads").list().add(Make.newSeries("DemandSeries"), Make.newSeries("ValueOfLostLoad")))
 			.buildTree();
 
 	@Output
@@ -43,9 +43,9 @@ public class DemandTrader extends Trader {
 	/** Helper class that represents one load TimeSeries with a fixed associated value of lost load */
 	private class Load {
 		public final TimeSeries tsEnergyDemandInMWHperTimeSegment;
-		public final double valueOfLostLoadInEURperMWH;
+		public final TimeSeries valueOfLostLoadInEURperMWH;
 
-		public Load(TimeSeries demandSeries, double valueOfLostLoad) {
+		public Load(TimeSeries demandSeries, TimeSeries valueOfLostLoad) {
 			this.tsEnergyDemandInMWHperTimeSegment = demandSeries;
 			this.valueOfLostLoadInEURperMWH = valueOfLostLoad;
 		}
@@ -61,7 +61,7 @@ public class DemandTrader extends Trader {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		for (ParameterData group : input.getGroupList("Loads")) {
-			loads.add(new Load(group.getTimeSeries("DemandSeries"), group.getDouble("ValueOfLostLoad")));
+			loads.add(new Load(group.getTimeSeries("DemandSeries"), group.getTimeSeries("ValueOfLostLoad")));
 		}
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
@@ -76,20 +76,32 @@ public class DemandTrader extends Trader {
 	 * @param input single message with ClearingTimes to create bid forecasts for
 	 * @param contracts single contract with {@link MarketForecaster} to send the bid forecasts to */
 	private void prepareForecasts(ArrayList<Message> input, List<Contract> contracts) {
+		submitBidsMultipleTimes(input, contracts);
+	}
+
+	/** Calculates and submits demand bids
+	 * 
+	 * @param input single ClearingTimes message
+	 * @param contracts one contracted partner to receive bids
+	 * @return sum of all sent demand bid energies */
+	private double submitBidsMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		double totalRequestedEnergyInMWH = 0;
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			for (BidData bid : prepareBidsFor(targetTime)) {
 				fulfilNext(contract, bid);
+				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
 			}
 		}
+		return totalRequestedEnergyInMWH;
 	}
-
+	
 	/** Prepares demand bids for the requested time */
 	private ArrayList<BidData> prepareBidsFor(TimeStamp requestedTime) {
 		ArrayList<BidData> bids = new ArrayList<>();
 		for (Load load : loads) {
 			double requestedEnergyInMWH = load.tsEnergyDemandInMWHperTimeSegment.getValueLinear(requestedTime);
-			double voll = load.valueOfLostLoadInEURperMWH;
+			double voll = load.valueOfLostLoadInEURperMWH.getValueLinear(requestedTime);
 			bids.add(new BidData(requestedEnergyInMWH, voll, getId(), Type.Demand, requestedTime));
 		}
 		return bids;
@@ -100,14 +112,7 @@ public class DemandTrader extends Trader {
 	 * @param input single message with ClearingTimes to create bid forecasts for
 	 * @param contracts single contract with {@link MarketForecaster} to send the bid forecasts to */
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		double totalRequestedEnergyInMWH = 0;
-		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
-			for (BidData bid : prepareBidsFor(targetTime)) {
-				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
-				sendDayAheadMarketBids(contract, bid);
-			}
-		}
+		double totalRequestedEnergyInMWH = submitBidsMultipleTimes(input, contracts);
 		store(OutputColumns.RequestedEnergyInMWH, totalRequestedEnergyInMWH);
 	}
 

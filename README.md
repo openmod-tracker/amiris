@@ -11,7 +11,7 @@ Different prototypical agents on the electricity market interact with each other
 AMIRIS allows calculating the impact of policy instruments on economic performance of power plant operators and marketers.
 It is based on [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
 AMIRIS follows an explorative approach.
-Thus, it does not optimise the energy system like other tools, e.g. [PyPsa](https://pypsa.readthedocs.io/en/latest/), but explores emerging effects created by energy system actors and their interactions under a given set of assumptions.
+Thus, it does not optimise the energy system like other tools, e.g. [REMix](https://gitlab.com/dlr-ve/esy/remix/framework), but explores emerging effects created by energy system actors and their interactions under a given set of assumptions.
 
 ## Further information
 Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) for further information.

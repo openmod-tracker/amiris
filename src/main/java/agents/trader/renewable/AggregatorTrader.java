@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable;
@@ -115,10 +115,10 @@ public abstract class AggregatorTrader extends TraderWithClients {
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 		call(this::sendYieldPotentials).on(Products.YieldPotential).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::assignDispatch).on(Trader.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
+		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
 		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
-		call(this::payoutClients).on(Trader.Products.Payout);
+		call(this::payoutClients).on(TraderWithClients.Products.Payout);
 	}
 
 	/** Extract information on {@link TechnologySet} and add it to the client data collection
@@ -138,7 +138,8 @@ public abstract class AggregatorTrader extends TraderWithClients {
 		for (Message message : messages) {
 			if (message.senderId == clientId) {
 				TechnologySet technologySet = message.getDataItemOfType(TechnologySet.class);
-				return new ClientData(technologySet);
+				double installedPowerInMW = message.getDataItemOfType(AmountAtTime.class).amount;
+				return new ClientData(technologySet, installedPowerInMW);
 			}
 		}
 		throw new RuntimeException(ERR_NO_MESSAGE_FOUND + clientId);
@@ -164,19 +165,26 @@ public abstract class AggregatorTrader extends TraderWithClients {
 		for (Message message : messages) {
 			SupportData supportData = message.getFirstPortableItemOfType(SupportData.class);
 			SetType technologySetType = supportData.getSetType();
-			getClientDataForSetType(technologySetType).setSupportData(supportData);
+			for (ClientData clientData : getClientDataForSetType(technologySetType)) {
+				clientData.setSupportData(supportData);
+			}
 		}
 	}
 
-	/** @param setType to search for; assumption: client set types are unique
+	/** Return all data of clients that match the given setType
+	 * @param setType to search for
 	 * @return client data for given set type */
-	protected ClientData getClientDataForSetType(SetType setType) {
+	protected List<ClientData> getClientDataForSetType(SetType setType) {
+		List<ClientData> clients = new ArrayList<>();
 		for (ClientData clientData : clientMap.values()) {
 			if (clientData.getTechnologySet().setType == setType) {
-				return clientData;
+				clients.add(clientData);
 			}
 		}
-		throw new RuntimeException(this + ERR_NO_CLIENT_FOR_SET + setType);
+		if (clients.isEmpty()) {
+			throw new RuntimeException(this + ERR_NO_CLIENT_FOR_SET + setType);
+		}
+		return clients;
 	}
 
 	/** Sends supply {@link BidData bid} forecasts
@@ -240,18 +248,11 @@ public abstract class AggregatorTrader extends TraderWithClients {
 			ListIterator<MarginalCost> iterator = marginals.listIterator();
 			while (iterator.hasNext()) {
 				MarginalCost item = iterator.next();
-				// TODO: also consider maximum installed capacity as upper limit
-				double powerForecastWithError = calcPowerWithError(item.powerPotentialInMW);
+				double powerForecastWithError = errorGenerator.calcPowerWithError(item.powerPotentialInMW);
 				iterator.set(new MarginalCost(item, powerForecastWithError));
 			}
 		}
 		return marginals;
-	}
-
-	/** @return given power multiplied with a randomly generated forecast error */
-	private double calcPowerWithError(double powerWithoutError) {
-		double factor = Math.max(0, 1 + errorGenerator.getNextError());
-		return powerWithoutError * factor;
 	}
 
 	/** Store {@link YieldPotential}s for RES market value calculation **/
@@ -330,8 +331,8 @@ public abstract class AggregatorTrader extends TraderWithClients {
 	private void requestSupportPayout(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TimePeriod accountingPeriod = SupportPolicy.extractAccountingPeriod(now(), contract, 1800L);
-		for (ClientData clientData : clientMap.values()) {
-			SupportRequestData supportData = new SupportRequestData(clientData, accountingPeriod);
+		for (Entry<Long, ClientData> entries : clientMap.entrySet()) {
+			SupportRequestData supportData = new SupportRequestData(entries, accountingPeriod);
 			fulfilNext(contract, supportData);
 		}
 		powerPrices.headMap(accountingPeriod.getLastTime()).clear();
@@ -346,7 +347,7 @@ public abstract class AggregatorTrader extends TraderWithClients {
 		double refundedSupport = 0.0;
 		for (Message message : messages) {
 			SupportResponseData supportDataResponse = message.getDataItemOfType(SupportResponseData.class);
-			ClientData clientData = getClientDataForSetType(supportDataResponse.setType);
+			ClientData clientData = clientMap.get(supportDataResponse.clientId);
 			clientData.appendSupportRevenue(supportDataResponse.accountingPeriod, supportDataResponse.payment);
 			clientData.appendMarketPremium(supportDataResponse.accountingPeriod, supportDataResponse.marketPremium);
 			receivedSupport += Math.max(0, supportDataResponse.payment);

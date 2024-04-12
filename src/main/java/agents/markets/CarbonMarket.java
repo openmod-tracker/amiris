@@ -30,8 +30,9 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class CarbonMarket extends Agent {
-	public static final String MODE_NOT_IMPLEMENTED = "OperationMode not implemented: ";
+	static final String MODE_NOT_IMPLEMENTED = "OperationMode not implemented: ";
 
+	/** Products of the {@link CarbonMarket} */
 	@Product
 	public static enum Products {
 		/** Co2 price forecast */
@@ -42,7 +43,7 @@ public class CarbonMarket extends Agent {
 		CertificateBill
 	}
 
-	/** Mode of operation of CarbonMarket */
+	/** Mode of operation of {@link CarbonMarket} */
 	public static enum OperationMode {
 		/** Fixed mode:: CO2 prices are read from file - actual emissions create no feedback on the CO2 price */
 		FIXED,
@@ -55,6 +56,7 @@ public class CarbonMarket extends Agent {
 		Co2EmissionsInTons, Co2PriceInEURperTon
 	};
 
+	/** Input parameters of {@link CarbonMarket} */
 	@Input protected static Tree parameters = Make.newTree().add(Make.newSeries("Co2Prices").optional(),
 			Make.newEnum("OperationMode", OperationMode.class)).buildTree();
 

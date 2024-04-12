@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.sensitivities;
@@ -15,9 +15,13 @@ import agents.markets.meritOrder.books.SupplyOrderBook;
  *
  * @author Christoph Schimeczek */
 public abstract class MeritOrderSensitivity {
+	/** maximum external charging power &gt; 0 of the associated flexibility device */
 	protected double externalChargingPowerInMW;
+	/** maximum external discharging power &gt; 0 of the associated flexibility device */
 	protected double externalDischargingPowerInMW;
+	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the associated flexibility device */
 	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();
+	/** list of changes (in terms of cumulated power and price) in the merit order for all possible discharging events of the associated flexibility device */
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
 
 	/** sets maximum charging and discharging powers in MW according to specified values
@@ -86,10 +90,10 @@ public abstract class MeritOrderSensitivity {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			chargingItems.add(new SensitivityItem(notAwardedPower, item.getPrice(), item.getMarginalCost()));
+			chargingItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 		if (awardedPower > 0) {
-			dischargingItems.add(new SensitivityItem(awardedPower, item.getPrice(), item.getMarginalCost()));
+			dischargingItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 	}
 
@@ -98,10 +102,10 @@ public abstract class MeritOrderSensitivity {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			dischargingItems.add(new SensitivityItem(notAwardedPower, item.getPrice(), item.getMarginalCost()));
+			dischargingItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 		if (awardedPower > 0) {
-			chargingItems.add(new SensitivityItem(awardedPower, item.getPrice(), item.getMarginalCost()));
+			chargingItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 	}
 

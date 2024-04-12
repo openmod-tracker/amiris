@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -17,7 +17,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class ClientData {
 	private TechnologySet technologySet;
-	private double installedCapacity;
+	private double installedCapacityInMW;
 	private final TreeMap<TimeStamp, Double> yieldPotentials = new TreeMap<>();
 	private final TreeMap<TimeStamp, Double> dispatches = new TreeMap<>();
 	private final TreeMap<TimeStamp, Double> marketRevenues = new TreeMap<>();
@@ -29,9 +29,11 @@ public class ClientData {
 
 	/** Create a client data object and initialise it with the given technology set
 	 * 
-	 * @param technologySet to be assigned */
-	public ClientData(TechnologySet technologySet) {
+	 * @param technologySet to be assigned
+	 * @param installedCapacityInMW of the associated client */
+	public ClientData(TechnologySet technologySet, double installedCapacityInMW) {
 		this.technologySet = technologySet;
+		this.installedCapacityInMW = installedCapacityInMW;
 	}
 
 	/** Removes any internal data with TimeStamp before given TimeStamp; other arrays are cleared as well
@@ -59,12 +61,12 @@ public class ClientData {
 		}
 	}
 
-	public void setInstalledCapacity(double installedCapacity) {
-		this.installedCapacity = installedCapacity;
-	}
-
-	public void appendYieldPotential(TimeStamp time, double stepPotential) {
-		yieldPotentials.put(time, stepPotential);
+	/** Save the given yield potential at the given time to this {@link ClientData}
+	 * 
+	 * @param time at which the yield potential is valid
+	 * @param yieldPotentialInMW true yield potential of the client at the given time */
+	public void appendYieldPotential(TimeStamp time, double yieldPotentialInMW) {
+		yieldPotentials.put(time, yieldPotentialInMW);
 	}
 
 	/** Append dispatch and revenue for given time stamps to maps for tracking it
@@ -77,46 +79,65 @@ public class ClientData {
 		marketRevenues.put(time, revenue);
 	}
 
-	public void appendSupportRevenue(TimePeriod accountingPeriod, double amount) {
-		supportRevenueInEUR.put(accountingPeriod, amount);
+	/** Save received support revenues to the client it is associated with
+	 * 
+	 * @param accountingPeriod for which the support is received
+	 * @param amountPaymentInEUR of the associated client */
+	public void appendSupportRevenue(TimePeriod accountingPeriod, double amountPaymentInEUR) {
+		supportRevenueInEUR.put(accountingPeriod, amountPaymentInEUR);
 	}
 
-	public void appendMarketPremium(TimePeriod accountingPeriod, double marketPremium) {
-		marketPremiaInEURperMWH.put(accountingPeriod, marketPremium);
+	/** Save market premium to the client it is associated with
+	 * 
+	 * @param accountingPeriod for which the market premium applies
+	 * @param marketPremiumInEURperMWH the associated client receives for the specified accounting period */
+	public void appendMarketPremium(TimePeriod accountingPeriod, double marketPremiumInEURperMWH) {
+		marketPremiaInEURperMWH.put(accountingPeriod, marketPremiumInEURperMWH);
 	}
 
+	/** @return the {@link TechnologySet} of the associated client */
 	public TechnologySet getTechnologySet() {
 		return technologySet;
 	}
 
+	/** @return the installed capacity of the associated client in MW */
 	public double getInstalledCapacity() {
-		return installedCapacity;
+		return installedCapacityInMW;
 	}
 
+	/** @return the actual dispatch previously assigned to the client */
 	public TreeMap<TimeStamp, Double> getDispatch() {
 		return dispatches;
 	}
 
+	/** @return the market revenues created with the clients dispatch in previous times */
 	public TreeMap<TimeStamp, Double> getMarketRevenue() {
 		return marketRevenues;
 	}
 
+	/** @return the actual (perfect foresight) yield potentials as previously reported by the client */
 	public TreeMap<TimeStamp, Double> getYieldPotential() {
 		return yieldPotentials;
 	}
 
+	/** @return the support revenues previously assigned to the client */
 	public TreeMap<TimePeriod, Double> getSupportRevenueInEUR() {
 		return supportRevenueInEUR;
 	}
 
+	/** @return the previous market premia of the client */
 	public TreeMap<TimePeriod, Double> getMarketPremiaInEURperMWH() {
 		return marketPremiaInEURperMWH;
 	}
 
+	/** Saves the given {@link SupportData} applicable for this client
+	 * 
+	 * @param supportData associated with this client */
 	public void setSupportData(SupportData supportData) {
 		this.supportData = supportData;
 	}
 
+	/** @return data on the associated support policy */
 	public SupportData getSupportData() {
 		return supportData;
 	}

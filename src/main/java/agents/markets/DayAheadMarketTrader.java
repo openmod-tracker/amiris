@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -17,11 +17,13 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public interface DayAheadMarketTrader extends AgentAbility {
+	/** Error message if {@link ClearingTimes} payload is missing */
 	static String ERR_CLEARING_TIMES_MISSING = "None of the given messages contained a ClearingTimes payload.";
+	/** Error message if {@link ClearingTimes} payload is ambiguous */
 	static String ERR_CLEARING_TIMES_AMBIGUOUS = "More than one of the given messages contained a ClearingTimes payload.";
 
-	@Product
 	/** Products of traders interacting with {@link DayAheadMarket} */
+	@Product
 	public static enum Products {
 		/** Sell/Buy orders to be placed at the {@link DayAheadMarket} */
 		Bids

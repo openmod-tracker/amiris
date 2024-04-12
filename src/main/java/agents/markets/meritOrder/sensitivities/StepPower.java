@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.sensitivities;
@@ -7,15 +7,17 @@ package agents.markets.meritOrder.sensitivities;
  * 
  * @author Christoph Schimeczek */
 public class StepPower {
+	static final String ERR_INVALID_STEPS = "StepDelta must not exceed number of transitions steps";
+
 	private final double chargingStepPowerInMW;
 	private final double dischargingStepPowerInMW;
 	private final int numberOfTransitionSteps;
 
 	/** Creates a {@link StepPower}
 	 * 
-	 * @param externalChargingPowerInMW maximum effective charging power
-	 * @param externalDischargingPowerInMW maximum effective discharging power
-	 * @param numberOfTransitionSteps number of modelled transition steps per direction */
+	 * @param externalChargingPowerInMW maximum effective charging power (&ge; 0)
+	 * @param externalDischargingPowerInMW maximum effective discharging power (&ge; 0)
+	 * @param numberOfTransitionSteps number of modelled transition steps for each of the two energy flow directions */
 	public StepPower(double externalChargingPowerInMW, double externalDischargingPowerInMW, int numberOfTransitionSteps) {
 		this.chargingStepPowerInMW = externalChargingPowerInMW / numberOfTransitionSteps;
 		this.dischargingStepPowerInMW = externalDischargingPowerInMW / numberOfTransitionSteps;
@@ -29,14 +31,13 @@ public class StepPower {
 	 *          <li>&gt; 0: charging &rarr; power &gt; 0</li>
 	 *          <li>&lt; 0: discharging &rarr; power &lt; 0</li>
 	 *          </ul>
-	 * @return power in MW corresponding to number of charging / discharging steps */
+	 * @return power in MW corresponding to number of charging / discharging steps
+	 * @throws IllegalArgumentException if absolute value of stepDelta is larger than numberOfTransitionSteps */
 	public double getPower(int stepDelta) {
-		if (stepDelta >= 0 && stepDelta <= numberOfTransitionSteps) {
-			return stepDelta * chargingStepPowerInMW;
-		} else if (stepDelta < 0 && -stepDelta <= numberOfTransitionSteps) {
-			return stepDelta * dischargingStepPowerInMW;
-		} else {
-			throw new RuntimeException("StepDelta out of range");
+		if (Math.abs(stepDelta) > numberOfTransitionSteps) {
+			throw new IllegalArgumentException(ERR_INVALID_STEPS);
 		}
+		double powerPerStep = (stepDelta >= 0 ? chargingStepPowerInMW : dischargingStepPowerInMW);
+		return stepDelta * powerPerStep;
 	}
 }
