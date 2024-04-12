@@ -66,6 +66,9 @@ lint:javadoc:
 .unittest:
   script:
     - 'mvn $MAVEN_CLI_OPTS test'
+  only:
+    - merge_requests
+    - main
 
 # Execute unit tests with JDK11
 test:Coverage:jdk11:
