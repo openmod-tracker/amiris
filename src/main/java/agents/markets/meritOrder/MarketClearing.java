@@ -94,6 +94,7 @@ public class MarketClearing {
 	 * 
 	 * @param supplyBook book of all supply bids
 	 * @param demandBook book of all demand bids
+	 * @param clearingEventId string identifying the calling agent
 	 * @return the ClearingResult of the specified SupplyOrderBook and DemandOrderBook */
 	public static ClearingResult calculateClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook,
 			String clearingEventId) {
