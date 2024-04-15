@@ -69,11 +69,7 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		return tsYieldProfile.getValueLinear(time);
 	}
 
-<<<<<<< HEAD
 	/** send price and yield potential at given time */
-=======
-	/** @return send price and yield potential at given time */
->>>>>>> branch '103-add-green-hydrogen-electrolyzer-agent' of https://gitlab.com/dlr-ve/esy/amiris/amiris.git
 	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);

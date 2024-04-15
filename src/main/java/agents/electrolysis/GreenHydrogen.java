@@ -69,9 +69,4 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 			initialHydrogenProductionInMWH += electrolyzer.calcHydrogenEnergy(demandScheduleInMWH[hour]);
 		}
 	}
-<<<<<<< HEAD
 }
-=======
-
-}
->>>>>>> branch '103-add-green-hydrogen-electrolyzer-agent' of https://gitlab.com/dlr-ve/esy/amiris/amiris.git
