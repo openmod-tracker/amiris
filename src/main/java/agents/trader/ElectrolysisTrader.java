@@ -148,6 +148,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
 <<<<<<< Upstream, based on origin/dev
+<<<<<<< Upstream, based on origin/dev
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
 =======
 		call(this::requestYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
@@ -163,6 +164,10 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 =======
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
 >>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
+=======
+		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
+				.use(VariableRenewableOperator.Products.PpaInformation);
+>>>>>>> 1841be1 Correct docs / format
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for

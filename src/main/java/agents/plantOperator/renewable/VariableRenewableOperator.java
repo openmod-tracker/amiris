@@ -144,7 +144,7 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		return tsYieldProfile.getValueLinear(time);
 	}
 
-	/** @return send price and yield potential at given time */
+	/** send price and yield potential at given time */
 	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
