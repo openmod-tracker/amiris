@@ -66,6 +66,10 @@ public abstract class PowerPlantOperator extends Agent {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
+<<<<<<< HEAD
+=======
+
+>>>>>>> branch '103-add-green-hydrogen-electrolyzer-agent' of https://gitlab.com/dlr-ve/esy/amiris/amiris.git
 		call(this::executeDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(PowerPlantScheduler.Products.DispatchAssignment);
 		call(this::digestPayment).on(PowerPlantScheduler.Products.Payout).use(PowerPlantScheduler.Products.Payout);

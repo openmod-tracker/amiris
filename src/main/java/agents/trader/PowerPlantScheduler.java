@@ -6,6 +6,7 @@ package agents.trader;
 import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.communication.Product;
 
+<<<<<<< HEAD
 public interface PowerPlantScheduler extends AgentAbility {
 
 	/** Products of {@link PowerPlantScheduler} */
@@ -17,3 +18,19 @@ public interface PowerPlantScheduler extends AgentAbility {
 		DispatchAssignment
 	};
 }
+=======
+
+
+public interface PowerPlantScheduler extends AgentAbility {
+
+	/** Products of {@link PowerPlantScheduler} */
+	@Product
+	public static enum Products {
+		/** Money paid to clients */
+		Payout,
+		/** Electricity production assignment to clients */
+		DispatchAssignment
+	};
+
+}
+>>>>>>> branch '103-add-green-hydrogen-electrolyzer-agent' of https://gitlab.com/dlr-ve/esy/amiris/amiris.git
