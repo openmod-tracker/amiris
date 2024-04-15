@@ -65,7 +65,7 @@ public class AnnualCostCalculatorTest {
 			when(groupMock.getDoubleOrDefault(eq("AnnuityFactor"), any(Double.class))).thenReturn(annuity);
 		}
 		if (fixed != null) {
-			when(groupMock.getDoubleOrDefault(eq("FixedCostsInEURperYearMW"), any(Double.class))).thenReturn(fixed);
+			when(groupMock.getDoubleOrDefault(eq("AnnualFixedCostsInEURperMW"), any(Double.class))).thenReturn(fixed);
 		}
 		return inputMock;
 	}

@@ -1,9 +1,10 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.plantOperator;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.ListIterator;
 import agents.conventionals.PlantBuildingManager;
 import agents.conventionals.Portfolio;
 import agents.conventionals.PowerPlant;
+import agents.conventionals.PowerPlant.MarginalCostItem;
 import agents.markets.CarbonMarket;
 import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
@@ -39,12 +41,14 @@ import util.Util;
 public class ConventionalPlantOperator extends PowerPlantOperator implements FuelsTrader {
 	static final String ERR_MISSING_CO2_COST = "Missing at least one CO2 cost item to match corresponding fuel cost item(s).";
 	static final String ERR_MISSING_FUEL_COST = "Missing at least one fuel cost item to match corresponding CO2 cost item(s).";
-	static final String ERR_MISSING_POWER = "Missing power to fulfil dispatch: ";
+	static final String ERR_MISSING_POWER = " cannot fulfil dispatch due to missing power in MWh: ";
+	static final String ERR_PAYOUT_VANISH = "ERROR: ConventionalPlants received money but were not dispatched! Ensure Payout contracts are scheduled after DispatchAssignment contracts for ";
 	private static final double NUMERIC_TOLERANCE = 1E-10;
 
+	/** Products of {@link ConventionalPlantOperator} */
 	@Product
 	public static enum Products {
-		/** total actual emissions produced during power generation */
+		/** Total actual emissions produced during power generation */
 		Co2Emissions,
 		/** Request for a Co2 Price forecast at given time */
 		Co2PriceForecastRequest,
@@ -54,7 +58,8 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 	@Output
 	private static enum OutputFields {
-		DispatchedEnergyInMWHperPlant, VariableCostsInEURperPlant, ReceivedMoneyInEURperPlant
+		DispatchedEnergyInMWHperPlant, VariableCostsInEURperPlant, ReceivedMoneyInEURperPlant, Co2EmissionsInT,
+		FuelConsumptionInThermalMWH
 	}
 
 	/** The list of all power plants to be operated (now and possibly power plants to become active in the near future) */
@@ -88,10 +93,12 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 				.use(PlantBuildingManager.Products.PowerPlantPortfolio);
 		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(TraderWithClients.Products.ForecastRequestForward);
-		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest).use(TraderWithClients.Products.ForecastRequestForward);
+		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest)
+				.use(TraderWithClients.Products.ForecastRequestForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(CarbonMarket.Products.Co2PriceForecast, FuelsMarket.Products.FuelPriceForecast);
-		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceRequest).use(TraderWithClients.Products.GateClosureForward);
+		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceRequest)
+				.use(TraderWithClients.Products.GateClosureForward);
 		call(this::requestCo2Price).on(Products.Co2PriceRequest).use(TraderWithClients.Products.GateClosureForward);
 		call(this::sendSupplyMarginals).on(PowerPlantOperator.Products.MarginalCost).use(CarbonMarket.Products.Co2Price,
 				FuelsMarket.Products.FuelPrice);
@@ -212,8 +219,9 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 		ArrayList<MarginalCost> marginalCosts = new ArrayList<>();
 		for (PowerPlant plant : portfolio.getPowerPlantList()) {
-			double[] marginal = plant.calcMarginalCost(targetTime, fuelCost, co2Cost);
-			marginalCosts.add(new MarginalCost(getId(), marginal[0], marginal[1], targetTime));
+			MarginalCostItem costItem = plant.calcMarginalCostItem(targetTime, fuelCost, co2Cost);
+			marginalCosts
+					.add(new MarginalCost(getId(), costItem.availablePowerInMW, costItem.marginalCostInEURperMWH, targetTime));
 		}
 		return marginalCosts;
 	}
@@ -223,44 +231,53 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 		DispatchResult dispatchResult = updatePowerPlantStatus(requiredEnergy, time);
 		this.fuelConsumption.add(new AmountAtTime(time, dispatchResult.getFuelConsumptionInThermalMWH()));
 		this.co2Emissions.add(new AmountAtTime(time, dispatchResult.getCo2EmissionsInTons()));
+		store(OutputFields.Co2EmissionsInT, dispatchResult.getCo2EmissionsInTons());
+		store(OutputFields.FuelConsumptionInThermalMWH, dispatchResult.getFuelConsumptionInThermalMWH());
 		return dispatchResult.getVariableCostsInEUR();
 	}
 
-	/** Sets load level of plants in {@link #portfolio}, starting at the highest efficiency, to generated required energy at the
+	/** Sets load level of plants in {@link #portfolio}, starting at the lowest marginal cost, to generated awarded energy at the
 	 * given TimeStamp. Remaining power plants' load level is set to Zero. Accounts for all emissions, fuel consumption and variable
 	 * costs of dispatch.
 	 *
-	 * @param requiredEnergy to produce
+	 * @param remainingAwardedEnergyInMWH to produce
 	 * @param time to dispatch at
 	 * @return {@link DispatchResult} showing emissions, fuel consumption and variable costs */
-	private DispatchResult updatePowerPlantStatus(double requiredEnergy, TimeStamp time) {
-		lastDispatchedTotalInMW = requiredEnergy;
+	private DispatchResult updatePowerPlantStatus(double remainingAwardedEnergyInMWH, TimeStamp time) {
+		lastDispatchedTotalInMW = remainingAwardedEnergyInMWH;
 		double currentFuelPrice = fuelPrice.remove(time);
 		double currentCo2Price = co2Price.remove(time);
 		DispatchResult totals = new DispatchResult();
 
-		List<PowerPlant> plantList = portfolio.getPowerPlantList();
-		ListIterator<PowerPlant> iterator = plantList.listIterator(plantList.size());
+		List<PowerPlant> orderedPlantList = getSortedPowerPlantList(time, currentFuelPrice, currentCo2Price);
+		ListIterator<PowerPlant> iterator = orderedPlantList.listIterator(orderedPlantList.size());
 		while (iterator.hasPrevious()) {
 			PowerPlant powerPlant = iterator.previous();
-			double powerToDispatch = 0;
-			double availablePower = powerPlant.getAvailablePowerInMW(time);
-			if (requiredEnergy > 0 && availablePower > 0) {
-				powerToDispatch = Math.min(requiredEnergy, availablePower);
-				requiredEnergy -= powerToDispatch;
-				store(dispatch.key(PlantsKey.ID, powerPlant.getId()), powerToDispatch);
+			double energyToDispatchInMWH = 0;
+			double availablePowerInMW = powerPlant.getAvailablePowerInMW(time);
+			if (remainingAwardedEnergyInMWH > 0 && availablePowerInMW > 0) {
+				energyToDispatchInMWH = Math.min(remainingAwardedEnergyInMWH, availablePowerInMW);
+				remainingAwardedEnergyInMWH -= energyToDispatchInMWH;
+				store(dispatch.key(PlantsKey.ID, powerPlant.getId()), energyToDispatchInMWH);
 			}
-			DispatchResult plantDispatchResult = powerPlant.updateGeneration(time, powerToDispatch, currentFuelPrice,
+			DispatchResult plantDispatchResult = powerPlant.updateGeneration(time, energyToDispatchInMWH, currentFuelPrice,
 					currentCo2Price);
 			if (plantDispatchResult.getVariableCostsInEUR() > 0) {
 				store(variableCosts.key(PlantsKey.ID, powerPlant.getId()), plantDispatchResult.getVariableCostsInEUR());
 			}
 			totals.add(plantDispatchResult);
 		}
-		if (requiredEnergy > NUMERIC_TOLERANCE) {
-			logger.error(ERR_MISSING_POWER + requiredEnergy);
+		if (remainingAwardedEnergyInMWH > NUMERIC_TOLERANCE) {
+			logger.error(this + ERR_MISSING_POWER + remainingAwardedEnergyInMWH);
 		}
 		return totals;
+	}
+
+	/** Returns a list of power plants sorted by marginal costs, descending */
+	private List<PowerPlant> getSortedPowerPlantList(TimeStamp time, double fuelPrice, double co2Price) {
+		List<PowerPlant> plants = new ArrayList<>(portfolio.getPowerPlantList());
+		plants.sort(Comparator.comparing(p -> -p.calcMarginalCost(time, fuelPrice, co2Price)));
+		return plants;
 	}
 
 	/** send co2 emissions caused by power generation to single contract receiver */
@@ -284,12 +301,23 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 
 	@Override
 	protected void digestPaymentPerPlant(TimeStamp dispatchTime, double totalPaymentInEUR) {
+		double actualPaymentTotalInEUR = 0;
 		for (PowerPlant plant : portfolio.getPowerPlantList()) {
 			double shareOfLastDispatch = plant.getCurrentPowerOutputInMW() / lastDispatchedTotalInMW;
 			double plantPaymentInEUR = totalPaymentInEUR * shareOfLastDispatch;
 			if (Math.abs(plantPaymentInEUR) > 1E-10) {
+				actualPaymentTotalInEUR += plantPaymentInEUR;
 				store(money.key(PlantsKey.ID, plant.getId()), plantPaymentInEUR);
 			}
 		}
+		if (Math.abs(actualPaymentTotalInEUR - totalPaymentInEUR) > 1) {
+			throw new RuntimeException(ERR_PAYOUT_VANISH + this);
+		}
 	}
+
+	@Override
+	protected double getInstalledCapacityInMW() {
+		return portfolio.getInstalledCapacityInMW(now());
+	}
+
 }

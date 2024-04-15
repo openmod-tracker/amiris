@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable;
@@ -23,7 +23,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  *
  * @author Johannes Kochems */
 public class NoSupportTrader extends AggregatorTrader {
-	public static final Tree parameters = Make.newTree().add(Make.newDouble("ShareOfRevenues")).buildTree();
+	static final Tree parameters = Make.newTree().add(Make.newDouble("ShareOfRevenues")).buildTree();
 
 	/** Share of market revenues the NoSupportTrader keeps to himself */
 	private final double shareOfRevenues;

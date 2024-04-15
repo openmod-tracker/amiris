@@ -21,6 +21,9 @@ public class TransmissionBook implements Portable {
 	/** required for {@link Portable}s */
 	public TransmissionBook() {}
 
+	/** Create new {@link TransmissionBook}
+	 * 
+	 * @param origin region of the transmissions */
 	public TransmissionBook(Region origin) {
 		this.origin = origin;
 	}

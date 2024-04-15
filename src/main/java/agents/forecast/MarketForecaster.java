@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.forecast;
@@ -36,6 +36,7 @@ public abstract class MarketForecaster extends Forecaster {
 	@Input private static final Tree parameters = Make.newTree().add(Make.newInt("ForecastPeriodInHours"),
 			Make.newInt("ForecastRequestOffsetInSeconds")).addAs("Clearing", MarketClearing.parameters).buildTree();
 
+	/** Products of {@link MarketForecaster}s */
 	@Product
 	public static enum Products {
 		/** Send this out to every (start) agent of an {@link DayAheadMarket} bidding chain (e.g. demand and power plant agents) */
@@ -47,9 +48,14 @@ public abstract class MarketForecaster extends Forecaster {
 		AwardedEnergyForecastInMWH, ElectricityPriceForecastInEURperMWH
 	};
 
+	/** maximum number of future hours to provide forecasts for */
 	protected final int forecastPeriodInHours;
+	/** offset in seconds of the {@link MarketForecaster} to send out its forecast requests to associated traders - must match the
+	 * associated times -1 in the contracts with the traders */
 	protected final TimeSpan forecastRequestOffset;
+	/** the algorithm used to clear the market */
 	protected final MarketClearing marketClearing;
+	/** contains all previously calculated forecasts with their associated time */
 	protected final TreeMap<TimeStamp, MarketClearingResult> calculatedForecastContainer = new TreeMap<>();
 
 	/** Creates a {@link MarketForecaster}
@@ -121,7 +127,8 @@ public abstract class MarketForecaster extends Forecaster {
 		for (Entry<TimeStamp, ArrayList<Message>> entry : messagesByTimeStamp.entrySet()) {
 			TimeStamp requestedTime = entry.getKey();
 			ArrayList<Message> bidsAtRequestedTime = entry.getValue();
-			MarketClearingResult marketClearingResult = marketClearing.calculateMarketClearing(bidsAtRequestedTime, this.toString() + " " + now());
+			MarketClearingResult marketClearingResult = marketClearing.calculateMarketClearing(bidsAtRequestedTime,
+					this.toString() + " " + now());
 			calculatedForecastContainer.put(requestedTime, marketClearingResult);
 		}
 	}

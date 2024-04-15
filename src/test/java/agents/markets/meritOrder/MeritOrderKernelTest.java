@@ -74,7 +74,7 @@ public class MeritOrderKernelTest {
 		for (int index = 0; index < powers.length; index++) {
 			OrderBookItem orderBookItem = mock(OrderBookItem.class);
 			when(orderBookItem.getCumulatedPowerUpperValue()).thenReturn(total + powers[index]);
-			when(orderBookItem.getPrice()).thenReturn(prices[index]);
+			when(orderBookItem.getOfferPrice()).thenReturn(prices[index]);
 			orderBookItems.add(orderBookItem);
 			total += powers[index];
 		}

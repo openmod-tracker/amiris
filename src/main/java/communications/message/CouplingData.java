@@ -93,7 +93,7 @@ public class CouplingData implements Portable {
 	public double getTransmissionTo(Region target) {
 		for (TransmissionCapacity tc : transmissionBook.getTransmissionCapacities()) {
 			if (tc.getTarget() == target) {
-				return tc.getAmount();
+				return tc.getRemainingTransferCapacityInMW();
 			}
 		}
 		return 0;
@@ -113,7 +113,7 @@ public class CouplingData implements Portable {
 	public void updateTransmissionBook(Region region, double amount) {
 		for (TransmissionCapacity tc : transmissionBook.getTransmissionCapacities()) {
 			if (tc.getTarget() == region) {
-				tc.setAmount(amount);
+				tc.setRemainingTransferCapacityInMW(amount);
 			}
 		}
 	}

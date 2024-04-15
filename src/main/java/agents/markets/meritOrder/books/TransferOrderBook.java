@@ -14,7 +14,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class TransferOrderBook implements Portable {
-	protected ArrayList<Bid> bids = new ArrayList<>();
+	private ArrayList<Bid> bids = new ArrayList<>();
 
 	/** required for {@link Portable}s */
 	public TransferOrderBook() {}

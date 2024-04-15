@@ -7,7 +7,9 @@ package agents.markets.meritOrder;
  * 
  * @author Christoph Schimeczek, A. Achraf El Ghazi */
 public class ClearingResult {
+	/** total traded energy on market */
 	public final double tradedEnergyInMWH;
+	/** settled market price after clearing */
 	public final double marketPriceInEURperMWH;
 
 	/** The first bid in the demand-bid curve that is below or equal the supply-bid curve. Here: the bids of the demand-bid curve
@@ -32,7 +34,7 @@ public class ClearingResult {
 		this.priceSettingSupplyBidIdx = null;
 		this.minPriceSettingDemand = Double.NaN;
 	}
-	
+
 	/** Creates {@link ClearingResult}
 	 * 
 	 * @param tradedEnergyInMWH total traded energy (in MWH)

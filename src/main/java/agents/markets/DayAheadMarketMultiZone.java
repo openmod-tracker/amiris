@@ -41,9 +41,39 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 
 	/** All available market regions */
 	public static enum Region {
-		DE, FR, PL, AT, BE, NL, NO, LU, SE, DKW, DKO, CZ, CH, A, B
+		/** Germany */
+		DE,
+		/** France */
+		FR,
+		/** Poland */
+		PL,
+		/** Austria */
+		AT,
+		/** Belgium */
+		BE,
+		/** Netherlands */
+		NL,
+		/** Norway */
+		NO,
+		/** Luxembourg */
+		LU,
+		/** Sweden */
+		SE,
+		/** Denmark (West) */
+		DKW,
+		/** Denmark (East) */
+		DKO,
+		/** Czech Republic */
+		CZ,
+		/** Switzerland */
+		CH,
+		/** Dummy market A */
+		A,
+		/** Dummy market B */
+		B
 	};
 
+	/** Products of {@link DayAheadMarketMultiZone}s */
 	@Product
 	public static enum Products {
 		/** Transmission capacities and bids from local exchange */
@@ -83,6 +113,10 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		}
 	}
 
+	/** Creates an {@link DayAheadMarketMultiZone}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public DayAheadMarketMultiZone(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.policy;
@@ -27,7 +27,7 @@ public abstract class PolicyItem implements Portable {
 	static final ParameterBuilder lcoeParam = Make.newSeries("Lcoe").optional();
 	static final ParameterBuilder premiumParam = Make.newSeries("Premium").optional();
 	static final ParameterBuilder maxNumberOfNegativeHoursParam = Make.newInt("MaxNumberOfNegativeHours").optional();
-	protected static final int INFINITE_NEGATIVE_HOURS = -1;
+	private static final int INFINITE_NEGATIVE_HOURS = -1;
 
 	/** Available support instruments */
 	public enum SupportInstrument {
@@ -41,9 +41,11 @@ public abstract class PolicyItem implements Portable {
 		CFD,
 		/** A capacity premium (CP) scheme */
 		CP,
+		/** A financial contract for differences (FINANCIAL_CFD) scheme */
+		FINANCIAL_CFD
 	}
 
-	public static final EnumMap<SupportInstrument, Class<? extends PolicyItem>> policyClasses = new EnumMap<>(
+	private static final EnumMap<SupportInstrument, Class<? extends PolicyItem>> policyClasses = new EnumMap<>(
 			SupportInstrument.class);
 	static {
 		policyClasses.put(SupportInstrument.FIT, Fit.class);
@@ -51,6 +53,7 @@ public abstract class PolicyItem implements Portable {
 		policyClasses.put(SupportInstrument.MPVAR, Mpvar.class);
 		policyClasses.put(SupportInstrument.CFD, Cfd.class);
 		policyClasses.put(SupportInstrument.CP, Cp.class);
+		policyClasses.put(SupportInstrument.FINANCIAL_CFD, FinancialCfd.class);
 	}
 
 	/** Instantiates a {@link PolicyItem} from given configuration - returns null if matching configuration is not present

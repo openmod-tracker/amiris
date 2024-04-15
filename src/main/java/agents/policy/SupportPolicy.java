@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.policy;
@@ -37,11 +37,21 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class SupportPolicy extends Agent {
 	/** Available energy carriers eligible for support - and "Other" */
 	public enum EnergyCarrier {
-		PV, WindOn, WindOff, RunOfRiver, Biogas,
+		/** Photovoltaic */
+		PV,
+		/** onshore wind turbines */
+		WindOn,
+		/** offshore wind turbines */
+		WindOff,
+		/** run-of-river hydro-power */
+		RunOfRiver,
+		/** Biogas */
+		Biogas,
 		/** Not eligible for support */
 		Other
 	}
 
+	/** Products of {@link SupportPolicy} */
 	@Product
 	public enum Products {
 		/** Info on the support scheme to be applied to a set of plants */
@@ -52,12 +62,12 @@ public class SupportPolicy extends Agent {
 		MarketValueCalculation
 	}
 
-	@Input
-	private static final Tree parameters = Make.newTree()
+	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("SetSupportData").list().add(Make.newEnum("Set", SetType.class))
 					.addAs(SupportInstrument.FIT.name(), Fit.parameters).addAs(SupportInstrument.MPFIX.name(), Mpfix.parameters)
 					.addAs(SupportInstrument.MPVAR.name(), Mpvar.parameters).addAs(SupportInstrument.CFD.name(), Cfd.parameters)
-					.addAs(SupportInstrument.CP.name(), Cp.parameters))
+					.addAs(SupportInstrument.CP.name(), Cp.parameters)
+					.addAs(SupportInstrument.FINANCIAL_CFD.name(), FinancialCfd.parameters))
 			.buildTree();
 
 	@Output
@@ -69,7 +79,8 @@ public class SupportPolicy extends Agent {
 		EnergyCarrier
 	}
 
-	private static final ComplexIndex<OutputKey> marketValue = ComplexIndex.build(Outputs.MarketValueInEURperMWH, OutputKey.class);
+	private static final ComplexIndex<OutputKey> marketValue = ComplexIndex.build(Outputs.MarketValueInEURperMWH,
+			OutputKey.class);
 
 	private SetPolicies setPolicies = new SetPolicies();
 	private MarketData marketData = new MarketData();
@@ -159,7 +170,7 @@ public class SupportPolicy extends Agent {
 	private SupportResponseData calcSupportPerRequest(SupportRequestData request, double marketValue) {
 		SetType setType = request.setType;
 		PolicyItem policyItem = setPolicies.getPolicyItem(setType, request.supportInstrument);
-		double infeedInMWH = policyItem.calcEligibleInfeed(marketData.getPowerPrices(), request);
+		double infeedInMWH = policyItem.calcEligibleInfeed(marketData.getEnergyPrices(), request);
 		double infeedSupportRateInEURperMWH = policyItem.calcInfeedSupportRate(request.accountingPeriod, marketValue);
 		double marketPremium = policyItem.isTypeOfMarketPremium() ? infeedSupportRateInEURperMWH : 0;
 		double capacityInMW = policyItem.calcEligibleCapacity(request);

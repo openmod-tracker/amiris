@@ -16,6 +16,11 @@ public class YieldPotential extends AmountAtTime {
 	/** the energy carrier */
 	public final EnergyCarrier energyCarrier;
 
+	/** Create new {@link YieldPotential}
+	 * 
+	 * @param timeStamp at which the electricity could be produced
+	 * @param amount of electricity that could be produced in MWh
+	 * @param energyCarrier used for the electricity production */
 	public YieldPotential(TimeStamp timeStamp, double amount, EnergyCarrier energyCarrier) {
 		super(timeStamp, amount);
 		this.energyCarrier = energyCarrier;

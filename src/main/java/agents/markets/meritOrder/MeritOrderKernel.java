@@ -17,6 +17,9 @@ public class MeritOrderKernel {
 	public static class MeritOrderClearingException extends Exception {
 		private static final long serialVersionUID = 1L;
 
+		/** Creates a new instance
+		 * 
+		 * @param errorMessage to be conveyed */
 		public MeritOrderClearingException(String errorMessage) {
 			super(errorMessage);
 		}
@@ -62,8 +65,8 @@ public class MeritOrderKernel {
 			OrderBookItem supplyEntry = supplyBids.get(supplyIndex);
 			OrderBookItem demandEntry = demandBids.get(demandIndex);
 
-			double supplyPrice = supplyEntry.getPrice();
-			double demandPrice = demandEntry.getPrice();
+			double supplyPrice = supplyEntry.getOfferPrice();
+			double demandPrice = demandEntry.getOfferPrice();
 			double supplyPower = supplyEntry.getCumulatedPowerUpperValue();
 			double demandPower = demandEntry.getCumulatedPowerUpperValue();
 

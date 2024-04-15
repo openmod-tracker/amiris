@@ -21,8 +21,8 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public abstract class OrderBook implements Portable {
-	public static final String ERR_NEGATIVE_SUPPLY_POWER = "Negative supply bid power is forbidded. Bid: ";
-	public static final String ERR_NEGATIVE_DEMAND_POWER = "Negative demand bid power is forbidded - use ImportTrader. Bid: ";
+	static final String ERR_NEGATIVE_SUPPLY_POWER = "Negative supply bid power is forbidded. Bid: ";
+	static final String ERR_NEGATIVE_DEMAND_POWER = "Negative demand bid power is forbidded - use ImportTrader. Bid: ";
 
 	/** required for {@link Portable}s */
 	public OrderBook() {}
@@ -37,9 +37,13 @@ public abstract class OrderBook implements Portable {
 		SAME_SHARES
 	};
 
+	/** market clearing price */
 	protected double awardedPrice = Double.NaN;
+	/** total power awarded to both supply and demand */
 	protected double awardedCumulativePower = Double.NaN;
+	/** list of all items in this {@link OrderBook} */
 	protected ArrayList<OrderBookItem> orderBookItems = new ArrayList<OrderBookItem>();
+	/** tells if this {@link OrderBook} has been yet finalised and sorted */
 	protected boolean isSorted = false;
 
 	/** Adds given {@link Bid} to this {@link OrderBook}; the OrderBook must not be sorted yet
@@ -151,7 +155,7 @@ public abstract class OrderBook implements Portable {
 		this.awardedCumulativePower = totalAwardedPower;
 
 		awardNonPriceSettingBids();
-		List<OrderBookItem> priceSettingBids = orderBookItems.stream().filter(item -> item.getPrice() == awardedPrice)
+		List<OrderBookItem> priceSettingBids = orderBookItems.stream().filter(item -> item.getOfferPrice() == awardedPrice)
 				.collect(Collectors.toList());
 		priceSettingBids.stream().filter(item -> item.getBlockPower() <= 0).forEach(item -> item.setAwardedPower(0));
 		priceSettingBids.removeIf(item -> item.getBlockPower() <= 0);
@@ -164,7 +168,7 @@ public abstract class OrderBook implements Portable {
 	/** Awards powers for bids that are not price setting and therefore are either fully awarded or not at all */
 	private void awardNonPriceSettingBids() {
 		Map<Boolean, List<OrderBookItem>> bidsByAwardStatus = orderBookItems.stream()
-				.filter(item -> item.getPrice() != awardedPrice).collect(Collectors
+				.filter(item -> item.getOfferPrice() != awardedPrice).collect(Collectors
 						.partitioningBy(item -> item.getCumulatedPowerUpperValue() <= awardedCumulativePower));
 		bidsByAwardStatus.get(true).stream().forEach(item -> item.setAwardedPower(item.getBlockPower()));
 		bidsByAwardStatus.get(false).stream().forEach(item -> item.setAwardedPower(0));
@@ -236,7 +240,7 @@ public abstract class OrderBook implements Portable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder("[");
 		for (OrderBookItem item : orderBookItems) {
-			builder.append("[" + item.getCumulatedPowerUpperValue() + "," + item.getPrice() + "],");
+			builder.append("[" + item.getCumulatedPowerUpperValue() + "," + item.getOfferPrice() + "],");
 		}
 		builder.append("]");
 		return builder.toString();

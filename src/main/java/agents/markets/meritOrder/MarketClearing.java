@@ -24,19 +24,25 @@ import de.dlr.gitlab.fame.communication.message.Message;
 public class MarketClearing {
 	static final String ERR_SHORTAGE_NOT_IMPLEMENTED = "ShortagePrice type not implemented: ";
 
-	public enum ShortagePriceMethod {
-		ValueOfLostLoad, LastSupplyPrice
+	/** Defines what market clearing price results in case of shortage */
+	enum ShortagePriceMethod {
+		/** The value of lost load is used as the market clearing price */
+		ValueOfLostLoad,
+		/** The last available supply bid determines the market clearing price */
+		LastSupplyPrice
 	};
 
-	public static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("DistributionMethod", DistributionMethod.class),
-					Make.newEnum("ShortagePriceMethod", ShortagePriceMethod.class).optional()
-							.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
+	/** Input parameters of {@link MarketClearing} */
+	public static final Tree parameters = Make.newTree().add(Make.newEnum("DistributionMethod", DistributionMethod.class),
+			Make.newEnum("ShortagePriceMethod", ShortagePriceMethod.class).optional()
+					.help("Defines which price to use in case of shortage events (default: ScarcityPrice)"))
 			.buildTree();
 
+	/** Defines how to distribute energy amounts between multiple price-setting bids */
 	public final DistributionMethod distributionMethod;
 	/** Defines which price to use in case of shortage */
 	private final ShortagePriceMethod shortagePriceMethod;
+	/** Logs errors of {@link MarketClearing} */
 	protected static Logger logger = LoggerFactory.getLogger(MarketClearing.class);
 
 	/** Creates a {@link MarketClearing}
@@ -52,7 +58,7 @@ public class MarketClearing {
 	/** Clears the market based on all the bids provided in form of messages
 	 * 
 	 * @param input unsorted messages containing demand and supply bids
-	 * @param clearingEventId string identifying the calling agent
+	 * @param clearingEventId text to specify in what context the market clearing was attempted in case of an error
 	 * @return {@link MarketClearingResult result} of market clearing */
 	public MarketClearingResult calculateMarketClearing(ArrayList<Message> input, String clearingEventId) {
 		DemandOrderBook demandBook = new DemandOrderBook();
@@ -66,14 +72,15 @@ public class MarketClearing {
 		}
 		return marketClearingResult;
 	}
-	
+
 	/** Clears the market based on a SupplyOrderBook and a DemandOrderBook
 	 * 
 	 * @param supplyBook book of all supply bids
 	 * @param demandBook book of all demand bids
 	 * @param clearingEventId string identifying the calling agent
 	 * @return {@link MarketClearingResult result} of market clearing */
-	public MarketClearingResult calculateMarketClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook, String clearingEventId) {
+	public MarketClearingResult calculateMarketClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook,
+			String clearingEventId) {
 		ClearingResult clearingResult = calculateClearing(supplyBook, demandBook, clearingEventId);
 		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
 		marketClearingResult.setBooks(supplyBook, demandBook, distributionMethod);
@@ -82,13 +89,14 @@ public class MarketClearing {
 		}
 		return marketClearingResult;
 	}
-	
+
 	/** Computes the ClearingResult of the specified SupplyOrderBook and DemandOrderBook.
 	 * 
 	 * @param supplyBook book of all supply bids
 	 * @param demandBook book of all demand bids
 	 * @return the ClearingResult of the specified SupplyOrderBook and DemandOrderBook */
-	private ClearingResult calculateClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook, String clearingEventId) {
+	private ClearingResult calculateClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook,
+			String clearingEventId) {
 		ClearingResult clearingResult;
 		try {
 			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
@@ -137,7 +145,7 @@ public class MarketClearing {
 	private void updateResultForScarcity(MarketClearingResult result, SupplyOrderBook supplyBook) {
 		switch (shortagePriceMethod) {
 			case LastSupplyPrice:
-				result.setMarketPriceInEURperMWH(supplyBook.getHighestItem().getPrice());
+				result.setMarketPriceInEURperMWH(supplyBook.getHighestItem().getOfferPrice());
 				break;
 			case ValueOfLostLoad:
 				break;

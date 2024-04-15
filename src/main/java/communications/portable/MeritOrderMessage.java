@@ -1,9 +1,10 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
 
 import agents.markets.meritOrder.books.DemandOrderBook;
+import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
@@ -21,6 +22,11 @@ public class MeritOrderMessage implements Portable {
 	/** required for {@link Portable}s */
 	public MeritOrderMessage() {}
 
+	/** Creates a new instance
+	 * 
+	 * @param supplyOrderBook after clearing with assigned {@link OrderBookItem}s
+	 * @param demandOrderBook after clearing with assigned {@link OrderBookItem}s
+	 * @param timeStamp of the associated market clearing event */
 	public MeritOrderMessage(SupplyOrderBook supplyOrderBook, DemandOrderBook demandOrderBook, TimeStamp timeStamp) {
 		this.supplyOrderBook = supplyOrderBook;
 		this.demandOrderBook = demandOrderBook;
@@ -43,14 +49,17 @@ public class MeritOrderMessage implements Portable {
 		timeStamp = new TimeStamp(provider.nextLong());
 	}
 
+	/** @return the {@link SupplyOrderBook} after market clearing with assigned {@link OrderBookItem}s */
 	public SupplyOrderBook getSupplyOrderBook() {
 		return supplyOrderBook;
 	}
 
+	/** @return the {@link DemandOrderBook} after market clearing with assigned {@link OrderBookItem}s */
 	public DemandOrderBook getDemandOrderBook() {
 		return demandOrderBook;
 	}
 
+	/** @return timeStamp of the associated market clearing event */
 	public TimeStamp getTimeStamp() {
 		return timeStamp;
 	}

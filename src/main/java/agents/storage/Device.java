@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage;
@@ -16,6 +16,7 @@ public class Device extends AbstractDevice {
 	private double accountedInternalEnergyFlowsInMWH = 0;
 	private double accountedFullStorageCycles = 0;
 
+	/** Input parameters of a storage {@link Device} */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("EnergyToPowerRatio"), Make.newDouble("SelfDischargeRatePerHour"),
 					Make.newDouble("ChargingEfficiency"), Make.newDouble("DischargingEfficiency"),

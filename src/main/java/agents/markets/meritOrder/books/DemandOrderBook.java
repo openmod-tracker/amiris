@@ -33,7 +33,7 @@ public class DemandOrderBook extends OrderBook {
 	 *         {@link Constants#SCARCITY_PRICE_IN_EUR_PER_MWH} */
 	public double getUnsheddableDemand() {
 		return orderBookItems.stream()
-				.filter(i -> (i.getPrice() >= Constants.SCARCITY_PRICE_IN_EUR_PER_MWH))
+				.filter(i -> (i.getOfferPrice() >= Constants.SCARCITY_PRICE_IN_EUR_PER_MWH))
 				.mapToDouble(i -> i.getBlockPower()).sum();
 	}
 
@@ -44,8 +44,8 @@ public class DemandOrderBook extends OrderBook {
 	 *         last supply offer */
 	public double getAmountOfPowerShortage(OrderBookItem highestSupplyItem) {
 		ensureSortedOrThrow("Bids have not yet been sorted - most expensive bid is not yet known!");
-		double supplyPrice = highestSupplyItem.getPrice();
-		return orderBookItems.stream().filter(i -> (i.getPrice() > supplyPrice) && (i.getNotAwardedPower() > 0))
+		double supplyPrice = highestSupplyItem.getOfferPrice();
+		return orderBookItems.stream().filter(i -> (i.getOfferPrice() > supplyPrice) && (i.getNotAwardedPower() > 0))
 				.mapToDouble(i -> i.getNotAwardedPower()).sum();
 	}
 

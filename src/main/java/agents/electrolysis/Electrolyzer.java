@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.electrolysis;
@@ -20,6 +20,7 @@ public class Electrolyzer {
 	private static final Logger logger = LoggerFactory.getLogger(Electrolyzer.class);
 	static final String ERR_LARGE_CONSUMPTION = "Requested power for electrolysis was capped to peak power at time: ";
 
+	/** Input parameters of an {@link Electrolyzer} unit */
 	public static final Tree parameters = Make.newTree().add(
 			Make.newSeries("PeakConsumptionInMW"),
 			Make.newDouble("ConversionFactor")
@@ -96,9 +97,9 @@ public class Electrolyzer {
 	public double calcHydrogenEnergy(double electricInputInMWH) {
 		return electricInputInMWH * conversionFactor;
 	}
-	
+
 	/** @return factor &lt; 1 of converting electric energy to hydrogen thermal energy */
 	public double getConversionFactor() {
 		return conversionFactor;
-	}	
+	}
 }

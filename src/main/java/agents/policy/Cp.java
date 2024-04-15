@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.policy;
@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class Cp extends PolicyItem {
-	public static final Tree parameters = Make.newTree().add(premiumParam).buildTree();
+	static final Tree parameters = Make.newTree().add(premiumParam).buildTree();
 
 	/** The capacity premium in EUR/MW installed */
 	private TimeSeries premium;

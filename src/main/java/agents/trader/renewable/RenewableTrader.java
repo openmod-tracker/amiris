@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable;
@@ -32,6 +32,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class RenewableTrader extends AggregatorTrader {
 	static final String ERR_SUPPORT_INSTRUMENT = " is not configured for support instrument: ";
 
+	/** Inputs specific to {@link RenewableTrader}s */
 	public static final Tree parameters = Make.newTree().add(Make.newDouble("ShareOfRevenues"),
 			PremiumBased.marketValueForecastParam, PremiumBased.fileForecastParams).buildTree();
 
@@ -56,6 +57,7 @@ public class RenewableTrader extends AggregatorTrader {
 		strategies.put(SupportInstrument.MPVAR, new VariablePremium(input));
 		strategies.put(SupportInstrument.CFD, new ContractForDifferences(input));
 		strategies.put(SupportInstrument.CP, new AtMarginalCost());
+		strategies.put(SupportInstrument.FINANCIAL_CFD, new AtMarginalCost());
 	}
 
 	@Override
