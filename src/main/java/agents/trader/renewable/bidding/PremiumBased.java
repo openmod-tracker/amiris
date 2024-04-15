@@ -81,8 +81,6 @@ public abstract class PremiumBased {
 	 * @param time for which to calculate
 	 * @return number of consecutive hours with negative prices directly before given time */
 	protected int calcPreviousNegativeHours(TimeStamp time) {
-		// TODO: Stub; Implement: use forecasted (and possibly historic) prices when calculating forecast bids, and historic prices
-		// when calculating actual bids
 		return 0;
 	}
 

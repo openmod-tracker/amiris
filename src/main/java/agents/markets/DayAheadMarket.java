@@ -28,7 +28,8 @@ public abstract class DayAheadMarket extends Agent {
 	static final String UNKNOWN_BID_TYPE = " is an unknown type of bid: ";
 	static final String LONE_LIST = "At most one element is expected in this list: ";
 
-	@Input private static final Tree parameters = Make.newTree().addAs("Clearing", MarketClearing.parameters)
+	@Input private static final Tree parameters = Make.newTree()
+			.addAs("Clearing", MarketClearing.parameters)
 			.add(Make.newInt("GateClosureInfoOffsetInSeconds")).buildTree();
 
 	/** Products of {@link DayAheadMarket}s */
@@ -48,7 +49,11 @@ public abstract class DayAheadMarket extends Agent {
 		/** Market clearing price achieved at last market clearing */
 		ElectricityPriceInEURperMWH,
 		/** System cost for generating the power awarded at last market clearing */
-		DispatchSystemCostInEUR
+		DispatchSystemCostInEUR,
+		/** Net energy awarded to exports */
+		AwardedNetEnergyToExportInMWH,
+		/** Net energy awarded from imports */
+		AwardedNetEnergyFromImportInMWH
 	};
 
 	private final TimeSpan gateClosureInfoOffset;
