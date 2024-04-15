@@ -72,7 +72,75 @@ AgentTypes:
     MetaData:
       Description: "The energy exchange represents the day-ahead energy market with one clearing per time segment (typically hourly clearing). It digests the requested and offered energy from connected Traders, finds a uniform market uniform clearing price, and returns the price and their specific awarded energy to the Traders."
       OEONearestConcept: OEO_00020065 
-  
+
+  DayAheadMarketMultiZone:
+    Attributes:
+      Clearing:
+        AttributeType: block
+        List: false
+        Mandatory: true
+        NestedAttributes:
+          DistributionMethod:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values: [ 'SAME_SHARES', 'FIRST_COME_FIRST_SERVE', 'RANDOMIZE' ]
+          ShortagePriceMethod:
+            AttributeType: enum
+            Mandatory: false
+            List: false
+            help: "Defines which price to use in case of shortage events (default: ScarcityPrice)"
+            Values: [ 'LastSupplyPrice', 'ValueOfLostLoad' ]
+      Region:
+        AttributeType: enum
+        Mandatory: false
+        List: false
+        Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
+        help: "Identifier specifying the region of the DayAheadMarket"
+      Transmission:
+        AttributeType: block
+        List: true
+        Mandatory: false
+        NestedAttributes:
+          Region:
+            AttributeType: enum
+            List: false
+            Mandatory: false
+            Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
+            help: "Region to shift demand to"
+          CapacityInMW:
+            AttributeType: time_series
+            List: false
+            Mandatory: false
+            help: "Net transfer capacity to shift demand to Region"
+      GateClosureInfoOffsetInSeconds:
+        AttributeType: integer
+        List: false
+        Mandatory: true
+    Products: [ 'TransmissionAndBids', 'Awards', 'GateClosureInfo' ]
+
+  MarketCoupling:
+    Products: [ 'MarketCouplingResult' ]
+
+  ImportTrader:
+    Attributes:
+      Imports:
+        AttributeType: block
+        List: true
+        Mandatory: true
+        NestedAttributes:
+          AvailableEnergyForImport:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            help: "Amount of Energy from imports to be offered at energy exchange in MW"
+          ImportCostInEURperMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            help: "Costs at which imports are offered at energy exchange in EUR/MWh"
+    Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward' ]
+
   CarbonMarket:
     Attributes:
       Co2Prices:

@@ -1,8 +1,9 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ListIterator;
@@ -48,5 +49,18 @@ public class SupplyOrderBook extends OrderBook {
 			indexOfSearchedItem = -(indexOfSearchedItem + 1);
 		}
 		return orderBookItems.get(indexOfSearchedItem);
+	}
+
+	/** @return a deep copy of SupplyOrderBook caller */
+	public SupplyOrderBook clone() {
+		SupplyOrderBook newSupplyOrderBook = new SupplyOrderBook();
+		newSupplyOrderBook.awardedCumulativePower = this.awardedCumulativePower;
+		newSupplyOrderBook.awardedPrice = this.awardedPrice;
+		newSupplyOrderBook.isSorted = this.isSorted;
+		newSupplyOrderBook.orderBookItems = new ArrayList<OrderBookItem>();
+		for (OrderBookItem orderBookItem : this.orderBookItems) {
+			newSupplyOrderBook.orderBookItems.add(new OrderBookItem(orderBookItem.getBid().clone()));
+		}
+		return newSupplyOrderBook;
 	}
 }

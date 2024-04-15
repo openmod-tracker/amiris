@@ -40,7 +40,7 @@ public class MeritOrderKernel {
 	 * @param demand sorted demand orders
 	 * @return market clearing data, i.e. awarded power and price
 	 * @throws MeritOrderClearingException in case the order books resemble no valid market */
-	public static MarketClearingResult clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand)
+	public static ClearingResult clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand)
 			throws MeritOrderClearingException {
 		ArrayList<OrderBookItem> supplyBids = supply.getOrderBookItems();
 		ArrayList<OrderBookItem> demandBids = demand.getOrderBookItems();
@@ -54,6 +54,13 @@ public class MeritOrderKernel {
 
 		int supplyIndex = 0;
 		int demandIndex = 0;
+		// Market clearing details
+		int priceSettingDemandIdx = 0;
+		OrderBookItem priceSettingDemand;
+		int priceSettingSupplyIdx = 0;
+		OrderBookItem priceSettingSupply;
+		double minPriceSettingDemand = 0;
+
 		while (true) {
 			OrderBookItem supplyEntry = supplyBids.get(supplyIndex);
 			OrderBookItem demandEntry = demandBids.get(demandIndex);
@@ -68,16 +75,53 @@ public class MeritOrderKernel {
 			if (cutFound) {
 				boolean supplyBlockIsCut = lastSupplyPower < lastDemandPower;
 				boolean cutAtSamePower = lastSupplyPower == lastDemandPower;
+
 				if (supplyBlockIsCut) {
-					return new MarketClearingResult(lastDemandPower, supplyPrice);
+					// Price setting bids and price setting demand power of the price setting demand bid
+					priceSettingDemandIdx = demandIndex - 1;
+					priceSettingDemand = demandBids.get(priceSettingDemandIdx);
+					priceSettingSupplyIdx = supplyIndex;
+					priceSettingSupply = supplyEntry;
+
+					minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
+							- priceSettingSupply.getCumulatedPowerLowerValue();
+					return new ClearingResult(lastDemandPower, supplyPrice, priceSettingDemandIdx, priceSettingSupplyIdx,
+							minPriceSettingDemand);
 				} else if (cutAtSamePower) {
 					// Consistent with virtual shift to the left of demand curve
-					return new MarketClearingResult(lastSupplyPower, Math.max(demandPrice, lastSupplyPrice));
+					// Price setting bids and price setting demand power of the price setting demand bid
+					priceSettingDemandIdx = demandIndex;
+					priceSettingDemand = demandEntry;
+					priceSettingSupplyIdx = supplyIndex;
+					priceSettingSupply = supplyEntry;
+
+					minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
+							- priceSettingSupply.getCumulatedPowerLowerValue();
+					return new ClearingResult(lastSupplyPower, Math.max(demandPrice, lastSupplyPrice), priceSettingDemandIdx,
+							priceSettingSupplyIdx, minPriceSettingDemand);
 				} else { // demandBlockIsCut
-					return new MarketClearingResult(lastSupplyPower, demandPrice);
+					// Price setting bids and price setting demand power of the price setting demand bid
+					priceSettingDemandIdx = demandIndex;
+					priceSettingDemand = demandEntry;
+					priceSettingSupplyIdx = supplyIndex;
+					priceSettingSupply = supplyEntry;
+
+					minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
+							- priceSettingSupply.getCumulatedPowerLowerValue();
+					return new ClearingResult(lastSupplyPower, demandPrice, priceSettingDemandIdx, priceSettingSupplyIdx,
+							minPriceSettingDemand);
 				}
 			} else if (cutAtSamePrice) {
-				return new MarketClearingResult(Math.min(supplyPower, demandPower), demandPrice);
+				// Price setting bids and price setting demand power of the price setting demand bid
+				priceSettingDemandIdx = demandIndex;
+				priceSettingDemand = demandBids.get(priceSettingDemandIdx);
+				priceSettingSupplyIdx = supplyIndex;
+				priceSettingSupply = supplyEntry;
+
+				minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
+						- priceSettingSupply.getCumulatedPowerLowerValue();
+				return new ClearingResult(Math.min(supplyPower, demandPower), demandPrice, priceSettingDemandIdx,
+						priceSettingSupplyIdx, minPriceSettingDemand);
 			} else { // No cut so far
 				if (supplyPower >= demandPower) {
 					lastDemandPower = demandPower;
