@@ -5,8 +5,8 @@ package agents.plantOperator.renewable;
 
 import java.util.ArrayList;
 import java.util.List;
+import agents.electrolysis.GreenHydrogenOperator;
 import agents.plantOperator.RenewablePlantOperator;
-import agents.trader.ElectrolysisTrader;
 import communications.message.ClearingTimes;
 import communications.message.MarginalCost;
 import communications.message.PpaInformation;
@@ -50,7 +50,7 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
 		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
 
-		call(this::sendPpaInformation).on(Products.PpaInformation).use(ElectrolysisTrader.Products.PpaInformationRequest);
+		call(this::sendPpaInformation).on(Products.PpaInformation).use(GreenHydrogenOperator.Products.PpaInformationRequest);
 	}
 
 	/** @return single {@link MarginalCost} considering variable yield */

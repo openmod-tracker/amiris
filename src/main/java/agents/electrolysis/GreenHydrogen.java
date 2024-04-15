@@ -11,6 +11,9 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
+/** A green hydrogen electrolysis strategist
+ * 
+ * @author Johannes Kochems, Leonard Willeke */
 public class GreenHydrogen extends ElectrolyzerStrategist {
 	public static enum TemporalCorrelationPeriod {
 		HOURLY, MONTHLY,
@@ -52,7 +55,6 @@ public class GreenHydrogen extends ElectrolyzerStrategist {
 
 	@Override
 	protected MeritOrderSensitivity createBlankSensitivity() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

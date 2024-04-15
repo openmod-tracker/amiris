@@ -19,9 +19,7 @@ import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
-import agents.plantOperator.renewable.VariableRenewableOperator;
 import agents.storage.arbitrageStrategists.FileDispatcher;
-import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
@@ -30,7 +28,6 @@ import communications.message.FuelBid.BidType;
 import communications.message.FuelCost;
 import communications.message.FuelData;
 import communications.message.PointInTime;
-import communications.message.PpaInformation;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -68,7 +65,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	private final Electrolyzer electrolyzer;
 	private final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
-	private double ppaPriceInEURperMWH;
 
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
@@ -88,15 +84,9 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(Forecaster.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
-		call(this::forwardClearingTimes).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
-				.use(VariableRenewableOperator.Products.PpaInformation);
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
-		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
-		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
-				.use(VariableRenewableOperator.Products.PpaInformation);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
@@ -142,17 +132,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		}
 	}
 
-	/** Forwards one ClearingTimes to connected clients (if any)
-	 * 
-	 * @param input a single ClearingTimes message
-	 * @param contracts connected client */
-	private void forwardClearingTimes(ArrayList<Message> input, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(input);
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
-		fulfilNext(contract, clearingTimes);
-	}
-
 	/** Prepares and sends Bids to one contracted exchange
 	 * 
 	 * @param input one GateClosureInfo message containing ClearingTimes
@@ -179,19 +158,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		return demandBid;
 	}
 
-	/** Determine capacity to be dispatched based on maximum consumption
-	 * 
-	 * @param messages not used
-	 * @param contracts with the {@link VariableRenewablePlantOperator} to send it the dispatch assignment */
-	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(messages);
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
-		strategist.updateMaximumConsumption(ppaInformation.validAt, ppaInformation.yieldPotential);
-		AmountAtTime dispatch = new AmountAtTime(ppaInformation.validAt, strategist.getMaximumConsumption());
-		fulfilNext(contract, dispatch);
-	}
-
 	/** Digests award information from {@link DayAheadMarket}, writes dispatch and sells hydrogen at fuels market using a "negative
 	 * purchase" message
 	 * 
@@ -215,25 +181,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}
 
-	/** Sell Hydrogen according to production schedule following the contracted renewable power plant
-	 * 
-	 * @param messages not used
-	 * @param contracts a contract with one {@link FuelsMarket} */
-	private void sellProducedGreenHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
-		DispatchSchedule schedule = strategist.getValidSchedule(now());
-		TimeStamp deliveryTime = schedule.getTimeOfFirstElement();
-		double chargingPowerInMWH = schedule.getScheduledChargingPowerInMW(deliveryTime);
-		double costs = ppaPriceInEURperMWH * chargingPowerInMWH;
-		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(chargingPowerInMWH,
-				deliveryTime);
-		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
-		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
-
-		store(Outputs.AwardedEnergyInMWH, chargingPowerInMWH);
-		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
-		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
-	}
-
 	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
 	private void sendHydrogenSellMessage(List<Contract> contracts, double producedHydrogenInThermalMWH,
 			TimeStamp deliveryTime) {
@@ -250,20 +197,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		double cost = readFuelBillMessage(message);
 		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
-	}
-
-	/** Pay client according to PPA specification
-	 * 
-	 * @param messages contain PPA information
-	 * @param contracts payment to client from PPA */
-	private void payoutClient(ArrayList<Message> messages, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(messages);
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
-		double payment = strategist.getMaximumConsumption() * ppaInformation.price;
-		AmountAtTime paymentToClient = new AmountAtTime(ppaInformation.validAt, payment);
-		fulfilNext(contract, paymentToClient);
-		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -payment);
 	}
 
 	@Override
