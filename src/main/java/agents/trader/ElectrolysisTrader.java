@@ -48,23 +48,9 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A flexible Trader demanding electricity and producing hydrogen from it via electrolysis.
  * 
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
  * @author Christoph Schimeczek */
 public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
-=======
- * @author Christoph Schimeczek
- */
-public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader {
-	@Input
-	private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
->>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
-=======
- * @author Christoph Schimeczek */
-public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
-	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 			.addAs("Strategy", ElectrolyzerStrategist.parameters)
 			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
 
@@ -82,15 +68,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	private final Electrolyzer electrolyzer;
 	private final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
 	private double ppaPriceInEURperMWH;
-=======
-	private double yieldPotentialRenewable;
->>>>>>> 1a6db84 Prepare data exchange between agents and classes
-=======
-	private double ppaPriceInEURperMWH;
->>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
 
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
@@ -110,64 +88,15 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(Forecaster.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
 		call(this::forwardClearingTimes).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
-=======
-		call(this::logPpaPrice).on(VariableRenewableOperator.Products.PpaPrice);
-		call(this::logYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
->>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
-=======
-		call(this::forwardClearingTimes).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
 				.use(VariableRenewableOperator.Products.PpaInformation);
-=======
-		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
->>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
-=======
-		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
-=======
-		call(this::assignDispatch).on(TraderWithClients.Products.DispatchAssignment)
-=======
-		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
->>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
-				.use(VariableRenewableOperator.Products.PpaInformation);
->>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
 		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
-=======
-		call(this::requestYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
->>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
-=======
-		call(this::logYieldPotential).on(VariableRenewableOperator.Products.YieldPotential);
->>>>>>> 1a6db84 Prepare data exchange between agents and classes
-=======
->>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
-=======
-		call(this::payoutClient).on(TraderWithClients.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
->>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
-=======
-		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout).use(VariableRenewableOperator.Products.PpaInformation);
->>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
-=======
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
 				.use(VariableRenewableOperator.Products.PpaInformation);
->>>>>>> 1841be1 Correct docs / format
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
@@ -213,8 +142,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		}
 	}
 
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
 	/** Forwards one ClearingTimes to connected clients (if any)
 	 * 
 	 * @param input a single ClearingTimes message
@@ -227,46 +154,9 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	}
 
 	/** Prepares and sends Bids to one contracted exchange
-=======
-	/**
-	 * Logs the electricity yield potential of the contracted
-	 * {@link VariableRenewableOperator}}
-=======
-	/** Forwards one ClearingTimes to connected clients (if any)
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 	 * 
-	 * @param input a single ClearingTimes message
-	 * @param contracts connected client */
-	private void forwardClearingTimes(ArrayList<Message> input, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(input);
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
-		fulfilNext(contract, clearingTimes);
-	}
-
-	/** Prepares and sends Bids to one contracted exchange
-	 * 
-<<<<<<< Upstream, based on origin/dev
-	 * @param messages  Yield potential from power plant
-	 * @param contracts not used
-	 */
-	private void logPpaPrice(ArrayList<Message> messages, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(messages);
-		AmountAtTime ppaPrice = message.getDataItemOfType(AmountAtTime.class);
-		ppaPriceInEURperMWH = ppaPrice.amount;
-	}
-	
-	/**
-	 * Prepares and sends Bids to one contracted exchange
->>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
-	 * 
-	 * @param input     one GateClosureInfo message containing ClearingTimes
-	 * @param contracts single contract with a {@link DayAheadMarket}
-	 */
-=======
 	 * @param input one GateClosureInfo message containing ClearingTimes
 	 * @param contracts single contract with a {@link DayAheadMarket} */
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
@@ -289,38 +179,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		return demandBid;
 	}
 
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
 	/** Determine capacity to be dispatched based on maximum consumption
 	 * 
 	 * @param messages not used
 	 * @param contracts with the {@link VariableRenewablePlantOperator} to send it the dispatch assignment */
 	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
-<<<<<<< Upstream, based on origin/dev
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
-		strategist.updateMaximumConsumption(ppaInformation.validAt, ppaInformation.yieldPotential);
-		AmountAtTime dispatch = new AmountAtTime(ppaInformation.validAt, strategist.getMaximumConsumption());
-		fulfilNext(contract, dispatch);
-	}
-
-	/** Digests award information from {@link DayAheadMarket}, writes dispatch and sells hydrogen at fuels market using a "negative
-	 * purchase" message
-=======
-	/**
-	 * Digests award information from {@link DayAheadMarket}, writes dispatch and
-	 * sells hydrogen at fuels market using a "negative purchase" message
->>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
-=======
-	/** Determine capacity to be dispatched based on maximum consumption
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
-	 * 
-	 * @param messages not used
-	 * @param contracts with the {@link VariableRenewablePlantOperator} to send it the dispatch assignment */
-	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
-=======
->>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
 		strategist.updateMaximumConsumption(ppaInformation.validAt, ppaInformation.yieldPotential);
@@ -370,37 +234,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}
 
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-	/** Sell Hydrogen according to production schedule following the contracted renewable power plant
-	 * 
-	 * @param messages not used
-	 * @param contracts a contract with one {@link FuelsMarket} */
-	private void sellProducedGreenHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
-		DispatchSchedule schedule = strategist.getValidSchedule(now());
-		TimeStamp deliveryTime = schedule.getTimeOfFirstElement();
-		double chargingPowerInMWH = schedule.getScheduledChargingPowerInMW(deliveryTime);
-		double costs = ppaPriceInEURperMWH * chargingPowerInMWH;
-		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(chargingPowerInMWH,
-				deliveryTime);
-		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
-		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
-
-		store(Outputs.AwardedEnergyInMWH, chargingPowerInMWH);
-		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
-		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
-	}
-
 	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
-=======
-	/**
-	 * Sends a single {@link FuelData} message to one contracted {@link FuelsMarket}
-	 * to sell the given amount of hydrogen
-	 */
->>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
-=======
-	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
 	private void sendHydrogenSellMessage(List<Contract> contracts, double producedHydrogenInThermalMWH,
 			TimeStamp deliveryTime) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
@@ -417,55 +251,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		double cost = readFuelBillMessage(message);
 		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
 	}
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
 
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-	/** Pay client according to PPA specification
-	 * 
-	 * @param messages contain PPA information
-	 * @param contracts payment to client from PPA */
-	private void payoutClient(ArrayList<Message> messages, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(messages);
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
-		double payment = strategist.getMaximumConsumption() * ppaInformation.price;
-		AmountAtTime paymentToClient = new AmountAtTime(ppaInformation.validAt, payment);
-		fulfilNext(contract, paymentToClient);
-		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -payment);
-=======
-	/**
-	 * Logs the electricity yield potential of the contracted
-	 * {@link VariableRenewableOperator}}
-	 * 
-	 * @param messages  Yield potential from power plant
-	 * @param contracts not used
-	 */
-<<<<<<< Upstream, based on origin/dev
-	private void requestYieldPotential(ArrayList<Message> messages, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		// Find contract partner
-		// Send request
-		// 
-		
-		return ;
->>>>>>> 9c181f2 Start implementation in VarREOperator and ElectrolysisTrader
-=======
-	private void logYieldPotential(ArrayList<Message> messages, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(messages);
-		AmountAtTime yieldPotential = message.getDataItemOfType(AmountAtTime.class);
-		yieldPotentialRenewable = yieldPotential.amount;
-		strategist.setYieldPotentialRenewable(yieldPotentialRenewable);
->>>>>>> 1a6db84 Prepare data exchange between agents and classes
-	}
-=======
->>>>>>> 6006af8 VariableRenewableOperator - Create new product PpaPrice - Read variable PpaPriceInEURperMWH from schema file and store locally - Send PPA price as message via new function sendPpaPrice
-	
-=======
-
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
-=======
 	/** Pay client according to PPA specification
 	 * 
 	 * @param messages contain PPA information
@@ -480,7 +266,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -payment);
 	}
 
->>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
 	@Override
 	protected double getInstalledCapacityInMW() {
 		return electrolyzer.getPeakPower(now());

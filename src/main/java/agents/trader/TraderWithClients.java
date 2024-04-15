@@ -21,14 +21,6 @@ public abstract class TraderWithClients extends Trader {
 	/** Products of {@link TraderWithClients} */
 	@Product
 	public static enum Products {
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
-=======
-		/** Money paid to clients */
-		Payout,
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
-=======
->>>>>>> 74ac58c Add new interface PowerPlantScheduler and finalize first draft of green hydrogen with PPA
 		/** Time of market clearing forwarded to clients */
 		GateClosureForward,
 		/** Time of forecast calculation forwarded to clients */

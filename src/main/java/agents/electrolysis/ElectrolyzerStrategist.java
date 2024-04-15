@@ -155,29 +155,10 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
 	}
-<<<<<<< Upstream, based on origin/dev
-<<<<<<< Upstream, based on origin/dev
 
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
 	public void updateMaximumConsumption(TimeStamp time, double yieldPotential) {
-<<<<<<< Upstream, based on origin/dev
 
-	}
-
-	/** Dummy method to be overwritten in GreenHydrogen strategist */
-	public double getMaximumConsumption() {
-		return Double.NaN;
-=======
-	
-=======
-
->>>>>>> d43a0e2 Create new exchange between ElectrolysisTrader and VarREOperator with new interface PowerPlantScheduler
-	/** Dummy method to be overwritten in GreenHydrogen strategist */
-	public void calcMaximumConsumption(AmountAtTime yieldPotential) {
-=======
->>>>>>> 9740ff7 Remove PowerPlantScheduler and implement data exchange via TraderWithClients
-
->>>>>>> 1a6db84 Prepare data exchange between agents and classes
 	}
 
 	/** Dummy method to be overwritten in GreenHydrogen strategist */
