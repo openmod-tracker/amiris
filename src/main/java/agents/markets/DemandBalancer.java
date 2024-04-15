@@ -11,14 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.ClearingResult;
-import agents.markets.meritOrder.MeritOrderKernel;
-import agents.markets.meritOrder.MeritOrderKernel.MeritOrderClearingException;
+import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
 import communications.message.CouplingData;
-import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Encapsulates the actual market coupling algorithm; Dispatch the demand among energy exchanges in order to maximise the total
  * welfare. To this end, the algorithm reduces price differences of connected markets by transferring demand bids.
@@ -51,18 +49,16 @@ public class DemandBalancer {
 
 	/** Sets the offset, that is added to the maximal demand shift, that does not lead to price change of the involved markets. The
 	 * addition of this offset first guarantee price change */
+	private static final String CLEARING_ID = "MarketCoupling - DemandBalancer";
 	private final double minEffectiveDemandOffset;
-	private TimeStamp timeStamp;
 	private Map<Long, CouplingData> couplingRequests;
 	private Map<Long, ClearingResult> clearingResults = new HashMap<>();
 
 	/** Creates new {@link DemandBalancer}
 	 * 
-	 * @param minEffectiveDemandOffset added to the demand shift in order to enforce price changes
-	 * @param timeStamp for which the demand balancing is done; used to write a clear error message */
-	public DemandBalancer(double minEffectiveDemandOffset, TimeStamp timeStamp) {
+	 * @param minEffectiveDemandOffset added to the demand shift in order to enforce price changes */
+	public DemandBalancer(double minEffectiveDemandOffset) {
 		this.minEffectiveDemandOffset = minEffectiveDemandOffset;
-		this.timeStamp = timeStamp;
 	}
 
 	/** Maximises the overall welfare by balancing the demand among all participant {@link DayAheadMarket}s under given transmission
@@ -187,25 +183,9 @@ public class DemandBalancer {
 		ClearingResult clearingResult = clearingResults.get(exchangeId);
 		if (clearingResult == null) {
 			CouplingData request = couplingRequests.get(exchangeId);
-			clearingResult = applyClearing(request.getSupplyOrderBook(), request.getDemandOrderBook());
+			clearingResult = MarketClearing.calculateClearing(request.getSupplyOrderBook(), request.getDemandOrderBook(),
+					CLEARING_ID);
 			clearingResults.put(exchangeId, clearingResult);
-		}
-		return clearingResult;
-	}
-
-	/** Computes the ClearingResult of the specified SupplyOrderBook and DemandOrderBook.
-	 * 
-	 * @param supplyBook given SupplyOrderBook
-	 * @param demandBook given DemandOrderBook
-	 * @return the ClearingResult of the specified SupplyOrderBook and DemandOrderBook */
-	private ClearingResult applyClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook) {
-		String clearingEventId = this.toString() + " " + timeStamp;
-		ClearingResult clearingResult;
-		try {
-			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
-		} catch (MeritOrderClearingException e) {
-			clearingResult = new ClearingResult(0.0, Double.NaN);
-			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
 		}
 		return clearingResult;
 	}
@@ -260,10 +240,10 @@ public class DemandBalancer {
 		int priceSettingDemandBidIdx = clearingOfExpensive.priceSettingDemandBidIdx;
 		DemandShiftResult demandShiftResult = shiftDemand(expensiveMarketId, cheapMarketId, toShiftDemand,
 				priceSettingDemandBidIdx, expensiveMarketData.getDemandOrderBook(), cheapMarketData.getDemandOrderBook());
-		ClearingResult newClearingOfExpensive = applyClearing(expensiveMarketData.getSupplyOrderBook(),
-				demandShiftResult.newDemandOfOrigin);
-		ClearingResult newClearingOfCheap = applyClearing(cheapMarketData.getSupplyOrderBook(),
-				demandShiftResult.newDemandOfTarget);
+		ClearingResult newClearingOfExpensive = MarketClearing.calculateClearing(expensiveMarketData.getSupplyOrderBook(),
+				demandShiftResult.newDemandOfOrigin, CLEARING_ID);
+		ClearingResult newClearingOfCheap = MarketClearing.calculateClearing(cheapMarketData.getSupplyOrderBook(),
+				demandShiftResult.newDemandOfTarget, CLEARING_ID);
 		if (newClearingOfExpensive.marketPriceInEURperMWH < newClearingOfCheap.marketPriceInEURperMWH) {
 			return null;
 		}
@@ -387,8 +367,10 @@ public class DemandBalancer {
 		TransferOrderBook transferBook = demandShiftResult.transferBook;
 		double shiftedDemand = demandShiftResult.shiftedDemand;
 
-		ClearingResult newClearingExpensive = applyClearing(supplyBookExpensive, newDemandBookExpensive);
-		ClearingResult newClearingCheap = applyClearing(supplyBookCheap, newDemandBookCheap);
+		ClearingResult newClearingExpensive = MarketClearing.calculateClearing(supplyBookExpensive, newDemandBookExpensive,
+				CLEARING_ID);
+		ClearingResult newClearingCheap = MarketClearing.calculateClearing(supplyBookCheap, newDemandBookCheap,
+				CLEARING_ID);
 
 		ClearingResult clearingResultExpensive = clearingResults.get(demandShiftResult.expensiveMarketId);
 		ClearingResult clearingResultCheap = clearingResults.get(demandShiftResult.cheapMarketId);
