@@ -95,7 +95,7 @@ public class MarketClearing {
 	 * @param supplyBook book of all supply bids
 	 * @param demandBook book of all demand bids
 	 * @return the ClearingResult of the specified SupplyOrderBook and DemandOrderBook */
-	private ClearingResult calculateClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook,
+	public static ClearingResult calculateClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook,
 			String clearingEventId) {
 		ClearingResult clearingResult;
 		try {

@@ -74,7 +74,7 @@ public class MarketCoupling extends Agent {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		double minEffectiveDemandOffset = input.getDoubleOrDefault("MinimumDemandOffsetInMWH", DEFAULT_DEMAND_SHIFT_OFFSET);
-		demandBalancer = new DemandBalancer(minEffectiveDemandOffset, now());
+		demandBalancer = new DemandBalancer(minEffectiveDemandOffset);
 
 		call(this::clearCoupledMarkets).on(Products.MarketCouplingResult)
 				.use(DayAheadMarketMultiZone.Products.TransmissionAndBids);
