@@ -239,16 +239,12 @@ public class DemandBalancer {
 		double toShiftDemand = clearingOfExpensive.minPriceSettingDemand + minEffectiveDemandOffset;
 		toShiftDemand = Math.min(transmissionCapacity, toShiftDemand);
 
-		// TODO: Change restriction: even if in the cheaper market load is lost, it may still be able to serve (high-value) demand
-		// from the expensive market
 		double availableSupplyOfCheap = cheapMarketData.getSupplyOrderBook().getCumulatePowerOfItems();
 		double requestedDemandOfCheap = cheapMarketData.getDemandOrderBook().getCumulatePowerOfItems();
 		if (availableSupplyOfCheap <= requestedDemandOfCheap) {
 			return null;
 		}
 
-		// TODO: Change restriction: reduce maximum amount of shifted energy to an amount that (barely) changes the price at the
-		// cheaper exchange
 		if (availableSupplyOfCheap < requestedDemandOfCheap + toShiftDemand) {
 			toShiftDemand = availableSupplyOfCheap - requestedDemandOfCheap;
 		}
