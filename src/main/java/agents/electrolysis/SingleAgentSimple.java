@@ -24,6 +24,7 @@ import util.Polynomial;
  * 
  * @author Christoph Schimeczek */
 public class SingleAgentSimple extends ElectrolyzerStrategist {
+	/** Inputs specific to {@link SingleAgentSimple} electrolyzer strategists */
 	public static final Tree parameters = Make.newTree().add(
 			Make.newSeries("HydrogenProductionTargetInMWH").help("How much hydrogen to produce per production interval"),
 			Make.newInt("ProductionTargetIntervalInHours").help("How many hours a production interval spans"),
@@ -127,7 +128,7 @@ public class SingleAgentSimple extends ElectrolyzerStrategist {
 	/** @return total production target within the forecast period - possibly across production intervals */
 	private double calcProductionTargetWithinForecastPeriod(TimePeriod timePeriod) {
 		int remainingTimeInInterval = getRemainingHoursInProductionInterval(timePeriod);
-		
+
 		double targetProductionPerHour;
 		if (remainingTimeInInterval < forecastSteps) {
 			targetProductionPerHour = calcAverageProductionAcrossIntervals(timePeriod, remainingTimeInInterval);

@@ -20,6 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Marc Deissenroth */
 public class Biogas extends RenewablePlantOperator {
+	/** Mode of operation of the {@link Biogas} power plant */
 	public static enum OperationMode {
 		/** Calculates a constant load factor based on the given {@link Biogas} plant's full load hours. */
 		CONTINUOUS,
@@ -28,7 +29,7 @@ public class Biogas extends RenewablePlantOperator {
 		DAY_NIGHT,
 		/** Reads the load factor of the {@link Biogas} plant from the given file. */
 		FROM_FILE
-	};
+	}
 
 	@Input private static final Tree parameters = Make
 			.newTree().add(Make.newEnum("OperationMode", OperationMode.class),

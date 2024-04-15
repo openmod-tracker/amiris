@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.electrolysis;
@@ -31,6 +31,7 @@ public class FileDispatcher extends ElectrolyzerStrategist {
 		ELECTRICITY, HYDROGEN
 	};
 
+	/** Input parameters for the {@link FileDispatcher} */
 	public static final Tree parameters = Make.newTree().add(
 			Make.newSeries("HourlySchedule").optional(),
 			Make.newEnum("Mode", Mode.class).optional()

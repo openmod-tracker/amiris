@@ -27,7 +27,7 @@ public abstract class PolicyItem implements Portable {
 	static final ParameterBuilder lcoeParam = Make.newSeries("Lcoe").optional();
 	static final ParameterBuilder premiumParam = Make.newSeries("Premium").optional();
 	static final ParameterBuilder maxNumberOfNegativeHoursParam = Make.newInt("MaxNumberOfNegativeHours").optional();
-	protected static final int INFINITE_NEGATIVE_HOURS = -1;
+	private static final int INFINITE_NEGATIVE_HOURS = -1;
 
 	/** Available support instruments */
 	public enum SupportInstrument {
@@ -45,7 +45,7 @@ public abstract class PolicyItem implements Portable {
 		FINANCIAL_CFD
 	}
 
-	public static final EnumMap<SupportInstrument, Class<? extends PolicyItem>> policyClasses = new EnumMap<>(
+	private static final EnumMap<SupportInstrument, Class<? extends PolicyItem>> policyClasses = new EnumMap<>(
 			SupportInstrument.class);
 	static {
 		policyClasses.put(SupportInstrument.FIT, Fit.class);

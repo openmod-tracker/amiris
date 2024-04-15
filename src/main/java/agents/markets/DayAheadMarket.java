@@ -31,6 +31,7 @@ public abstract class DayAheadMarket extends Agent {
 	@Input private static final Tree parameters = Make.newTree().addAs("Clearing", MarketClearing.parameters)
 			.add(Make.newInt("GateClosureInfoOffsetInSeconds")).buildTree();
 
+	/** Products of {@link DayAheadMarket}s */
 	@Product
 	public static enum Products {
 		/** Awarded energy and price per bidding trader */
@@ -39,6 +40,7 @@ public abstract class DayAheadMarket extends Agent {
 		GateClosureInfo
 	};
 
+	/** Output columns for all types of {@link DayAheadMarket}s */
 	@Output
 	protected static enum OutputFields {
 		/** Total power awarded at last market clearing */
@@ -61,7 +63,7 @@ public abstract class DayAheadMarket extends Agent {
 	 * @throws MissingDataException if any required data is not provided */
 	public DayAheadMarket(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
-		ParameterData input = parameters.join(dataProvider); 
+		ParameterData input = parameters.join(dataProvider);
 		marketClearing = new MarketClearing(input.getGroup("Clearing"));
 		gateClosureInfoOffset = new TimeSpan(input.getInteger("GateClosureInfoOffsetInSeconds"));
 

@@ -3,13 +3,16 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
-## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.0.0) - TBA
-
+## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
 ### Added
 - Metadata functionality added in schema.yaml #102 (@litotes18)
 
-## [2.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.0.0) - TBA
-_ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
+## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.1.0) - 2024-04-04
+### Changed
+- Increased FAME-Core version to 1.6 #106 (@dlr-cjs, @dlr_fn)
+
+## [2.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.0.0) - 2024-03-12
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 
 ### Changed
 - **Breaking**: Rename `EnergyExchange` to `DayAheadMarketSingleZone` #41 (@dlr-cjs)
@@ -42,6 +45,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Changed default log level from FATAL to ERROR  #81 (@dlr-cjs, @dlr_elghazi)
 - Forecaster now re-checks for missing forecasts in every hour #42 (@dlr-cjs)
 - ArbitrageStrategist now extends `flexibility.Strategist` #54 (@dlr-cjs, @dlr_jk)
+- Include accounting for storage self-discharge in storage strategies #21 (@dlr-cjs, @dlr_jk, @dlr_es, @dlr_elghazi)
 - FileDispatcher(Storage) modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - SystemCostMinimizer modified due to changes in `ArbitrageStrategist` #54 (@dlr-cjs, @dlr_jk)
 - ArbitrageStrategist performs rounding of energy states and throws warning if not within tolerance #78 (@dlr_fn, @dlr-cjs, @dlr_elghazi)
@@ -53,6 +57,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - Update Reference examples to changes in outputs #41, #54, #75, #76 (@dlr-cjs)
 - Move flexibility agents' forecasting to FlexibilityTrader #79 (@litotes18, @dlr_jk)
 - Refactorings of `PowerPlant` to improve code clarity #94 (@dlr-cjs)
+- CI: Any `javadoc` warning will now fail the pipeline #101 (@dlr-cjs)
 
 ### Added
 - Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
@@ -75,12 +80,14 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 - `ConventionalOperator`: add output `ReceivedMoneyInEUR` for received money per plant #74 (@dlr_cjs)
 - Package `forecast`: added `PriceForecasterFile` to provide price forecasts from file #95 (@dlr-cjs)
 - FileDispatcher(Storage): added optional input parameter `DispatchTolerance` #50 (@dlr_jk, @litotes18, @dlr_fn)
+- Added missing javadocs #101 (@dlr-cjs, @dlr_jk)
 - JOSS Paper at folder 'paper/' #3 (@dlr-cjs, @dlr_fn, @litotes18, @dlr_jk, @kriniti, @kyleniemeyer)
 - Tests in packages `accounting` and `util` #54 (@dlr-cjs, @dlr_jk)
 - UPGRADING.md: help people with upgrading tasks #58 (@dlr-cjs)
 - MarketClearing: Checks for Bid message integrity #54 (@dlr-cjs, @dlr_jk)
 - CI: Automatic checks for changelog updates #60 (@dlr-cjs)
 - README.md: added `Acknowledgements` section #70 (@dlr-cjs)
+- README.md: added link to REMix !106 (@dlr-cjs)
 
 ### Removed
 - **Breaking**: Drop support of JDK 8, 9 and 10; new minimum version is JDK 11, associated with #52 (@dlr-cjs)
@@ -89,6 +96,7 @@ _ If you are upgrading: please see [UPGRADING.md](UPGRADING.md)._
 ### Fixed
 - PredefinedPlantBuilder: delivering portfolio for second year #65 (@dlr-cjs, @dlr_jk, @dlr_fn)
 - Storage: bids could exceed market limits - now they abide by the market limits #47 (@dlr-cjs)
+- AggregatorTrader: corrected association of support payments in case of multiple clients with similar set #104 (@dlr-cjs)
 - Storage: discretisation of planning no longer causes over-charging or under-depletion #55 (@dlr-cjs)
 - Forecaster: wrote out forecast prices with one hour lag - the time lag is removed #48 (@dlr-cjs)
 - ConventionalPlantOperator: did not sort power plants for dispatch correctly - sorting now according to marginal cost #97 (@dlr-cjs)

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
@@ -20,7 +20,6 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Martin Klein, Christoph Schimeczek */
 public abstract class OrderBook implements Portable {
-
 	/** required for {@link Portable}s */
 	public OrderBook() {}
 
@@ -34,9 +33,13 @@ public abstract class OrderBook implements Portable {
 		SAME_SHARES
 	};
 
+	/** market clearing price */
 	protected double awardedPrice = Double.NaN;
+	/** total power awarded to both supply and demand */
 	protected double awardedCumulativePower = Double.NaN;
+	/** list of all items in this {@link OrderBook} */
 	protected ArrayList<OrderBookItem> orderBookItems = new ArrayList<OrderBookItem>();
+	/** tells if this {@link OrderBook} has been yet finalised and sorted */
 	protected boolean isSorted = false;
 
 	/** Adds given {@link Bid} to this {@link OrderBook}; the OrderBook must not be sorted yet

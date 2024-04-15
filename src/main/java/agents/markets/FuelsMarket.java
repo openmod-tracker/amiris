@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -34,6 +34,7 @@ public class FuelsMarket extends Agent {
 	static final String TIME_SERIES_MISSING = "No TimeSeries found for fuel ";
 	static final String CONVERSION_FACTOR_MISSING = "No conversion factor found for fuel ";
 
+	/** Products of the {@link FuelsMarket} */
 	@Product
 	public static enum Products {
 		/** forecasted value of a fuel price */
@@ -46,7 +47,24 @@ public class FuelsMarket extends Agent {
 
 	/** Available types of fuel traded at {@link FuelsMarket} */
 	public static enum FuelType {
-		NATURAL_GAS, LIGNITE, HARD_COAL, OIL, WASTE, NUCLEAR, HYDROGEN, BIOMASS, OTHER
+		/** Natural Gas */
+		NATURAL_GAS,
+		/** Lignite */
+		LIGNITE,
+		/** Hard coal */
+		HARD_COAL,
+		/** Fuel oils */
+		OIL,
+		/** Wastes */
+		WASTE,
+		/** Nuclear fuel */
+		NUCLEAR,
+		/** Hydrogen */
+		HYDROGEN,
+		/** Biogas or other bio-fuels */
+		BIOMASS,
+		/** Any other type of fuel */
+		OTHER
 	};
 
 	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("FuelPrices").list()

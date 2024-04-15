@@ -17,6 +17,9 @@ public class MeritOrderKernel {
 	public static class MeritOrderClearingException extends Exception {
 		private static final long serialVersionUID = 1L;
 
+		/** Creates a new instance
+		 * 
+		 * @param errorMessage to be conveyed */
 		public MeritOrderClearingException(String errorMessage) {
 			super(errorMessage);
 		}

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.policy;
@@ -22,12 +22,19 @@ public class SetPolicies {
 	public class SetPolicyItems {
 		private final EnumMap<SupportInstrument, PolicyItem> policies = new EnumMap<>(SupportInstrument.class);
 
+		/** Stores the given {@link PolicyItem}
+		 * 
+		 * @param policyItem to be stored */
 		public void addPolicyItem(PolicyItem policyItem) {
 			if (policyItem != null) {
 				policies.put(policyItem.getSupportInstrument(), policyItem);
 			}
 		}
 
+		/** Gets the {@link PolicyItem} of the given {@link SupportInstrument}
+		 * 
+		 * @param instrument to get the {@link PolicyItem} for
+		 * @return the associated {@link PolicyItem} for the requested {@link SupportInstrument} */
 		public PolicyItem getPolicyFor(SupportInstrument instrument) {
 			return policies.get(instrument);
 		}
@@ -38,11 +45,19 @@ public class SetPolicies {
 	/** Maps each set to its energy carrier */
 	private EnumMap<SetType, EnergyCarrier> energyCarrierPerSet = new EnumMap<>(SetType.class);
 
+	/** Associates the given {@link PolicyItem} with the specified {@link SetType}
+	 * 
+	 * @param set to be associated with the given policy
+	 * @param policyItem to be associated with the given set */
 	public void addSetPolicyItem(SetType set, PolicyItem policyItem) {
 		SetPolicyItems supportData = policyItemsPerSet.computeIfAbsent(set, __ -> new SetPolicyItems());
 		supportData.addPolicyItem(policyItem);
 	}
 
+	/** Registers the given {@link TechnologySet} for later evaluation
+	 * 
+	 * @param technologySet to be registered
+	 * @throws RuntimeException if the set of the given {@link TechnologySet} has no associated {@link PolicyItem} */
 	public void register(TechnologySet technologySet) {
 		energyCarrierPerSet.put(technologySet.setType, technologySet.energyCarrier);
 		if (getPolicyItem(technologySet.setType, technologySet.supportInstrument) == null) {
@@ -50,10 +65,18 @@ public class SetPolicies {
 		}
 	}
 
+	/** Returns the {@link EnergyCarrier} associated with a given {@link SetType}
+	 * 
+	 * @param set to find the {@link EnergyCarrier} for
+	 * @return the associated {@link EnergyCarrier} */
 	public EnergyCarrier getEnergyCarrier(SetType set) {
 		return energyCarrierPerSet.get(set);
 	}
 
+	/** Create a link between the given {@link TechnologySet}'s {@link SetType} and its associated {@link PolicyItem}
+	 * 
+	 * @param technologySet to link with its associated {@link PolicyItem}
+	 * @return new {@link SupportData} */
 	public SupportData getSupportData(TechnologySet technologySet) {
 		SetType set = technologySet.setType;
 		return new SupportData(set, getPolicyItem(set, technologySet.supportInstrument));

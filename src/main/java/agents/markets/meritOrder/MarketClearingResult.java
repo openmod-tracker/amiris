@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
@@ -62,7 +62,10 @@ public class MarketClearingResult {
 	public double getMarketPriceInEURperMWH() {
 		return marketPriceInEURperMWH;
 	}
-	
+
+	/** Update the market clearing price with the specified value
+	 * 
+	 * @param newPriceInEURperMWH the new market clearing price in EUR per MWh */
 	public void setMarketPriceInEURperMWH(double newPriceInEURperMWH) {
 		marketPriceInEURperMWH = newPriceInEURperMWH;
 	}

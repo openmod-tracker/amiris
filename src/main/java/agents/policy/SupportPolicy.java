@@ -37,11 +37,21 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class SupportPolicy extends Agent {
 	/** Available energy carriers eligible for support - and "Other" */
 	public enum EnergyCarrier {
-		PV, WindOn, WindOff, RunOfRiver, Biogas,
+		/** Photovoltaic */
+		PV,
+		/** onshore wind turbines */
+		WindOn,
+		/** offshore wind turbines */
+		WindOff,
+		/** run-of-river hydro-power */
+		RunOfRiver,
+		/** Biogas */
+		Biogas,
 		/** Not eligible for support */
 		Other
 	}
 
+	/** Products of {@link SupportPolicy} */
 	@Product
 	public enum Products {
 		/** Info on the support scheme to be applied to a set of plants */
@@ -160,7 +170,7 @@ public class SupportPolicy extends Agent {
 	private SupportResponseData calcSupportPerRequest(SupportRequestData request, double marketValue) {
 		SetType setType = request.setType;
 		PolicyItem policyItem = setPolicies.getPolicyItem(setType, request.supportInstrument);
-		double infeedInMWH = policyItem.calcEligibleInfeed(marketData.getPowerPrices(), request);
+		double infeedInMWH = policyItem.calcEligibleInfeed(marketData.getEnergyPrices(), request);
 		double infeedSupportRateInEURperMWH = policyItem.calcInfeedSupportRate(request.accountingPeriod, marketValue);
 		double marketPremium = policyItem.isTypeOfMarketPremium() ? infeedSupportRateInEURperMWH : 0;
 		double capacityInMW = policyItem.calcEligibleCapacity(request);

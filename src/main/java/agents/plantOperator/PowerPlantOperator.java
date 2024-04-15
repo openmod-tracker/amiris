@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
 import agents.trader.Trader;
+import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -25,6 +26,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class PowerPlantOperator extends Agent {
+	/** Available products */
 	@Product
 	public static enum Products {
 		/** Cost(s) for the production of a given amount of energy at a specific time */
@@ -38,9 +40,20 @@ public abstract class PowerPlantOperator extends Agent {
 	@Input private static final Tree parameters = Make.newTree().addAs("Refinancing", AnnualCostCalculator.parameters)
 			.buildTree();
 
+	/** Available output columns */
 	@Output
 	protected static enum OutputFields {
-		AwardedEnergyInMWH, OfferedEnergyInMWH, ReceivedMoneyInEUR, VariableCostsInEUR, FixedCostsInEUR,
+		/** Electricity awarded for production */
+		AwardedEnergyInMWH,
+		/** Electricity offered for production */
+		OfferedEnergyInMWH,
+		/** Money received */
+		ReceivedMoneyInEUR,
+		/** Variable operation and maintenance costs */
+		VariableCostsInEUR,
+		/** Fixed operation and maintenance costs */
+		FixedCostsInEUR,
+		/** Share of investment cost */
 		InvestmentAnnuityInEUR
 	}
 
@@ -54,8 +67,9 @@ public abstract class PowerPlantOperator extends Agent {
 		ParameterData input = parameters.join(dataProvider);
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
 
-		call(this::executeDispatch).on(Trader.Products.DispatchAssignment).use(Trader.Products.DispatchAssignment);
-		call(this::digestPayment).on(Trader.Products.Payout).use(Trader.Products.Payout);
+		call(this::executeDispatch).on(TraderWithClients.Products.DispatchAssignment)
+				.use(TraderWithClients.Products.DispatchAssignment);
+		call(this::digestPayment).on(TraderWithClients.Products.Payout).use(TraderWithClients.Products.Payout);
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 

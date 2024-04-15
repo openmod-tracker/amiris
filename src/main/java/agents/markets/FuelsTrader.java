@@ -17,8 +17,8 @@ import de.dlr.gitlab.fame.communication.message.Message;
  * 
  * @author Christoph Schimeczek */
 public interface FuelsTrader extends AgentAbility {
-	@Product
 	/** Products of traders interacting with {@link FuelsMarket} */
+	@Product
 	public static enum Products {
 		/** Request for fuel price forecast at a given time and for a given fuel */
 		FuelPriceForecastRequest,
