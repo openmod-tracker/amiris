@@ -27,6 +27,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class VariableRenewableOperator extends RenewablePlantOperator {
+	static final String ERR_PPA_PRICE_MISSING = "PPA was requested, but no PPA price found in inputs of ";
+
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newSeries("YieldProfile"), Make.newSeries("PpaPriceInEURperMWH").optional()).buildTree();
 
@@ -50,7 +52,8 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
 		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
 
-		call(this::sendPpaInformation).on(Products.PpaInformation).use(GreenHydrogenOperator.Products.PpaInformationRequest);
+		call(this::sendPpaInformation).on(Products.PpaInformation)
+				.use(GreenHydrogenOperator.Products.PpaInformationRequest);
 	}
 
 	/** @return single {@link MarginalCost} considering variable yield */
@@ -74,9 +77,12 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TimeStamp time = message.getDataItemOfType(ClearingTimes.class).getTimes().get(0);
+
+		if (ppaPriceInEURperMWH == null) {
+			throw new RuntimeException(ERR_PPA_PRICE_MISSING + this);
+		}
 		double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);
 		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
-		PpaInformation ppaInformation = new PpaInformation(time, ppaPrice, availablePower);
-		fulfilNext(contract, ppaInformation);
+		fulfilNext(contract, new PpaInformation(time, ppaPrice, availablePower));
 	}
 }
