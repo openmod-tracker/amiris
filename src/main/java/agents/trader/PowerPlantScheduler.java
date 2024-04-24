@@ -8,7 +8,7 @@ import de.dlr.gitlab.fame.communication.Product;
 
 /** Can order power plants how to dispatch
  * 
- * @author Johannes Kochems */
+ * @author Johannes Kochems, Leonard Willeke */
 public interface PowerPlantScheduler extends AgentAbility {
 
 	/** Products of {@link PowerPlantScheduler} */

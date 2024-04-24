@@ -36,7 +36,6 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
-import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
@@ -54,11 +53,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	@Output
 	private static enum Outputs {
 		RequestedEnergyInMWH, OfferedEnergyPriceInEURperMWH, AwardedEnergyInMWH, ProducedHydrogenInMWH
-	};
-
-	@Product
-	public static enum Products {
-		PpaInformationRequest
 	};
 
 	private static final FuelData FUEL_HYDROGEN = new FuelData(FuelType.HYDROGEN);
