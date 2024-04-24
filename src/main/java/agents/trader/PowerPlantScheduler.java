@@ -6,6 +6,9 @@ package agents.trader;
 import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.communication.Product;
 
+/** Can order power plants how to dispatch
+ * 
+ * @author Johannes Kochems */
 public interface PowerPlantScheduler extends AgentAbility {
 
 	/** Products of {@link PowerPlantScheduler} */
