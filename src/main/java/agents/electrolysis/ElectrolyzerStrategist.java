@@ -25,8 +25,6 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		DISPATCH_FILE,
 		/** Schedules based on a moving target of hydrogen production totals and electricity prices */
 		SINGLE_AGENT_SIMPLE,
-		/** Schedules based on production of an associated renewable power plant */
-		GREEN_HYDROGEN,
 	}
 
 	/** Planned production schedule for hydrogen in thermal MWh */
@@ -44,7 +42,6 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
 					Make.newEnum("StrategistType", StrategistType.class))
 			.addAs("FixedDispatch", FileDispatcher.parameters).addAs("Simple", SingleAgentSimple.parameters)
-			.addAs("GreenHydrogen", GreenHydrogen.parameters)
 			.add(Make.newSeries("PriceLimitOverrideInEURperMWH").optional().help("Overrides hydrogen prices"))
 			.buildTree();
 
@@ -74,9 +71,6 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 				break;
 			case SINGLE_AGENT_SIMPLE:
 				strategist = new SingleAgentSimple(input, input.getGroup("Simple"));
-				break;
-			case GREEN_HYDROGEN:
-				strategist = new GreenHydrogen(input, input.getGroup("GreenHydrogen"));
 				break;
 			default:
 				throw new RuntimeException(ERR_UNKNOWN_STRATEGIST + type);
@@ -154,15 +148,5 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected double getHydrogenPriceForPeriod(TimePeriod timePeriod) {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
-	}
-
-	/** Dummy method to be overwritten in GreenHydrogen strategist */
-	public void updateMaximumConsumption(TimeStamp time, double yieldPotential) {
-
-	}
-
-	/** Dummy method to be overwritten in GreenHydrogen strategist */
-	public double getMaximumConsumption() {
-		return Double.NaN;
 	}
 }

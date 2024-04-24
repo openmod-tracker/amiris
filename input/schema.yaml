@@ -879,4 +879,22 @@ AgentTypes:
                 AttributeType: double
                 Mandatory: true
                 List: false
-    Products: [ 'Bids', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'AnnualCostReport', 'FuelBid', 'FuelPriceRequest', 'FuelPriceForecastRequest', ]
+    Products: [ 'Bids', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'AnnualCostReport', 'FuelBid', 'FuelPriceRequest', 'FuelPriceForecastRequest' ]
+    
+  GreenHydrogenOperator:
+    Attributes:
+      Device:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        NestedAttributes:
+          PeakConsumptionInMW:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+          ConversionFactor:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            help: "Factor < 1 to convert electric energy to hydrogen's thermal energy equivalent"    
+    Products: [ 'PpaInformationRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'Payout', 'DispatchAssignment' ]

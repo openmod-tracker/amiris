@@ -5,15 +5,15 @@ package agents.electrolysis;
 
 import java.util.ArrayList;
 import java.util.List;
-import agents.flexibility.DispatchSchedule;
-import agents.flexibility.Strategist;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import agents.markets.DayAheadMarket;
 import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
 import agents.plantOperator.renewable.VariableRenewableOperator;
 import agents.trader.ElectrolysisTrader;
-import agents.trader.FlexibilityTrader;
 import agents.trader.PowerPlantScheduler;
 import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
@@ -21,6 +21,7 @@ import communications.message.FuelBid;
 import communications.message.FuelBid.BidType;
 import communications.message.FuelData;
 import communications.message.PpaInformation;
+import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -34,17 +35,16 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-
 /** A green hydrogen electrolysis operator
  * 
- * @author Johannes Kochems, Leonard Willeke */
-public class GreenHydrogenOperator extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
+ * @author Johannes Kochems, Leonard Willeke, Christoph Schimeczek */
+public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
 			.addAs("Strategy", ElectrolyzerStrategist.parameters).buildTree();
 
 	@Output
 	private static enum Outputs {
-		AwardedEnergyInMWH, ProducedHydrogenInMWH
+		AwardedEnergyInMWH, ProducedHydrogenInMWH, VariableCostsInEUR, ReceivedMoneyInEUR
 	};
 
 	@Product
@@ -53,8 +53,7 @@ public class GreenHydrogenOperator extends FlexibilityTrader implements FuelsTra
 	};
 
 	private final Electrolyzer electrolyzer;
-	private final ElectrolyzerStrategist strategist;
-	private double ppaPriceInEURperMWH;
+	private final TreeMap<TimeStamp, Double> dispatch = new TreeMap<>();
 
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
@@ -64,7 +63,6 @@ public class GreenHydrogenOperator extends FlexibilityTrader implements FuelsTra
 		super(data);
 		ParameterData input = parameters.join(data);
 		electrolyzer = new Electrolyzer(input.getGroup("Device"));
-		strategist = ElectrolyzerStrategist.newStrategist(input.getGroup("Strategy"), electrolyzer);
 
 		call(this::forwardClearingTimes).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
@@ -82,8 +80,7 @@ public class GreenHydrogenOperator extends FlexibilityTrader implements FuelsTra
 	private void forwardClearingTimes(ArrayList<Message> input, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
-		fulfilNext(contract, clearingTimes);
+		fulfilNext(contract, message.getDataItemOfType(ClearingTimes.class));
 	}
 
 	/** Determine capacity to be dispatched based on maximum consumption
@@ -93,29 +90,29 @@ public class GreenHydrogenOperator extends FlexibilityTrader implements FuelsTra
 	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
-		strategist.updateMaximumConsumption(ppaInformation.validAt, ppaInformation.yieldPotential);
-		AmountAtTime dispatch = new AmountAtTime(ppaInformation.validAt, strategist.getMaximumConsumption());
-		fulfilNext(contract, dispatch);
+		PpaInformation ppa = message.getDataItemOfType(PpaInformation.class);
+		double usableElectricityInMWH = electrolyzer.calcCappedElectricDemandInMW(ppa.yieldPotential, ppa.validAt);
+		dispatch.put(ppa.validAt, usableElectricityInMWH);
+		fulfilNext(contract, new AmountAtTime(ppa.validAt, usableElectricityInMWH));
 	}
 
-	/** Sell Hydrogen according to production schedule following the contracted renewable power plant
+	/** Sell hydrogen according to production schedule following the contracted renewable power plant
 	 * 
 	 * @param messages not used
 	 * @param contracts a contract with one {@link FuelsMarket} */
 	private void sellProducedGreenHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
-		DispatchSchedule schedule = strategist.getValidSchedule(now());
-		TimeStamp deliveryTime = schedule.getTimeOfFirstElement();
-		double chargingPowerInMWH = schedule.getScheduledChargingPowerInMW(deliveryTime);
-		double costs = ppaPriceInEURperMWH * chargingPowerInMWH;
-		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(chargingPowerInMWH,
-				deliveryTime);
-		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
-		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
-
-		store(Outputs.AwardedEnergyInMWH, chargingPowerInMWH);
-		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
-		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
+		SortedMap<TimeStamp, Double> pastDispatch = dispatch.headMap(now());
+		double totalConsumedElectricityInMWH = 0;
+		double totalProducedHydrogenInThermalMWH = 0;
+		for (Entry<TimeStamp, Double> entry : pastDispatch.entrySet()) {
+			totalConsumedElectricityInMWH += entry.getValue();
+			double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(entry.getValue(), entry.getKey());
+			totalProducedHydrogenInThermalMWH += producedHydrogenInThermalMWH;
+			sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, entry.getKey());
+		}
+		pastDispatch.clear();
+		store(Outputs.AwardedEnergyInMWH, totalConsumedElectricityInMWH);
+		store(Outputs.ProducedHydrogenInMWH, totalProducedHydrogenInThermalMWH);
 	}
 
 	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
@@ -133,7 +130,7 @@ public class GreenHydrogenOperator extends FlexibilityTrader implements FuelsTra
 	private void digestSaleReturns(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		double cost = readFuelBillMessage(message);
-		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
+		store(Outputs.ReceivedMoneyInEUR, -cost);
 	}
 
 	/** Pay client according to PPA specification
@@ -143,21 +140,10 @@ public class GreenHydrogenOperator extends FlexibilityTrader implements FuelsTra
 	private void payoutClient(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		PpaInformation ppaInformation = message.getDataItemOfType(PpaInformation.class);
-		double payment = strategist.getMaximumConsumption() * ppaInformation.price;
-		AmountAtTime paymentToClient = new AmountAtTime(ppaInformation.validAt, payment);
-		fulfilNext(contract, paymentToClient);
-		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -payment);
+		PpaInformation ppa = message.getDataItemOfType(PpaInformation.class);
+		double consumedElectricityInMWH = electrolyzer.calcProducedHydrogenOneHour(ppa.yieldPotential, ppa.validAt);
+		double payment = consumedElectricityInMWH * ppa.price;
+		fulfilNext(contract, new AmountAtTime(ppa.validAt, payment));
+		store(Outputs.VariableCostsInEUR, payment);
 	}
-
-	@Override
-	protected double getInstalledCapacityInMW() {
-		return electrolyzer.getPeakPower(now());
-	}
-
-	@Override
-	protected Strategist getStrategist() {
-		return strategist;
-	}
-
 }
