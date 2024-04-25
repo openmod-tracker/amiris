@@ -118,9 +118,15 @@ AgentTypes:
         List: false
         Mandatory: true
     Products: [ 'TransmissionAndBids', 'Awards', 'GateClosureInfo' ]
+    MetaData:
+      Description: "The energy exchange performs local market clearing for day-ahead energy markets of different zones."
+      OEONearestConcept: OEO_00020069
 
   MarketCoupling:
     Products: [ 'MarketCouplingResult' ]
+    MetaData:
+      Description: "Couples different markets. It receives merit orders from individual EnergyExchange(s). It computes coupled electricity prices aiming at minimising price differences between markets. Sends individual, coupled prices back to client EnergyExchanges."
+      OEONearestConcept: OEO_00020069
 
   ImportTrader:
     Attributes:
@@ -140,6 +146,9 @@ AgentTypes:
             List: false
             help: "Costs at which imports are offered at energy exchange in EUR/MWh"
     Products: [ 'Bids', 'Payout', 'DispatchAssignment', 'BidsForecast', 'MeritOrderForecastRequest', 'PriceForecastRequest', 'GateClosureForward', 'ForecastRequestForward' ]
+    MetaData:
+      Description: "The ImportTrader offers imported energy at the day-ahead-market according to given energy import as supply."
+      OEONearestConcept: OEO_00040005
 
   CarbonMarket:
     Attributes:
