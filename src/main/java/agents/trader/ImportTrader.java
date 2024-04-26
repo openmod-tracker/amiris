@@ -23,7 +23,6 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
-import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Offers imported energy at {@link DayAheadMarket} according to given {@link TimeSeries} of energy import as supply.
@@ -34,14 +33,6 @@ public class ImportTrader extends Trader {
 			.add(Make.newGroup("Imports").list().add(Make.newSeries("AvailableEnergyForImport"),
 					Make.newDouble("ImportCostInEURperMWH")))
 			.buildTree();
-
-	@Output
-	private static enum OutputColumns {
-		/** Energy offered to energy exchange */
-		OfferedEnergyInMWH,
-		/** Energy awarded by energy exchange */
-		AwardedEnergyInMWH
-	};
 
 	/** Represents one energy import TimeSeries with a fixed associated value of import cost */
 	private class EnergyImport {
@@ -102,7 +93,8 @@ public class ImportTrader extends Trader {
 		ArrayList<BidData> bids = new ArrayList<>();
 		for (EnergyImport energyImport : imports) {
 			double offeredEnergyInMWH = energyImport.tsEnergyImportInMWH.getValueLinear(requestedTime);
-			bids.add(new BidData(offeredEnergyInMWH, energyImport.importCostInEURperMWH, getId(), Type.Supply, requestedTime));
+			bids.add(
+					new BidData(offeredEnergyInMWH, energyImport.importCostInEURperMWH, getId(), Type.Supply, requestedTime));
 		}
 		return bids;
 	}
