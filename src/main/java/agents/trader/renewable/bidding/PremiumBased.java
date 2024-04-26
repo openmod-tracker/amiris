@@ -29,7 +29,10 @@ public abstract class PremiumBased {
 	static final String ERR_FORECAST_METHOD_MISSING = " `MarketValueForecastMethod` required for support instrument: ";
 
 	private enum MarketValueForecastMethod {
-		PREVIOUS_MONTH, FROM_FILE
+		/** Forecast from previous month */
+		PREVIOUS_MONTH,
+		/** Forecast from file */
+		FROM_FILE
 	};
 
 	/** Inputs for market value forecasting */

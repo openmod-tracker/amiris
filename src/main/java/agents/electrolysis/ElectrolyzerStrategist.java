@@ -21,7 +21,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public abstract class ElectrolyzerStrategist extends Strategist {
 	/** The type of strategist for electrolysis unit operation */
 	static enum StrategistType {
-		/** Creates the schedule according to a given TimeSeries. */
+		/** Creates the dispatch schedule according to a given TimeSeries. */
 		DISPATCH_FILE,
 		/** Schedules based on a moving target of hydrogen production totals and electricity prices */
 		SINGLE_AGENT_SIMPLE,
