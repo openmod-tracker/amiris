@@ -99,7 +99,7 @@ AgentTypes:
         List: true
         Mandatory: false
         MetaData:
-          Description: ""
+          Description: "Transmission capacities towards connected market zones"
           OEONearestConcept:
         NestedAttributes:
           Region: 
@@ -107,17 +107,17 @@ AgentTypes:
             List: false
             Mandatory: false
             Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
-            help: "Region demand can be shifted to"
+            help: "Market zone demand can be shifted to"
             MetaData:
-              Description: "Region demand can be shifted to"
+              Description: "Market zone demand can be shifted to"
               OEONearestConcept:
           CapacityInMW:
             AttributeType: time_series
             List: false
             Mandatory: false
-            help: "Region demand can be shifted to"
+            help: "Net transfer capacity to shift demand to market zone"
             MetaData:
-              Description: ""
+              Description: "Net transfer capacity to shift demand to market zone"
               OEONearestConcept:
       GateClosureInfoOffsetInSeconds: *DAM_A_GateClosureInfoOffset
     Products:
@@ -303,7 +303,7 @@ AgentTypes:
             Values: &FuelsMarket_V_FuelType
               OIL:
                 MetaData:
-                  Description: "Fuel type oil."
+                  Description: "Fuel type oil"
                   OEONearestConcept: OEO_00010316
               HARD_COAL:
                 MetaData:
@@ -311,20 +311,32 @@ AgentTypes:
                   OEONearestConcept: OEO_00000204
               LIGNITE:
                 MetaData:
-                  Description: "Fuel type lignite."
+                  Description: "Fuel type lignite"
                   OEONearestConcept: OEO_00000251
               NUCLEAR:
                 MetaData:
-                  Description: "Fuel type nuclear."
+                  Description: "Fuel type nuclear"
                   OEONearestConcept: OEO_00000302
               WASTE:
                 MetaData:
-                  Description: "Fuel type waste."
+                  Description: "Fuel type waste"
                   OEONearestConcept: OEO_00000439
               NATURAL_GAS:
                 MetaData:
-                  Description: "Fuel type natural gas."
+                  Description: "Fuel type natural gas"
                   OEONearestConcept: OEO_00000292
+              HYDROGEN:
+                MetaData:
+                  Description: "Fuel type hydrogen gas"
+                  OEONearestConcept:
+              BIOMASS:
+                MetaData:
+                  Description: "Fuel type biogas or other bio-fuels"
+                  OEONearestConcept:
+              OTHER:
+                MetaData:
+                  Description: "Any other type of fuel"
+                  OEONearestConcept:
             MetaData:
               Description: "Type of fuel"
               OEONearestConcept:
@@ -477,15 +489,8 @@ AgentTypes:
                 Mandatory: false
                 List: false
                 MetaData:
-                  Description: "A feed-in-tariff (FIT)."
+                  Description: "A feed-in-tariff (FIT) timeseries."
                   OEONearestConcept: OEO_00020108
-              SuspensionVolumeShare:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description:
-                  OEONearestConcept:
             MetaData:
               Description: "A feed-in-tariff (FIT)."
               OEONearestConcept: OEO_00020108
@@ -838,6 +843,7 @@ AgentTypes:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
+                help: "Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."
           DispatchToleranceInMWH:
                 AttributeType: double
                 Mandatory: false
@@ -929,6 +935,7 @@ AgentTypes:
             AttributeType: double
             Mandatory: false
             List: false
+            help: "Relative offset of the power forecasts"
             MetaData:
               Description: "The normalised mean value of a normally distributed error (positive value means an overestimation of feed-in potentials)."
               OEONearestConcept:
@@ -1014,12 +1021,10 @@ AgentTypes:
         MetaData:
           Description: "Request for support information for contracted technology set(s)"
           OEONearestConcept:
-
       SupportPayoutRequest: &AggregatorTrader_P_SupportPayoutRequest
         MetaData:
           Description: "Request to obtain support payments for contracted technology set(s)"
           OEONearestConcept:
-
       YieldPotential: &AggregatorTrader_P_YieldPotential
         MetaData:
           Description: "Yield potential of contracted technology set(s)"
@@ -1155,7 +1160,6 @@ AgentTypes:
         MetaData:
           Description: "Perfect foresight price electricity forecast for a specific hour"
           OEONearestConcept:
-
     Outputs:
       AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
@@ -1163,6 +1167,24 @@ AgentTypes:
       Description: "A type of MarketForecaster. Provides perfect foresight day-ahead price forecasts to other agents. To have meaningful forecasts, all agents need to actually bid at Exchange with their intended bids given earlier to the Forecaster."
       OEONearestConcept: 
 
+  PriceForecasterFile:
+    Attributes:
+      PriceForecastsInEURperMWH:
+        AttributeType: time_series
+        Mandatory: true
+        List: false
+        help: "Time series of price forecasts"
+        MetaData:
+          Description: "A predetermined price forecast timeseries"
+          OEONearestConcept:        
+    Products:
+      PriceForecast:
+        MetaData:
+          Description: "Price forecasts based on an external simulation input - could be correct or totally wrong."
+          OEONearestConcept:
+    MetaData:
+      Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are predetermined before the simulation begins, therefore exogenously defined, making them static in nature."
+      OEONearestConcept:
 
   ConventionalPlantOperator:
     Attributes:
@@ -1208,8 +1230,6 @@ AgentTypes:
         MetaData:
           Description: "The annual cost report."
           OEONearestConcept:
-
-    
       FuelPriceForecastRequest: &FuelsTrader_P_FuelPriceForecastRequest
         MetaData:
           Description: "Request for a price forecast at a given time and for a given fuel."
@@ -1552,6 +1572,7 @@ AgentTypes:
         AttributeType: block
         Mandatory: true
         List: true
+        MetaData:
           Description: "List of power plants in the portfolio"
           OEONearestConcept:
         NestedAttributes:
