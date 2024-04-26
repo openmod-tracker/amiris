@@ -7,10 +7,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled markets #16 (@dlr_elghazi @dlr_fn)
 - Add new agent `MarketCoupling` which allows coupling of multiple `DayAheadMarketMultiZone` #16 (@dlr-cjs @litotes18 @dlr_elghazi @dlr_fn)
 - Add new agent `ImportTrader` which can account for "negative" load from net-import hours #16 (@dlr-cjs @dlr_elghazi @dlr_fn)
-
-## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
-### Added
-- Metadata functionality added in schema.yaml #102 (@litotes18)
+- Metadata added in schema.yaml #102 (@litotes18 @dlr-cjs)
 
 ## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.1.0) - 2024-04-04
 ### Changed
