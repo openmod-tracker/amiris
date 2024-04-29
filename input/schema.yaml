@@ -1867,6 +1867,7 @@ AgentTypes:
     MetaData:
       Description: "ElectrolysisTrader is a type of FlexibilityTrader that operates an electrolyzer unit to produce hydrogen from electricity."
       OEONearestConcept:
+
   GreenHydrogenOperator:
     Attributes:
       Device: *Electrolyzer_G_Device
