@@ -43,7 +43,7 @@ public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPl
 
 	@Output
 	private static enum Outputs {
-		AwardedEnergyInMWH, ProducedHydrogenInMWH, VariableCostsInEUR, ReceivedMoneyInEUR
+		ConsumedElectricityInMWH, ProducedHydrogenInMWH, VariableCostsInEUR, ReceivedMoneyInEUR
 	};
 
 	@Product
@@ -110,7 +110,7 @@ public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPl
 			sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, entry.getKey());
 		}
 		pastDispatch.clear();
-		store(Outputs.AwardedEnergyInMWH, totalConsumedElectricityInMWH);
+		store(Outputs.ConsumedElectricityInMWH, totalConsumedElectricityInMWH);
 		store(Outputs.ProducedHydrogenInMWH, totalProducedHydrogenInThermalMWH);
 	}
 

@@ -647,11 +647,11 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      Payout: &TraderWithClients_P_Payout
+      Payout: &PowerPlantScheduler_P_Payout
         MetaData:
           Description: "Pay out of the contracted plant or flexibility portfolio operator."
           OEONearestConcept:
-      DispatchAssignment: &TraderWithClients_P_DispatchAssignment
+      DispatchAssignment: &PowerPlantScheduler_P_DispatchAssignment
         MetaData:
           Description: "The dispatch assignment for the plant / flexibility portfolio operators."
           OEONearestConcept: OEO_00140136
@@ -1013,8 +1013,8 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      Payout: *TraderWithClients_P_Payout
-      DispatchAssignment: *TraderWithClients_P_DispatchAssignment
+      Payout: *PowerPlantScheduler_P_Payout
+      DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
       GateClosureForward: *TraderWithClients_P_GateClosureForward
       ForecastRequestForward: *TraderWithClients_P_ForecastRequestForward
       SupportInfoRequest: &AggregatorTrader_P_SupportInfoRequest
@@ -1066,8 +1066,8 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      Payout: *TraderWithClients_P_Payout
-      DispatchAssignment: *TraderWithClients_P_DispatchAssignment
+      Payout: *PowerPlantScheduler_P_Payout
+      DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
       GateClosureForward: *TraderWithClients_P_GateClosureForward
       ForecastRequestForward: *TraderWithClients_P_ForecastRequestForward
       SupportInfoRequest: *AggregatorTrader_P_SupportInfoRequest
@@ -1091,8 +1091,8 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      Payout: *TraderWithClients_P_Payout
-      DispatchAssignment: *TraderWithClients_P_DispatchAssignment
+      Payout: *PowerPlantScheduler_P_Payout
+      DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
       GateClosureForward: *TraderWithClients_P_GateClosureForward
       ForecastRequestForward: *TraderWithClients_P_ForecastRequestForward
       SupportInfoRequest: *AggregatorTrader_P_SupportInfoRequest
@@ -1676,7 +1676,7 @@ AgentTypes:
           Description: "Compensates for the early sending of the hydrogen price forecast request message to the contracted fuels market."
           OEONearestConcept:
       Refinancing: *FlexibilityTrader_G_Refinancing
-      Device:
+      Device: &Electrolyzer_G_Device
         AttributeType: block
         Mandatory: true
         List: false
@@ -1869,18 +1869,34 @@ AgentTypes:
       OEONearestConcept:
   GreenHydrogenOperator:
     Attributes:
-      Device:
-        AttributeType: block
-        Mandatory: true
-        List: false
-        NestedAttributes:
-          PeakConsumptionInMW:
-            AttributeType: time_series
-            Mandatory: true
-            List: false
-          ConversionFactor:
-            AttributeType: double
-            Mandatory: true
-            List: false
-            help: "Factor < 1 to convert electric energy to hydrogen's thermal energy equivalent"    
-    Products: [ 'PpaInformationRequest', 'FuelPriceForecastRequest', 'FuelPriceRequest', 'FuelBid', 'Payout', 'DispatchAssignment' ]
+      Device: *Electrolyzer_G_Device
+    Products:
+      PpaInformationRequest:
+        MetaData:
+          Description: "Request for available power and price from a renewable power plant operator contracted via a Power Purchase Agreement"
+          OEONearestConcept:
+      FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
+      FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
+      FuelBid: *FuelsTrader_P_FuelBid
+      Payout: *PowerPlantScheduler_P_Payout
+      DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
+    Outputs:
+      ConsumedElectricityInMWH:
+        MetaData:
+          Description: "Amount of electricity consumed in this period for operating the electrolysis unit"
+          OEONearestConcept:
+      ProducedHydrogenInMWH:
+        MetaData:
+          Description: "Amount of green hydrogen produced in this period using the electrolysis unit"
+          OEONearestConcept:
+      VariableCostsInEUR:
+        MetaData:
+          Description: "Variable operation and maintenance costs in EUR"
+          OEONearestConcept:
+      ReceivedMoneyInEUR:
+        MetaData:
+          Description: "Total received money in EUR"
+          OEONearestConcept:
+    MetaData:
+      Description: "A green hydrogen electrolysis operator; It purchases electricity directly from renewable power plants operators."
+      OEONearestConcept:

@@ -2,16 +2,13 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [2.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.3.0) - TBA
-### Added
-- add new agent `GreenHydrogenOperator` that has a PPA with a renewable operator to produce hydrogen #103 (@dlr-cjs, @dlr_jk, @LeonardWilleke)
-- add new Product `PpaInformation` to `VariableRenewableOperator` to directly sell power to a client #103 (@dlr_jk, @LeonardWilleke)
-
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
 ### Added
 - Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled markets #16 (@dlr_elghazi @dlr_fn)
 - Add new agent `MarketCoupling` which allows coupling of multiple `DayAheadMarketMultiZone` #16 (@dlr-cjs @litotes18 @dlr_elghazi @dlr_fn)
 - Add new agent `ImportTrader` which can account for "negative" load from net-import hours #16 (@dlr-cjs @dlr_elghazi @dlr_fn)
+- add new agent `GreenHydrogenOperator` that has a PPA with a renewable operator to produce hydrogen #103 (@dlr-cjs, @dlr_jk, @LeonardWilleke)
+- add new Product `PpaInformation` to `VariableRenewableOperator` to directly sell power to a client #103 (@dlr_jk, @LeonardWilleke)
 - Metadata added in schema.yaml #102 (@litotes18 @dlr-cjs)
 
 ## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.1.0) - 2024-04-04
