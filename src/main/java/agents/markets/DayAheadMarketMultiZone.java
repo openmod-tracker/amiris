@@ -82,7 +82,16 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 
 	@Output
 	private static enum OutputFields {
-		PreCouplingTotalAwardedPowerInMW, PreCouplingElectricityPriceInEURperMWH, PreCouplingDispatchSystemCostInEUR
+		/** Electricity price that would occur without any market coupling in EUR/MWh */
+		PreCouplingElectricityPriceInEURperMWH,
+		/** Awarded power without any market coupling in MW */
+		PreCouplingTotalAwardedPowerInMW,
+		/** System cost without any market coupling in EUR */
+		PreCouplingDispatchSystemCostInEUR,
+		/** Net energy awarded to exports */
+		AwardedNetEnergyToExportInMWH,
+		/** Net energy awarded from imports */
+		AwardedNetEnergyFromImportInMWH
 	};
 
 	@Input private static final Tree parameters = Make.newTree()
@@ -239,8 +248,8 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		store(DayAheadMarket.OutputFields.AwardedEnergyInMWH, marketClearingResult.getTradedEnergyInMWH());
 		store(DayAheadMarket.OutputFields.DispatchSystemCostInEUR, marketClearingResult.getSystemCostTotalInEUR());
 
-		store(DayAheadMarket.OutputFields.AwardedNetEnergyFromImportInMWH, energyTransfer.netImportsInMWH);
-		store(DayAheadMarket.OutputFields.AwardedNetEnergyToExportInMWH, energyTransfer.netExportsInMWH);
+		store(OutputFields.AwardedNetEnergyFromImportInMWH, energyTransfer.netImportsInMWH);
+		store(OutputFields.AwardedNetEnergyToExportInMWH, energyTransfer.netExportsInMWH);
 
 		sendAwardsToTraders(contracts, marketClearingResult, importBook, exportBook);
 	}

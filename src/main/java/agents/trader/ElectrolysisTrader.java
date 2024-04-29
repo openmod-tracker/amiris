@@ -52,7 +52,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 
 	@Output
 	private static enum Outputs {
-		RequestedEnergyInMWH, OfferedEnergyPriceInEURperMWH, AwardedEnergyInMWH, ProducedHydrogenInMWH
+		OfferedEnergyPriceInEURperMWH, ProducedHydrogenInMWH
 	};
 
 	private static final FuelData FUEL_HYDROGEN = new FuelData(FuelType.HYDROGEN);
@@ -135,7 +135,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
 			BidData bidData = prepareHourlyDemandBid(targetTime, schedule);
-			store(Outputs.RequestedEnergyInMWH, bidData.offeredEnergyInMWH);
+			store(OutputColumns.RequestedEnergyInMWH, bidData.offeredEnergyInMWH);
 			sendDayAheadMarketBids(contractToFulfil, bidData);
 		}
 	}
@@ -170,7 +170,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
 		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
 
-		store(Outputs.AwardedEnergyInMWH, awardedEnergyInMWH);
+		store(OutputColumns.AwardedEnergyInMWH, awardedEnergyInMWH);
 		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}

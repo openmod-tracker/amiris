@@ -11,6 +11,7 @@ import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
+import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Interface for traders at the {@link DayAheadMarket}
@@ -28,6 +29,16 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		/** Sell/Buy orders to be placed at the {@link DayAheadMarket} */
 		Bids
 	}
+
+	@Output
+	public static enum OutputColumns {
+		/** Energy offered to energy exchange */
+		OfferedEnergyInMWH,
+		/** Energy awarded by energy exchange */
+		AwardedEnergyInMWH,
+		/** Energy requested at energy exchange */
+		RequestedEnergyInMWH
+	};
 
 	/** Send Bids to contracted {@link DayAheadMarket}
 	 * 

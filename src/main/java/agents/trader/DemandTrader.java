@@ -21,7 +21,6 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
-import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Purchases energy at {@link DayAheadMarket} according to given {@link TimeSeries} of energy demand
@@ -31,14 +30,6 @@ public class DemandTrader extends Trader {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("Loads").list().add(Make.newSeries("DemandSeries"), Make.newSeries("ValueOfLostLoad")))
 			.buildTree();
-
-	@Output
-	private static enum OutputColumns {
-		/** Energy demanded from energy exchange */
-		RequestedEnergyInMWH,
-		/** Energy awarded by energy exchange */
-		AwardedEnergyInMWH
-	};
 
 	/** Helper class that represents one load TimeSeries with a fixed associated value of lost load */
 	private class Load {
@@ -95,7 +86,7 @@ public class DemandTrader extends Trader {
 		}
 		return totalRequestedEnergyInMWH;
 	}
-	
+
 	/** Prepares demand bids for the requested time */
 	private ArrayList<BidData> prepareBidsFor(TimeStamp requestedTime) {
 		ArrayList<BidData> bids = new ArrayList<>();

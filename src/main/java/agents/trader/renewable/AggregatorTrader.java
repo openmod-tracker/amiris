@@ -62,10 +62,6 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	/** Columns of the output file */
 	@Output
 	protected static enum OutputColumns {
-		/** amount of energy offered */
-		OfferedEnergyInMWH,
-		/** amount of energy awarded */
-		AwardedEnergyInMWH,
 		/** overall received support payments from policy agent */
 		ReceivedSupportInEUR,
 		/** overall support refunded to policy agent (in CFD scheme) */
@@ -173,6 +169,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	}
 
 	/** Return all data of clients that match the given setType
+	 * 
 	 * @param setType to search for
 	 * @return client data for given set type */
 	protected List<ClientData> getClientDataForSetType(SetType setType) {
@@ -270,7 +267,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		for (BidData bid : bids) {
 			totalEnergyOffered += bid.offeredEnergyInMWH;
 		}
-		store(OutputColumns.OfferedEnergyInMWH, totalEnergyOffered);
+		store(DayAheadMarketTrader.OutputColumns.OfferedEnergyInMWH, totalEnergyOffered);
 	}
 
 	/** Forward yield potential information from clients
@@ -297,7 +294,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		AwardData award = message.getDataItemOfType(AwardData.class);
-		store(OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
+		store(DayAheadMarketTrader.OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
 		double energyToDispatch = award.supplyEnergyInMWH;
 		ArrayList<BidData> submittedBids = submittedBidsByTime.remove(award.beginOfDeliveryInterval);
 		submittedBids.sort(BidData.BY_PRICE_ASCENDING);

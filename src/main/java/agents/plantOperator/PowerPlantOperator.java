@@ -53,7 +53,7 @@ public abstract class PowerPlantOperator extends Agent {
 		VariableCostsInEUR,
 		/** Fixed operation and maintenance costs */
 		FixedCostsInEUR,
-		/** Share of investment cost */
+		/** Annual share of investment cost */
 		InvestmentAnnuityInEUR
 	}
 

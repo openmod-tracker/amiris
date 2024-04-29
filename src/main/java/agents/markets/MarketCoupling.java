@@ -50,7 +50,10 @@ public class MarketCoupling extends Agent {
 
 	@Output
 	private static enum OutputColumns {
-		AvailableTransferCapacityInMWH, UsedTransferCapacityInMWH
+		/** Complex output; the capacity available for transfer between two markets in MWH */
+		AvailableTransferCapacityInMWH, 
+		/** Complex output; the actual used transfer capacity between two markets in MWH */
+		UsedTransferCapacityInMWH
 	};
 
 	private static enum TransferKey {
