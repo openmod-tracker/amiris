@@ -4,8 +4,8 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [2.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.3.0) - TBA
 ### Added
-- add new agent `GreenHydrogenOperator` that has a PPA with a renewable operator to produce hydrogen
-- add new Product `PpaInformation` to `VariableRenewableOperator` to directly sell power to a client
+- add new agent `GreenHydrogenOperator` that has a PPA with a renewable operator to produce hydrogen #103 (@dlr-cjs, @dlr_jk, @LeonardWilleke)
+- add new Product `PpaInformation` to `VariableRenewableOperator` to directly sell power to a client #103 (@dlr_jk, @LeonardWilleke)
 
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
 ### Added

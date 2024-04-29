@@ -817,7 +817,7 @@ AgentTypes:
             AttributeType: enum
             Mandatory: true
             List: false
-            Values: [ 'DISPATCH_FILE', 'SINGLE_AGENT_SIMPLE']
+            Values: [ 'DISPATCH_FILE', 'SINGLE_AGENT_SIMPLE' ]
           ForecastPeriodInHours:
             AttributeType: integer
             Mandatory: true
