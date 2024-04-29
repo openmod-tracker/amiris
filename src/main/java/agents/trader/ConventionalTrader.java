@@ -27,7 +27,6 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.logging.Logging;
-import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
 
@@ -37,11 +36,6 @@ import util.Util;
 public class ConventionalTrader extends TraderWithClients {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("minMarkup"), Make.newDouble("maxMarkup")).buildTree();
-
-	@Output
-	private static enum OutputFields {
-		OfferedEnergyInMWH, AwardedEnergyInMWH
-	}
 
 	private double minMarkup;
 	private double maxMarkup;
@@ -84,7 +78,7 @@ public class ConventionalTrader extends TraderWithClients {
 			totalOfferedPowerInMW += bid.offeredEnergyInMWH;
 			sendDayAheadMarketBids(contractToFulfil, bid);
 		}
-		store(OutputFields.OfferedEnergyInMWH, totalOfferedPowerInMW);
+		store(OutputColumns.OfferedEnergyInMWH, totalOfferedPowerInMW);
 	}
 
 	/** Create {@link BidData bids} from given marginals
@@ -129,7 +123,7 @@ public class ConventionalTrader extends TraderWithClients {
 
 		AwardData award = message.getDataItemOfType(AwardData.class);
 		fulfilNext(contract, new AmountAtTime(award.beginOfDeliveryInterval, award.supplyEnergyInMWH));
-		store(OutputFields.AwardedEnergyInMWH, award.supplyEnergyInMWH);
+		store(OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
 	}
 
 	/** Sends pay-out to {@link ConventionalPlantOperator}

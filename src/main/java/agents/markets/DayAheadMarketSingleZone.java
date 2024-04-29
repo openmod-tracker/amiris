@@ -67,15 +67,4 @@ public class DayAheadMarketSingleZone extends DayAheadMarket {
 			}
 		}
 	}
-
-	// /** @return sum of awarded energy from all bids in given order book from the agent with given UUID */
-	// private double calcAwardedEnergyForAgent(OrderBook orderBook, long agentUuid) {
-	// double awardedEnergySum = 0;
-	// for (OrderBookItem item : orderBook.getOrderBookItems()) {
-	// if (item.getTraderUuid() == agentUuid) {
-	// awardedEnergySum += item.getAwardedPower();
-	// }
-	// }
-	// return awardedEnergySum;
-	// }
 }
