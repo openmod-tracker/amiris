@@ -39,8 +39,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Leonard Willeke, Christoph Schimeczek */
 public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPlantScheduler {
-	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
-			.addAs("Strategy", ElectrolyzerStrategist.parameters).buildTree();
+	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters).buildTree();
 
 	@Output
 	private static enum Outputs {
