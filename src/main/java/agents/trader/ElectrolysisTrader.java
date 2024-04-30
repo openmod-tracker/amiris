@@ -18,6 +18,7 @@ import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Bid.Type;
+import agents.plantOperator.PowerPlantScheduler;
 import agents.markets.meritOrder.Constants;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import communications.message.AwardData;
@@ -45,12 +46,10 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** A flexible Trader demanding electricity and producing hydrogen from it via electrolysis.
  * 
  * @author Christoph Schimeczek */
-public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader {
-	@Input private static final Tree parameters = Make.newTree()
-			.addAs("Device", Electrolyzer.parameters)
+public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
+	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters)
 			.addAs("Strategy", ElectrolyzerStrategist.parameters)
-			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds"))
-			.buildTree();
+			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
 
 	@Output
 	private static enum Outputs {
@@ -80,8 +79,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(Forecaster.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
-		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids)
-				.use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
 	}
@@ -109,8 +107,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * @param contracts single contracted fuels market to request hydrogen price(s) from */
 	private void requestHydrogenPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(hydrogenForecastRequestOffset),
-				Strategist.OPERATION_PERIOD);
+		TimePeriod nextTime = new TimePeriod(now().laterBy(hydrogenForecastRequestOffset), Strategist.OPERATION_PERIOD);
 		ArrayList<TimeStamp> missingForecastTimes = strategist.getMissingHydrogenPriceForecastsTimes(nextTime);
 		ClearingTimes clearingTimes = new ClearingTimes(
 				missingForecastTimes.toArray(new TimeStamp[missingForecastTimes.size()]));
@@ -169,7 +166,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		double costs = award.powerPriceInEURperMWH * awardedEnergyInMWH;
 		TimeStamp deliveryTime = award.beginOfDeliveryInterval;
 
-		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH, deliveryTime);
+		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH,
+				deliveryTime);
 		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
 		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
 
