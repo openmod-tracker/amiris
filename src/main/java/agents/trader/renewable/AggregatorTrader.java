@@ -27,11 +27,11 @@ import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
 import communications.message.Marginal;
-import communications.message.MarginalsAtTime;
 import communications.message.SupportRequestData;
 import communications.message.SupportResponseData;
 import communications.message.TechnologySet;
 import communications.message.YieldPotential;
+import communications.portable.MarginalsAtTime;
 import communications.portable.SupportData;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -200,7 +200,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	/** Prepares hourly bids based on given marginals and sends them to the contracted partner
 	 * 
 	 * @param contract to fulfil
-	 * @param marginals to be used for bid calculation
+	 * @param allMarginals to be used for bid calculation
 	 * @param hasErrors if true errors will be added to the power of the bid
 	 * @return submitted bids */
 	protected ArrayList<BidData> submitHourlyBids(Contract contract, ArrayList<MarginalsAtTime> allMarginals,

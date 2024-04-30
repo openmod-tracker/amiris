@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package communications.message;
+package communications.portable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import communications.message.Marginal;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -65,7 +66,7 @@ public class MarginalsAtTime implements Portable {
 		return deliveryTime;
 	}
 
-	/** Marginals of electricity production associated with its producer */
+	/** @return marginals of electricity production associated with its producer */
 	public List<Marginal> getMarginals() {
 		return marginals;
 	}

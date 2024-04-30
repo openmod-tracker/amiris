@@ -18,7 +18,7 @@ import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.Marginal;
-import communications.message.MarginalsAtTime;
+import communications.portable.MarginalsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;

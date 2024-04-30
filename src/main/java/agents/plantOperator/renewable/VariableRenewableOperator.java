@@ -56,7 +56,7 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 				.use(GreenHydrogenOperator.Products.PpaInformationRequest);
 	}
 
-	/** @return single {@link MarginalCost} considering variable yield */
+	/** @return single {@link Marginal} considering variable yield */
 	@Override
 	protected Marginal calcSingleMarginal(TimeStamp time) {
 		if (tsYieldProfile == null) {

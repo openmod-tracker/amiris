@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import communications.message.Marginal;
-import communications.message.MarginalsAtTime;
+import communications.portable.MarginalsAtTime;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.communication.Contract;
