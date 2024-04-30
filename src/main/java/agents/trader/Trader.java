@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.TreeMap;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
-import communications.message.MarginalCost;
+import communications.message.Marginal;
+import communications.message.MarginalsAtTime;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.communication.Contract;
@@ -36,40 +37,40 @@ public abstract class Trader extends Agent implements DayAheadMarketTrader {
 		super(dataProvider);
 	}
 
-	/** @param messages to sort by time stamp
-	 * @return a Map of Messages with {@link MarginalCost} sorted by the {@link TimeStamp} they are valid at */
-	protected TreeMap<TimeStamp, ArrayList<Message>> sortMarginalsByTimeStamp(ArrayList<Message> messages) {
-		TreeMap<TimeStamp, ArrayList<Message>> marginalsByTimeStamp = new TreeMap<>();
+	/** Reads {@link MarginalsAtTime} from given messages and sorts them by the time stamp they are valid at
+	 * 
+	 * @param messages containing MarginalsAtTime - to be sorted by time stamp
+	 * @return a Map of MarginalsAtTime sorted by the {@link TimeStamp} they are valid at */
+	protected TreeMap<TimeStamp, ArrayList<MarginalsAtTime>> sortMarginalsByTimeStamp(ArrayList<Message> messages) {
+		TreeMap<TimeStamp, ArrayList<MarginalsAtTime>> marginalsByTimeStamp = new TreeMap<>();
 		for (Message message : messages) {
-			TimeStamp timeStamp = message.getDataItemOfType(MarginalCost.class).deliveryTime;
-			ArrayList<Message> marginalCost = saveGet(marginalsByTimeStamp, timeStamp);
-			marginalCost.add(message);
+			MarginalsAtTime marginals = message.getFirstPortableItemOfType(MarginalsAtTime.class);
+			TimeStamp timeStamp = marginals.getDeliveryTime();
+			marginalsByTimeStamp.computeIfAbsent(timeStamp, __ -> new ArrayList<>()).add(marginals);
 		}
 		return marginalsByTimeStamp;
 	}
 
-	/** Ensures that the given TreeMap returns an ArrayList at given time; if no value is present at the given time, an empty array
-	 * is returned
+	/** Reads {@link MarginalsAtTime} from given messages, assuming they are valid at the same time stamp
 	 * 
-	 * @param marginalsByTimeStamp time-indexed TreeMap to search for key
-	 * @param timeStamp time at which the key is required
-	 * @return either present value at given key or (if not present) a newly added empty array */
-	protected ArrayList<Message> saveGet(TreeMap<TimeStamp, ArrayList<Message>> marginalsByTimeStamp,
-			TimeStamp timeStamp) {
-		if (!marginalsByTimeStamp.containsKey(timeStamp)) {
-			marginalsByTimeStamp.put(timeStamp, new ArrayList<Message>());
+	 * @param messages containing MarginalsAtTime to be extracted
+	 * @return List of MarginalsAtTime contained in given messages */
+	protected ArrayList<MarginalsAtTime> extractMarginalsAtTime(ArrayList<Message> messages) {
+		ArrayList<MarginalsAtTime> result = new ArrayList<>(messages.size());
+		for (Message message : messages) {
+			result.add(message.getFirstPortableItemOfType(MarginalsAtTime.class));
 		}
-		return marginalsByTimeStamp.get(timeStamp);
+		return result;
 	}
 
-	/** @param messages to sort by marginal cost
-	 * @return List of {@link MarginalCost} extracted from given Messages in ascending order of their marginal cost */
-	protected ArrayList<MarginalCost> getSortedMarginalList(ArrayList<Message> messages) {
-		ArrayList<MarginalCost> marginals = new ArrayList<>();
-		for (Message message : messages) {
-			marginals.add(message.getDataItemOfType(MarginalCost.class));
+	/** @param allMarginals to have their {@link Marginal}s extracted and then sorted by costs, ascending
+	 * @return {@link Marginal}s extracted from given data sorted in ascending order of their marginal cost */
+	protected ArrayList<Marginal> getSortedMarginalList(ArrayList<MarginalsAtTime> allMarginals) {
+		ArrayList<Marginal> marginals = new ArrayList<>();
+		for (MarginalsAtTime marginalsAtTime : allMarginals) {
+			marginals.addAll(marginalsAtTime.getMarginals());
 		}
-		marginals.sort(MarginalCost.byCostAscending);
+		marginals.sort(Marginal.byCostAscending);
 		return marginals;
 	}
 

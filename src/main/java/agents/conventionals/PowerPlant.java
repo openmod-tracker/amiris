@@ -4,6 +4,7 @@
 package agents.conventionals;
 
 import agents.plantOperator.DispatchResult;
+import communications.message.Marginal;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -13,23 +14,6 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerPlant>, Portable {
-	/** A marginal, i.e. cost-power pair */
-	public class MarginalCostItem {
-		/** Power to offer */
-		public final double availablePowerInMW;
-		/** Cost of power production */
-		public final double marginalCostInEURperMWH;
-
-		/** Creates a {@link MarginalCostItem}
-		 * 
-		 * @param availablePowerInMW power to offer
-		 * @param marginalCostInEURperMWH cost of power production */
-		public MarginalCostItem(double availablePowerInMW, double marginalCostInEURperMWH) {
-			this.availablePowerInMW = availablePowerInMW;
-			this.marginalCostInEURperMWH = marginalCostInEURperMWH;
-		}
-	}
-
 	private double efficiency;
 	private double installedGenerationPowerInMW;
 	private double currentLoadLevel = 0;
@@ -79,12 +63,12 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	 * @param time the targeted time of generation
 	 * @param fuelCostInEURperThermalMWH cost fuel of the associated fuel
 	 * @param co2CostInEURperTon cost for CO2 emission certificates in Euro per ton
-	 * @return array of [availablePower, marginalCost] for this power plant at the given time */
-	public MarginalCostItem calcMarginalCostItem(TimeStamp time, double fuelCostInEURperThermalMWH,
+	 * @return Marginal */
+	public Marginal calcMarginal(TimeStamp time, double fuelCostInEURperThermalMWH,
 			double co2CostInEURperTon) {
-		double marginalCostValue = calcMarginalCost(time, fuelCostInEURperThermalMWH, co2CostInEURperTon);
-		double availablePower = getAvailablePowerInMW(time);
-		return new MarginalCostItem(availablePower, marginalCostValue);
+		double marginalCostInEURperMWH = calcMarginalCost(time, fuelCostInEURperThermalMWH, co2CostInEURperTon);
+		double availablePowerInMW = getAvailablePowerInMW(time);
+		return new Marginal(availablePowerInMW, marginalCostInEURperMWH);
 	}
 
 	/** Calculates specific marginal costs of this {@link PowerPlant} at given time
@@ -141,15 +125,15 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	 * @return {@link DispatchResult result} from the dispatch */
 	public DispatchResult updateGeneration(TimeStamp time, double requestedPowerInMW, double fuelPriceInEURperMWH,
 			double co2PriceInEURperTon) {
-		MarginalCostItem costItem = calcMarginalCostItem(time, fuelPriceInEURperMWH, co2PriceInEURperTon);
-		double newLoadLevel = calcLoadLevel(costItem.availablePowerInMW, requestedPowerInMW);
+		Marginal marginal = calcMarginal(time, fuelPriceInEURperMWH, co2PriceInEURperTon);
+		double newLoadLevel = calcLoadLevel(marginal.getPowerPotentialInMW(), requestedPowerInMW);
 		double rampingCostInEUR = calcSpecificCostOfLoadChangeInEURperMW(currentLoadLevel, newLoadLevel)
-				* costItem.availablePowerInMW;
+				* marginal.getPowerPotentialInMW();
 		currentLoadLevel = newLoadLevel;
 		currentPowerOutputInMW = currentLoadLevel * getAvailablePowerInMW(time);
 		double fuelConsumptionInThermalMWH = requestedPowerInMW / efficiency;
 		double co2EmissionsInTons = calcCo2EmissionInTons(fuelConsumptionInThermalMWH);
-		double variableCost = rampingCostInEUR + costItem.marginalCostInEURperMWH * requestedPowerInMW;
+		double variableCost = rampingCostInEUR + marginal.getMarginalCostInEURperMWH() * requestedPowerInMW;
 		return new DispatchResult(requestedPowerInMW, variableCost, fuelConsumptionInThermalMWH, co2EmissionsInTons);
 	}
 

@@ -3,17 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.renewable;
 
-import java.util.ArrayList;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid.Type;
 import communications.message.BidData;
-import communications.message.MarginalCost;
+import communications.message.Marginal;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
-import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -38,19 +36,12 @@ public class NoSupportTrader extends AggregatorTrader {
 		shareOfRevenues = input.getDouble("ShareOfRevenues");
 	}
 
-	/** Send {@link BidData bids} at marginal costs since no support payment is expected */
 	@Override
-	protected ArrayList<BidData> submitHourlyBids(TimeStamp targetTime, Contract contract,
-			ArrayList<MarginalCost> marginals) {
-		ArrayList<BidData> bids = new ArrayList<>();
-		for (MarginalCost marginal : marginals) {
-			BidData bidData = new BidData(marginal.powerPotentialWithErrorsInMW, marginal.marginalCostInEURperMWH,
-					marginal.marginalCostInEURperMWH, marginal.powerPotentialInMW, getId(), marginal.producerUuid, Type.Supply,
-					targetTime);
-			fulfilNext(contract, bidData);
-			bids.add(bidData);
-		}
-		return bids;
+	protected BidData calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
+		double truePowerPotential = marginal.getPowerPotentialInMW();
+		double powerOffered = getPowerWithError(truePowerPotential, hasErrors);
+		return new BidData(powerOffered, marginal.getMarginalCostInEURperMWH(), marginal.getMarginalCostInEURperMWH(),
+				truePowerPotential, getId(), producerUuid, Type.Supply, targetTime);
 	}
 
 	/** Pass through only the market revenues since there is no support payment */

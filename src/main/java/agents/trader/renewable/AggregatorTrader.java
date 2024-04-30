@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import agents.forecast.MarketForecaster;
@@ -27,7 +26,8 @@ import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
 import communications.message.ClearingTimes;
-import communications.message.MarginalCost;
+import communications.message.Marginal;
+import communications.message.MarginalsAtTime;
 import communications.message.SupportRequestData;
 import communications.message.SupportResponseData;
 import communications.message.TechnologySet;
@@ -191,66 +191,65 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	 * @param contractsToFulfill one partner to send bid forecasts to, typically a {@link MarketForecaster} */
 	private void prepareForecastBids(ArrayList<Message> messages, List<Contract> contractsToFulfill) {
 		Contract contract = CommUtils.getExactlyOneEntry(contractsToFulfill);
-		TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp = sortMarginalsByTimeStamp(messages);
-		for (TimeStamp deliveryTime : messagesByTimeStamp.keySet()) {
-			ArrayList<Message> timeMessages = messagesByTimeStamp.get(deliveryTime);
-			ArrayList<MarginalCost> sortedMarginalsForecast = getSortedMarginalList(timeMessages);
-			submitHourlyBids(deliveryTime, contract, sortedMarginalsForecast);
+		TreeMap<TimeStamp, ArrayList<MarginalsAtTime>> marginalsByTimeStamp = sortMarginalsByTimeStamp(messages);
+		for (ArrayList<MarginalsAtTime> marginals : marginalsByTimeStamp.values()) {
+			submitHourlyBids(contract, marginals, false);
 		}
 	}
 
 	/** Prepares hourly bids based on given marginals and sends them to the contracted partner
 	 * 
-	 * @param time at which to calculate bids
 	 * @param contract to fulfil
-	 * @param sortedMarginals to be used for bid calculation
+	 * @param marginals to be used for bid calculation
+	 * @param hasErrors if true errors will be added to the power of the bid
 	 * @return submitted bids */
-	protected abstract ArrayList<BidData> submitHourlyBids(TimeStamp time, Contract contract,
-			ArrayList<MarginalCost> sortedMarginals);
+	protected ArrayList<BidData> submitHourlyBids(Contract contract, ArrayList<MarginalsAtTime> allMarginals,
+			boolean hasErrors) {
+		ArrayList<BidData> allBidData = new ArrayList<>();
+		for (MarginalsAtTime marginalsAtTime : allMarginals) {
+			TimeStamp targetTime = marginalsAtTime.getDeliveryTime();
+			long producerUuid = marginalsAtTime.getProducerUuid();
+			for (Marginal marginal : marginalsAtTime.getMarginals()) {
+				BidData bidData = calcBids(marginal, targetTime, producerUuid, false);
+
+				fulfilNext(contract, bidData);
+				allBidData.add(bidData);
+			}
+		}
+		return allBidData;
+	}
+
+	/** Creates {@link BidData} from given Marginal
+	 * 
+	 * @param marginal pair of true cost and power potential
+	 * @param targetTime associated with the marginal and bid
+	 * @param producerUuid id of plant operator associated with marginal
+	 * @param hasErrors if true errors will be added to the power of the bid
+	 * @return created bid */
+	protected abstract BidData calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors);
 
 	/** Sends supply {@link BidData} bids to {@link DayAheadMarket}
 	 * 
-	 * @param messages marginal cost to process - typically from {@link RenewablePlantOperator} - possibly for multiple times
+	 * @param messages marginal cost to process - typically from {@link RenewablePlantOperator}
 	 * @param contracts one {@link DayAheadMarket} to send bids to */
 	private void prepareBids(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TreeMap<TimeStamp, ArrayList<MarginalCost>> marginalsByTimeStamp = splitMarginalsByTimeStamp(messages);
-		for (TimeStamp targetTime : marginalsByTimeStamp.keySet()) {
-			ArrayList<MarginalCost> marginals = marginalsByTimeStamp.get(targetTime);
-			marginals.sort(MarginalCost.byCostAscending);
-			ArrayList<MarginalCost> marginalsWithError = addPowerForecastErrors(marginals);
-			ArrayList<BidData> submittedBids = submitHourlyBids(targetTime, contract, marginalsWithError);
-			submittedBidsByTime.put(targetTime, submittedBids);
-			storeYieldPotentials(submittedBids);
-			storeOfferedEnergy(submittedBids);
-		}
+		ArrayList<MarginalsAtTime> marginals = extractMarginalsAtTime(messages);
+		ArrayList<BidData> submittedBids = submitHourlyBids(contract, marginals, true);
+		TimeStamp deliveryTime = marginals.get(0).getDeliveryTime();
+		submittedBidsByTime.put(deliveryTime, submittedBids);
+		storeYieldPotentials(submittedBids);
+		storeOfferedEnergy(submittedBids);
 	}
 
-	/** @return HashMap with marginals split with respect to their deliveryTime */
-	private TreeMap<TimeStamp, ArrayList<MarginalCost>> splitMarginalsByTimeStamp(ArrayList<Message> messages) {
-		TreeMap<TimeStamp, ArrayList<MarginalCost>> marginalsByTimeStamp = new TreeMap<>();
-		for (Message message : messages) {
-			MarginalCost marginalCost = message.getDataItemOfType(MarginalCost.class);
-			TimeStamp time = marginalCost.deliveryTime;
-			if (!marginalsByTimeStamp.containsKey(time)) {
-				marginalsByTimeStamp.put(time, new ArrayList<MarginalCost>());
-			}
-			marginalsByTimeStamp.get(time).add(marginalCost);
-		}
-		return marginalsByTimeStamp;
-	}
-
-	/** Returns list of marginals that include power forecast errors based on the given marginals (without errors) */
-	private ArrayList<MarginalCost> addPowerForecastErrors(ArrayList<MarginalCost> marginals) {
-		if (errorGenerator != null) {
-			ListIterator<MarginalCost> iterator = marginals.listIterator();
-			while (iterator.hasNext()) {
-				MarginalCost item = iterator.next();
-				double powerForecastWithError = errorGenerator.calcPowerWithError(item.powerPotentialInMW);
-				iterator.set(new MarginalCost(item, powerForecastWithError));
-			}
-		}
-		return marginals;
+	/** Calculate a power with errors from forecast
+	 * 
+	 * @param truePowerPotential perfect foresight power potential without any errors
+	 * @param hasPowerError if true, an error is added to the power
+	 * @return power potential modified by power forecast error, if applicable - otherwise the original true potential without
+	 *         errors */
+	protected double getPowerWithError(double truePowerPotential, boolean hasPowerError) {
+		return hasPowerError ? errorGenerator.calcPowerWithError(truePowerPotential) : truePowerPotential;
 	}
 
 	/** Store {@link YieldPotential}s for RES market value calculation **/

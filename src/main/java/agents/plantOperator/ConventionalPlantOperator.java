@@ -6,13 +6,12 @@ package agents.plantOperator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map.Entry;
 import agents.conventionals.PlantBuildingManager;
 import agents.conventionals.Portfolio;
 import agents.conventionals.PowerPlant;
-import agents.conventionals.PowerPlant.MarginalCostItem;
 import agents.markets.CarbonMarket;
 import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
@@ -25,7 +24,8 @@ import communications.message.FuelBid;
 import communications.message.FuelBid.BidType;
 import communications.message.FuelCost;
 import communications.message.FuelData;
-import communications.message.MarginalCost;
+import communications.message.Marginal;
+import communications.message.MarginalsAtTime;
 import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.communication.CommUtils;
@@ -35,7 +35,6 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.ComplexIndex;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
-import util.Util;
 
 /** Operates a portfolio of conventional power plant units of same type, e.g. nuclear or hard-coal power plant unit. */
 public class ConventionalPlantOperator extends PowerPlantOperator implements FuelsTrader {
@@ -82,6 +81,12 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 			OutputFields.VariableCostsInEURperPlant, PlantsKey.class);
 	private static final ComplexIndex<PlantsKey> money = ComplexIndex.build(OutputFields.ReceivedMoneyInEURperPlant,
 			PlantsKey.class);
+
+	/** Fuel and CO2 costs valid at the same time */
+	private class CostPair {
+		public double fuelPrice = Double.NaN;
+		public double co2Price = Double.NaN;
+	}
 
 	/** Creates a {@link ConventionalPlantOperator}
 	 * 
@@ -136,94 +141,68 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 	 * {@link TimeStamp}s */
 	private void sendSupplyMarginals(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		ArrayList<Message> fuelCosts = CommUtils.extractMessagesWith(input, FuelCost.class);
-		ArrayList<Message> co2Costs = CommUtils.extractMessagesWith(input, Co2Cost.class);
-		ArrayList<ArrayList<Message>> fuelCo2CostPairs = findMatchingCostItems(fuelCosts, co2Costs);
+		HashMap<TimeStamp, CostPair> costPairs = matchingFuelAndCo2CostItems(input);
 
 		double totalPowerPotentialInMW = 0;
-		for (ArrayList<Message> costPair : fuelCo2CostPairs) {
-			TimeStamp targetTime = retrieveTargetTime(costPair);
-			double totalPowerPotentialPerTimeStamp = calculateAndSubmitNonZeroMarginals(contract, costPair, targetTime);
+		for (Entry<TimeStamp, CostPair> entry : costPairs.entrySet()) {
+			double totalPowerPotentialPerTimeStamp = calculateAndSubmitNonZeroMarginals(contract, entry.getValue(),
+					entry.getKey());
 			totalPowerPotentialInMW += totalPowerPotentialPerTimeStamp;
-			if (totalPowerPotentialPerTimeStamp == 0) {
-				fulfilNext(contract, new MarginalCost(getId(), 0, 0, targetTime));
-			}
 		}
 		if (contract.getProduct() == PowerPlantOperator.Products.MarginalCost) {
 			store(PowerPlantOperator.OutputFields.OfferedEnergyInMWH, totalPowerPotentialInMW);
 		}
 	}
 
-	/** Calculates all {@link MarginalCost} for a given pair of {@link FuelCost} and {@link Co2Cost} (at a specific time), submits
-	 * them to the given {@link Contract}or and returns the sum of their powerPotentials */
-	private double calculateAndSubmitNonZeroMarginals(Contract contract, ArrayList<Message> costPair,
-			TimeStamp targetTime) {
-		ArrayList<MarginalCost> marginals = calcSupplyMarginalList(targetTime, costPair);
-		double totalPowerPotentialPerTimeStamp = 0;
-		for (MarginalCost marginal : marginals) {
-			if (marginal.powerPotentialInMW > 0) {
-				fulfilNext(contract, marginal);
-				totalPowerPotentialPerTimeStamp += marginal.powerPotentialInMW;
-			}
+	/** Match timeStamps of given co2Cost & fuelCost messages
+	 * 
+	 * @param input Messages containing each {@link FuelCost} or {@link Co2Cost} data
+	 * @return Pairs of fuelPrice and co2Price valid at the same {@link TimeStamp} */
+	private HashMap<TimeStamp, CostPair> matchingFuelAndCo2CostItems(ArrayList<Message> input) {
+		HashMap<TimeStamp, CostPair> costPairs = new HashMap<>();
+		for (Message fuelMessage : CommUtils.extractMessagesWith(input, FuelCost.class)) {
+			FuelCost fuelCost = fuelMessage.getDataItemOfType(FuelCost.class);
+			CostPair costPair = new CostPair();
+			costPair.fuelPrice = fuelCost.amount;
+			costPairs.put(fuelCost.validAt, costPair);
 		}
-		return totalPowerPotentialPerTimeStamp;
-	}
-
-	/** @return List of pairs of fuelCost and CO2Cost that are valid at the same {@link TimeStamp}s */
-	private ArrayList<ArrayList<Message>> findMatchingCostItems(ArrayList<Message> fuelCosts,
-			ArrayList<Message> co2Costs) {
-		ArrayList<ArrayList<Message>> costPairs = new ArrayList<>();
-
-		Iterator<Message> fuelIterator = fuelCosts.iterator();
-		while (fuelIterator.hasNext()) {
-			ArrayList<Message> costPair = new ArrayList<>(2);
-			Message fuelMessage = fuelIterator.next();
-			TimeStamp targetTime = fuelMessage.getDataItemOfType(FuelCost.class).validAt;
-			costPair.add(fuelMessage);
-
-			Iterator<Message> co2Iterator = co2Costs.iterator();
-			co2Search: while (co2Iterator.hasNext()) {
-				Message co2Message = co2Iterator.next();
-				if (co2Message.getDataItemOfType(Co2Cost.class).validAt.equals(targetTime)) {
-					costPair.add(co2Message);
-					co2Iterator.remove();
-					break co2Search;
-				}
+		for (Message co2Message : input) {
+			Co2Cost co2Cost = co2Message.getDataItemOfType(Co2Cost.class);
+			CostPair costPair = costPairs.get(co2Cost.validAt);
+			if (costPair == null) {
+				throw new RuntimeException(ERR_MISSING_FUEL_COST);
 			}
-			if (costPair.size() != 2) {
+			costPair.co2Price = co2Cost.amount;
+		}
+		for (CostPair costPair : costPairs.values()) {
+			if (costPair.co2Price == Double.NaN) {
 				throw new RuntimeException(ERR_MISSING_CO2_COST);
 			}
-			costPairs.add(costPair);
-		}
-		if (co2Costs.size() != 0) {
-			throw new RuntimeException(ERR_MISSING_FUEL_COST);
 		}
 		return costPairs;
 	}
 
-	/** @return {@link TimeStamp} for which given pair of FuelCost and CO2Cost are valid at */
-	private TimeStamp retrieveTargetTime(ArrayList<Message> costPair) {
-		return costPair.stream().filter(i -> i.containsType(FuelCost.class)).findFirst().get()
-				.getDataItemOfType(FuelCost.class).validAt;
+	/** Calculates all {@link MarginalCost} for a given {@link CostPair} (at a specific time), submits them to the given
+	 * {@link Contract} and returns the sum of their powerPotentials */
+	private double calculateAndSubmitNonZeroMarginals(Contract contract, CostPair costPair, TimeStamp targetTime) {
+		MarginalsAtTime marginals = calcSupplyMarginals(targetTime, costPair);
+		fulfilNext(contract, marginals);
+		return marginals.getTotalPowerPotentialInMW();
 	}
 
-	/** @return List of marginal cost items valid for the given time using the incoming FuelCost & Co2Cost messages */
-	private ArrayList<MarginalCost> calcSupplyMarginalList(TimeStamp targetTime, ArrayList<Message> input) {
-		double fuelCost = Util.removeFirstMessageWithDataItem(FuelCost.class, input).amount;
-		double co2Cost = Util.removeFirstMessageWithDataItem(Co2Cost.class, input).amount;
-		if (!input.isEmpty()) {
-			throw new RuntimeException(this + " received unused messages: " + input);
+	/** @return marginal cost items valid for the given time using the given {@link CostPair} */
+	private MarginalsAtTime calcSupplyMarginals(TimeStamp targetTime, CostPair costPair) {
+		fuelPrice.put(targetTime, costPair.fuelPrice);
+		co2Price.put(targetTime, costPair.co2Price);
+		List<PowerPlant> powerPlants = portfolio.getPowerPlantList();
+		ArrayList<Marginal> marginals = new ArrayList<>(powerPlants.size());
+		for (PowerPlant plant : powerPlants) {
+			Marginal marginal = plant.calcMarginal(targetTime, costPair.fuelPrice, costPair.co2Price);
+			if (marginal.getPowerPotentialInMW() > 0) {
+				marginals.add(marginal);
+			}
 		}
-		fuelPrice.put(targetTime, fuelCost);
-		co2Price.put(targetTime, co2Cost);
-
-		ArrayList<MarginalCost> marginalCosts = new ArrayList<>();
-		for (PowerPlant plant : portfolio.getPowerPlantList()) {
-			MarginalCostItem costItem = plant.calcMarginalCostItem(targetTime, fuelCost, co2Cost);
-			marginalCosts
-					.add(new MarginalCost(getId(), costItem.availablePowerInMW, costItem.marginalCostInEURperMWH, targetTime));
-		}
-		return marginalCosts;
+		return new MarginalsAtTime(getId(), targetTime, marginals);
 	}
 
 	@Override

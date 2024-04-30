@@ -60,7 +60,7 @@ public abstract class PowerPlantOperator extends Agent {
 
 	/** Creates a {@link PowerPlantOperator}
 	 * 
-	 * @param dataProvider provides input from config file - not required here, but in super class */
+	 * @param dataProvider provides input from config file */
 	public PowerPlantOperator(DataProvider dataProvider) {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);

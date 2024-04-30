@@ -11,7 +11,8 @@ import agents.trader.TraderWithClients;
 import agents.trader.renewable.AggregatorTrader;
 import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
-import communications.message.MarginalCost;
+import communications.message.Marginal;
+import communications.message.MarginalsAtTime;
 import communications.message.TechnologySet;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -115,7 +116,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 		EnergyCarrier energyCarrier = input.getEnum("EnergyCarrier", EnergyCarrier.class);
 		SupportInstrument supportInstrument = input.getEnumOrDefault("SupportInstrument", SupportInstrument.class, null);
 		technologySet = new TechnologySet(technologySetType, energyCarrier, supportInstrument);
-		
+
 		call(this::registerSet).on(Products.SetRegistration);
 		call(this::sendSupplyMarginalForecasts).on(PowerPlantOperator.Products.MarginalCostForecast)
 				.use(TraderWithClients.Products.ForecastRequestForward);
@@ -149,8 +150,8 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 		List<TimeStamp> clearingTimeList = clearingTimes.getTimes();
 		double totalPowerPotential = 0;
 		for (TimeStamp clearingTime : clearingTimeList) {
-			MarginalCost marginal = fulfilSupplyContract(clearingTime, contract);
-			totalPowerPotential += marginal.powerPotentialInMW;
+			Marginal marginal = fulfilSupplyContract(clearingTime, contract);
+			totalPowerPotential += marginal.getPowerPotentialInMW();
 		}
 		return totalPowerPotential;
 	}
@@ -165,15 +166,15 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	}
 
 	/** Calculates supply marginals for the given TimeStamp to fulfil the given contract */
-	private MarginalCost fulfilSupplyContract(TimeStamp targetTime, Contract contract) {
-		MarginalCost marginal = calcSingleMarginal(targetTime);
-		fulfilNext(contract, marginal);
+	private Marginal fulfilSupplyContract(TimeStamp targetTime, Contract contract) {
+		Marginal marginal = calcSingleMarginal(targetTime);
+		fulfilNext(contract, new MarginalsAtTime(getId(), targetTime, marginal));
 		return marginal;
 	}
 
 	/** @param time to calculate costs for
-	 * @return single MarginalCost item calculated for the given time */
-	abstract protected MarginalCost calcSingleMarginal(TimeStamp time);
+	 * @return single Marginal item calculated for the given time */
+	abstract protected Marginal calcSingleMarginal(TimeStamp time);
 
 	/** Returns the installed power at the specified time
 	 * 
