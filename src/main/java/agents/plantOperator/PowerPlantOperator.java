@@ -6,7 +6,6 @@ package agents.plantOperator;
 import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
-import agents.trader.PowerPlantScheduler;
 import agents.trader.Trader;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.Agent;

@@ -18,6 +18,7 @@ import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Bid.Type;
+import agents.plantOperator.PowerPlantScheduler;
 import agents.markets.meritOrder.Constants;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import communications.message.AwardData;

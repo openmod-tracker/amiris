@@ -74,13 +74,12 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 
 	/** send price and yield potential at given time */
 	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(input);
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimeStamp time = message.getDataItemOfType(ClearingTimes.class).getTimes().get(0);
-
 		if (ppaPriceInEURperMWH == null) {
 			throw new RuntimeException(ERR_PPA_PRICE_MISSING + this);
 		}
+		Message message = CommUtils.getExactlyOneEntry(input);
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		TimeStamp time = message.getDataItemOfType(ClearingTimes.class).getTimes().get(0);
 		double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);
 		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
 		fulfilNext(contract, new PpaInformation(time, ppaPrice, availablePower));

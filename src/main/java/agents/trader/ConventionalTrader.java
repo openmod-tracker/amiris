@@ -13,6 +13,7 @@ import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid.Type;
 import agents.plantOperator.ConventionalPlantOperator;
 import agents.plantOperator.PowerPlantOperator;
+import agents.plantOperator.PowerPlantScheduler;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.BidData;
