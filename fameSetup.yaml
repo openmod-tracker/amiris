@@ -14,3 +14,4 @@ messagePackages:
 portablePackages:
    - "communications"
    - "agents"
+   - "de.dlr.gitlab.fame.time"
