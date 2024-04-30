@@ -3,6 +3,9 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
+### Changed
+- Changed Marginal and Bid messages as well as their forecast counterparts to have one message per agent #44 (@dlr-cjs)
+
 ### Added
 - Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled markets #16 (@dlr_elghazi @dlr_fn)
 - Add new agent `MarketCoupling` which allows coupling of multiple `DayAheadMarketMultiZone` #16 (@dlr-cjs @litotes18 @dlr_elghazi @dlr_fn)
