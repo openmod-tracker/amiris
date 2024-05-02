@@ -4,7 +4,6 @@
 package communications.message;
 
 import agents.markets.DayAheadMarketMultiZone.Region;
-import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
@@ -134,8 +133,8 @@ public class CouplingData implements Portable {
 	 * 
 	 * @param transferOrderBook to update with */
 	public void updateImportBook(TransferOrderBook transferOrderBook) {
-		for (Bid bid : transferOrderBook.getBids()) {
-			this.importOrderBook.addBid(bid);
+		for (long traderId : transferOrderBook.getTraders()) {
+			importOrderBook.addTraderBids(traderId, transferOrderBook.getBidsOf(traderId));
 		}
 	}
 
@@ -155,8 +154,8 @@ public class CouplingData implements Portable {
 	 * 
 	 * @param transferOrderBook to update with */
 	public void updateExportBook(TransferOrderBook transferOrderBook) {
-		for (Bid bid : transferOrderBook.getBids()) {
-			this.exportOrderBook.addBid(bid);
+		for (long traderId : transferOrderBook.getTraders()) {
+			exportOrderBook.addTraderBids(traderId, transferOrderBook.getBidsOf(traderId));
 		}
 	}
 

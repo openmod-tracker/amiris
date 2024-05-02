@@ -312,11 +312,11 @@ public class DemandBalancer {
 					Bid[] bids = splitBid(bid, demandToShift - previousShiftedDemand);
 					newDemandBookExpensive.addBid(bids[0], item.getTraderUuid());
 					newDemandBookCheap.addBid(bids[1], item.getTraderUuid());
-					transferBook.addBid(bids[1]);
+					transferBook.addBid(bids[1], item.getTraderUuid());
 					currentShiftedDemand = demandToShift;
 				} else {
 					newDemandBookCheap.addBid(bid, item.getTraderUuid());
-					transferBook.addBid(bid);
+					transferBook.addBid(bid, item.getTraderUuid());
 				}
 			} else {
 				newDemandBookExpensive.addBid(bid, item.getTraderUuid());
