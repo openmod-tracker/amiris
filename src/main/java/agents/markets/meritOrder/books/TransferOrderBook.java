@@ -41,7 +41,7 @@ public class TransferOrderBook implements Portable {
 	/** @return a deep copy of TransferOrderBook caller */
 	public TransferOrderBook clone() {
 		TransferOrderBook transferOrderBook = new TransferOrderBook();
-		for (Bid bid : this.bids) {
+		for (Bid bid : bids) {
 			transferOrderBook.addBid(bid.clone());
 		}
 		return transferOrderBook;
