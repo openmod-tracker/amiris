@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
@@ -11,19 +11,9 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public class Bid implements Portable {
-	/** Type of market bid */
-	public static enum Type {
-		/** Offering energy */
-		Supply,
-		/** Requesting energy */
-		Demand
-	};
-
 	private double offerPriceInEURperMWH;
 	private double energyAmountInMWH;
-	private double marginalCostInEURperMWH;
-	private long traderUuid;
-	private Type type;
+	private double marginalCostInEURperMWH = Double.NaN;
 
 	/** required for {@link Portable}s */
 	public Bid() {}
@@ -32,21 +22,25 @@ public class Bid implements Portable {
 	 *
 	 * @param energyAmountInMWH amount of energy requested or offered (depending on Type of this Bid)
 	 * @param offerPriceInEURperMWH maximum / minimum offer price (depending on Type of this Bid)
-	 * @param marginalCostInEURperMWH actual marginal cost associated with this Bid
-	 * @param traderUuid id of the Trader that issued this Bid
-	 * @param type of this Bid */
-	public Bid(double energyAmountInMWH, double offerPriceInEURperMWH, double marginalCostInEURperMWH, long traderUuid,
-			Type type) {
+	 * @param marginalCostInEURperMWH actual marginal cost associated with this Bid */
+	public Bid(double energyAmountInMWH, double offerPriceInEURperMWH, double marginalCostInEURperMWH) {
 		this.offerPriceInEURperMWH = offerPriceInEURperMWH;
 		this.energyAmountInMWH = energyAmountInMWH;
-		this.traderUuid = traderUuid;
-		this.type = type;
 		this.marginalCostInEURperMWH = marginalCostInEURperMWH;
+	}
+
+	/** Creates a {@link Bid} with marginalCost=NaN
+	 * 
+	 * @param energyAmountInMWH amount of energy requested or offered (depending on Type of this Bid)
+	 * @param offerPriceInEURperMWH maximum / minimum offer price (depending on Type of this Bid) */
+	public Bid(double energyAmountInMWH, double offerPriceInEURperMWH) {
+		this.offerPriceInEURperMWH = offerPriceInEURperMWH;
+		this.energyAmountInMWH = energyAmountInMWH;
 	}
 
 	@Override
 	public String toString() {
-		return energyAmountInMWH + " MWH @ " + offerPriceInEURperMWH + " €/MWh from " + traderUuid;
+		return energyAmountInMWH + " MWH @ " + offerPriceInEURperMWH + " €/MWh";
 	}
 
 	/** @return maximum / minimum offer price (depending on Type of this Bid) */
@@ -66,16 +60,6 @@ public class Bid implements Portable {
 		this.energyAmountInMWH = energyAmountInMWH;
 	}
 
-	/** @return id of the Trader that issued this Bid */
-	public long getTraderUuid() {
-		return traderUuid;
-	}
-
-	/** @return {@link Type} of this Bid */
-	public Type getType() {
-		return type;
-	}
-
 	/** @return actual marginal cost associated with this Bid */
 	public double getMarginalCost() {
 		return marginalCostInEURperMWH;
@@ -85,8 +69,6 @@ public class Bid implements Portable {
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeDoubles(offerPriceInEURperMWH, energyAmountInMWH, marginalCostInEURperMWH);
-		collector.storeLongs(traderUuid);
-		collector.storeInts(type.ordinal());
 	}
 
 	/** required for {@link Portable}s */
@@ -95,22 +77,18 @@ public class Bid implements Portable {
 		offerPriceInEURperMWH = provider.nextDouble();
 		energyAmountInMWH = provider.nextDouble();
 		marginalCostInEURperMWH = provider.nextDouble();
-		traderUuid = provider.nextLong();
-		type = Type.values()[provider.nextInt()];
 	}
 
 	/** @return a deep-copy of {@link Bid} */
 	public Bid clone() {
-		return new Bid(energyAmountInMWH, offerPriceInEURperMWH, marginalCostInEURperMWH, traderUuid, type);
+		return new Bid(energyAmountInMWH, offerPriceInEURperMWH, marginalCostInEURperMWH);
 	}
 
 	/** @return true if this object's content matches that of the given Bid.
 	 * @param bid to check for match. */
 	public boolean matches(Bid bid) {
 		return bid.offerPriceInEURperMWH == offerPriceInEURperMWH &&
-				bid.traderUuid == traderUuid &&
 				bid.energyAmountInMWH == energyAmountInMWH &&
-				bid.marginalCostInEURperMWH == marginalCostInEURperMWH &&
-				bid.type == type;
+				bid.marginalCostInEURperMWH == marginalCostInEURperMWH;
 	}
 }

@@ -4,6 +4,7 @@
 package agents.trader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import agents.electrolysis.Electrolyzer;
 import agents.electrolysis.ElectrolyzerStrategist;
@@ -17,18 +18,16 @@ import agents.markets.FuelsMarket;
 import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
-import agents.markets.meritOrder.Bid.Type;
-import agents.plantOperator.PowerPlantScheduler;
 import agents.markets.meritOrder.Constants;
+import agents.plantOperator.PowerPlantScheduler;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import communications.message.AwardData;
-import communications.message.BidData;
 import communications.message.ClearingTimes;
 import communications.message.FuelBid;
 import communications.message.FuelBid.BidType;
 import communications.message.FuelCost;
 import communications.message.FuelData;
-import communications.message.PointInTime;
+import communications.portable.BidsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -95,9 +94,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		List<TimeStamp> targetTimes = clearingTimes.getTimes();
 		for (TimeStamp targetTime : targetTimes) {
 			double electricDemandInMW = strategist.getElectricDemandForecastInMW(targetTime);
-			Bid bid = new Bid(electricDemandInMW, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN, getId(),
-					Type.Demand);
-			fulfilNext(contractToFulfil, bid, new PointInTime(targetTime));
+			Bid bid = new Bid(electricDemandInMW, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN);
+			fulfilNext(contractToFulfil, new BidsAtTime(targetTime, getId(), null, Arrays.asList(bid)));
 		}
 	}
 
@@ -135,20 +133,20 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
-			BidData bidData = prepareHourlyDemandBid(targetTime, schedule);
-			store(OutputColumns.RequestedEnergyInMWH, bidData.offeredEnergyInMWH);
-			sendDayAheadMarketBids(contractToFulfil, bidData);
+			Bid bid = prepareHourlyDemandBid(targetTime, schedule);
+			store(OutputColumns.RequestedEnergyInMWH, bid.getEnergyAmountInMWH());
+			fulfilNext(contractToFulfil, new BidsAtTime(targetTime, getId(), null, Arrays.asList(bid)));
 		}
 	}
 
-	/** Prepares hourly demand bids
+	/** Prepares hourly demand bid
 	 * 
 	 * @param requestedTime TimeStamp at which the demand bid should be defined
 	 * @return demand bid for requestedTime */
-	private BidData prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
+	private Bid prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
 		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
-		BidData demandBid = new BidData(demandPower, price, Double.NaN, getId(), Type.Demand, targetTime);
+		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(Outputs.OfferedEnergyPriceInEURperMWH, price);
 		return demandBid;
 	}

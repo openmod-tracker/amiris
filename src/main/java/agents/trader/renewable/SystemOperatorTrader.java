@@ -4,9 +4,8 @@
 package agents.trader.renewable;
 
 import agents.markets.DayAheadMarket;
-import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
-import communications.message.BidData;
 import communications.message.Marginal;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.time.TimePeriod;
@@ -25,11 +24,10 @@ public class SystemOperatorTrader extends AggregatorTrader {
 	}
 
 	@Override
-	protected BidData calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
+	protected Bid calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
 		double truePowerPotential = marginal.getPowerPotentialInMW();
 		double powerOffered = getPowerWithError(truePowerPotential, hasErrors);
-		return new BidData(powerOffered, Constants.MINIMAL_PRICE_IN_EUR_PER_MWH, marginal.getMarginalCostInEURperMWH(),
-				truePowerPotential, getId(), producerUuid, Type.Supply, targetTime);
+		return new Bid(powerOffered, Constants.MINIMAL_PRICE_IN_EUR_PER_MWH, marginal.getMarginalCostInEURperMWH());
 	}
 
 	/** Pass through only the support pay-out in a FIT scheme */

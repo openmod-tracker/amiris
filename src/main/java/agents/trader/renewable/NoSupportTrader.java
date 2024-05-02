@@ -4,8 +4,7 @@
 package agents.trader.renewable;
 
 import agents.markets.DayAheadMarket;
-import agents.markets.meritOrder.Bid.Type;
-import communications.message.BidData;
+import agents.markets.meritOrder.Bid;
 import communications.message.Marginal;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -37,11 +36,10 @@ public class NoSupportTrader extends AggregatorTrader {
 	}
 
 	@Override
-	protected BidData calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
+	protected Bid calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
 		double truePowerPotential = marginal.getPowerPotentialInMW();
 		double powerOffered = getPowerWithError(truePowerPotential, hasErrors);
-		return new BidData(powerOffered, marginal.getMarginalCostInEURperMWH(), marginal.getMarginalCostInEURperMWH(),
-				truePowerPotential, getId(), producerUuid, Type.Supply, targetTime);
+		return new Bid(powerOffered, marginal.getMarginalCostInEURperMWH(), marginal.getMarginalCostInEURperMWH());
 	}
 
 	/** Pass through only the market revenues since there is no support payment */

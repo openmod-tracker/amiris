@@ -5,7 +5,7 @@ package agents.trader.renewable;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
-import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Bid;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.trader.ClientData;
 import agents.trader.renewable.bidding.AtMarginalCost;
@@ -14,7 +14,6 @@ import agents.trader.renewable.bidding.ContractForDifferences;
 import agents.trader.renewable.bidding.FixedPremium;
 import agents.trader.renewable.bidding.PremiumBased;
 import agents.trader.renewable.bidding.VariablePremium;
-import communications.message.BidData;
 import communications.message.Marginal;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -59,14 +58,13 @@ public class RenewableTrader extends AggregatorTrader {
 	}
 
 	@Override
-	protected BidData calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
+	protected Bid calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
 		ClientData clientData = clientMap.get(producerUuid);
 		BiddingStrategy strategy = getStrategy(clientData);
 		double bidPrice = strategy.calcBiddingPrice(marginal.getMarginalCostInEURperMWH(), targetTime, clientData);
 		double truePowerPotential = marginal.getPowerPotentialInMW();
 		double powerOffered = getPowerWithError(truePowerPotential, hasErrors);
-		return new BidData(powerOffered, bidPrice, marginal.getMarginalCostInEURperMWH(), truePowerPotential, getId(),
-				producerUuid, Type.Supply, targetTime);
+		return new Bid(powerOffered, bidPrice, marginal.getMarginalCostInEURperMWH());
 	}
 
 	/** @return {@link BiddingStrategy} */

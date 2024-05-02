@@ -4,6 +4,7 @@
 package agents.trader.renewable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,7 @@ import agents.forecast.MarketForecaster;
 import agents.forecast.PowerForecastError;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
+import agents.markets.meritOrder.Bid;
 import agents.plantOperator.PowerPlantOperator;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.RenewablePlantOperator;
@@ -24,13 +26,13 @@ import agents.trader.Trader;
 import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
-import communications.message.BidData;
 import communications.message.ClearingTimes;
 import communications.message.Marginal;
 import communications.message.SupportRequestData;
 import communications.message.SupportResponseData;
 import communications.message.TechnologySet;
 import communications.message.YieldPotential;
+import communications.portable.BidsAtTime;
 import communications.portable.MarginalsAtTime;
 import communications.portable.SupportData;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -83,8 +85,30 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		YieldPotential
 	};
 
+	/** Helper class to store producer ID along with each Bid */
+	private class ProducerBid {
+		public final long producerUuid;
+		public final double powerPotential;
+		public final Bid bid;
+
+		/** Create new {@link ProducerBid} instance
+		 * 
+		 * @param bid to be associated with its corresponding producer
+		 * @param producerUuid UUID of the bid's producer */
+		public ProducerBid(Bid bid, long producerUuid, double powerPotential) {
+			this.bid = bid;
+			this.producerUuid = producerUuid;
+			this.powerPotential = powerPotential;
+		}
+
+		/** @return offer price of underlying bid */
+		public double getOfferPrice() {
+			return bid.getOfferPriceInEURperMWH();
+		}
+	}
+
 	/** Submitted Bids */
-	protected final TreeMap<TimeStamp, ArrayList<BidData>> submittedBidsByTime = new TreeMap<>();
+	protected final TreeMap<TimeStamp, List<ProducerBid>> submittedBidsByTime = new TreeMap<>();
 	/** Map to store all client, i.e. {@link RenewablePlantOperator}, specific data */
 	protected final HashMap<Long, ClientData> clientMap = new HashMap<>();
 	/** Stores the power prices from {@link DayAheadMarket} */
@@ -185,7 +209,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		return clients;
 	}
 
-	/** Sends supply {@link BidData bid} forecasts
+	/** Sends supply {@link Bid} forecasts
 	 * 
 	 * @param messages marginal cost forecasts to process - typically from {@link RenewablePlantOperator}
 	 * @param contractsToFulfill one partner to send bid forecasts to, typically a {@link MarketForecaster} */
@@ -202,43 +226,51 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	 * @param contract to fulfil
 	 * @param allMarginals to be used for bid calculation
 	 * @param hasErrors if true errors will be added to the power of the bid
-	 * @return submitted bids */
-	protected ArrayList<BidData> submitHourlyBids(Contract contract, ArrayList<MarginalsAtTime> allMarginals,
+	 * @return submitted bids associated with producer UUID */
+	protected List<ProducerBid> submitHourlyBids(Contract contract, ArrayList<MarginalsAtTime> allMarginals,
 			boolean hasErrors) {
-		ArrayList<BidData> allBidData = new ArrayList<>();
+		ArrayList<Bid> supplyBids = new ArrayList<>();
+		List<ProducerBid> producerBids = new ArrayList<>();
+
+		TimeStamp targetTime = null;
 		for (MarginalsAtTime marginalsAtTime : allMarginals) {
-			TimeStamp targetTime = marginalsAtTime.getDeliveryTime();
+			targetTime = marginalsAtTime.getDeliveryTime();
 			long producerUuid = marginalsAtTime.getProducerUuid();
 			for (Marginal marginal : marginalsAtTime.getMarginals()) {
-				BidData bidData = calcBids(marginal, targetTime, producerUuid, false);
-
-				fulfilNext(contract, bidData);
-				allBidData.add(bidData);
+				Bid bid = calcBids(marginal, targetTime, producerUuid, false);
+				producerBids.add(new ProducerBid(bid, producerUuid, marginal.getPowerPotentialInMW()));
+				supplyBids.add(bid);
 			}
 		}
-		return allBidData;
+		if (targetTime != null) {
+			fulfilNext(contract, new BidsAtTime(targetTime, getId(), supplyBids, null));
+		}
+		return producerBids;
 	}
 
-	/** Creates {@link BidData} from given Marginal
+	/** Creates a {@link Bid} from given Marginal
 	 * 
 	 * @param marginal pair of true cost and power potential
 	 * @param targetTime associated with the marginal and bid
 	 * @param producerUuid id of plant operator associated with marginal
 	 * @param hasErrors if true errors will be added to the power of the bid
 	 * @return created bid */
-	protected abstract BidData calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors);
+	protected abstract Bid calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors);
 
-	/** Sends supply {@link BidData} bids to {@link DayAheadMarket}
+	/** Sends supply {@link Bid}s to {@link DayAheadMarket}
 	 * 
 	 * @param messages marginal cost to process - typically from {@link RenewablePlantOperator}
 	 * @param contracts one {@link DayAheadMarket} to send bids to */
 	private void prepareBids(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		ArrayList<MarginalsAtTime> marginals = extractMarginalsAtTime(messages);
-		ArrayList<BidData> submittedBids = submitHourlyBids(contract, marginals, true);
+		if (marginals.size() == 0) {
+			return;
+		}
+		List<ProducerBid> submittedBids = submitHourlyBids(contract, marginals, true);
 		TimeStamp deliveryTime = marginals.get(0).getDeliveryTime();
 		submittedBidsByTime.put(deliveryTime, submittedBids);
-		storeYieldPotentials(submittedBids);
+		storeYieldPotentials(marginals);
 		storeOfferedEnergy(submittedBids);
 	}
 
@@ -253,20 +285,19 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	}
 
 	/** Store {@link YieldPotential}s for RES market value calculation **/
-	private void storeYieldPotentials(ArrayList<BidData> bids) {
-		for (BidData bid : bids) {
-			ClientData clientData = clientMap.get(bid.producerUuid);
-			clientData.appendYieldPotential(bid.deliveryTime, bid.powerPotentialInMW);
+	private void storeYieldPotentials(ArrayList<MarginalsAtTime> allMarginals) {
+		for (MarginalsAtTime marginalsAtTime : allMarginals) {
+			ClientData clientData = clientMap.get(marginalsAtTime.getProducerUuid());
+			for (Marginal marginal : marginalsAtTime.getMarginals()) {
+				clientData.appendYieldPotential(marginalsAtTime.getDeliveryTime(), marginal.getPowerPotentialInMW());
+			}
 		}
 	}
 
 	/** Store the amount of energy offered */
-	private void storeOfferedEnergy(ArrayList<BidData> bids) {
-		double totalEnergyOffered = 0.;
-		for (BidData bid : bids) {
-			totalEnergyOffered += bid.offeredEnergyInMWH;
-		}
-		store(DayAheadMarketTrader.OutputColumns.OfferedEnergyInMWH, totalEnergyOffered);
+	private void storeOfferedEnergy(List<ProducerBid> submittedBids) {
+		double offeredEnergy = submittedBids.stream().mapToDouble(i -> i.bid.getEnergyAmountInMWH()).sum();
+		store(DayAheadMarketTrader.OutputColumns.OfferedEnergyInMWH, offeredEnergy);
 	}
 
 	/** Forward yield potential information from clients
@@ -295,14 +326,16 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		AwardData award = message.getDataItemOfType(AwardData.class);
 		store(DayAheadMarketTrader.OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
 		double energyToDispatch = award.supplyEnergyInMWH;
-		ArrayList<BidData> submittedBids = submittedBidsByTime.remove(award.beginOfDeliveryInterval);
-		submittedBids.sort(BidData.BY_PRICE_ASCENDING);
+		List<ProducerBid> submittedBids = submittedBidsByTime.remove(award.beginOfDeliveryInterval);
+		submittedBids.sort(Comparator.comparingDouble(ProducerBid::getOfferPrice));
+
 		double actualProductionPotentialInMWH = 0;
-		for (BidData bid : submittedBids) {
-			Contract matchingContract = getMatchingContract(contracts, bid.producerUuid);
-			double dispatchedEnergy = Math.min(energyToDispatch, bid.powerPotentialInMW);
-			actualProductionPotentialInMWH += bid.powerPotentialInMW;
-			logClientDispatchAndRevenues(bid, dispatchedEnergy, award.powerPriceInEURperMWH);
+		for (ProducerBid producerBid : submittedBids) {
+			Contract matchingContract = getMatchingContract(contracts, producerBid.producerUuid);
+			double dispatchedEnergy = Math.min(energyToDispatch, producerBid.powerPotential);
+			actualProductionPotentialInMWH += producerBid.powerPotential;
+			logClientDispatchAndRevenues(dispatchedEnergy, award.powerPriceInEURperMWH, producerBid.producerUuid,
+					award.beginOfDeliveryInterval);
 			fulfilNext(matchingContract, new AmountAtTime(award.beginOfDeliveryInterval, dispatchedEnergy));
 			energyToDispatch = Math.max(0, energyToDispatch - dispatchedEnergy);
 		}
@@ -310,15 +343,17 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		store(OutputColumns.TrueGenerationPotentialInMWH, actualProductionPotentialInMWH);
 	}
 
-	/** Logs actual dispatch and revenue for client of given BidData at its delivery time
+	/** Logs actual dispatch and revenue for client at given delivery time
 	 * 
-	 * @param bid original bid sent for clearing
 	 * @param dispatchedEnergy assigned to this bid
-	 * @param powerPrice awarded price */
-	protected void logClientDispatchAndRevenues(BidData bid, double dispatchedEnergy, double powerPrice) {
-		ClientData clientData = clientMap.get(bid.producerUuid);
+	 * @param powerPrice awarded price
+	 * @param clientId ID of the power plant to be dispatched
+	 * @param deliveryTime at which the electricity is produced by the associated producer */
+	protected void logClientDispatchAndRevenues(double dispatchedEnergy, double powerPrice, long clientId,
+			TimeStamp deliveryTime) {
+		ClientData clientData = clientMap.get(clientId);
 		double stepRevenue = powerPrice * dispatchedEnergy;
-		clientData.appendStepDispatchAndRevenue(bid.deliveryTime, dispatchedEnergy, stepRevenue);
+		clientData.appendStepDispatchAndRevenue(deliveryTime, dispatchedEnergy, stepRevenue);
 	}
 
 	/** Request support pay-out - one message per client
