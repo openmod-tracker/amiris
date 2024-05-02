@@ -17,6 +17,6 @@ public class OrderBookItemTest {
 		Bid mockedBid = mock(Bid.class);
 		when(mockedBid.getEnergyAmountInMWH()).thenReturn(-1.0);
 		assertThrowsMessage(RuntimeException.class, OrderBookItem.ERR_NEGATIVE_POWER,
-				() -> new OrderBookItem(mockedBid));
+				() -> new OrderBookItem(mockedBid, 0L));
 	}
 }

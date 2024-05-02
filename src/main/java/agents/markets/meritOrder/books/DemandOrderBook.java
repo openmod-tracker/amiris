@@ -6,7 +6,6 @@ package agents.markets.meritOrder.books;
 import java.util.ArrayList;
 import java.util.Comparator;
 import agents.markets.meritOrder.Bid;
-import agents.markets.meritOrder.Bid.Type;
 import agents.markets.meritOrder.Constants;
 
 /** {@link OrderBook} that manages all {@link OrderBookItem}s from demand-{@link Bid}s
@@ -15,7 +14,7 @@ import agents.markets.meritOrder.Constants;
 public class DemandOrderBook extends OrderBook {
 	@Override
 	protected Bid getLastBid() {
-		return new Bid(0, -Double.MAX_VALUE, 0, Long.MIN_VALUE, Type.Demand);
+		return new Bid(0, -Double.MAX_VALUE, 0);
 	}
 
 	/** sorts in descending order */
@@ -54,11 +53,12 @@ public class DemandOrderBook extends OrderBook {
 	public DemandOrderBook clone() {
 		DemandOrderBook demandOrderBook = new DemandOrderBook();
 		demandOrderBook.awardedCumulativePower = this.awardedCumulativePower;
-		demandOrderBook.awardedPrice = this.awardedPrice;	
+		demandOrderBook.awardedPrice = this.awardedPrice;
 		demandOrderBook.isSorted = false;
 		demandOrderBook.orderBookItems = new ArrayList<OrderBookItem>();
 		for (OrderBookItem orderBookItem : this.orderBookItems) {
-			demandOrderBook.orderBookItems.add(new OrderBookItem(orderBookItem.getBid().clone()));
+			OrderBookItem newItem = new OrderBookItem(orderBookItem.getBid().clone(), orderBookItem.getTraderUuid());
+			demandOrderBook.orderBookItems.add(newItem);
 		}
 		return demandOrderBook;
 	}

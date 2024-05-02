@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
-import agents.markets.meritOrder.Bid.Type;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -21,8 +20,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public abstract class OrderBook implements Portable {
-	static final String ERR_NEGATIVE_SUPPLY_POWER = "Negative supply bid power is forbidded. Bid: ";
-	static final String ERR_NEGATIVE_DEMAND_POWER = "Negative demand bid power is forbidded - use ImportTrader. Bid: ";
+	static final String ERR_BID_NEGATIVE_POWER = "Negative bid power is forbidded. Bid: ";
 
 	/** required for {@link Portable}s */
 	public OrderBook() {}
@@ -48,10 +46,11 @@ public abstract class OrderBook implements Portable {
 
 	/** Adds given {@link Bid} to this {@link OrderBook}; the OrderBook must not be sorted yet
 	 * 
-	 * @param bid to be added to the unsorted OrderBook */
-	public void addBid(Bid bid) {
+	 * @param bid to be added to the unsorted OrderBook
+	 * @param traderUuid id of the trader associated with the bids */
+	public void addBid(Bid bid, long traderUuid) {
 		ensureNotYetSortedOrThrow("OrderBook is already sorted - cannot add further items.");
-		orderBookItems.add(new OrderBookItem(bid));
+		orderBookItems.add(new OrderBookItem(bid, traderUuid));
 	}
 
 	/** Ensures the {@link OrderBook} items are not yet {@link #isSorted sorted}
@@ -80,20 +79,19 @@ public abstract class OrderBook implements Portable {
 	protected void ensurePositiveBidPower() {
 		for (OrderBookItem item : orderBookItems) {
 			if (item.getBlockPower() < 0) {
-				Bid bid = item.getBid();
-				String message = bid.getType() == Type.Supply ? ERR_NEGATIVE_SUPPLY_POWER : ERR_NEGATIVE_DEMAND_POWER;
-				throw new RuntimeException(message + bid);
+				throw new RuntimeException(ERR_BID_NEGATIVE_POWER + item);
 			}
 		}
 	}
 
 	/** Adds multiple {@link Bid}s to this {@link OrderBook}; the OrderBook must not be sorted yet
 	 * 
-	 * @param bids to add to this unsorted OrderBook */
-	public void addBids(ArrayList<Bid> bids) {
+	 * @param bids to add to this unsorted OrderBook
+	 * @param traderUuid id of the trader associated with the bids */
+	public void addBids(List<Bid> bids, long traderUuid) {
 		ensureNotYetSortedOrThrow("OrderBook is already sorted - cannot add further items.");
 		for (Bid bid : bids) {
-			orderBookItems.add(new OrderBookItem(bid));
+			orderBookItems.add(new OrderBookItem(bid, traderUuid));
 		}
 	}
 
@@ -126,7 +124,7 @@ public abstract class OrderBook implements Portable {
 				return;
 			}
 		}
-		addBid(lastBid);
+		addBid(lastBid, Long.MIN_VALUE);
 	}
 
 	/** @return the last virtual {@link Bid} depending on the type of order book */

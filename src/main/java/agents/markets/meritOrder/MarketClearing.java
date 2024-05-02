@@ -10,8 +10,8 @@ import agents.markets.meritOrder.MeritOrderKernel.MeritOrderClearingException;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
+import communications.portable.BidsAtTime;
 import agents.markets.meritOrder.books.SupplyOrderBook;
-import communications.message.BidData;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -23,6 +23,8 @@ import de.dlr.gitlab.fame.communication.message.Message;
  * @author Farzad Sarfarazi, Christoph Schimeczek */
 public class MarketClearing {
 	static final String ERR_SHORTAGE_NOT_IMPLEMENTED = "ShortagePrice type not implemented: ";
+	static final String ERR_CLEARING_FAILED = ": Market clearing failed. Energy set to Zero, Price set to NaN. Cause: ";
+	static final String WARN_BIDS_MISSING = "MarketClearing:: No Bids contained in message from ";
 
 	/** Defines what market clearing price results in case of shortage */
 	enum ShortagePriceMethod {
@@ -103,7 +105,7 @@ public class MarketClearing {
 			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
 		} catch (MeritOrderClearingException e) {
 			clearingResult = new ClearingResult(0.0, Double.NaN);
-			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
+			logger.error(clearingEventId + ERR_CLEARING_FAILED + e.getMessage());
 		}
 		return clearingResult;
 	}
@@ -118,21 +120,12 @@ public class MarketClearing {
 		demandBook.clear();
 		supplyBook.clear();
 		for (Message message : input) {
-			BidData bidData = message.getDataItemOfType(BidData.class);
-			if (bidData == null) {
-				throw new RuntimeException("No BidData in message from " + message.getSenderId());
+			BidsAtTime bids = message.getFirstPortableItemOfType(BidsAtTime.class);
+			if (bids == null) {
+				logger.warn(WARN_BIDS_MISSING + message.getSenderId());
 			}
-			Bid bid = bidData.getBid();
-			switch (bid.getType()) {
-				case Supply:
-					supplyBook.addBid(bid);
-					break;
-				case Demand:
-					demandBook.addBid(bid);
-					break;
-				default:
-					throw new RuntimeException("Bid type unknown.");
-			}
+			supplyBook.addBids(bids.getSupplyBids(), bids.getTraderUuid());
+			demandBook.addBids(bids.getDemandBids(), bids.getTraderUuid());
 		}
 	}
 
