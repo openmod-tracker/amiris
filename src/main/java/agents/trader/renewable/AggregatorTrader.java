@@ -93,8 +93,9 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 
 		/** Create new {@link ProducerBid} instance
 		 * 
-		 * @param bid to be associated with its corresponding producer
-		 * @param producerUuid UUID of the bid's producer */
+		 * @param bid to be associated with additional data
+		 * @param producerUuid UUID of the bid's producer
+		 * @param powerPotential true power potential */
 		public ProducerBid(Bid bid, long producerUuid, double powerPotential) {
 			this.bid = bid;
 			this.producerUuid = producerUuid;
