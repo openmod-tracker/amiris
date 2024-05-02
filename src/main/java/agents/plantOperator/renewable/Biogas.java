@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.plantOperator.renewable;
 
+import agents.plantOperator.Marginal;
 import agents.plantOperator.RenewablePlantOperator;
-import communications.message.Marginal;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;

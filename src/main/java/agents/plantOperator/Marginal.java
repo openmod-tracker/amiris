@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package communications.message;
+package agents.plantOperator;
 
 import java.util.Comparator;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;

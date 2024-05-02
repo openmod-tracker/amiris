@@ -6,12 +6,15 @@ package communications.portable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import communications.message.Marginal;
+import agents.plantOperator.Marginal;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
+/** Summary of multiple {@link Marginal}s associated with the same producer and delivery time
+ * 
+ * @author Christoph Schimeczek */
 public class MarginalsAtTime implements Portable {
 	/** Which power plant agent is associated with these marginals */
 	private long producerUuid;

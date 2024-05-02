@@ -4,7 +4,7 @@
 package agents.conventionals;
 
 import agents.plantOperator.DispatchResult;
-import communications.message.Marginal;
+import agents.plantOperator.Marginal;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;

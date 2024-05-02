@@ -5,7 +5,7 @@ package agents.trader.renewable;
 
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
-import communications.message.Marginal;
+import agents.plantOperator.Marginal;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;

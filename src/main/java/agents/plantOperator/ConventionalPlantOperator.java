@@ -25,7 +25,6 @@ import communications.message.FuelBid.BidType;
 import communications.portable.MarginalsAtTime;
 import communications.message.FuelCost;
 import communications.message.FuelData;
-import communications.message.Marginal;
 import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.communication.CommUtils;

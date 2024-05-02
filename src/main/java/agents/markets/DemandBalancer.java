@@ -16,7 +16,7 @@ import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
-import communications.message.CouplingData;
+import communications.portable.CouplingData;
 
 /** Encapsulates the actual market coupling algorithm; Dispatch the demand among energy exchanges in order to maximise the total
  * welfare. To this end, the algorithm reduces price differences of connected markets by transferring demand bids.

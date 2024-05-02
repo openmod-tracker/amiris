@@ -11,7 +11,6 @@ import agents.trader.TraderWithClients;
 import agents.trader.renewable.AggregatorTrader;
 import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
-import communications.message.Marginal;
 import communications.message.TechnologySet;
 import communications.portable.MarginalsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;

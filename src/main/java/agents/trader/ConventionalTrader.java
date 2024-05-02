@@ -13,11 +13,11 @@ import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
 import agents.plantOperator.ConventionalPlantOperator;
+import agents.plantOperator.Marginal;
 import agents.plantOperator.PowerPlantOperator;
 import agents.plantOperator.PowerPlantScheduler;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
-import communications.message.Marginal;
 import communications.portable.BidsAtTime;
 import communications.portable.MarginalsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -110,14 +110,13 @@ public class ConventionalTrader extends TraderWithClients implements PowerPlantS
 	private void sendBids(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		ArrayList<MarginalsAtTime> marginals = extractMarginalsAtTime(messages);
-		if (marginals.size() == 0) {
-			return;
+		if (marginals.size() > 0) {
+			List<Bid> supplyBids = prepareBids(marginals);
+			TimeStamp deliveryTime = marginals.get(0).getDeliveryTime();
+			fulfilNext(contractToFulfil, new BidsAtTime(deliveryTime, getId(), supplyBids, null));
+			double totalOfferedPowerInMW = supplyBids.stream().mapToDouble(bid -> bid.getEnergyAmountInMWH()).sum();
+			store(OutputColumns.OfferedEnergyInMWH, totalOfferedPowerInMW);
 		}
-		List<Bid> supplyBids = prepareBids(marginals);
-		TimeStamp deliveryTime = marginals.get(0).getDeliveryTime();
-		fulfilNext(contractToFulfil, new BidsAtTime(deliveryTime, getId(), supplyBids, null));
-		double totalOfferedPowerInMW = supplyBids.stream().mapToDouble(bid -> bid.getEnergyAmountInMWH()).sum();
-		store(OutputColumns.OfferedEnergyInMWH, totalOfferedPowerInMW);
 	}
 
 	/** Assigns dispatch from {@link DayAheadMarket} to power plant operators and writes information to output
