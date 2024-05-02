@@ -108,7 +108,7 @@ public class StorageTrader extends FlexibilityTrader {
 			Bid supplyBid = prepareHourlySupplyBids(targetTime);
 			store(OutputColumns.OfferedEnergyInMWH, supplyBid.getEnergyAmountInMWH() - demandBid.getEnergyAmountInMWH());
 			fulfilNext(contractToFulfil,
-					new BidsAtTime(targetTime, getId(), Arrays.asList(demandBid), Arrays.asList(supplyBid)));
+					new BidsAtTime(targetTime, getId(), Arrays.asList(supplyBid), Arrays.asList(demandBid)));
 		}
 	}
 
