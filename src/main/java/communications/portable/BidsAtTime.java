@@ -22,9 +22,10 @@ public class BidsAtTime implements Portable {
 	/** required for {@link Portable}s */
 	public BidsAtTime() {}
 
-	/** Create a Bids message - only delivery time & traderUUid are really required
+	/** Create a Bid message
 	 * 
 	 * @param deliveryTime at which the bids shall be valid
+	 * @param traderUuid id of the trader that is associated with the bids
 	 * @param supplyBids list of supplyBids, may be null or empty
 	 * @param demandBids list of demandBids, may be null or empty */
 	public BidsAtTime(TimeStamp deliveryTime, long traderUuid, List<Bid> supplyBids, List<Bid> demandBids) {

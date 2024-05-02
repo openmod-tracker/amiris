@@ -136,7 +136,7 @@ public abstract class MarketForecaster extends Forecaster {
 	/** Groups given messages by their targeted time of delivery into an ordered Map
 	 * 
 	 * @param messages to group by
-	 * @return a Map of Messages sorted by the {@link TimeStamp} their contained {@link BidData} are valid at */
+	 * @return a Map of Messages sorted by {@link TimeStamp} of the associated delivery times */
 	protected TreeMap<TimeStamp, ArrayList<Message>> sortMessagesByBidTimeStamp(ArrayList<Message> messages) {
 		TreeMap<TimeStamp, ArrayList<Message>> messageByTimeStamp = new TreeMap<>();
 		for (Message message : messages) {
