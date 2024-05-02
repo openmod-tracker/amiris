@@ -17,7 +17,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 
 /** Handles a list of imported/exported Bids in a {@link DayAheadMarket} for a single time frame of trading.
  * 
- * @author A. Achraf El Ghazi, Felix Nitsch */
+ * @author A. Achraf El Ghazi, Felix Nitsch, Christoph Schimeczek */
 public class TransferOrderBook implements Portable {
 	private HashMap<Long, List<Bid>> bidsByTrader = new HashMap<>();
 
@@ -26,7 +26,8 @@ public class TransferOrderBook implements Portable {
 
 	/** Adds given {@link Bid} to this {@link TransferOrderBook}
 	 * 
-	 * @param bid to be added to TransferOrderBook */
+	 * @param bid to be added to TransferOrderBook
+	 * @param traderId associated with the bid */
 	public void addBid(Bid bid, long traderId) {
 		bidsByTrader.computeIfAbsent(traderId, __ -> new ArrayList<Bid>()).add(bid);
 	}
@@ -52,17 +53,20 @@ public class TransferOrderBook implements Portable {
 		}
 	}
 
-	/** @return a deep copy of TransferOrderBook caller */
+	/** @return a deep copy of this TransferOrderBook */
 	public TransferOrderBook clone() {
 		TransferOrderBook transferOrderBook = new TransferOrderBook();
 		for (Entry<Long, List<Bid>> entry : bidsByTrader.entrySet()) {
-			List<Bid> newBids = entry.getValue().stream().map(bid -> bid.clone()).collect(Collectors.toList());
-			transferOrderBook.addTraderBids(entry.getKey(), newBids);
+			List<Bid> clonedBids = entry.getValue().stream().map(bid -> bid.clone()).collect(Collectors.toList());
+			transferOrderBook.addTraderBids(entry.getKey(), clonedBids);
 		}
 		return transferOrderBook;
 	}
 
-	/** add the given bids to the specified trader's list of bids */
+	/** add the given bids to the specified trader's list of bids
+	 * 
+	 * @param traderId associated with the bids
+	 * @param bids to be added to the associated trader's list of bids */
 	public void addTraderBids(long traderId, List<Bid> bids) {
 		bidsByTrader.computeIfAbsent(traderId, __ -> new ArrayList<Bid>()).addAll(bids);
 	}
@@ -90,7 +94,7 @@ public class TransferOrderBook implements Portable {
 
 	/** Computes the total energy of all items of this TransferOrderBook
 	 * 
-	 * @return the total energy of all bid block powers in MWH */
+	 * @return the total energy of all bid block powers in MWh */
 	public double getAccumulatedEnergyInMWH() {
 		return bidsByTrader.values().stream()
 				.mapToDouble(bids -> bids.stream().mapToDouble(bid -> bid.getEnergyAmountInMWH()).sum())
