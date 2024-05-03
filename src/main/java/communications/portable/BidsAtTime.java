@@ -14,9 +14,13 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class BidsAtTime implements Portable {
+	/** Bids to be associated with the supply side, i.e. offering electricity */
 	private List<Bid> supplyBids;
+	/** Bids to be associated with the demand side, i.e. requesting electricity */
 	private List<Bid> demandBids;
+	/** Time at which the bids shall be valid */
 	private TimeStamp deliveryTime;
+	/** id of the trader that is associated with the bids */
 	private long traderUuid;
 
 	/** required for {@link Portable}s */

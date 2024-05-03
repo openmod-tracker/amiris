@@ -21,8 +21,6 @@ public class Marginal implements Portable {
 
 	/** the actual power potential */
 	private double powerPotentialInMW;
-	/** power potential with errors - due to power forecast errors */
-	private double powerPotentialWithErrorsInMW;
 	/** the actual marginal cost value */
 	private double marginalCostInEURperMWH;
 
@@ -32,7 +30,6 @@ public class Marginal implements Portable {
 	public Marginal(double powerPotentialInMW, double marginalCostInEURperMWH) {
 		this.powerPotentialInMW = powerPotentialInMW;
 		this.marginalCostInEURperMWH = marginalCostInEURperMWH;
-		this.powerPotentialWithErrorsInMW = powerPotentialInMW;
 	}
 
 	@Override
@@ -54,17 +51,5 @@ public class Marginal implements Portable {
 	/** @return the actual marginal cost value */
 	public double getMarginalCostInEURperMWH() {
 		return marginalCostInEURperMWH;
-	}
-
-	/** Update powerPotentialWithErrors to given value
-	 * 
-	 * @param powerPotentialWithErrorsInMW new value */
-	public void setPowerPotentialWithErrors(double powerPotentialWithErrorsInMW) {
-		this.powerPotentialWithErrorsInMW = powerPotentialWithErrorsInMW;
-	}
-
-	/** @return power potential with errors - due to power forecast errors */
-	public double getpowerPotentialWithErrorsInMW() {
-		return powerPotentialWithErrorsInMW;
 	}
 }
