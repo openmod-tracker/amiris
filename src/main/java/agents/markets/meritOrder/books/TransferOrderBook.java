@@ -34,6 +34,7 @@ public class TransferOrderBook implements Portable {
 
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
+		collector.storeInts(bidsByTrader.keySet().size());
 		for (Entry<Long, List<Bid>> entry : bidsByTrader.entrySet()) {
 			collector.storeLongs(entry.getKey());
 			collector.storeInts(entry.getValue().size());
@@ -45,11 +46,14 @@ public class TransferOrderBook implements Portable {
 
 	@Override
 	public void populate(ComponentProvider provider) {
-		long traderID = provider.nextLong();
-		int itemCount = provider.nextInt();
-		List<Bid> bids = bidsByTrader.computeIfAbsent(traderID, __ -> new ArrayList<Bid>());
-		for (int i = 0; i < itemCount; i++) {
-			bids.add(provider.nextComponent(Bid.class));
+		int numberOfTraders = provider.nextInt();
+		for (int i = 0; i < numberOfTraders; i++) {
+			long traderID = provider.nextLong();
+			int itemCount = provider.nextInt();
+			List<Bid> bids = bidsByTrader.computeIfAbsent(traderID, __ -> new ArrayList<Bid>());
+			for (int j = 0; j < itemCount; j++) {
+				bids.add(provider.nextComponent(Bid.class));
+			}
 		}
 	}
 
