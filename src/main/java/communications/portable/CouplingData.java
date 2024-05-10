@@ -17,7 +17,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * across markets. The same data type is return from the MarketCoupling agent to the registered EnergyExchange(s).
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
-public class CouplingData implements Portable {
+public class CouplingData implements Portable, Cloneable {
 	private SupplyOrderBook supplyOrderBook;
 	private DemandOrderBook demandOrderBook;
 	private TransmissionBook transmissionBook;

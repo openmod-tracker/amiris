@@ -11,7 +11,7 @@ import agents.markets.meritOrder.Constants;
 /** {@link OrderBook} that manages all {@link OrderBookItem}s from demand-{@link Bid}s
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
-public class DemandOrderBook extends OrderBook {
+public class DemandOrderBook extends OrderBook implements Cloneable {
 	@Override
 	protected Bid getLastBid() {
 		return new Bid(0, -Double.MAX_VALUE, 0);

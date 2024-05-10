@@ -95,10 +95,10 @@ public class DemandBalancer {
 	/** @return for each candidate EnergyExchange a list of partner EnergyExchange(s) it can get electricity from */
 	private Map<Long, List<Long>> calculateCouplingPartners() {
 		Map<Long, List<Long>> couplingPartners = new HashMap<>();
-		for (Long candidateId : couplingRequests.keySet()) {
+		for (long candidateId : couplingRequests.keySet()) {
 			CouplingData candidateData = couplingRequests.get(candidateId);
 			List<Long> partners = new ArrayList<>();
-			for (Long partnerId : couplingRequests.keySet()) {
+			for (long partnerId : couplingRequests.keySet()) {
 				if (partnerId != candidateId) {
 					CouplingData partnerData = couplingRequests.get(partnerId);
 					double transmissionCapacity = partnerData.getTransmissionTo(candidateData.getOrigin());

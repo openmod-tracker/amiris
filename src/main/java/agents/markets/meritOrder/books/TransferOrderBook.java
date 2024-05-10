@@ -18,7 +18,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 /** Handles a list of imported/exported Bids in a {@link DayAheadMarket} for a single time frame of trading.
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch, Christoph Schimeczek */
-public class TransferOrderBook implements Portable {
+public class TransferOrderBook implements Portable, Cloneable {
 	private HashMap<Long, List<Bid>> bidsByTrader = new HashMap<>();
 
 	/** required for {@link Portable}s */

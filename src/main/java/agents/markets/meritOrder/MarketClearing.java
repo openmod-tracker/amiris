@@ -123,9 +123,10 @@ public class MarketClearing {
 			BidsAtTime bids = message.getFirstPortableItemOfType(BidsAtTime.class);
 			if (bids == null) {
 				logger.warn(WARN_BIDS_MISSING + message.getSenderId());
+			} else {
+				supplyBook.addBids(bids.getSupplyBids(), bids.getTraderUuid());
+				demandBook.addBids(bids.getDemandBids(), bids.getTraderUuid());
 			}
-			supplyBook.addBids(bids.getSupplyBids(), bids.getTraderUuid());
-			demandBook.addBids(bids.getDemandBids(), bids.getTraderUuid());
 		}
 	}
 

@@ -174,7 +174,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 			costPair.co2Price = co2Cost.amount;
 		}
 		for (CostPair costPair : costPairs.values()) {
-			if (costPair.co2Price == Double.NaN) {
+			if (Double.isNaN(costPair.co2Price)) {
 				throw new RuntimeException(ERR_MISSING_CO2_COST);
 			}
 		}

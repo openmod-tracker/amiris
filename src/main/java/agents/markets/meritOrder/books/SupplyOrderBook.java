@@ -12,7 +12,7 @@ import agents.markets.meritOrder.Bid;
 /** {@link OrderBook} that manages all {@link OrderBookItem}s from supply-{@link Bid}s
  * 
  * @author Martin Klein, Christoph Schimeczek */
-public class SupplyOrderBook extends OrderBook {
+public class SupplyOrderBook extends OrderBook implements Cloneable {
 	@Override
 	protected Bid getLastBid() {
 		return new Bid(0, Double.MAX_VALUE, 0);
