@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import agents.plantOperator.Marginal;
@@ -42,7 +41,6 @@ public class MarginalsAtTime implements Portable {
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeLongs(producerUuid);
 		collector.storeComponents(deliveryTime);
-		collector.storeInts(marginals.size());
 		for (Marginal marginal : marginals) {
 			collector.storeComponents(marginal);
 		}
@@ -52,11 +50,7 @@ public class MarginalsAtTime implements Portable {
 	public void populate(ComponentProvider provider) {
 		producerUuid = provider.nextLong();
 		deliveryTime = provider.nextComponent(TimeStamp.class);
-		int numberOfMarginals = provider.nextInt();
-		marginals = new ArrayList<Marginal>(numberOfMarginals);
-		for (int i = 0; i < numberOfMarginals; i++) {
-			marginals.add(provider.nextComponent(Marginal.class));
-		}
+		marginals = provider.nextComponentList(Marginal.class);
 	}
 
 	/** @return UUID of power plant associated with the marginals herein */
