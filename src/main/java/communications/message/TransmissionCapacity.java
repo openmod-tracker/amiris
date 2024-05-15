@@ -11,7 +11,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 /** Specifies a transmission capacity of electricity from one region to another.
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
-public class TransmissionCapacity implements Portable {
+public class TransmissionCapacity implements Portable, Cloneable {
 	private Region target;
 	private double remainingTransferCapacityInMW;
 
@@ -37,18 +37,6 @@ public class TransmissionCapacity implements Portable {
 	public void populate(ComponentProvider provider) {
 		target = Region.values()[provider.nextInt()];
 		remainingTransferCapacityInMW = provider.nextDouble();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o == this) {
-			return true;
-		}
-		if (!(o instanceof TransmissionCapacity)) {
-			return false;
-		}
-		TransmissionCapacity other = (TransmissionCapacity) o;
-		return other.target.equals(target) && other.remainingTransferCapacityInMW == remainingTransferCapacityInMW;
 	}
 
 	/** @return a deep copy of TransmissionCapacity caller */

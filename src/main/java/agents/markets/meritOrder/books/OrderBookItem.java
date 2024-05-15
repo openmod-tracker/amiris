@@ -5,7 +5,6 @@ package agents.markets.meritOrder.books;
 
 import java.util.Comparator;
 import agents.markets.meritOrder.Bid;
-import agents.markets.meritOrder.Bid.Type;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -20,17 +19,20 @@ public class OrderBookItem implements Portable {
 	private Bid bid;
 	private double cumulatedPowerUpperValue = Double.NaN;
 	private double awardedPower = Double.NaN;
+	private long traderUuid;
 
 	/** required for {@link Portable}s */
 	public OrderBookItem() {}
 
 	/** Creates an {@link OrderBookItem} based in given Bid
 	 * 
-	 * @param bid associated with this order book item */
-	public OrderBookItem(Bid bid) {
+	 * @param bid associated with this order book item 
+	 * @param traderUuid id of the trader associated with the bids */
+	public OrderBookItem(Bid bid, long traderUuid) {
 		this.bid = bid;
+		this.traderUuid = traderUuid;
 		if (bid.getEnergyAmountInMWH() < 0.) {
-			throw new RuntimeException(ERR_NEGATIVE_POWER + bid.getTraderUuid());
+			throw new RuntimeException(ERR_NEGATIVE_POWER + traderUuid);
 		}
 	}
 
@@ -78,7 +80,7 @@ public class OrderBookItem implements Portable {
 		return bid.getEnergyAmountInMWH();
 	}
 
-	/** @return maximum / minimum offered price associated with this {@link Bid}, depending on its {@link Type} */
+	/** @return maximum / minimum offered price associated with this {@link Bid}, depending on its type */
 	public double getOfferPrice() {
 		return bid.getOfferPriceInEURperMWH();
 	}
@@ -90,12 +92,12 @@ public class OrderBookItem implements Portable {
 
 	@Override
 	public String toString() {
-		return "Awarded: " + awardedPower + " " + bid;
+		return awardedPower + " Mwh / " + bid + " from trader" + traderUuid;
 	}
 
 	/** @return ID of the traded that issued the associated {@link Bid} */
 	public long getTraderUuid() {
-		return bid.getTraderUuid();
+		return traderUuid;
 	}
 
 	@Override

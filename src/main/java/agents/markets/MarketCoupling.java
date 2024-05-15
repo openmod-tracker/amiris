@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import agents.markets.DayAheadMarketMultiZone.Region;
 import agents.markets.meritOrder.books.TransmissionBook;
-import communications.message.CouplingData;
 import communications.message.TransmissionCapacity;
+import communications.portable.CouplingData;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;

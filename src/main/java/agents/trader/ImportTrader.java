@@ -8,11 +8,10 @@ import java.util.List;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
-import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Bid;
 import communications.message.AwardData;
-import communications.message.BidData;
 import communications.message.ClearingTimes;
-import communications.message.PointInTime;
+import communications.portable.BidsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -79,22 +78,19 @@ public class ImportTrader extends Trader {
 		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
 		double totalSuppliedEnergyInMWH = 0;
 		for (TimeStamp targetTime : clearingTimes.getTimes()) {
-			List<BidData> bids = prepareBidsFor(targetTime);
-			for (BidData bid : bids) {
-				fulfilNext(contract, bid, new PointInTime(targetTime));
-				totalSuppliedEnergyInMWH += bid.offeredEnergyInMWH;
-			}
+			List<Bid> supplyBids = prepareBidsFor(targetTime);
+			totalSuppliedEnergyInMWH += supplyBids.stream().mapToDouble(bid -> bid.getEnergyAmountInMWH()).sum();
+			fulfilNext(contract, new BidsAtTime(targetTime, getId(), supplyBids, null));
 		}
 		return totalSuppliedEnergyInMWH;
 	}
 
 	/** Prepares hourly supply bids */
-	private ArrayList<BidData> prepareBidsFor(TimeStamp requestedTime) {
-		ArrayList<BidData> bids = new ArrayList<>();
+	private List<Bid> prepareBidsFor(TimeStamp requestedTime) {
+		List<Bid> bids = new ArrayList<>();
 		for (EnergyImport energyImport : imports) {
 			double offeredEnergyInMWH = energyImport.tsEnergyImportInMWH.getValueLinear(requestedTime);
-			bids.add(
-					new BidData(offeredEnergyInMWH, energyImport.importCostInEURperMWH, getId(), Type.Supply, requestedTime));
+			bids.add(new Bid(offeredEnergyInMWH, energyImport.importCostInEURperMWH));
 		}
 		return bids;
 	}

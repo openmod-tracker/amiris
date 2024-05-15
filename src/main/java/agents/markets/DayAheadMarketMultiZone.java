@@ -7,16 +7,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import agents.markets.meritOrder.ClearingResult;
+import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.markets.meritOrder.MeritOrderKernel;
-import agents.markets.meritOrder.MeritOrderKernel.MeritOrderClearingException;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
 import agents.markets.meritOrder.books.TransmissionBook;
 import communications.message.AwardData;
-import communications.message.CouplingData;
 import communications.message.TransmissionCapacity;
+import communications.portable.CouplingData;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -38,6 +37,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class DayAheadMarketMultiZone extends DayAheadMarket {
 	static final String REGION_MISSING = "No region value found";
 	static final String TIME_SERIES_MISSING = "No transmission TIME_SERIES found for region: ";
+	static final String ERR_CLEARING_FAILED = ": Market clearing failed due to: ";
 
 	/** All available market regions */
 	public static enum Region {
@@ -170,7 +170,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 
 	/** Builds a CouplingRequest and sends it to the contracted MarketCoupling Agent. The CouplingRequest contains: the local
 	 * DemandOrderBook, the local SupplyOrderBook, and the TransmissionCapacity's from the Region of this EnergyExchange to all
-	 * EnergyExchange's, that are coupled with it.
+	 * EnergyExchange's that are coupled with it.
 	 * 
 	 * @param input not-used, not-expected
 	 * @param contracts with the MarketCoupling Agent */
@@ -232,14 +232,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 			importBook = new TransferOrderBook();
 			exportBook = new TransferOrderBook();
 		}
-		ClearingResult clearingResult;
-		String clearingEventId = this.toString() + " " + now();
-		try {
-			clearingResult = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
-		} catch (MeritOrderClearingException e) {
-			clearingResult = new ClearingResult(0.0, Double.NaN);
-			logger.error(clearingEventId + ": Market clearing failed due to: " + e.getMessage());
-		}
+		ClearingResult clearingResult = MarketClearing.calculateClearing(supplyBook, demandBook, this + " " + now());
 		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
 		marketClearingResult.setBooks(supplyBook, demandBook, marketClearing.distributionMethod);
 		NetEnergyTransfer energyTransfer = computeNetEngergyTransfer(importBook, exportBook);

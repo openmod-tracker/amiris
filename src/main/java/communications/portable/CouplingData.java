@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package communications.message;
+package communications.portable;
 
 import agents.markets.DayAheadMarketMultiZone.Region;
-import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
 import agents.markets.meritOrder.books.TransmissionBook;
+import communications.message.TransmissionCapacity;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -17,7 +17,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * across markets. The same data type is return from the MarketCoupling agent to the registered EnergyExchange(s).
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
-public class CouplingData implements Portable {
+public class CouplingData implements Portable, Cloneable {
 	private SupplyOrderBook supplyOrderBook;
 	private DemandOrderBook demandOrderBook;
 	private TransmissionBook transmissionBook;
@@ -134,8 +134,8 @@ public class CouplingData implements Portable {
 	 * 
 	 * @param transferOrderBook to update with */
 	public void updateImportBook(TransferOrderBook transferOrderBook) {
-		for (Bid bid : transferOrderBook.getBids()) {
-			this.importOrderBook.addBid(bid);
+		for (long traderId : transferOrderBook.getTraders()) {
+			importOrderBook.addTraderBids(traderId, transferOrderBook.getBidsOf(traderId));
 		}
 	}
 
@@ -155,8 +155,8 @@ public class CouplingData implements Portable {
 	 * 
 	 * @param transferOrderBook to update with */
 	public void updateExportBook(TransferOrderBook transferOrderBook) {
-		for (Bid bid : transferOrderBook.getBids()) {
-			this.exportOrderBook.addBid(bid);
+		for (long traderId : transferOrderBook.getTraders()) {
+			exportOrderBook.addTraderBids(traderId, transferOrderBook.getBidsOf(traderId));
 		}
 	}
 

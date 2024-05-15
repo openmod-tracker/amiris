@@ -5,10 +5,8 @@ package agents.markets;
 
 import java.util.ArrayList;
 import java.util.List;
-import communications.message.BidData;
 import communications.message.ClearingTimes;
 import de.dlr.gitlab.fame.agent.AgentAbility;
-import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
@@ -39,17 +37,7 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		/** Energy requested at energy exchange */
 		RequestedEnergyInMWH
 	};
-
-	/** Send Bids to contracted {@link DayAheadMarket}
-	 * 
-	 * @param contract with the {@link DayAheadMarket}
-	 * @param bidData 1..N bids to be placed */
-	public default void sendDayAheadMarketBids(Contract contract, BidData... bidData) {
-		for (BidData oneBid : bidData) {
-			fulfilNext(contract, oneBid);
-		}
-	}
-
+	
 	/** Searches for a single {@link DayAheadMarket.Products#GateClosureInfo} message in given messages and returns its times
 	 * 
 	 * @param messages list of messages to search for a single one with {@link ClearingTimes} payload

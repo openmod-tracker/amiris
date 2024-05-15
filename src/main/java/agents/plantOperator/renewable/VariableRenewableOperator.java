@@ -6,9 +6,9 @@ package agents.plantOperator.renewable;
 import java.util.ArrayList;
 import java.util.List;
 import agents.electrolysis.GreenHydrogenOperator;
+import agents.plantOperator.Marginal;
 import agents.plantOperator.RenewablePlantOperator;
 import communications.message.ClearingTimes;
-import communications.message.MarginalCost;
 import communications.message.PpaInformation;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -56,15 +56,15 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 				.use(GreenHydrogenOperator.Products.PpaInformationRequest);
 	}
 
-	/** @return single {@link MarginalCost} considering variable yield */
+	/** @return single {@link Marginal} considering variable yield */
 	@Override
-	protected MarginalCost calcSingleMarginal(TimeStamp time) {
+	protected Marginal calcSingleMarginal(TimeStamp time) {
 		if (tsYieldProfile == null) {
 			throw new RuntimeException("Yield profile is missing for " + this);
 		}
 		double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
 		double marginalCost = getVariableOpexAtTime(time);
-		return new MarginalCost(getId(), availablePower, marginalCost, time);
+		return new Marginal(availablePower, marginalCost);
 	}
 
 	/** @return yield [0..1] relative to peak capacity at given time */

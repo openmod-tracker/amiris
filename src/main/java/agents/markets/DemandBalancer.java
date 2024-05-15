@@ -16,7 +16,7 @@ import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
-import communications.message.CouplingData;
+import communications.portable.CouplingData;
 
 /** Encapsulates the actual market coupling algorithm; Dispatch the demand among energy exchanges in order to maximise the total
  * welfare. To this end, the algorithm reduces price differences of connected markets by transferring demand bids.
@@ -95,10 +95,10 @@ public class DemandBalancer {
 	/** @return for each candidate EnergyExchange a list of partner EnergyExchange(s) it can get electricity from */
 	private Map<Long, List<Long>> calculateCouplingPartners() {
 		Map<Long, List<Long>> couplingPartners = new HashMap<>();
-		for (Long candidateId : couplingRequests.keySet()) {
+		for (long candidateId : couplingRequests.keySet()) {
 			CouplingData candidateData = couplingRequests.get(candidateId);
 			List<Long> partners = new ArrayList<>();
-			for (Long partnerId : couplingRequests.keySet()) {
+			for (long partnerId : couplingRequests.keySet()) {
 				if (partnerId != candidateId) {
 					CouplingData partnerData = couplingRequests.get(partnerId);
 					double transmissionCapacity = partnerData.getTransmissionTo(candidateData.getOrigin());
@@ -281,8 +281,8 @@ public class DemandBalancer {
 	private void shiftDemand_nonAwardedBids(List<OrderBookItem> orderBookItems, int startingBidIndex,
 			DemandOrderBook newDemandBookExpensive) {
 		for (int i = orderBookItems.size() - 1; i > startingBidIndex; i--) {
-			Bid thisBid = orderBookItems.get(i).getBid();
-			newDemandBookExpensive.addBid(thisBid);
+			OrderBookItem item = orderBookItems.get(i);
+			newDemandBookExpensive.addBid(item.getBid(), item.getTraderUuid());
 		}
 	}
 
@@ -299,8 +299,9 @@ public class DemandBalancer {
 		double currentShiftedDemand = 0;
 		double previousShiftedDemand = 0;
 		for (int i = startingBidIndex; i >= 0; i--) {
-			Bid thisBid = orderBookItems.get(i).getBid();
-			double thisDemand = thisBid.getEnergyAmountInMWH();
+			OrderBookItem item = orderBookItems.get(i);
+			Bid bid = item.getBid();
+			double thisDemand = bid.getEnergyAmountInMWH();
 			if (thisDemand == 0) {
 				continue;
 			}
@@ -308,17 +309,17 @@ public class DemandBalancer {
 				previousShiftedDemand = currentShiftedDemand;
 				currentShiftedDemand += thisDemand;
 				if (currentShiftedDemand > demandToShift) {
-					Bid[] bids = splitBid(thisBid, demandToShift - previousShiftedDemand);
-					newDemandBookExpensive.addBid(bids[0]);
-					newDemandBookCheap.addBid(bids[1]);
-					transferBook.addBid(bids[1]);
+					Bid[] bids = splitBid(bid, demandToShift - previousShiftedDemand);
+					newDemandBookExpensive.addBid(bids[0], item.getTraderUuid());
+					newDemandBookCheap.addBid(bids[1], item.getTraderUuid());
+					transferBook.addBid(bids[1], item.getTraderUuid());
 					currentShiftedDemand = demandToShift;
 				} else {
-					newDemandBookCheap.addBid(thisBid);
-					transferBook.addBid(thisBid);
+					newDemandBookCheap.addBid(bid, item.getTraderUuid());
+					transferBook.addBid(bid, item.getTraderUuid());
 				}
 			} else {
-				newDemandBookExpensive.addBid(thisBid);
+				newDemandBookExpensive.addBid(bid, item.getTraderUuid());
 			}
 		}
 	}
@@ -381,14 +382,14 @@ public class DemandBalancer {
 		dataCheap.updateExportBook(transferBook);
 		clearingResults.put(demandShiftResult.cheapMarketId, newClearingCheap);
 
-		logger.trace(oneOptimizationStepSummery(
+		logger.trace(oneOptimizationStepSummary(
 				demandShiftResult.expensiveMarketId, demandShiftResult.cheapMarketId, shiftedDemand,
 				clearingResultExpensive.marketPriceInEURperMWH, newClearingExpensive.marketPriceInEURperMWH,
 				clearingResultCheap.marketPriceInEURperMWH, newClearingCheap.marketPriceInEURperMWH,
 				transmissionCapacity, newTransmissionCapacity));
 	}
 
-	/** Returns a string summarization of one optimization step
+	/** Returns a string summary of one optimization step
 	 * 
 	 * @param expensiveMarketId ID of the market that demand is shifted from
 	 * @param cheapMarketId ID of the market that demand is shifted to
@@ -402,7 +403,7 @@ public class DemandBalancer {
 	 * @param newTransmissionCapacity available electricity transmission capacity from the market that demand is shifted to to the
 	 *          demand is shifted from after shifting
 	 * @return */
-	private String oneOptimizationStepSummery(
+	private String oneOptimizationStepSummary(
 			long expensiveMarketId, long cheapMarketId, double shiftedDemand,
 			double expensiveMarketPriceInEURperMWH, double newExpensiveMarketPriceInEURperMWH,
 			double cheapMarketPriceInEURperMWH, double newCheapMarketPriceInEURperMWH,

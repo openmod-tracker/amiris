@@ -4,9 +4,9 @@
 package agents.trader.renewable;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Bid;
+import agents.plantOperator.Marginal;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.trader.ClientData;
 import agents.trader.renewable.bidding.AtMarginalCost;
@@ -15,14 +15,11 @@ import agents.trader.renewable.bidding.ContractForDifferences;
 import agents.trader.renewable.bidding.FixedPremium;
 import agents.trader.renewable.bidding.PremiumBased;
 import agents.trader.renewable.bidding.VariablePremium;
-import communications.message.BidData;
-import communications.message.MarginalCost;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
-import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -61,25 +58,13 @@ public class RenewableTrader extends AggregatorTrader {
 	}
 
 	@Override
-	protected ArrayList<BidData> submitHourlyBids(TimeStamp targetTime, Contract contract,
-			ArrayList<MarginalCost> sortedMarginals) {
-		ArrayList<BidData> bids = new ArrayList<>();
-		for (MarginalCost marginal : sortedMarginals) {
-			BidData bidData = calcBids(marginal, targetTime);
-			fulfilNext(contract, bidData);
-			bids.add(bidData);
-		}
-		return bids;
-	}
-
-	/** @return {@link BidData bid} for given time according the associated client's support instrument */
-	private BidData calcBids(MarginalCost marginal, TimeStamp targetTime) {
-		long clientId = marginal.producerUuid;
-		ClientData clientData = clientMap.get(clientId);
+	protected Bid calcBids(Marginal marginal, TimeStamp targetTime, long producerUuid, boolean hasErrors) {
+		ClientData clientData = clientMap.get(producerUuid);
 		BiddingStrategy strategy = getStrategy(clientData);
-		double bidPrice = strategy.calcBiddingPrice(marginal.marginalCostInEURperMWH, targetTime, clientData);
-		return new BidData(marginal.powerPotentialWithErrorsInMW, bidPrice, marginal.marginalCostInEURperMWH,
-				marginal.powerPotentialInMW, getId(), clientId, Type.Supply, targetTime);
+		double bidPrice = strategy.calcBiddingPrice(marginal.getMarginalCostInEURperMWH(), targetTime, clientData);
+		double truePowerPotential = marginal.getPowerPotentialInMW();
+		double powerOffered = getPowerWithError(truePowerPotential, hasErrors);
+		return new Bid(powerOffered, bidPrice, marginal.getMarginalCostInEURperMWH());
 	}
 
 	/** @return {@link BiddingStrategy} */

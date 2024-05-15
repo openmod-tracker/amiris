@@ -8,15 +8,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.ListIterator;
 import agents.markets.meritOrder.Bid;
-import agents.markets.meritOrder.Bid.Type;
 
 /** {@link OrderBook} that manages all {@link OrderBookItem}s from supply-{@link Bid}s
  * 
  * @author Martin Klein, Christoph Schimeczek */
-public class SupplyOrderBook extends OrderBook {
+public class SupplyOrderBook extends OrderBook implements Cloneable {
 	@Override
 	protected Bid getLastBid() {
-		return new Bid(0, Double.MAX_VALUE, 0, Long.MIN_VALUE, Type.Supply);
+		return new Bid(0, Double.MAX_VALUE, 0);
 	}
 
 	@Override
@@ -43,7 +42,7 @@ public class SupplyOrderBook extends OrderBook {
 	 *         may only be called after sorting and awarding */
 	public OrderBookItem getLastAwardedItem() {
 		ensureSortedOrThrow("Bids have not yet been sorted - awarded power is yet unknown!");
-		OrderBookItem comparedTo = new OrderBookItem(new Bid(0, awardedPrice, 0, Long.MIN_VALUE, Type.Supply));
+		OrderBookItem comparedTo = new OrderBookItem(new Bid(0, awardedPrice, 0), Long.MIN_VALUE);
 		int indexOfSearchedItem = Collections.binarySearch(orderBookItems, comparedTo, OrderBookItem.BY_PRICE);
 		if (indexOfSearchedItem < 0) {
 			indexOfSearchedItem = -(indexOfSearchedItem + 1);
@@ -59,7 +58,8 @@ public class SupplyOrderBook extends OrderBook {
 		newSupplyOrderBook.isSorted = this.isSorted;
 		newSupplyOrderBook.orderBookItems = new ArrayList<OrderBookItem>();
 		for (OrderBookItem orderBookItem : this.orderBookItems) {
-			newSupplyOrderBook.orderBookItems.add(new OrderBookItem(orderBookItem.getBid().clone()));
+			OrderBookItem newItem = new OrderBookItem(orderBookItem.getBid().clone(), orderBookItem.getTraderUuid());
+			newSupplyOrderBook.orderBookItems.add(newItem);
 		}
 		return newSupplyOrderBook;
 	}

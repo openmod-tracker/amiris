@@ -6,18 +6,20 @@ package agents.trader;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
-import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Bid;
 import agents.plantOperator.ConventionalPlantOperator;
+import agents.plantOperator.Marginal;
 import agents.plantOperator.PowerPlantOperator;
 import agents.plantOperator.PowerPlantScheduler;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
-import communications.message.BidData;
-import communications.message.MarginalCost;
+import communications.portable.BidsAtTime;
+import communications.portable.MarginalsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -68,49 +70,52 @@ public class ConventionalTrader extends TraderWithClients implements PowerPlantS
 		}
 	}
 
-	/** Sends supply {@link BidData bids} to {@link DayAheadMarket} and stores offered power
-	 * 
-	 * @param messages marginal cost data from client
-	 * @param contracts single {@link DayAheadMarket} to send bids to */
-	private void sendBids(ArrayList<Message> messages, List<Contract> contracts) {
-		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
-		double totalOfferedPowerInMW = 0;
-		for (BidData bid : prepareBids(messages)) {
-			totalOfferedPowerInMW += bid.offeredEnergyInMWH;
-			sendDayAheadMarketBids(contractToFulfil, bid);
-		}
-		store(OutputColumns.OfferedEnergyInMWH, totalOfferedPowerInMW);
-	}
-
-	/** Create {@link BidData bids} from given marginals
-	 * 
-	 * @param input marginal costs from PowerPlantOperators */
-	private List<BidData> prepareBids(ArrayList<Message> input) {
-		ArrayList<MarginalCost> marginals = getSortedMarginalList(input);
-		ArrayList<Double> markups = Util.linearInterpolation(minMarkup, maxMarkup, marginals.size());
-		TimeStamp deliveryTime = input.get(0).getDataItemOfType(MarginalCost.class).deliveryTime;
-		List<BidData> bids = new ArrayList<>(marginals.size());
-		for (int i = 0; i < marginals.size(); i++) {
-			MarginalCost marginal = marginals.get(i);
-			double markup = markups.get(i);
-			double offeredPriceInEURperMWH = marginal.marginalCostInEURperMWH + markup;
-			bids.add(new BidData(marginal.powerPotentialInMW, offeredPriceInEURperMWH, marginal.marginalCostInEURperMWH,
-					getId(), Type.Supply, deliveryTime));
-		}
-		return bids;
-	}
-
 	/** Prepares forecast bids grouped by time stamps
 	 * 
 	 * @param messages marginal cost forecasts from associated PowerPlantOperators
 	 * @param contractsToFulfill single contract, typically with a {@link MarketForecaster} */
 	private void sendForecastBids(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
-		TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp = sortMarginalsByTimeStamp(messages);
-		for (ArrayList<Message> messagesAtTime : messagesByTimeStamp.values()) {
-			for (BidData bid : prepareBids(messagesAtTime)) {
-				fulfilNext(contractToFulfil, bid);
-			}
+		TreeMap<TimeStamp, ArrayList<MarginalsAtTime>> marginalsByTimeStamp = sortMarginalsByTimeStamp(messages);
+		for (Entry<TimeStamp, ArrayList<MarginalsAtTime>> entry : marginalsByTimeStamp.entrySet()) {
+			List<Bid> supplyBids = prepareBids(entry.getValue());
+			fulfilNext(contractToFulfil, new BidsAtTime(entry.getKey(), getId(), supplyBids, null));
+		}
+	}
+
+	/** Create {@link BidData bids} from given marginals
+	 * 
+	 * @param marginals Marginal costs items from power plant operators - must all be valid for the same time
+	 * @return Bids created from the marginals */
+	private List<Bid> prepareBids(ArrayList<MarginalsAtTime> marginals) {
+		ArrayList<Marginal> sortedMarginals = getSortedMarginalList(marginals);
+		ArrayList<Double> markups = Util.linearInterpolation(minMarkup, maxMarkup, sortedMarginals.size());
+
+		List<Bid> bids = new ArrayList<>(sortedMarginals.size());
+		for (int i = 0; i < sortedMarginals.size(); i++) {
+			Marginal marginal = sortedMarginals.get(i);
+			double markup = markups.get(i);
+			double offeredPriceInEURperMWH = marginal.getMarginalCostInEURperMWH() + markup;
+			Bid bid = new Bid(marginal.getPowerPotentialInMW(), offeredPriceInEURperMWH,
+					marginal.getMarginalCostInEURperMWH());
+			bids.add(bid);
+		}
+		return bids;
+	}
+
+	/** Sends supply {@link Bid}s to {@link DayAheadMarket} and stores offered power
+	 * 
+	 * @param messages marginal cost data from client
+	 * @param contracts single {@link DayAheadMarket} to send bids to */
+	private void sendBids(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
+		ArrayList<MarginalsAtTime> marginals = extractMarginalsAtTime(messages);
+		if (marginals.size() > 0) {
+			List<Bid> supplyBids = prepareBids(marginals);
+			TimeStamp deliveryTime = marginals.get(0).getDeliveryTime();
+			fulfilNext(contractToFulfil, new BidsAtTime(deliveryTime, getId(), supplyBids, null));
+			double totalOfferedPowerInMW = supplyBids.stream().mapToDouble(bid -> bid.getEnergyAmountInMWH()).sum();
+			store(OutputColumns.OfferedEnergyInMWH, totalOfferedPowerInMW);
 		}
 	}
 

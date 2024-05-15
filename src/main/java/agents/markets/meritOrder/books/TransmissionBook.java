@@ -14,7 +14,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 /** Handles a list of transmission capacities of an {@link DayAheadMarket} for a single time frame of trading.
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
-public class TransmissionBook implements Portable {
+public class TransmissionBook implements Portable, Cloneable {
 	private Region origin;
 	private ArrayList<TransmissionCapacity> transmissionCapacities = new ArrayList<>();
 
