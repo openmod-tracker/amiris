@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 		<dependency>
 			<groupId>de.dlr.gitlab.fame</groupId>
 			<artifactId>core</artifactId>
-			<version>1.6.0</version>
+			<version>1.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -21,31 +21,31 @@ SPDX-License-Identifier: Apache-2.0 -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.32</version>
+			<version>1.7.36</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-assembly-plugin</artifactId>
-			<version>3.3.0</version>
+			<version>3.7.1</version>
 			<type>maven-plugin</type>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.9.3</version>
+			<version>5.10.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>5.9.3</version>
+			<version>5.10.2</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>5.3.1</version>
+			<version>5.12.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -58,17 +58,17 @@ SPDX-License-Identifier: Apache-2.0 -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20220320</version>
+			<version>20240303</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
-			<version>2.7.0</version>
+			<version>2.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.13.3</version>
+			<version>2.17.1</version>
 		</dependency>
 		<!-- End: Required for util.UrlModelService -->
 	</dependencies>
@@ -80,7 +80,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>2.1.0</version>
+				<version>2.4.0</version>
 				<executions>
 					<execution>
 						<id>download-licenses</id>
@@ -100,7 +100,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.6.0</version>
+				<version>3.7.1</version>
 				<configuration>
 				    <descriptors>
 				      <descriptor>src/assembly/full-jar-with-licenses.xml</descriptor>
@@ -126,7 +126,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.10</version>
+				<version>0.8.12</version>
 				<executions>
 					<execution>
 						<id>pre-unit-test</id>
@@ -147,7 +147,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.11.0</version>
+				<version>3.13.0</version>
 				<configuration>
 					<release>11</release>
 				</configuration>
