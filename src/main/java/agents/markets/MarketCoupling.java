@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import agents.markets.DayAheadMarketMultiZone.Region;
+import agents.markets.DayAheadMarketMultiZone.MarketZone;
 import agents.markets.meritOrder.books.TransmissionBook;
 import communications.message.TransmissionCapacity;
 import communications.portable.CouplingData;
@@ -26,14 +26,14 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.ComplexIndex;
 import de.dlr.gitlab.fame.service.output.Output;
 
-/** Market coupling Agent that receives MeritOrderBooks from registered individual EnergyExchange(s). It computes coupled
- * electricity prices aiming at minimising price differences between markets. Sends individual, coupled prices back to client
- * EnergyExchanges.
+/** Market coupling Agent that receives MeritOrderBooks from registered individual DayAheadMarket(s). It computes coupled
+ * electricity prices aiming at minimising price differences between markets. Sends individual, coupled prices back to its client
+ * markets.
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class MarketCoupling extends Agent {
-	static final String MULTIPLE_REQUESTS = "Only one coupling request is allow per exchange, but multiple received from: ";
-	static final String NO_AGENT_FOR_REGION = "No exchange agent found with region: ";
+	static final String MULTIPLE_REQUESTS = "Only one coupling request is allow per market, but multiple received from: ";
+	static final String NO_AGENT_FOR_ZONE = "No DayAheadMarket agent found for market zone: ";
 	static final double DEFAULT_DEMAND_SHIFT_OFFSET = 1.0;
 
 	/** Products of {@link MarketCoupling} */
@@ -51,7 +51,7 @@ public class MarketCoupling extends Agent {
 	@Output
 	private static enum OutputColumns {
 		/** Complex output; the capacity available for transfer between two markets in MWH */
-		AvailableTransferCapacityInMWH, 
+		AvailableTransferCapacityInMWH,
 		/** Complex output; the actual used transfer capacity between two markets in MWH */
 		UsedTransferCapacityInMWH
 	};
@@ -129,8 +129,8 @@ public class MarketCoupling extends Agent {
 			for (int i = 0; i < transmissionBook.size(); i++) {
 				double remainingCapacity = transmissionBook.get(i).getRemainingTransferCapacityInMW();
 				double initialCapacity = initialTransmissionBook.get(i).getRemainingTransferCapacityInMW();
-				Region targetRegion = transmissionBook.get(i).getTarget();
-				Long targetId = getAgentIdOfRegion(targetRegion);
+				MarketZone targetMarketZone = transmissionBook.get(i).getTarget();
+				Long targetId = getAgentIdOfMarketZone(targetMarketZone);
 				store(
 						availableCapacity.key(TransferKey.OriginAgentId, originId).key(TransferKey.TargetAgentId, targetId),
 						initialCapacity);
@@ -141,18 +141,18 @@ public class MarketCoupling extends Agent {
 		}
 	}
 
-	/** Returns the ID of the EnergyExchange for the given Region
+	/** Returns the ID of the DayAheadMarket for the given MarketZone
 	 * 
-	 * @param region to get the exchange ID for
-	 * @return the EnergyExchange agent ID of the given Region */
-	private Long getAgentIdOfRegion(Region region) {
+	 * @param marketZone to get the exchange ID for
+	 * @return the DayAheadMarket agent ID of the given MarketZone */
+	private Long getAgentIdOfMarketZone(MarketZone marketZone) {
 		for (Long exchangeId : couplingRequests.keySet()) {
-			Region candidateRegion = couplingRequests.get(exchangeId).getOrigin();
-			if (candidateRegion.equals(region)) {
+			MarketZone candidateZone = couplingRequests.get(exchangeId).getOrigin();
+			if (candidateZone.equals(marketZone)) {
 				return exchangeId;
 			}
 		}
-		throw new RuntimeException(NO_AGENT_FOR_REGION + region);
+		throw new RuntimeException(NO_AGENT_FOR_ZONE + marketZone);
 	}
 
 	/** Sends the optimised demand and supply order books to the contracted EnergyExchange(s)

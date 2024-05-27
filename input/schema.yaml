@@ -85,14 +85,14 @@ AgentTypes:
   DayAheadMarketMultiZone:
     Attributes:
       Clearing: *DAM_G_Clearing
-      Region: &DAM_A_Region
+      OwnMarketZone: &DAM_A_OwnMarketZone
         AttributeType: enum
         Mandatory: false
         List: false
         Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
         help: "Identifier specifying the market zone of the DayAheadMarket"
         MetaData:
-          Description: "Identifier specifying the region of the DayAheadMarket"
+          Description: "Identifier specifying the market zone of the DayAheadMarket"
           OEONearestConcept:
       Transmission: &DAM_G_Transmission
         AttributeType: block
@@ -102,22 +102,22 @@ AgentTypes:
           Description: "Transmission capacities towards connected market zones"
           OEONearestConcept:
         NestedAttributes:
-          Region: 
+          ConnectedMarketZone:
             AttributeType: enum
             List: false
             Mandatory: false
             Values: ['DE', 'FR', 'PL', 'AT', 'BE', 'NL', 'NO', 'LU', 'SE', 'DKW', 'DKO', 'CZ', 'CH', 'A', 'B']
-            help: "Market zone demand can be shifted to"
+            help: "Market zone that can be supplied with additional energy"
             MetaData:
-              Description: "Market zone demand can be shifted to"
+              Description: "Market zone that can be supplied with additional energy"
               OEONearestConcept:
           CapacityInMW:
             AttributeType: time_series
             List: false
             Mandatory: false
-            help: "Net transfer capacity to shift demand to market zone"
+            help: "Net transfer capacity of supply from own to connected market zone"
             MetaData:
-              Description: "Net transfer capacity to shift demand to market zone"
+              Description: "Net transfer capacity of supply from own to connected market zone"
               OEONearestConcept:
       GateClosureInfoOffsetInSeconds: *DAM_A_GateClosureInfoOffset
     Products:

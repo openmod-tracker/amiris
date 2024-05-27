@@ -4,6 +4,7 @@
 package agents.markets.meritOrder.books;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -20,6 +21,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * @author A. Achraf El Ghazi, Felix Nitsch, Christoph Schimeczek */
 public class TransferOrderBook implements Portable, Cloneable {
 	private HashMap<Long, List<Bid>> bidsByTrader = new HashMap<>();
+	private static final List<Bid> EMPTY_BIDS = Collections.emptyList();
 
 	/** required for {@link Portable}s */
 	public TransferOrderBook() {}
@@ -93,7 +95,8 @@ public class TransferOrderBook implements Portable, Cloneable {
 	 * @param traderUuid UUID of trader to calculate energy amount for
 	 * @return sum of total offered energy in MWH of given trader */
 	public double getEnergySumForTrader(long traderUuid) {
-		return bidsByTrader.get(traderUuid).stream().mapToDouble(bid -> bid.getEnergyAmountInMWH()).sum();
+		return bidsByTrader.getOrDefault(traderUuid, EMPTY_BIDS).stream().mapToDouble(bid -> bid.getEnergyAmountInMWH())
+				.sum();
 	}
 
 	/** Computes the total energy of all items of this TransferOrderBook
