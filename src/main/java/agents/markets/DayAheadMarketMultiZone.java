@@ -179,9 +179,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		for (Region targetRegion : transmissionCapacities.keySet()) {
 			transmissionBook.add(getTransmissionCapacity(targetRegion, now()));
 		}
-		String clearingId = this + " " + now();
-		MarketClearingResult result = marketClearing.clear(supplyBook.clone(), demandBook.clone(),
-				clearingId);
+		MarketClearingResult result = marketClearing.clear(supplyBook.clone(), demandBook.clone(), getClearingEventId());
 		store(OutputFields.PreCouplingElectricityPriceInEURperMWH, result.getMarketPriceInEURperMWH());
 		store(OutputFields.PreCouplingTotalAwardedPowerInMW, result.getTradedEnergyInMWH());
 		store(OutputFields.PreCouplingDispatchSystemCostInEUR, result.getSystemCostTotalInEUR());

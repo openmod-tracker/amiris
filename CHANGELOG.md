@@ -16,6 +16,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 - add new Product `PpaInformation` to `VariableRenewableOperator` to directly sell power to a client #103 (@dlr_jk, @LeonardWilleke)
 - Metadata added in schema.yaml #102 (@litotes18 @dlr-cjs)
 
+### Fixed
+- Fixed inconsistent behaviour for Storage operation at the end of simulation #110 (@dlr-cjs)
+
 ## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.1.0) - 2024-04-04
 ### Changed
 - Increased FAME-Core version to 1.6 #106 (@dlr-cjs, @dlr_fn)
