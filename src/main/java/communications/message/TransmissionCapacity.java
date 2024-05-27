@@ -3,16 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.markets.DayAheadMarketMultiZone.Region;
+import agents.markets.DayAheadMarketMultiZone.MarketZone;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-/** Specifies a transmission capacity of electricity from one region to another.
+/** Specifies a transmission capacity of electricity from one market zone to another.
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class TransmissionCapacity implements Portable, Cloneable {
-	private Region target;
+	private MarketZone target;
 	private double remainingTransferCapacityInMW;
 
 	/** required for {@link Portable}s */
@@ -20,9 +20,9 @@ public class TransmissionCapacity implements Portable, Cloneable {
 
 	/** Constructs a new {@link TransmissionCapacity} object based on:
 	 * 
-	 * @param target {@link Region}
-	 * @param amount of energy that can be maximally transfered from origin {@link Region} to target */
-	public TransmissionCapacity(Region target, double amount) {
+	 * @param target {@link MarketZone}
+	 * @param amount of energy that can be maximally transfered from origin {@link MarketZone} to target */
+	public TransmissionCapacity(MarketZone target, double amount) {
 		this.target = target;
 		this.remainingTransferCapacityInMW = amount;
 	}
@@ -35,7 +35,7 @@ public class TransmissionCapacity implements Portable, Cloneable {
 
 	@Override
 	public void populate(ComponentProvider provider) {
-		target = Region.values()[provider.nextInt()];
+		target = MarketZone.values()[provider.nextInt()];
 		remainingTransferCapacityInMW = provider.nextDouble();
 	}
 
@@ -47,12 +47,12 @@ public class TransmissionCapacity implements Portable, Cloneable {
 		return transmissionCapacity;
 	}
 
-	/** @return region that is the target of the transmission */
-	public Region getTarget() {
+	/** @return market zone that is the target of the transmission */
+	public MarketZone getTarget() {
 		return target;
 	}
 
-	/** @return remaining amount of energy that can be transferred to the target region */
+	/** @return remaining amount of energy that can be transferred to the target market zone */
 	public double getRemainingTransferCapacityInMW() {
 		return remainingTransferCapacityInMW;
 	}

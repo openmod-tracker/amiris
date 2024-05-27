@@ -9,7 +9,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Increase FAME-Core version to 1.7 #110 (@dlr-cjs)
 
 ### Added
-- Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled markets #16 (@dlr_elghazi @dlr_fn)
+- Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled market zones #16 #109 (@dlr_elghazi @dlr_fn @dlr-cjs)
 - Add new agent `MarketCoupling` which allows coupling of multiple `DayAheadMarketMultiZone` #16 (@dlr-cjs @litotes18 @dlr_elghazi @dlr_fn)
 - Add new agent `ImportTrader` which can account for "negative" load from net-import hours #16 (@dlr-cjs @dlr_elghazi @dlr_fn)
 - add new agent `GreenHydrogenOperator` that has a PPA with a renewable operator to produce hydrogen #103 (@dlr-cjs, @dlr_jk, @LeonardWilleke)

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
 
-import agents.markets.DayAheadMarketMultiZone.Region;
+import agents.markets.DayAheadMarketMultiZone.MarketZone;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.TransferOrderBook;
@@ -90,7 +90,7 @@ public class CouplingData implements Portable, Cloneable {
 
 	/** @return the transmission capacity amount from this market's region to the given target Region
 	 * @param target Region */
-	public double getTransmissionTo(Region target) {
+	public double getTransmissionTo(MarketZone target) {
 		for (TransmissionCapacity tc : transmissionBook.getTransmissionCapacities()) {
 			if (tc.getTarget() == target) {
 				return tc.getRemainingTransferCapacityInMW();
@@ -110,7 +110,7 @@ public class CouplingData implements Portable, Cloneable {
 	 * 
 	 * @param region to update
 	 * @param amount to update with */
-	public void updateTransmissionBook(Region region, double amount) {
+	public void updateTransmissionBook(MarketZone region, double amount) {
 		for (TransmissionCapacity tc : transmissionBook.getTransmissionCapacities()) {
 			if (tc.getTarget() == region) {
 				tc.setRemainingTransferCapacityInMW(amount);
@@ -172,7 +172,7 @@ public class CouplingData implements Portable, Cloneable {
 	}
 
 	/** @return origin Region of this CouplingData */
-	public Region getOrigin() {
+	public MarketZone getOrigin() {
 		return transmissionBook.getOrigin();
 	}
 }
