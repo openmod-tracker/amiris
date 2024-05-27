@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
 
-/** Result of market clearing
+/** Detailed result of market clearing
  * 
  * @author Christoph Schimeczek, A. Achraf El Ghazi */
-public class ClearingResult {
+public class ClearingDetails {
 	/** total traded energy on market */
 	public final double tradedEnergyInMWH;
 	/** settled market price after clearing */
@@ -21,13 +21,13 @@ public class ClearingResult {
 	 * ascending by cumulatedPower and then by offerPrice */
 	public final Integer priceSettingSupplyBidIdx;
 	/** The maximum demand amount that can be reduced from the entire demand without reducing the clearing-price */
-	public final Double minPriceSettingDemand;
+	public final double minPriceSettingDemand;
 
-	/** Creates {@link ClearingResult}
+	/** Creates {@link ClearingDetails}
 	 * 
 	 * @param tradedEnergyInMWH total traded energy (in MWH)
 	 * @param marketPriceInEURperMWH electricity clearing price (in EUR per MWH) */
-	public ClearingResult(double tradedEnergyInMWH, double marketPriceInEURperMWH) {
+	public ClearingDetails(double tradedEnergyInMWH, double marketPriceInEURperMWH) {
 		this.tradedEnergyInMWH = tradedEnergyInMWH;
 		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
 		this.priceSettingDemandBidIdx = null;
@@ -35,14 +35,14 @@ public class ClearingResult {
 		this.minPriceSettingDemand = Double.NaN;
 	}
 
-	/** Creates {@link ClearingResult}
+	/** Creates {@link ClearingDetails}
 	 * 
 	 * @param tradedEnergyInMWH total traded energy (in MWH)
 	 * @param marketPriceInEURperMWH electricity clearing price (in EUR per MWH)
 	 * @param priceSettingDemandBidIdx index of the price setting demand bid, i.e., last awarded demand bid
 	 * @param priceSettingSupplyBidIdx index of the price setting supply bid, i.e., last awarded supply bid
 	 * @param minPriceSettingDemand the maximal amount that the demand can be reduced without causing a price change */
-	public ClearingResult(double tradedEnergyInMWH, double marketPriceInEURperMWH,
+	public ClearingDetails(double tradedEnergyInMWH, double marketPriceInEURperMWH,
 			Integer priceSettingDemandBidIdx,
 			Integer priceSettingSupplyBidIdx,
 			Double minPriceSettingDemand) {

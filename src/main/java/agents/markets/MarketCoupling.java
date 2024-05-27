@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import agents.markets.DayAheadMarketMultiZone.Region;
+import agents.markets.meritOrder.DemandBalancer;
 import agents.markets.meritOrder.books.TransmissionBook;
 import communications.message.TransmissionCapacity;
 import communications.portable.CouplingData;

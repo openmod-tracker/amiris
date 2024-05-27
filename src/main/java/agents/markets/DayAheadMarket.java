@@ -87,4 +87,9 @@ public abstract class DayAheadMarket extends Agent {
 	private void updateClearingTimes() {
 		clearingTimes = new ClearingTimes(now().laterBy(gateClosureInfoOffset));
 	}
+
+	/** @return String identifying the agent and time of market clearing */
+	protected String getClearingEventId() {
+		return this + " " + now();
+	}
 }

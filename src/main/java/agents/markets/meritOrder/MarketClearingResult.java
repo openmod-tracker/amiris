@@ -33,7 +33,7 @@ public class MarketClearingResult {
 	 * @param clearingResult result of market clearing
 	 * @param demandBook book of demand bids
 	 * @param supplyBook book of supply bids */
-	public MarketClearingResult(ClearingResult clearingResult, DemandOrderBook demandBook, SupplyOrderBook supplyBook) {
+	public MarketClearingResult(ClearingDetails clearingResult, DemandOrderBook demandBook, SupplyOrderBook supplyBook) {
 		tradedEnergyInMWH = clearingResult.tradedEnergyInMWH;
 		marketPriceInEURperMWH = clearingResult.marketPriceInEURperMWH;
 		this.demandBook = demandBook;

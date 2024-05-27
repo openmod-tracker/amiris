@@ -62,7 +62,7 @@ public class MeritOrderKernelTest {
 				new double[] {50, 0}, new double[] {3000, -Double.MAX_VALUE});
 		when(supplyBook.getOrderBookItems()).thenReturn(supplyItems);
 		when(demandBook.getOrderBookItems()).thenReturn(demandItems);
-		ClearingResult result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
+		ClearingDetails result = MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
 		assertEquals(21, result.marketPriceInEURperMWH, 1E-10);
 		assertEquals(50, result.tradedEnergyInMWH, 1E-10);
 	}

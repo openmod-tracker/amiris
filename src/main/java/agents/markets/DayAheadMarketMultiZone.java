@@ -6,8 +6,6 @@ package agents.markets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import agents.markets.meritOrder.ClearingResult;
-import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -181,8 +179,9 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		for (Region targetRegion : transmissionCapacities.keySet()) {
 			transmissionBook.add(getTransmissionCapacity(targetRegion, now()));
 		}
-		MarketClearingResult result = marketClearing.calculateMarketClearing(supplyBook.clone(), demandBook.clone(),
-				this.toString() + " " + now());
+		String clearingId = this + " " + now();
+		MarketClearingResult result = marketClearing.clear(supplyBook.clone(), demandBook.clone(),
+				clearingId);
 		store(OutputFields.PreCouplingElectricityPriceInEURperMWH, result.getMarketPriceInEURperMWH());
 		store(OutputFields.PreCouplingTotalAwardedPowerInMW, result.getTradedEnergyInMWH());
 		store(OutputFields.PreCouplingDispatchSystemCostInEUR, result.getSystemCostTotalInEUR());
@@ -232,9 +231,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 			importBook = new TransferOrderBook();
 			exportBook = new TransferOrderBook();
 		}
-		ClearingResult clearingResult = MarketClearing.calculateClearing(supplyBook, demandBook, this + " " + now());
-		MarketClearingResult marketClearingResult = new MarketClearingResult(clearingResult, demandBook, supplyBook);
-		marketClearingResult.setBooks(supplyBook, demandBook, marketClearing.distributionMethod);
+		MarketClearingResult marketClearingResult = marketClearing.clear(supplyBook, demandBook, getClearingEventId());
 		NetEnergyTransfer energyTransfer = computeNetEngergyTransfer(importBook, exportBook);
 
 		store(DayAheadMarket.OutputFields.ElectricityPriceInEURperMWH, marketClearingResult.getMarketPriceInEURperMWH());
