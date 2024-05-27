@@ -5,6 +5,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
 ### Changed
 - Change Marginal and Bid messages as well as their forecast counterparts to have one message per agent #44 (@dlr-cjs)
+- Change default logging level from `ERROR` to `WARN` #85 #110 (@dlr-cjs)
 - Increase FAME-Core version to 1.7 #110 (@dlr-cjs)
 
 ### Added
