@@ -127,8 +127,8 @@ public abstract class MarketForecaster extends Forecaster {
 		for (Entry<TimeStamp, ArrayList<Message>> entry : messagesByTimeStamp.entrySet()) {
 			TimeStamp requestedTime = entry.getKey();
 			ArrayList<Message> bidsAtRequestedTime = entry.getValue();
-			MarketClearingResult marketClearingResult = marketClearing.calculateMarketClearing(bidsAtRequestedTime,
-					this.toString() + " " + now());
+			String clearingId = this + " " + now();
+			MarketClearingResult marketClearingResult = marketClearing.clear(bidsAtRequestedTime, clearingId);
 			calculatedForecastContainer.put(requestedTime, marketClearingResult);
 		}
 	}

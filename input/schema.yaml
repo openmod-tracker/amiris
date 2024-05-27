@@ -1,6 +1,16 @@
 # SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 #
 # SPDX-License-Identifier: Apache-2.0
+JavaPackages:
+  Agents:
+    - "agents"
+  DataItems:
+    - "communications.message"
+  Portables:
+    - "communications"
+    - "agents"
+    - "de.dlr.gitlab.fame.time"
+
 AgentTypes:
   DayAheadMarketSingleZone:
     Attributes:

@@ -116,7 +116,7 @@ public abstract class OrderBook implements Portable {
 		return orderBookItems;
 	}
 
-	/** Adds bid with 0 power and very high or low price to orderBookItems, ensuring the crossing of supply and demand */
+	/** Adds bid with 0 power and very high or low price to orderBookItems, ensuring the crossing of supply and demand curves */
 	private void addVirtualLastBid() {
 		Bid lastBid = getLastBid();
 		for (OrderBookItem orderBookItem : orderBookItems) {
@@ -282,5 +282,18 @@ public abstract class OrderBook implements Portable {
 			summedPower += entry.getBlockPower();
 		}
 		return summedPower;
+	}
+
+	/** Checks if this {@link OrderBook} contains no bids with power; this closes the order book - no further calls to
+	 * {@link #addBid(Bid, long)} or {@link #addBids(List, long)} are allowed afterwards
+	 * 
+	 * @return true if no bids with power are contained */
+	public boolean hasNoValidBids() {
+		if (orderBookItems.isEmpty()) {
+			return true;
+		}
+		ArrayList<OrderBookItem> items = getOrderBookItems();
+		OrderBookItem lastBid = items.get(items.size() - 1);
+		return lastBid.getCumulatedPowerUpperValue() == 0;
 	}
 }

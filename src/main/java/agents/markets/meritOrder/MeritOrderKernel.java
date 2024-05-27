@@ -17,7 +17,7 @@ public class MeritOrderKernel {
 	public static class MeritOrderClearingException extends Exception {
 		private static final long serialVersionUID = 1L;
 
-		/** Creates a new instance
+		/** Creates a new instances
 		 * 
 		 * @param errorMessage to be conveyed */
 		public MeritOrderClearingException(String errorMessage) {
@@ -25,7 +25,7 @@ public class MeritOrderKernel {
 		}
 	}
 
-	static final String ERR_NON_POSITIVE_ORDER_BOOK = "Demand or Supply order book not strictly positive.";
+	static final String ERR_NON_POSITIVE_ORDER_BOOK = "MarketClearing failed: Demand or Supply order book not strictly positive.";
 
 	/** The function takes two sorted (ascending by cumulatedPower) OrderBooks for demand (descending by offerPrice) and supply
 	 * (ascending by offerPrice). It is assumed that the price of the first element from demand exceeds that of the first supply
@@ -40,7 +40,7 @@ public class MeritOrderKernel {
 	 * @param demand sorted demand orders
 	 * @return market clearing data, i.e. awarded power and price
 	 * @throws MeritOrderClearingException in case the order books resemble no valid market */
-	public static ClearingResult clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand)
+	public static ClearingDetails clearMarketSimple(SupplyOrderBook supply, DemandOrderBook demand)
 			throws MeritOrderClearingException {
 		ArrayList<OrderBookItem> supplyBids = supply.getOrderBookItems();
 		ArrayList<OrderBookItem> demandBids = demand.getOrderBookItems();
@@ -85,7 +85,7 @@ public class MeritOrderKernel {
 
 					minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
 							- priceSettingSupply.getCumulatedPowerLowerValue();
-					return new ClearingResult(lastDemandPower, supplyPrice, priceSettingDemandIdx, priceSettingSupplyIdx,
+					return new ClearingDetails(lastDemandPower, supplyPrice, priceSettingDemandIdx, priceSettingSupplyIdx,
 							minPriceSettingDemand);
 				} else if (cutAtSamePower) {
 					// Consistent with virtual shift to the left of demand curve
@@ -97,7 +97,7 @@ public class MeritOrderKernel {
 
 					minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
 							- priceSettingSupply.getCumulatedPowerLowerValue();
-					return new ClearingResult(lastSupplyPower, Math.max(demandPrice, lastSupplyPrice), priceSettingDemandIdx,
+					return new ClearingDetails(lastSupplyPower, Math.max(demandPrice, lastSupplyPrice), priceSettingDemandIdx,
 							priceSettingSupplyIdx, minPriceSettingDemand);
 				} else { // demandBlockIsCut
 					// Price setting bids and price setting demand power of the price setting demand bid
@@ -108,7 +108,7 @@ public class MeritOrderKernel {
 
 					minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
 							- priceSettingSupply.getCumulatedPowerLowerValue();
-					return new ClearingResult(lastSupplyPower, demandPrice, priceSettingDemandIdx, priceSettingSupplyIdx,
+					return new ClearingDetails(lastSupplyPower, demandPrice, priceSettingDemandIdx, priceSettingSupplyIdx,
 							minPriceSettingDemand);
 				}
 			} else if (cutAtSamePrice) {
@@ -120,7 +120,7 @@ public class MeritOrderKernel {
 
 				minPriceSettingDemand = priceSettingDemand.getCumulatedPowerUpperValue()
 						- priceSettingSupply.getCumulatedPowerLowerValue();
-				return new ClearingResult(Math.min(supplyPower, demandPower), demandPrice, priceSettingDemandIdx,
+				return new ClearingDetails(Math.min(supplyPower, demandPower), demandPrice, priceSettingDemandIdx,
 						priceSettingSupplyIdx, minPriceSettingDemand);
 			} else { // No cut so far
 				if (supplyPower >= demandPower) {

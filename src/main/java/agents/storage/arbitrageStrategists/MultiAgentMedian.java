@@ -74,9 +74,18 @@ public class MultiAgentMedian extends ArbitrageStrategist {
 	private void updatePriceForecast(TimePeriod firstPeriod) {
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timePeriod = firstPeriod.shiftByDuration(period);
-			PriceNoSensitivity priceObject = ((PriceNoSensitivity) getSensitivityForPeriod(timePeriod));
-			forecastPrices[period] = priceObject != null ? priceObject.getPriceForecast() : 0;
+			forecastPrices[period] = getPriceForecastOrZero(timePeriod);
 		}
+	}
+
+	/** @return actual price forecast, if existing, or Zero in any other case */
+	private double getPriceForecastOrZero(TimePeriod timePeriod) {
+		PriceNoSensitivity priceObject = ((PriceNoSensitivity) getSensitivityForPeriod(timePeriod));
+		double priceForecast = 0;
+		if (priceObject != null && !Double.isNaN(priceObject.getPriceForecast())) {
+			priceForecast = priceObject.getPriceForecast();
+		}
+		return priceForecast;
 	}
 
 	/** Set median price, maximum charge price and minimum discharge price, considering losses for charging & discharging */
