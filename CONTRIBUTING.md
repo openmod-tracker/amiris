@@ -27,6 +27,8 @@ Issues and Bugs are tracked on the [Repository](https://gitlab.com/dlr-ve/esy/am
 
 We kindly ask you to discuss the AMIRIS development and configuration at the [openMod Forum](https://forum.openmod.org/tag/amiris).
 
+Please find tag naming conventions, definition of done etc. in the wiki's [Contribute](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Contribute) section.
+
 ## Contact / Help
 You can contact the main developers via [amiris@dlr.de](mailto:amiris@dlr.de) to pose any questions or to get involved.
 

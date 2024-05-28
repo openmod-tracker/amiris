@@ -2,7 +2,9 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
+## [2.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.3.0) - TBA
+
+## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - 2024-05-28
 ### Changed
 - Change Marginal and Bid messages as well as their forecast counterparts to have one message per agent #44 (@dlr-cjs)
 - Change default logging level from `ERROR` to `WARN` #85 #110 (@dlr-cjs)
