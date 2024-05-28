@@ -18,8 +18,10 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 
 /** Handles a list of bids or asks at an energy {@link DayAheadMarket} for a single time frame of trading
  * 
- * @author Martin Klein, Christoph Schimeczek */
+ * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public abstract class OrderBook implements Portable {
+	static final String ERR_BID_NEGATIVE_POWER = "Negative bid power is forbidded. Bid: ";
+
 	/** required for {@link Portable}s */
 	public OrderBook() {}
 
@@ -44,10 +46,11 @@ public abstract class OrderBook implements Portable {
 
 	/** Adds given {@link Bid} to this {@link OrderBook}; the OrderBook must not be sorted yet
 	 * 
-	 * @param bid to be added to the unsorted OrderBook */
-	public void addBid(Bid bid) {
+	 * @param bid to be added to the unsorted OrderBook
+	 * @param traderUuid id of the trader associated with the bids */
+	public void addBid(Bid bid, long traderUuid) {
 		ensureNotYetSortedOrThrow("OrderBook is already sorted - cannot add further items.");
-		orderBookItems.add(new OrderBookItem(bid));
+		orderBookItems.add(new OrderBookItem(bid, traderUuid));
 	}
 
 	/** Ensures the {@link OrderBook} items are not yet {@link #isSorted sorted}
@@ -70,13 +73,25 @@ public abstract class OrderBook implements Portable {
 		}
 	}
 
+	/** Ensures the {@link OrderBook}'s items have non-negative block power.
+	 * 
+	 * @throws RuntimeException if bid's block power is negative */
+	protected void ensurePositiveBidPower() {
+		for (OrderBookItem item : orderBookItems) {
+			if (item.getBlockPower() < 0) {
+				throw new RuntimeException(ERR_BID_NEGATIVE_POWER + item);
+			}
+		}
+	}
+
 	/** Adds multiple {@link Bid}s to this {@link OrderBook}; the OrderBook must not be sorted yet
 	 * 
-	 * @param bids to add to this unsorted OrderBook */
-	public void addBids(ArrayList<Bid> bids) {
+	 * @param bids to add to this unsorted OrderBook
+	 * @param traderUuid id of the trader associated with the bids */
+	public void addBids(List<Bid> bids, long traderUuid) {
 		ensureNotYetSortedOrThrow("OrderBook is already sorted - cannot add further items.");
 		for (Bid bid : bids) {
-			orderBookItems.add(new OrderBookItem(bid));
+			orderBookItems.add(new OrderBookItem(bid, traderUuid));
 		}
 	}
 
@@ -92,6 +107,7 @@ public abstract class OrderBook implements Portable {
 	/** @return a list of items, which are sorted and have assigned cumulated power values */
 	public ArrayList<OrderBookItem> getOrderBookItems() {
 		if (!isSorted) {
+			ensurePositiveBidPower();
 			addVirtualLastBid();
 			orderBookItems.sort(getSortComparator());
 			cumulatePowerOfItems();
@@ -100,9 +116,15 @@ public abstract class OrderBook implements Portable {
 		return orderBookItems;
 	}
 
-	/** Adds bid with 0 power and very high or low price to orderBookItems, ensuring the crossing of supply and demand */
+	/** Adds bid with 0 power and very high or low price to orderBookItems, ensuring the crossing of supply and demand curves */
 	private void addVirtualLastBid() {
-		addBid(getLastBid());
+		Bid lastBid = getLastBid();
+		for (OrderBookItem orderBookItem : orderBookItems) {
+			if (orderBookItem.getBid().matches(lastBid)) {
+				return;
+			}
+		}
+		addBid(lastBid, Long.MIN_VALUE);
 	}
 
 	/** @return the last virtual {@link Bid} depending on the type of order book */
@@ -239,6 +261,39 @@ public abstract class OrderBook implements Portable {
 		awardedCumulativePower = provider.nextDouble();
 		orderBookItems = provider.nextComponentList(OrderBookItem.class);
 		isSorted = provider.nextBoolean();
+	}
 
+	/** Return sum of power across all bids in this OrderBook for given trader
+	 * 
+	 * @param traderUuid UUID of trader to sum up awarded power
+	 * @return awarded power of given trader */
+	public double getTradersSumOfPower(long traderUuid) {
+		double totalAwardedPower = 0;
+		for (OrderBookItem item : orderBookItems) {
+			totalAwardedPower += item.getTraderUuid() == traderUuid ? item.getAwardedPower() : 0;
+		}
+		return totalAwardedPower;
+	}
+
+	/** @return sum of power value of {@link #orderBookItems} */
+	public double getCumulatePowerOfItems() {
+		double summedPower = 0;
+		for (OrderBookItem entry : orderBookItems) {
+			summedPower += entry.getBlockPower();
+		}
+		return summedPower;
+	}
+
+	/** Checks if this {@link OrderBook} contains no bids with power; this closes the order book - no further calls to
+	 * {@link #addBid(Bid, long)} or {@link #addBids(List, long)} are allowed afterwards
+	 * 
+	 * @return true if no bids with power are contained */
+	public boolean hasNoValidBids() {
+		if (orderBookItems.isEmpty()) {
+			return true;
+		}
+		ArrayList<OrderBookItem> items = getOrderBookItems();
+		OrderBookItem lastBid = items.get(items.size() - 1);
+		return lastBid.getCumulatedPowerUpperValue() == 0;
 	}
 }

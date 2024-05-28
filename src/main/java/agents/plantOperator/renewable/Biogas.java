@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.plantOperator.renewable;
 
+import agents.plantOperator.Marginal;
 import agents.plantOperator.RenewablePlantOperator;
-import communications.message.MarginalCost;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -65,10 +65,8 @@ public class Biogas extends RenewablePlantOperator {
 	}
 
 	@Override
-	protected MarginalCost calcSingleMarginal(TimeStamp time) {
-		final double availablePower = calcAvailablePowerAtTime(time);
-		final double marginalCost = getVariableOpexAtTime(time);
-		return new MarginalCost(getId(), availablePower, marginalCost, time);
+	protected Marginal calcSingleMarginal(TimeStamp time) {
+		return new Marginal(calcAvailablePowerAtTime(time), getVariableOpexAtTime(time));
 	}
 
 	/** @return the available power at the specified time, considering its {@link OperationMode} */

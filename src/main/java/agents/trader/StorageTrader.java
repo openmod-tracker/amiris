@@ -4,6 +4,7 @@
 package agents.trader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
@@ -11,14 +12,14 @@ import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
-import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
 import agents.storage.Device;
 import agents.storage.arbitrageStrategists.ArbitrageStrategist;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import communications.message.AwardData;
-import communications.message.BidData;
 import communications.message.ClearingTimes;
+import communications.portable.BidsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -41,8 +42,8 @@ public class StorageTrader extends FlexibilityTrader {
 
 	@Output
 	private static enum OutputFields {
-		OfferedEnergyInMWH, OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargeEnergyInMWH,
-		AwardedDischargeEnergyInMWH, AwardedEnergyInMWH, StoredEnergyInMWH
+		OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargeEnergyInMWH,
+		AwardedDischargeEnergyInMWH, StoredEnergyInMWH
 	};
 
 	private final Device storage;
@@ -81,15 +82,15 @@ public class StorageTrader extends FlexibilityTrader {
 		List<TimeStamp> targetTimes = clearingTimes.getTimes();
 		for (TimeStamp targetTime : targetTimes) {
 			double chargingPowerInMW = strategist.getChargingPowerForecastInMW(targetTime);
-			BidData bid;
+			BidsAtTime bids;
 			if (chargingPowerInMW > 0) {
-				bid = new BidData(chargingPowerInMW, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN, getId(), Type.Demand,
-						targetTime);
+				Bid bid = new Bid(chargingPowerInMW, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN);
+				bids = new BidsAtTime(targetTime, getId(), null, Arrays.asList(bid));
 			} else {
-				bid = new BidData(-chargingPowerInMW, Constants.MINIMAL_PRICE_IN_EUR_PER_MWH, Double.NaN, getId(), Type.Supply,
-						targetTime);
+				Bid bid = new Bid(-chargingPowerInMW, Constants.MINIMAL_PRICE_IN_EUR_PER_MWH, Double.NaN);
+				bids = new BidsAtTime(targetTime, getId(), Arrays.asList(bid), null);
 			}
-			fulfilNext(contractToFulfil, bid);
+			fulfilNext(contractToFulfil, bids);
 		}
 	}
 
@@ -103,10 +104,11 @@ public class StorageTrader extends FlexibilityTrader {
 		List<TimeStamp> targetTimes = clearingTimes.getTimes();
 		for (TimeStamp targetTime : targetTimes) {
 			excuteBeforeBidPreparation(targetTime);
-			BidData demandBid = prepareHourlyDemandBids(targetTime);
-			BidData supplyBid = prepareHourlySupplyBids(targetTime);
-			store(OutputFields.OfferedEnergyInMWH, supplyBid.offeredEnergyInMWH - demandBid.offeredEnergyInMWH);
-			sendDayAheadMarketBids(contractToFulfil, demandBid, supplyBid);
+			Bid demandBid = prepareHourlyDemandBids(targetTime);
+			Bid supplyBid = prepareHourlySupplyBids(targetTime);
+			store(OutputColumns.OfferedEnergyInMWH, supplyBid.getEnergyAmountInMWH() - demandBid.getEnergyAmountInMWH());
+			fulfilNext(contractToFulfil,
+					new BidsAtTime(targetTime, getId(), Arrays.asList(supplyBid), Arrays.asList(demandBid)));
 		}
 	}
 
@@ -121,14 +123,14 @@ public class StorageTrader extends FlexibilityTrader {
 		}
 	}
 
-	/** Prepares hourly demand bids
+	/** Prepares hourly demand bid
 	 * 
 	 * @param requestedTime TimeStamp at which the demand bid should be defined
 	 * @return demand bid for requestedTime */
-	private BidData prepareHourlyDemandBids(TimeStamp requestedTime) {
+	private Bid prepareHourlyDemandBids(TimeStamp requestedTime) {
 		double demandPower = schedule.getScheduledChargingPowerInMW(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
-		BidData demandBid = new BidData(demandPower, price, Double.NaN, getId(), Type.Demand, requestedTime);
+		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(OutputFields.OfferedChargePriceInEURperMWH, price);
 		return demandBid;
 	}
@@ -137,10 +139,10 @@ public class StorageTrader extends FlexibilityTrader {
 	 * 
 	 * @param requestedTime TimeStamp at which the supply bid should be defined
 	 * @return supply bid for requestedTime */
-	private BidData prepareHourlySupplyBids(TimeStamp requestedTime) {
+	private Bid prepareHourlySupplyBids(TimeStamp requestedTime) {
 		double supplyPower = schedule.getScheduledDischargingPowerInMW(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
-		BidData supplyBid = new BidData(supplyPower, price, Double.NaN, getId(), Type.Supply, requestedTime);
+		Bid supplyBid = new Bid(supplyPower, price, Double.NaN);
 		store(OutputFields.OfferedDischargePriceInEURperMWH, price);
 		return supplyBid;
 	}
@@ -161,7 +163,7 @@ public class StorageTrader extends FlexibilityTrader {
 
 		store(OutputFields.AwardedDischargeEnergyInMWH, awardedDischargePower);
 		store(OutputFields.AwardedChargeEnergyInMWH, awardedChargePower);
-		store(OutputFields.AwardedEnergyInMWH, externalPowerDelta);
+		store(OutputColumns.AwardedEnergyInMWH, externalPowerDelta);
 		store(OutputFields.StoredEnergyInMWH, storage.getCurrentEnergyInStorageInMWH());
 		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, revenues);
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);

@@ -136,4 +136,9 @@ public class DispatchSchedule {
 	public double getScheduledBidInHourInEURperMWH(TimeStamp time) {
 		return bidPerPeriodInEURperMWH[calcElementInSchedule(time)];
 	}
+
+	/** @return start time of schedule */
+	public TimeStamp getTimeOfFirstElement() {
+		return timeOfFirstElement;
+	}
 }

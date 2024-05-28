@@ -36,7 +36,7 @@ public abstract class PlantBuildingManager extends Agent {
 	public static enum Products {
 		/** Collection of power plants created and managed by this {@link PlantBuildingManager} */
 		PowerPlantPortfolio
-	};
+	}
 
 	/** Offset between time the portfolio created and time it becomes active */
 	private final TimeSpan portfolioBuildingOffset;

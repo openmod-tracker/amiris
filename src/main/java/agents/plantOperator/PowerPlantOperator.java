@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
 import agents.trader.Trader;
-import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -53,7 +52,7 @@ public abstract class PowerPlantOperator extends Agent {
 		VariableCostsInEUR,
 		/** Fixed operation and maintenance costs */
 		FixedCostsInEUR,
-		/** Share of investment cost */
+		/** Annual share of investment cost */
 		InvestmentAnnuityInEUR
 	}
 
@@ -61,15 +60,15 @@ public abstract class PowerPlantOperator extends Agent {
 
 	/** Creates a {@link PowerPlantOperator}
 	 * 
-	 * @param dataProvider provides input from config file - not required here, but in super class */
+	 * @param dataProvider provides input from config file */
 	public PowerPlantOperator(DataProvider dataProvider) {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
 
-		call(this::executeDispatch).on(TraderWithClients.Products.DispatchAssignment)
-				.use(TraderWithClients.Products.DispatchAssignment);
-		call(this::digestPayment).on(TraderWithClients.Products.Payout).use(TraderWithClients.Products.Payout);
+		call(this::executeDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
+				.use(PowerPlantScheduler.Products.DispatchAssignment);
+		call(this::digestPayment).on(PowerPlantScheduler.Products.Payout).use(PowerPlantScheduler.Products.Payout);
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 

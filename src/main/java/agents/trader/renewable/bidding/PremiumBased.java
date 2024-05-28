@@ -29,7 +29,10 @@ public abstract class PremiumBased {
 	static final String ERR_FORECAST_METHOD_MISSING = " `MarketValueForecastMethod` required for support instrument: ";
 
 	private enum MarketValueForecastMethod {
-		PREVIOUS_MONTH, FROM_FILE
+		/** Forecast from previous month */
+		PREVIOUS_MONTH,
+		/** Forecast from file */
+		FROM_FILE
 	};
 
 	/** Inputs for market value forecasting */
@@ -81,8 +84,6 @@ public abstract class PremiumBased {
 	 * @param time for which to calculate
 	 * @return number of consecutive hours with negative prices directly before given time */
 	protected int calcPreviousNegativeHours(TimeStamp time) {
-		// TODO: Stub; Implement: use forecasted (and possibly historic) prices when calculating forecast bids, and historic prices
-		// when calculating actual bids
 		return 0;
 	}
 

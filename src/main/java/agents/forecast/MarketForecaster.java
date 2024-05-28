@@ -12,8 +12,8 @@ import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.trader.Trader;
-import communications.message.BidData;
 import communications.message.ClearingTimes;
+import communications.portable.BidsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -118,7 +118,7 @@ public abstract class MarketForecaster extends Forecaster {
 		}
 	}
 
-	/** Use received BidForecasts to clear market and store the clearing result(s) for later usage
+	/** Use received forecasted Bids to clear market and store the clearing result(s) for later usage
 	 **
 	 * @param messages bid forecast(s) received
 	 * @param contracts not used */
@@ -127,8 +127,8 @@ public abstract class MarketForecaster extends Forecaster {
 		for (Entry<TimeStamp, ArrayList<Message>> entry : messagesByTimeStamp.entrySet()) {
 			TimeStamp requestedTime = entry.getKey();
 			ArrayList<Message> bidsAtRequestedTime = entry.getValue();
-			MarketClearingResult marketClearingResult = marketClearing.calculateMarketClearing(bidsAtRequestedTime,
-					this.toString() + " " + now());
+			String clearingId = this + " " + now();
+			MarketClearingResult marketClearingResult = marketClearing.clear(bidsAtRequestedTime, clearingId);
 			calculatedForecastContainer.put(requestedTime, marketClearingResult);
 		}
 	}
@@ -136,23 +136,14 @@ public abstract class MarketForecaster extends Forecaster {
 	/** Groups given messages by their targeted time of delivery into an ordered Map
 	 * 
 	 * @param messages to group by
-	 * @return a Map of Messages sorted by the {@link TimeStamp} their contained {@link BidData} are valid at */
+	 * @return a Map of Messages sorted by {@link TimeStamp} of the associated delivery times */
 	protected TreeMap<TimeStamp, ArrayList<Message>> sortMessagesByBidTimeStamp(ArrayList<Message> messages) {
 		TreeMap<TimeStamp, ArrayList<Message>> messageByTimeStamp = new TreeMap<>();
 		for (Message message : messages) {
-			TimeStamp deliveryTime = message.getDataItemOfType(BidData.class).deliveryTime;
-			ArrayList<Message> messageList = getOrCreate(messageByTimeStamp, deliveryTime);
-			messageList.add(message);
+			TimeStamp deliveryTime = message.getFirstPortableItemOfType(BidsAtTime.class).getDeliveryTime();
+			messageByTimeStamp.computeIfAbsent(deliveryTime, __ -> new ArrayList<Message>()).add(message);
 		}
 		return messageByTimeStamp;
-	}
-
-	/** @return stored messages from given Map at given {@link TimeStamp} - if TimeStamp is not yet registered, a new empty list is
-	 *         created, stored to the Map and returned */
-	private ArrayList<Message> getOrCreate(TreeMap<TimeStamp, ArrayList<Message>> messagesByTimeStamp,
-			TimeStamp timeStamp) {
-		messagesByTimeStamp.computeIfAbsent(timeStamp, k -> new ArrayList<Message>());
-		return messagesByTimeStamp.get(timeStamp);
 	}
 
 	/** Returns stored clearing result for the given time - or throws an Exception if no result is stored

@@ -2,6 +2,22 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - TBA
+### Changed
+- Change Marginal and Bid messages as well as their forecast counterparts to have one message per agent #44 (@dlr-cjs)
+- Change default logging level from `ERROR` to `WARN` #85 #110 (@dlr-cjs)
+- Increase FAME-Core version to 1.7 #110 (@dlr-cjs)
+
+### Added
+- Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled market zones #16 #109 (@dlr_elghazi @dlr_fn @dlr-cjs)
+- Add new agent `MarketCoupling` which allows coupling of multiple `DayAheadMarketMultiZone` #16 (@dlr-cjs @litotes18 @dlr_elghazi @dlr_fn)
+- Add new agent `ImportTrader` which can account for "negative" load from net-import hours #16 (@dlr-cjs @dlr_elghazi @dlr_fn)
+- add new agent `GreenHydrogenOperator` that has a PPA with a renewable operator to produce hydrogen #103 (@dlr-cjs, @dlr_jk, @LeonardWilleke)
+- add new Product `PpaInformation` to `VariableRenewableOperator` to directly sell power to a client #103 (@dlr_jk, @LeonardWilleke)
+- Metadata added in schema.yaml #102 (@litotes18 @dlr-cjs)
+
+### Fixed
+- Fixed inconsistent behaviour for Storage operation at the end of simulation #110 (@dlr-cjs)
 
 ## [2.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.1.0) - 2024-04-04
 ### Changed
@@ -59,7 +75,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
 - `ElectrolysisTrader`: new Trader demanding electricity and producing hydrogen from it via electrolysis #54 (@dlr-cjs, @dlr_jk)
 - `FlexibilityTrader`: new abstract Trader operating a type of flexibility asset #54 (@dlr-cjs, @dlr_jk)
-- PriceForecaster: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
+- `PriceForecaster`: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
 - Package `storage.arbitrageStrategists`: added new strategist `ProfitMaximiser` #72 (@dlr-cjs)
 - Package `storage.arbitrageStrategists`: added new strategist `MultiAgentSimple` #73 (@dlr-cjs)
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)

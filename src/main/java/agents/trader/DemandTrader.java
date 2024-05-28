@@ -8,9 +8,9 @@ import java.util.List;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
-import agents.markets.meritOrder.Bid.Type;
+import agents.markets.meritOrder.Bid;
 import communications.message.AwardData;
-import communications.message.BidData;
+import communications.portable.BidsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -21,7 +21,6 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
-import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Purchases energy at {@link DayAheadMarket} according to given {@link TimeSeries} of energy demand
@@ -31,14 +30,6 @@ public class DemandTrader extends Trader {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("Loads").list().add(Make.newSeries("DemandSeries"), Make.newSeries("ValueOfLostLoad")))
 			.buildTree();
-
-	@Output
-	private static enum OutputColumns {
-		/** Energy demanded from energy exchange */
-		RequestedEnergyInMWH,
-		/** Energy awarded by energy exchange */
-		AwardedEnergyInMWH
-	};
 
 	/** Helper class that represents one load TimeSeries with a fixed associated value of lost load */
 	private class Load {
@@ -88,21 +79,20 @@ public class DemandTrader extends Trader {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		double totalRequestedEnergyInMWH = 0;
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
-			for (BidData bid : prepareBidsFor(targetTime)) {
-				fulfilNext(contract, bid);
-				totalRequestedEnergyInMWH += bid.offeredEnergyInMWH;
-			}
+			List<Bid> demandBids = prepareBidsFor(targetTime);
+			totalRequestedEnergyInMWH += demandBids.stream().mapToDouble(bid -> bid.getEnergyAmountInMWH()).sum();
+			fulfilNext(contract, new BidsAtTime(targetTime, getId(), null, demandBids));
 		}
 		return totalRequestedEnergyInMWH;
 	}
-	
+
 	/** Prepares demand bids for the requested time */
-	private ArrayList<BidData> prepareBidsFor(TimeStamp requestedTime) {
-		ArrayList<BidData> bids = new ArrayList<>();
+	private List<Bid> prepareBidsFor(TimeStamp requestedTime) {
+		List<Bid> bids = new ArrayList<>();
 		for (Load load : loads) {
 			double requestedEnergyInMWH = load.tsEnergyDemandInMWHperTimeSegment.getValueLinear(requestedTime);
 			double voll = load.valueOfLostLoadInEURperMWH.getValueLinear(requestedTime);
-			bids.add(new BidData(requestedEnergyInMWH, voll, getId(), Type.Demand, requestedTime));
+			bids.add(new Bid(requestedEnergyInMWH, voll));
 		}
 		return bids;
 	}
