@@ -2,9 +2,9 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [2.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.3.0) - TBA
+## [3.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.0) - TBA
 ### Fixed
-- **Breaking**: Fixed typo in `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
+- **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
 
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - 2024-05-28
 ### Changed
