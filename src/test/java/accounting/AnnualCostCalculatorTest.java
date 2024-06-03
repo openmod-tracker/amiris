@@ -59,7 +59,7 @@ public class AnnualCostCalculatorTest {
 			when(inputMock.getGroup(any(String.class))).thenReturn(groupMock);
 		} catch (MissingDataException e) {}
 		if (invest != null) {
-			when(groupMock.getDoubleOrDefault(eq("InvestmentExpensensesInEURperMW"), any(Double.class))).thenReturn(invest);
+			when(groupMock.getDoubleOrDefault(eq("InvestmentExpensesInEURperMW"), any(Double.class))).thenReturn(invest);
 		}
 		if (annuity != null) {
 			when(groupMock.getDoubleOrDefault(eq("AnnuityFactor"), any(Double.class))).thenReturn(annuity);
@@ -97,7 +97,7 @@ public class AnnualCostCalculatorTest {
 		AnnualCostCalculator calculator = AnnualCostCalculator.build(input, "group");
 		assertEquals(expected, calculator.calcInvestmentAnnuityInEUR(capacity), 1E-12);
 	}
-	
+
 	@ParameterizedTest
 	@CsvSource({"10, 1, 10", "0, 2, 0", "10, 15, 150"})
 	public void calcFixedCostInEUR_correct(double fixed, double capacity, double expected) {
