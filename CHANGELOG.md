@@ -3,6 +3,8 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [2.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.3.0) - TBA
+### Fixed
+- **Breaking**: Fixed typo in `StorageTrader.Refinancing.InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
 
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - 2024-05-28
 ### Changed
