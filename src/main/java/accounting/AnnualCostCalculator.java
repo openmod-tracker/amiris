@@ -14,7 +14,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 public class AnnualCostCalculator {
 	/** Input parameters used by {@link AnnualCostCalculator} */
 	public static final Tree parameters = Make.newTree()
-			.add(Make.newDouble("InvestmentExpensensesInEURperMW").optional(),
+			.add(Make.newDouble("InvestmentExpensesInEURperMW").optional(),
 					Make.newDouble("AnnuityFactor").optional(),
 					Make.newDouble("AnnualFixedCostsInEURperMW").optional())
 			.buildTree();
@@ -48,7 +48,7 @@ public class AnnualCostCalculator {
 	 * 
 	 * @param input ParameterData group matching structure of {@link #parameters} */
 	AnnualCostCalculator(ParameterData input) {
-		investmentExpensesInEURperMW = input.getDoubleOrDefault("InvestmentExpensensesInEURperMW", 0.0);
+		investmentExpensesInEURperMW = input.getDoubleOrDefault("InvestmentExpensesInEURperMW", 0.0);
 		annuityFactor = input.getDoubleOrDefault("AnnuityFactor", 0.0);
 		annualFixedCostsInEURperMW = input.getDoubleOrDefault("AnnualFixedCostsInEURperMW", 0.0);
 	}
