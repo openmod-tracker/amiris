@@ -24,7 +24,7 @@ Developers, who want to modify the functionality or enhance the capabilities of 
 In addition, a basic understanding of [(FAME)](https://gitlab.com/fame-framework) is required in order to design new agents and their interactions.
 
 ## System Requirements
-To run AMIRIS, Python 3.8 or 3.9 and Java Development Kit (JDK) version 11 or higher are required.
+To run AMIRIS, Python 3.9 or higher and Java Development Kit (JDK) 11 or higher are required.
 In case you want to modify the AMIRIS code, additional tools might be required.
 See our [Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) for additional instructions.
 
