@@ -3,6 +3,9 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [3.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.0) - TBA
+### Changed
+- README: Update minimum Python version requirement to 3.9 !114 (@dlr_fn)
+
 ### Fixed
 - **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
 
