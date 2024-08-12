@@ -4,6 +4,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [3.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.0) - TBA
 ### Changed
+- **Breaking**: Change `FuelType` input parameter from `enum` to `string_set` and move to `FuelsTrader` #120 (@dlr_fn @dlr-cjs)
 - README: Update minimum Python version requirement to 3.9 !114 (@dlr_fn)
 
 ### Fixed
