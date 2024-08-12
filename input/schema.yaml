@@ -306,7 +306,7 @@ AgentTypes:
           Description: "Price timeseries for different fuels"
           OEONearestConcept:
         NestedAttributes:
-          FuelType: &FuelsTrader_P_FuelType
+          FuelType: &FuelsTrader_A_FuelType
             AttributeType: string_set
             List: false
             Mandatory: true
@@ -1449,7 +1449,7 @@ AgentTypes:
         Mandatory: true
         List: false
         NestedAttributes:
-          FuelType: *FuelsTrader_P_FuelType
+          FuelType: *FuelsTrader_A_FuelType
           SpecificCo2EmissionsInTperMWH: &PBM_A_SpecificCo2Emissions
             AttributeType: double
             Mandatory: true
@@ -1633,7 +1633,7 @@ AgentTypes:
 
   ElectrolysisTrader:
     Attributes:
-      FuelType: *FuelsTrader_P_FuelType
+      FuelType: *FuelsTrader_A_FuelType
       ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
       HydrogenForecastRequestOffsetInSeconds:
         AttributeType: integer
@@ -1838,7 +1838,7 @@ AgentTypes:
   GreenHydrogenOperator:
     Attributes:
       Device: *Electrolyzer_G_Device
-      FuelType: *FuelsTrader_P_FuelType
+      FuelType: *FuelsTrader_A_FuelType
     Products:
       PpaInformationRequest:
         MetaData:
