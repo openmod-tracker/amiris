@@ -306,47 +306,10 @@ AgentTypes:
           Description: "Price timeseries for different fuels"
           OEONearestConcept:
         NestedAttributes:
-          FuelType:
-            AttributeType: enum
+          FuelType: &FuelsTrader_A_FuelType
+            AttributeType: string_set
             List: false
             Mandatory: true
-            Values: &FuelsMarket_V_FuelType
-              OIL:
-                MetaData:
-                  Description: "Fuel type oil"
-                  OEONearestConcept: OEO_00010316
-              HARD_COAL:
-                MetaData:
-                  Description: "Fuel type hard coal"
-                  OEONearestConcept: OEO_00000204
-              LIGNITE:
-                MetaData:
-                  Description: "Fuel type lignite"
-                  OEONearestConcept: OEO_00000251
-              NUCLEAR:
-                MetaData:
-                  Description: "Fuel type nuclear"
-                  OEONearestConcept: OEO_00000302
-              WASTE:
-                MetaData:
-                  Description: "Fuel type waste"
-                  OEONearestConcept: OEO_00000439
-              NATURAL_GAS:
-                MetaData:
-                  Description: "Fuel type natural gas"
-                  OEONearestConcept: OEO_00000292
-              HYDROGEN:
-                MetaData:
-                  Description: "Fuel type hydrogen gas"
-                  OEONearestConcept:
-              BIOMASS:
-                MetaData:
-                  Description: "Fuel type biogas or other bio-fuels"
-                  OEONearestConcept:
-              OTHER:
-                MetaData:
-                  Description: "Any other type of fuel"
-                  OEONearestConcept:
             MetaData:
               Description: "Type of fuel"
               OEONearestConcept:
@@ -1486,14 +1449,7 @@ AgentTypes:
         Mandatory: true
         List: false
         NestedAttributes:
-          FuelType: &PBM_A_FuelType
-            AttributeType: enum
-            Mandatory: true
-            List: false
-            Values: *FuelsMarket_V_FuelType
-            MetaData:
-              Description: "Fuel type used in power plants of this prototype"
-              OEONearestConcept:
+          FuelType: *FuelsTrader_A_FuelType
           SpecificCo2EmissionsInTperMWH: &PBM_A_SpecificCo2Emissions
             AttributeType: double
             Mandatory: true
@@ -1677,6 +1633,7 @@ AgentTypes:
 
   ElectrolysisTrader:
     Attributes:
+      FuelType: *FuelsTrader_A_FuelType
       ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
       HydrogenForecastRequestOffsetInSeconds:
         AttributeType: integer
@@ -1881,6 +1838,7 @@ AgentTypes:
   GreenHydrogenOperator:
     Attributes:
       Device: *Electrolyzer_G_Device
+      FuelType: *FuelsTrader_A_FuelType
     Products:
       PpaInformationRequest:
         MetaData:

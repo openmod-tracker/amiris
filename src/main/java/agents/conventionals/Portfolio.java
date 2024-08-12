@@ -6,7 +6,6 @@ package agents.conventionals;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import agents.markets.FuelsMarket.FuelType;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -18,7 +17,7 @@ import util.SortedLinkedList;
  * @author Christoph Schimeczek */
 public class Portfolio implements Portable {
 	private final SortedLinkedList<PowerPlant> powerPlants = new SortedLinkedList<>();
-	private FuelType fuelType;
+	private String fuelType;
 
 	/** required for {@link Portable}s */
 	public Portfolio() {}
@@ -26,14 +25,14 @@ public class Portfolio implements Portable {
 	/** Creates a new Portfolio for plants with given fuelType
 	 * 
 	 * @param fuelType type of fuel used in this portfolio */
-	public Portfolio(FuelType fuelType) {
+	public Portfolio(String fuelType) {
 		this.fuelType = fuelType;
 	}
 
 	/** required for {@link Portable}s */
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
-		collector.storeInts(fuelType.ordinal());
+		collector.storeStrings(fuelType);
 		for (PowerPlant powerPlant : powerPlants) {
 			collector.storeComponents(powerPlant);
 		}
@@ -42,7 +41,7 @@ public class Portfolio implements Portable {
 	/** required for {@link Portable}s */
 	@Override
 	public void populate(ComponentProvider provider) {
-		fuelType = FuelType.values()[provider.nextInt()];
+		fuelType = provider.nextString();
 		powerPlants.addAll(provider.nextComponentList(PowerPlant.class));
 	}
 
@@ -54,7 +53,7 @@ public class Portfolio implements Portable {
 	}
 
 	/** @return Type of Fuel that all contained {@link PowerPlant}s have in common */
-	public FuelType getFuelType() {
+	public String getFuelType() {
 		return fuelType;
 	}
 

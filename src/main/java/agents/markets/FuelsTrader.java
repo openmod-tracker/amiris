@@ -9,6 +9,10 @@ import communications.message.FuelBid;
 import communications.message.FuelCost;
 import communications.message.FuelData;
 import de.dlr.gitlab.fame.agent.AgentAbility;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
@@ -27,6 +31,16 @@ public interface FuelsTrader extends AgentAbility {
 		/** Total fuel offered to / requested from market */
 		FuelBid,
 	};
+
+	/** Name for fuel type input parameter harmonised across agents related to fuels trading */
+	public static final ParameterBuilder fuelTypeParameter = Make.newString("FuelType");
+
+	/** @return fuelType read from given input parameter group
+	 * @param input group with a fuel type input parameter
+	 * @throws MissingDataException if fuel type input is missing */
+	public static String readFuelType(ParameterData input) throws MissingDataException {
+		return input.getString("FuelType");
+	}
 
 	/** Send a {@link Products#FuelPriceForecastRequest} or {@link Products#FuelPriceRequest} message to the contracted
 	 * {@link FuelsMarket}

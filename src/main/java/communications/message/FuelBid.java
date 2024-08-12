@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.markets.FuelsMarket.FuelType;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
@@ -24,7 +23,7 @@ public class FuelBid extends AmountAtTime {
 	/** whether fuel is to be offered or purchased */
 	public final BidType bidType;
 	/** the type of fuel this bid is associated with */
-	public final FuelType fuelType;
+	public final String fuelType;
 
 	/** Constructs a new {@link FuelBid}
 	 * 
@@ -32,7 +31,7 @@ public class FuelBid extends AmountAtTime {
 	 * @param amount of fuel to be sold or purchased in thermal MWH
 	 * @param bidType whether fuel is to be offered or purchased
 	 * @param fuelType type of fuel this bid is associated with */
-	public FuelBid(TimeStamp timeStamp, double amount, BidType bidType, FuelType fuelType) {
+	public FuelBid(TimeStamp timeStamp, double amount, BidType bidType, String fuelType) {
 		super(timeStamp, amount);
 		this.bidType = bidType;
 		this.fuelType = fuelType;
@@ -44,13 +43,13 @@ public class FuelBid extends AmountAtTime {
 	public FuelBid(ProtoDataItem proto) {
 		super(proto);
 		bidType = BidType.values()[proto.getIntValue(0)];
-		fuelType = FuelType.values()[proto.getIntValue(1)];
+		fuelType = proto.getStringValue(0);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
 		super.fillDataFields(builder);
 		builder.addIntValue(bidType.ordinal());
-		builder.addIntValue(fuelType.ordinal());
+		builder.addStringValue(fuelType);
 	}
 }

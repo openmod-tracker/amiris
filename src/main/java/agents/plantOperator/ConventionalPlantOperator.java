@@ -14,7 +14,6 @@ import agents.conventionals.Portfolio;
 import agents.conventionals.PowerPlant;
 import agents.markets.CarbonMarket;
 import agents.markets.FuelsMarket;
-import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
 import agents.trader.TraderWithClients;
 import communications.message.AmountAtTime;
@@ -117,7 +116,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 		myFuelData = new FuelData(portfolio.getFuelType());
 	}
 
-	/** sends {@link FuelData} message to specify {@link FuelType} and clearing time(s) for fuel price request
+	/** sends {@link FuelData} message to specify FuelType and clearing time(s) for fuel price request
 	 * 
 	 * @param input requested ClearingTimes from associated Trader
 	 * @param contracts single contract with FuelsMarket */

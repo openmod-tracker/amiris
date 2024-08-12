@@ -45,34 +45,12 @@ public class FuelsMarket extends Agent {
 		FuelBill,
 	};
 
-	/** Available types of fuel traded at {@link FuelsMarket} */
-	public static enum FuelType {
-		/** Natural Gas */
-		NATURAL_GAS,
-		/** Lignite */
-		LIGNITE,
-		/** Hard coal */
-		HARD_COAL,
-		/** Fuel oils */
-		OIL,
-		/** Wastes */
-		WASTE,
-		/** Nuclear fuel */
-		NUCLEAR,
-		/** Hydrogen */
-		HYDROGEN,
-		/** Biogas or other bio-fuels */
-		BIOMASS,
-		/** Any other type of fuel */
-		OTHER
-	};
-
 	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("FuelPrices").list()
-			.add(Make.newEnum("FuelType", FuelType.class), Make.newSeries("Price"), Make.newDouble("ConversionFactor")))
+			.add(FuelsTrader.fuelTypeParameter, Make.newSeries("Price"), Make.newDouble("ConversionFactor")))
 			.buildTree();
 
-	private final HashMap<FuelType, TimeSeries> fuelPrices = new HashMap<>();
-	private final HashMap<FuelType, Double> conversionFactors = new HashMap<>();
+	private final HashMap<String, TimeSeries> fuelPrices = new HashMap<>();
+	private final HashMap<String, Double> conversionFactors = new HashMap<>();
 
 	/** Creates a {@link FuelsMarket}
 	 * 
@@ -94,7 +72,7 @@ public class FuelsMarket extends Agent {
 	 * @throws MissingDataException if any group element misses either FuelType or Price */
 	private void loadFuelPrices(List<ParameterData> groupList) throws MissingDataException {
 		for (ParameterData group : groupList) {
-			FuelType fuelType = group.getEnum("FuelType", FuelType.class);
+			String fuelType = FuelsTrader.readFuelType(group);
 			fuelPrices.put(fuelType, group.getTimeSeries("Price"));
 			conversionFactors.put(fuelType, group.getDouble("ConversionFactor"));
 		}
@@ -108,7 +86,7 @@ public class FuelsMarket extends Agent {
 		for (Contract contract : contracts) {
 			ArrayList<Message> connectedMessages = CommUtils.extractMessagesFrom(input, contract.getReceiverId());
 			for (Message message : connectedMessages) {
-				FuelType fuelType = message.getDataItemOfType(FuelData.class).fuelType;
+				String fuelType = message.getDataItemOfType(FuelData.class).fuelType;
 				List<TimeStamp> targetTimes = message.getDataItemOfType(ClearingTimes.class).getTimes();
 				for (TimeStamp targetTime : targetTimes) {
 					sendFuelPriceFor(targetTime, fuelType, contract);
@@ -122,7 +100,7 @@ public class FuelsMarket extends Agent {
 	 * @param time of the forecast
 	 * @param fuelType for which to return forecast
 	 * @param contract with receiver of the FuelCost forecast */
-	private void sendFuelPriceFor(TimeStamp time, FuelType fuelType, Contract contract) {
+	private void sendFuelPriceFor(TimeStamp time, String fuelType, Contract contract) {
 		double fuelPriceInEURperThermalMWH = getFuelPrice(fuelType, time) * getConversionFactor(fuelType);
 		FuelCost fuelPriceItem = new FuelCost(time, fuelPriceInEURperThermalMWH);
 		fulfilNext(contract, fuelPriceItem);
@@ -134,7 +112,7 @@ public class FuelsMarket extends Agent {
 	 * @param time to match
 	 * @return price for given FuelType at specified TimeStamp
 	 * @throws RuntimeException if no TimeSeries is registered for given fuelType */
-	private double getFuelPrice(FuelType fuel, TimeStamp time) {
+	private double getFuelPrice(String fuel, TimeStamp time) {
 		TimeSeries fuelPriceOverTime = fuelPrices.get(fuel);
 		if (fuelPriceOverTime == null) {
 			throw Logging.logFatalException(logger, TIME_SERIES_MISSING + fuel);
@@ -147,7 +125,7 @@ public class FuelsMarket extends Agent {
 	 * @param fuel type of fuel to match
 	 * @return conversion factor for given FuelType
 	 * @throws RuntimeException if no conversion factor is registered for given fuelType */
-	private double getConversionFactor(FuelType fuel) {
+	private double getConversionFactor(String fuel) {
 		if (conversionFactors.containsKey(fuel)) {
 			return conversionFactors.get(fuel);
 		} else {

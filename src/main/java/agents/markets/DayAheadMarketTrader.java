@@ -28,6 +28,7 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		Bids
 	}
 
+	/** Available output columns */
 	@Output
 	public static enum OutputColumns {
 		/** Energy offered to energy exchange */
@@ -37,7 +38,7 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		/** Energy requested at energy exchange */
 		RequestedEnergyInMWH
 	};
-	
+
 	/** Searches for a single {@link DayAheadMarket.Products#GateClosureInfo} message in given messages and returns its times
 	 * 
 	 * @param messages list of messages to search for a single one with {@link ClearingTimes} payload

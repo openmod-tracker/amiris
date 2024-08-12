@@ -6,6 +6,7 @@ package communications.portable;
 import java.util.Arrays;
 import java.util.List;
 import agents.plantOperator.Marginal;
+import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -25,12 +26,22 @@ public class MarginalsAtTime implements Portable {
 	/** required for {@link Portable}s */
 	public MarginalsAtTime() {}
 
+	/** Constructs new {@link MarginalsAtTime} {@link DataItem}
+	 * 
+	 * @param producerUuid unique ID of power production agent
+	 * @param deliveryTime time at which the power production can be offered
+	 * @param marginals any number of {@link Marginal}s associated with the given producer and at given time */
 	public MarginalsAtTime(long producerUuid, TimeStamp deliveryTime, List<Marginal> marginals) {
 		this.producerUuid = producerUuid;
 		this.deliveryTime = deliveryTime;
 		this.marginals = marginals;
 	}
 
+	/** Constructs new {@link MarginalsAtTime} {@link DataItem}
+	 * 
+	 * @param producerUuid unique ID of power production agent
+	 * @param deliveryTime time at which the power production can be offered
+	 * @param marginals any number of {@link Marginal}s associated with the given producer and at given time */
 	public MarginalsAtTime(long producerUuid, TimeStamp deliveryTime, Marginal... marginals) {
 		this.producerUuid = producerUuid;
 		this.deliveryTime = deliveryTime;

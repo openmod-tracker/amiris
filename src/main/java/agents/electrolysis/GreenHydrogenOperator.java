@@ -10,7 +10,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import agents.markets.DayAheadMarket;
 import agents.markets.FuelsMarket;
-import agents.markets.FuelsMarket.FuelType;
 import agents.markets.FuelsTrader;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.renewable.VariableRenewableOperator;
@@ -39,18 +38,23 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Leonard Willeke, Christoph Schimeczek */
 public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPlantScheduler {
-	@Input private static final Tree parameters = Make.newTree().addAs("Device", Electrolyzer.parameters).buildTree();
+	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
+			.addAs("Device", Electrolyzer.parameters).buildTree();
 
+	/** Available output columns */
 	@Output
 	private static enum Outputs {
 		ConsumedElectricityInMWH, ProducedHydrogenInMWH, VariableCostsInEUR, ReceivedMoneyInEUR
 	};
 
+	/** Available products */
 	@Product
 	public static enum Products {
+		/** Request for Power Purchase Agreement (PPA) contract data with electricity production unit */
 		PpaInformationRequest
 	};
 
+	private final String fuelType;
 	private final Electrolyzer electrolyzer;
 	private final TreeMap<TimeStamp, Double> dispatch = new TreeMap<>();
 
@@ -61,6 +65,7 @@ public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPl
 	public GreenHydrogenOperator(DataProvider data) throws MissingDataException {
 		super(data);
 		ParameterData input = parameters.join(data);
+		fuelType = FuelsTrader.readFuelType(input);
 		electrolyzer = new Electrolyzer(input.getGroup("Device"));
 
 		call(this::forwardClearingTimes).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
@@ -118,7 +123,7 @@ public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPl
 	private void sendHydrogenSellMessage(List<Contract> contracts, double producedHydrogenInThermalMWH,
 			TimeStamp deliveryTime) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		FuelBid fuelBid = new FuelBid(deliveryTime, producedHydrogenInThermalMWH, BidType.Supply, FuelType.HYDROGEN);
+		FuelBid fuelBid = new FuelBid(deliveryTime, producedHydrogenInThermalMWH, BidType.Supply, fuelType);
 		sendFuelBid(contract, fuelBid);
 	}
 
