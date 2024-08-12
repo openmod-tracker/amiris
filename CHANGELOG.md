@@ -10,6 +10,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 
 ### Fixed
 - **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
+- Removed unnecessary warnings in `ArbitrageStrategist` #122 (@dlr_fn @dlr-cjs)
 
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - 2024-05-28
 ### Changed
