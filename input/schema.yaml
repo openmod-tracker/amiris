@@ -352,103 +352,10 @@ AgentTypes:
         Mandatory: true
         List: true
         NestedAttributes:
-          Set:
-            AttributeType: enum
+          PolicySet:
+            AttributeType: string_set
             Mandatory: true
             List: false
-            Values: &RPO_V_Set
-              PVRooftop:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOn:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOff:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              RunOfRiver:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:              
-              OtherPV:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              Biogas:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              Undefined:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              PvFit:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              PvMpvarCluster1:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              PvMpvarCluster2:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              PvMpvarCluster3:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              PvMpvarCluster4:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              PvMpvarCluster5:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOnFit:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOnMpvarCluster1:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOnMpvarCluster2:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOnMpvarCluster3:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOnMpvarCluster4:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOnMpvarCluster5:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOffMpvarCluster1:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOffMpvarCluster2:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOffMpvarCluster3:
-                MetaData:
-                  Description: 
-                  OEONearestConcept:
-              WindOffMpvarCluster4:
-                MetaData:
-                  Description: 
-                  OEONearestConcept: 
             MetaData:
               Description: "Sets for energy-carrier-specific remuneration"
               OEONearestConcept:
@@ -1277,14 +1184,13 @@ AgentTypes:
       OEONearestConcept: OEO_00140130
   VariableRenewableOperator:
     Attributes:
-      Set: &RPO_A_Set
-        AttributeType: enum
+      PolicySet: &RPO_A_Set
+        AttributeType: string_set
         Mandatory: false
         List: false
-        Values: *RPO_V_Set
         MetaData:
-          Description: "Set used for energy-carrier-specific remuneration"
-          OEONearestConcept:
+          Description: "Sets for energy-carrier-specific remuneration"
+          OEONearestConcept:      
       EnergyCarrier: &RPO_A_EnergyCarrier
         AttributeType: enum
         Mandatory: true
@@ -1379,7 +1285,7 @@ AgentTypes:
 
   Biogas:
     Attributes:
-      Set: *RPO_A_Set
+      PolicySet: *RPO_A_Set
       EnergyCarrier: *RPO_A_EnergyCarrier
       InstalledPowerInMW: *RPO_A_InstalledPower
       OpexVarInEURperMWH: *RPO_A_OpexVar

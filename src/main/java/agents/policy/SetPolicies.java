@@ -4,13 +4,13 @@
 package agents.policy;
 
 import java.util.EnumMap;
-import agents.plantOperator.RenewablePlantOperator.SetType;
+import java.util.HashMap;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import communications.message.TechnologySet;
 import communications.portable.SupportData;
 
-/** Controls all {@link SetType} specific policy items
+/** Controls all set-specific policy items
  * 
  * @author Christoph Schimeczek */
 public class SetPolicies {
@@ -41,15 +41,15 @@ public class SetPolicies {
 	}
 
 	/** Maps each set to its support data */
-	private EnumMap<SetType, SetPolicyItems> policyItemsPerSet = new EnumMap<>(SetType.class);
+	private HashMap<String, SetPolicyItems> policyItemsPerSet = new HashMap<>();
 	/** Maps each set to its energy carrier */
-	private EnumMap<SetType, EnergyCarrier> energyCarrierPerSet = new EnumMap<>(SetType.class);
+	private HashMap<String, EnergyCarrier> energyCarrierPerSet = new HashMap<>();
 
-	/** Associates the given {@link PolicyItem} with the specified {@link SetType}
+	/** Associates the given {@link PolicyItem} with the specified set
 	 * 
 	 * @param set to be associated with the given policy
 	 * @param policyItem to be associated with the given set */
-	public void addSetPolicyItem(SetType set, PolicyItem policyItem) {
+	public void addSetPolicyItem(String set, PolicyItem policyItem) {
 		SetPolicyItems supportData = policyItemsPerSet.computeIfAbsent(set, __ -> new SetPolicyItems());
 		supportData.addPolicyItem(policyItem);
 	}
@@ -65,29 +65,29 @@ public class SetPolicies {
 		}
 	}
 
-	/** Returns the {@link EnergyCarrier} associated with a given {@link SetType}
+	/** Returns the {@link EnergyCarrier} associated with a given set
 	 * 
 	 * @param set to find the {@link EnergyCarrier} for
 	 * @return the associated {@link EnergyCarrier} */
-	public EnergyCarrier getEnergyCarrier(SetType set) {
+	public EnergyCarrier getEnergyCarrier(String set) {
 		return energyCarrierPerSet.get(set);
 	}
 
-	/** Create a link between the given {@link TechnologySet}'s {@link SetType} and its associated {@link PolicyItem}
+	/** Create a link between the given {@link TechnologySet}'s set and its associated {@link PolicyItem}
 	 * 
 	 * @param technologySet to link with its associated {@link PolicyItem}
 	 * @return new {@link SupportData} */
 	public SupportData getSupportData(TechnologySet technologySet) {
-		SetType set = technologySet.setType;
+		String set = technologySet.setType;
 		return new SupportData(set, getPolicyItem(set, technologySet.supportInstrument));
 	}
 
-	/** Fetches {@link PolicyItem} for given {@link SetType} and {@link SupportInstrument}
+	/** Fetches {@link PolicyItem} for given set and {@link SupportInstrument}
 	 * 
 	 * @param set associated with the returned {@link PolicyItem}
 	 * @param instrument used by the given set and associated with the returned {@link PolicyItem}
 	 * @return PolicyItem for given set and support instrument */
-	public PolicyItem getPolicyItem(SetType set, SupportInstrument instrument) {
+	public PolicyItem getPolicyItem(String set, SupportInstrument instrument) {
 		return policyItemsPerSet.get(set).getPolicyFor(instrument);
 	}
 }

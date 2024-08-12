@@ -16,6 +16,7 @@ import communications.portable.MarginalsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
@@ -30,59 +31,29 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public abstract class RenewablePlantOperator extends PowerPlantOperator {
+	/** Name for set type input parameter harmonised across agents related to policy sets */
+	public static ParameterBuilder setParameter = Make.newString("PolicySet");
 
-	/** Available sets for energy-carrier-specific remuneration */
-	public static enum SetType {
-		/** Rooftop PV devices */
-		PVRooftop,
-		/** Onshore wind power plants */
-		WindOn,
-		/** Offshore wind power plants */
-		WindOff,
-		/** Run of river power plants */
-		RunOfRiver,
-		/** Any other type of PV power plant */
-		OtherPV,
-		/** Biogas power plants */
-		Biogas,
-		/** unspecified power plant */
-		Undefined,
-		/** PV power plant with feed-in tariff */
-		PvFit,
-		/** PV power plant cluster 1 with variable market premium */
-		PvMpvarCluster1,
-		/** PV power plant cluster 2 with variable market premium */
-		PvMpvarCluster2,
-		/** PV power plant cluster 3 with variable market premium */
-		PvMpvarCluster3,
-		/** PV power plant cluster 4 with variable market premium */
-		PvMpvarCluster4,
-		/** PV power plant cluster 5 with variable market premium */
-		PvMpvarCluster5,
-		/** Wind onshore power plant with feed-in tariff */
-		WindOnFit,
-		/** Wind onshore power plant cluster 1 with variable market premium */
-		WindOnMpvarCluster1,
-		/** Wind onshore power plant cluster 2 with variable market premium */
-		WindOnMpvarCluster2,
-		/** Wind onshore power plant cluster 3 with variable market premium */
-		WindOnMpvarCluster3,
-		/** Wind onshore power plant cluster 4 with variable market premium */
-		WindOnMpvarCluster4,
-		/** Wind onshore power plant cluster 5 with variable market premium */
-		WindOnMpvarCluster5,
-		/** Wind offshore power plant cluster 1 with variable market premium */
-		WindOffMpvarCluster1,
-		/** Wind offshore power plant cluster 2 with variable market premium */
-		WindOffMpvarCluster2,
-		/** Wind offshore power plant cluster 3 with variable market premium */
-		WindOffMpvarCluster3,
-		/** Wind offshore power plant cluster 4 with variable market premium */
-		WindOffMpvarCluster4
+	/** Returns PolicySet type read from given input group or specified default if data is missing
+	 * 
+	 * @param input group that (might) hold the PolicySet input parameter
+	 * @param defaultValue is used in case PolicySet is not explicitly specified in this group
+	 * @return PolicySet read from input or given default */
+	public static String readSet(ParameterData input, String defaultValue) {
+		return input.getStringOrDefault("PolicySet", defaultValue);
+	}
+
+	/** Returns PolicySet read from given input group.
+	 * 
+	 * @param input group that holds the PolicySet input parameter
+	 * @return PolicySet read from input
+	 * @throws MissingDataException if PolicySet is not present in given input group */
+	public static String readSet(ParameterData input) throws MissingDataException {
+		return input.getString("PolicySet");
 	}
 
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newEnum("Set", SetType.class).optional(), Make.newEnum("EnergyCarrier", EnergyCarrier.class),
+			.add(setParameter.optional(), Make.newEnum("EnergyCarrier", EnergyCarrier.class),
 					Make.newEnum("SupportInstrument", SupportInstrument.class).optional(), Make.newSeries("InstalledPowerInMW"),
 					Make.newSeries("OpexVarInEURperMWH"))
 			.buildTree();
@@ -111,7 +82,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 		tsInstalledPowerInMW = input.getTimeSeries("InstalledPowerInMW");
 		tsOpexVarInEURperMWH = input.getTimeSeries("OpexVarInEURperMWH");
 
-		SetType technologySetType = input.getEnumOrDefault("Set", SetType.class, null);
+		String technologySetType = readSet(input, null);
 		EnergyCarrier energyCarrier = input.getEnum("EnergyCarrier", EnergyCarrier.class);
 		SupportInstrument supportInstrument = input.getEnumOrDefault("SupportInstrument", SupportInstrument.class, null);
 		technologySet = new TechnologySet(technologySetType, energyCarrier, supportInstrument);

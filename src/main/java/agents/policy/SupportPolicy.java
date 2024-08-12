@@ -6,7 +6,7 @@ package agents.policy;
 import java.util.ArrayList;
 import java.util.List;
 import agents.markets.DayAheadMarket;
-import agents.plantOperator.RenewablePlantOperator.SetType;
+import agents.plantOperator.RenewablePlantOperator;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.trader.renewable.AggregatorTrader;
 import communications.message.AwardData;
@@ -63,7 +63,7 @@ public class SupportPolicy extends Agent {
 	}
 
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newGroup("SetSupportData").list().add(Make.newEnum("Set", SetType.class))
+			.add(Make.newGroup("SetSupportData").list().add(RenewablePlantOperator.setParameter)
 					.addAs(SupportInstrument.FIT.name(), Fit.parameters).addAs(SupportInstrument.MPFIX.name(), Mpfix.parameters)
 					.addAs(SupportInstrument.MPVAR.name(), Mpvar.parameters).addAs(SupportInstrument.CFD.name(), Cfd.parameters)
 					.addAs(SupportInstrument.CP.name(), Cp.parameters)
@@ -105,7 +105,7 @@ public class SupportPolicy extends Agent {
 	/** loads all set-specific support instrument configurations from given groupList */
 	private void loadSetSupportData(List<ParameterData> groupList) throws MissingDataException {
 		for (ParameterData group : groupList) {
-			SetType setType = group.getEnum("Set", SetType.class);
+			String setType = RenewablePlantOperator.readSet(group);
 			for (SupportInstrument instrument : SupportInstrument.values()) {
 				setPolicies.addSetPolicyItem(setType, PolicyItem.buildPolicy(instrument, group));
 			}
@@ -168,7 +168,7 @@ public class SupportPolicy extends Agent {
 	 * @param marketValue in the accounting period associated with the support data request
 	 * @return response message to client that sent the given request */
 	private SupportResponseData calcSupportPerRequest(SupportRequestData request, double marketValue) {
-		SetType setType = request.setType;
+		String setType = request.setType;
 		PolicyItem policyItem = setPolicies.getPolicyItem(setType, request.supportInstrument);
 		double infeedInMWH = policyItem.calcEligibleInfeed(marketData.getEnergyPrices(), request);
 		double infeedSupportRateInEURperMWH = policyItem.calcInfeedSupportRate(request.accountingPeriod, marketValue);

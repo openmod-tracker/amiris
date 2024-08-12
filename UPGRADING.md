@@ -7,6 +7,29 @@ SPDX-License-Identifier: Apache-2.0 -->
 ### String Sets
 This version requires new feature `string_set` provided by `fameio` > v2.3.
 Thus, update `fameio` accordingly.
+If not yet present, add a new StringSet section to your scenario.
+
+#### FuelType
+Add a new StringSet `FuelType` to your scenario listing all fuel names used by your agents.
+Example:
+
+```yaml
+StringSets:
+  FuelType:
+    Values: ['Oil', 'Hydrogen', 'MySpecialFuel']
+```
+
+#### Set -> PolicySet
+Input parameter `Set` was renamed to `PolicySet` for agent types `RenewablePlantOperator` and its children, as well as for `Policy`.
+Therefore, rename occurrences accordingly.
+In addition, add a new StringSet `PolicySet` to your scenario listing all policy sets available to your agents.
+Example:
+
+```yaml
+StringSets:
+  PolicySet:
+    Values: ['WindOn', 'Biogas', 'MyPolicySet']
+```
 
 ### Fixed typo
 A typo in the often used input parameter `InvestmentExpensesesInEURperMW` was fixed to `InvestmentExpensesInEURperMW`.
