@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.plantOperator.RenewablePlantOperator.SetType;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
@@ -16,7 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Johannes Kochems, Christoph Schimeczek */
 public class SupportResponseData extends DataItem {
 	/** the technology set */
-	public final SetType setType;
+	public final String setType;
 	/** the accounting period for calculating the support payments */
 	public final TimePeriod accountingPeriod;
 	/** the support payed out */
@@ -43,7 +42,7 @@ public class SupportResponseData extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public SupportResponseData(ProtoDataItem proto) {
-		this.setType = SetType.values()[proto.getIntValue(0)];
+		this.setType = proto.getStringValue(0);
 		TimeStamp startTime = new TimeStamp(proto.getLongValue(0));
 		TimeSpan duration = new TimeSpan(proto.getLongValue(1));
 		this.clientId = proto.getLongValue(2);
@@ -54,7 +53,7 @@ public class SupportResponseData extends DataItem {
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addIntValue(setType.ordinal());
+		builder.addStringValue(setType);
 		builder.addLongValue(accountingPeriod.getStartTime().getStep());
 		builder.addLongValue(accountingPeriod.getDuration().getSteps());
 		builder.addLongValue(clientId);

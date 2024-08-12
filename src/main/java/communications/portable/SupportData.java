@@ -3,19 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
 
-import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.PolicyItem;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-/** Information on the support policy applicable to the associated {@link SetType}
+/** Information on the support policy applicable to the associated set type
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public final class SupportData implements Portable {
 	static final String WRONG_TYPE = "SupportData item does not contain PolicyInfo of type: ";
 
-	private SetType setType;
+	private String setType;
 	/** setType-specific policy information */
 	private PolicyItem policyItem;
 
@@ -25,8 +24,8 @@ public final class SupportData implements Portable {
 	/** Create a new {@link SupportData}
 	 * 
 	 * @param setType associated with a {@link PolicyItem}
-	 * @param policyItem associated with a {@link SetType} */
-	public SupportData(SetType setType, PolicyItem policyItem) {
+	 * @param policyItem associated with a set type */
+	public SupportData(String setType, PolicyItem policyItem) {
 		this.setType = setType;
 		this.policyItem = policyItem;
 	}
@@ -34,19 +33,19 @@ public final class SupportData implements Portable {
 	/** required for {@link Portable}s */
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
-		collector.storeInts(setType.ordinal());
+		collector.storeStrings(setType);
 		collector.storeComponents(policyItem);
 	}
 
 	/** required for {@link Portable}s */
 	@Override
 	public void populate(ComponentProvider provider) {
-		setType = SetType.values()[provider.nextInt()];
+		setType = provider.nextString();
 		policyItem = provider.nextComponent(PolicyItem.class);
 	}
 
 	/** @return SetType associated with the also contained PolicyItem */
-	public SetType getSetType() {
+	public String getSetType() {
 		return setType;
 	}
 

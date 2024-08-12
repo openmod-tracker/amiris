@@ -5,7 +5,6 @@ package communications.message;
 
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.trader.ClientData;
 import de.dlr.gitlab.fame.communication.message.DataItem;
@@ -22,7 +21,7 @@ public class SupportRequestData extends DataItem {
 	static final String ERR_TIMESTAMP_LEFTOVER = "Accounting period mismatch; No support was requested for dispatch at time stamp: ";
 
 	/** the technology set */
-	public final SetType setType;
+	public final String setType;
 	/** the support instrument for the technology set */
 	public final SupportInstrument supportInstrument;
 	/** infeed per time stamp */
@@ -52,15 +51,15 @@ public class SupportRequestData extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public SupportRequestData(ProtoDataItem proto) {
-		this.setType = SetType.values()[proto.getIntValue(0)];
-		this.supportInstrument = SupportInstrument.values()[proto.getIntValue(1)];
+		this.setType = proto.getStringValue(0);
+		this.supportInstrument = SupportInstrument.values()[proto.getIntValue(0)];
 		this.installedCapacityInMW = proto.getDoubleValue(0);
 		TimeStamp startTime = new TimeStamp(proto.getLongValue(0));
 		TimeSpan duration = new TimeSpan(proto.getLongValue(1));
 		this.clientId = proto.getLongValue(2);
 		this.accountingPeriod = new TimePeriod(startTime, duration);
 		this.infeed = new TreeMap<>();
-		for (int i = 0; i < proto.getIntValue(2); i++) {
+		for (int i = 0; i < proto.getIntValue(1); i++) {
 			TimeStamp timeStamp = new TimeStamp(proto.getLongValue(i + 3));
 			double value = proto.getDoubleValue(i + 1);
 			infeed.put(timeStamp, value);
@@ -69,7 +68,7 @@ public class SupportRequestData extends DataItem {
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addIntValue(setType.ordinal());
+		builder.addStringValue(setType);
 		builder.addIntValue(supportInstrument.ordinal());
 		builder.addDoubleValue(installedCapacityInMW);
 		builder.addLongValue(accountingPeriod.getStartTime().getStep());

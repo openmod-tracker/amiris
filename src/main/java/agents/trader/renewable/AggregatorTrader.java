@@ -19,7 +19,6 @@ import agents.plantOperator.Marginal;
 import agents.plantOperator.PowerPlantOperator;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.RenewablePlantOperator;
-import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.SupportPolicy;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import agents.trader.ClientData;
@@ -186,7 +185,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	private void digestSupportInfo(ArrayList<Message> messages, List<Contract> contracts) {
 		for (Message message : messages) {
 			SupportData supportData = message.getFirstPortableItemOfType(SupportData.class);
-			SetType technologySetType = supportData.getSetType();
+			String technologySetType = supportData.getSetType();
 			for (ClientData clientData : getClientDataForSetType(technologySetType)) {
 				clientData.setSupportData(supportData);
 			}
@@ -197,7 +196,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	 * 
 	 * @param setType to search for
 	 * @return client data for given set type */
-	protected List<ClientData> getClientDataForSetType(SetType setType) {
+	protected List<ClientData> getClientDataForSetType(String setType) {
 		List<ClientData> clients = new ArrayList<>();
 		for (ClientData clientData : clientMap.values()) {
 			if (clientData.getTechnologySet().setType == setType) {

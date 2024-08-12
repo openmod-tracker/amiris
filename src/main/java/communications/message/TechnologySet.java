@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.plantOperator.RenewablePlantOperator.SetType;
 import agents.policy.PolicyItem.SupportInstrument;
 import agents.policy.SupportPolicy.EnergyCarrier;
 import de.dlr.gitlab.fame.communication.message.DataItem;
@@ -14,8 +13,8 @@ import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class TechnologySet extends DataItem {
-	/** the set type */
-	public final SetType setType;
+	/** the set type - or null if no set type is available */
+	public final String setType;
 	/** the energy carrier */
 	public final EnergyCarrier energyCarrier;
 	/** the support instrument for the technology set */
@@ -28,7 +27,7 @@ public class TechnologySet extends DataItem {
 	 * @param technologySetType clients technology set
 	 * @param energyCarrier client's type of energy carrier
 	 * @param supportInstrument support instrument the client applies for */
-	public TechnologySet(SetType technologySetType, EnergyCarrier energyCarrier, SupportInstrument supportInstrument) {
+	public TechnologySet(String technologySetType, EnergyCarrier energyCarrier, SupportInstrument supportInstrument) {
 		this.setType = technologySetType;
 		this.energyCarrier = energyCarrier;
 		this.supportInstrument = supportInstrument;
@@ -39,12 +38,12 @@ public class TechnologySet extends DataItem {
 	 * @param proto protobuf representation */
 	public TechnologySet(ProtoDataItem proto) {
 		energyCarrier = EnergyCarrier.values()[proto.getIntValue(0)];
-		setType = getOrNull(SetType.values(), proto.getIntValue(1));
-		supportInstrument = getOrNull(SupportInstrument.values(), proto.getIntValue(2));
+		supportInstrument = getEnumOrNull(SupportInstrument.values(), proto.getIntValue(1));
+		setType = getStringOrNull(proto.getStringValue(0));
 	}
 
 	/** @return if given index >= 0: item with corresponding index in given array of choices, null otherwise */
-	private <T extends Enum<T>> T getOrNull(T[] choices, int index) {
+	private <T extends Enum<T>> T getEnumOrNull(T[] choices, int index) {
 		if (index >= 0) {
 			return choices[index];
 		} else {
@@ -52,10 +51,15 @@ public class TechnologySet extends DataItem {
 		}
 	}
 
+	/** @return given string if not empty, else null */
+	private String getStringOrNull(String string) {
+		return string == "" ? null : string;
+	}
+
 	@Override
 	protected void fillDataFields(Builder builder) {
 		builder.addIntValue(energyCarrier.ordinal());
-		builder.addIntValue(setType == null ? -1 : setType.ordinal());
 		builder.addIntValue(supportInstrument == null ? -1 : supportInstrument.ordinal());
+		builder.addStringValue(setType == null ? "" : setType);
 	}
 }
