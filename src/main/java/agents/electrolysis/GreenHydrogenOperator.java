@@ -41,13 +41,16 @@ public class GreenHydrogenOperator extends Agent implements FuelsTrader, PowerPl
 	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
 			.addAs("Device", Electrolyzer.parameters).buildTree();
 
+	/** Available output columns */
 	@Output
 	private static enum Outputs {
 		ConsumedElectricityInMWH, ProducedHydrogenInMWH, VariableCostsInEUR, ReceivedMoneyInEUR
 	};
 
+	/** Available products */
 	@Product
 	public static enum Products {
+		/** Request for Power Purchase Agreement (PPA) contract data with electricity production unit */
 		PpaInformationRequest
 	};
 

@@ -36,7 +36,8 @@ public interface FuelsTrader extends AgentAbility {
 	public static final ParameterBuilder fuelTypeParameter = Make.newString("FuelType");
 
 	/** @return fuelType read from given input parameter group
-	 * @param input group with a fuel type input parameter */
+	 * @param input group with a fuel type input parameter
+	 * @throws MissingDataException if fuel type input is missing */
 	public static String readFuelType(ParameterData input) throws MissingDataException {
 		return input.getString("FuelType");
 	}

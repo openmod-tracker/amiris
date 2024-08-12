@@ -7,7 +7,7 @@ import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
 
-/** Transmitting Data concerning a {@link FuelType} */
+/** Transmitting Data concerning a fuel type */
 public class FuelData extends DataItem {
 	/** The type of fuel in question */
 	public final String fuelType;
