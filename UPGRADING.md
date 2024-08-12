@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 ### String Sets
 This version requires new feature `string_set` provided by `fameio` > v2.3.
 Thus, update `fameio` accordingly.
-If not yet present, add a new StringSet section to your scenario.
+If not yet present, add a new `StringSets` section to your scenario.
 
 #### FuelType
 Add a new StringSet `FuelType` to your scenario listing all fuel names used by your agents.
