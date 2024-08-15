@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import agents.electrolysis.Electrolyzer;
+import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -41,9 +42,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
 import util.Util.MessagePair;
 
-/**  
- * 
- * @author Johannes Kochems, Christoph Schimeczek */
+/** @author Johannes Kochems, Christoph Schimeczek */
 public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
@@ -71,7 +70,9 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 	@Product
 	public static enum Products {
 		/** Request for Power Purchase Agreement (PPA) contract data with electricity production unit */
-		PpaInformationRequest, PpaInformationForecastRequest
+		PpaInformationRequest,
+		/** Request for forecasted Power Purchase Agreement (PPA) contract data with electricity production unit */
+		PpaInformationForecastRequest
 	};
 
 	private final String fuelType;
@@ -83,6 +84,10 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 	private double lastHydrogenProducedInMWH;
 	private TimeStamp lastClearingTime;
 
+	/** Creates a new {@link GreenHydrogenTrader}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public GreenHydrogenTrader(DataProvider data) throws MissingDataException {
 		super(data);
 		ParameterData input = parameters.join(data);
@@ -130,11 +135,16 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		sendFuelPriceRequest(contract, fuelData, clearingTimes);
 	}
 
-	private void sendBidsForecasts(ArrayList<Message> messages, List<Contract> contracts) {
-		var allBids = prepareBids(messages);
+	/** Sends forecasted bids to contracted {@link MarketForecaster}
+	 * 
+	 * @param input hydrogen price forecast and PPA information forecast messages
+	 * @param contracts single contract with {@link MarketForecaster} */
+	private void sendBidsForecasts(ArrayList<Message> input, List<Contract> contracts) {
+		var allBids = prepareBids(input);
 		fulfilBidContract(allBids, CommUtils.getExactlyOneEntry(contracts));
 	}
 
+	/** @return two bids for each {@link TimeStamp} specified in the given messages */
 	private HashMap<TimeStamp, Bid[]> prepareBids(ArrayList<Message> messages) {
 		HashMap<TimeStamp, MessagePair<PpaInformation, FuelCost>> messagePairs = Util.matchMessagesByTime(messages,
 				PpaInformation.class, FuelCost.class);
@@ -153,12 +163,17 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		return allBids;
 	}
 
+	/** Sends given bids to contracted partner */
 	private void fulfilBidContract(HashMap<TimeStamp, Bid[]> bids, Contract contract) {
 		for (Entry<TimeStamp, Bid[]> entry : bids.entrySet()) {
 			fulfilNext(contract, new BidsAtTime(entry.getKey(), getId(), Arrays.asList(entry.getValue()), null));
 		}
 	}
 
+	/** Sends bids to contracted {@link DayAheadMarket}
+	 * 
+	 * @param input one hydrogen price and one PPA information message
+	 * @param contracts single contract with {@link DayAheadMarket} */
 	private void sendBids(ArrayList<Message> messages, List<Contract> contracts) {
 		var allBids = prepareBids(messages);
 		fulfilBidContract(allBids, CommUtils.getExactlyOneEntry(contracts));
@@ -179,6 +194,10 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		lastYieldPotentialInMWH = totalElectrolyserDemandInMWH + totalSurplusInMWH;
 	}
 
+	/** Assign electrolyser and contracted renewable power plant to dispatch based on awards of the energy exchange
+	 * 
+	 * @param messages one award message from a contracted {@link DayAheadMarket}
+	 * @param contracts one contract with one renewable power plant operator */
 	private void digestAwards(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		AwardData award = CommUtils.getExactlyOneEntry(messages).getDataItemOfType(AwardData.class);
