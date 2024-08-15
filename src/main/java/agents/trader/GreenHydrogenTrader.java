@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.trader;
 
 import java.util.ArrayList;
@@ -38,6 +41,9 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
 import util.Util.MessagePair;
 
+/**  
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
@@ -48,15 +54,15 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 	@Output
 	private static enum Outputs {
 		/** Amount of electricity consumed in this period for operating the electrolysis unit */
-		ConsumedElectricityInMWH, 
+		ConsumedElectricityInMWH,
 		/** Amount of green hydrogen produced in this period using the electrolysis unit */
-		ProducedHydrogenInMWH, 
+		ProducedHydrogenInMWH,
 		/** Variable operation and maintenance costs in EUR */
-		VariableCostsInEUR, 
+		VariableCostsInEUR,
 		/** Total received money for selling hydrogen in EUR */
 		ReceivedMoneyForHydrogenInEUR,
 		/** Total received money for selling electricity in EUR */
-		ReceivedMoneyForElectricityInEUR, 
+		ReceivedMoneyForElectricityInEUR,
 		/** Surplus electricity generation offered to the day-ahead market in MWh */
 		OfferedSurplusEnergyInMWH
 	};

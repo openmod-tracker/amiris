@@ -17,7 +17,7 @@ public class PointInTime extends DataItem {
 
 	/** Creates this {@link PointInTime}
 	 * 
-	 * @param timeStamp to be transferred */
+	 * @param validAt time stamp to be transferred */
 	public PointInTime(TimeStamp validAt) {
 		this.validAt = validAt;
 	}
