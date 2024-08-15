@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import agents.electrolysis.Electrolyzer;
-import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
