@@ -11,9 +11,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Specifies an arbitrary amount at a specific time
  * 
  * @author Christoph Schimeczek, Marc Deissenroth */
-public class AmountAtTime extends DataItem {
-	/** The time the DataItem is valid at */
-	public final TimeStamp validAt;
+public class AmountAtTime extends PointInTime {
 	/** The actual amount to be exchanged between the contract parties */
 	public final double amount;
 
@@ -22,7 +20,7 @@ public class AmountAtTime extends DataItem {
 	 * @param timeStamp to which the specified amount is associated with
 	 * @param amount value associated with the given timeStamp */
 	public AmountAtTime(TimeStamp timeStamp, double amount) {
-		this.validAt = timeStamp;
+		super(timeStamp);
 		this.amount = amount;
 	}
 
@@ -30,13 +28,13 @@ public class AmountAtTime extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public AmountAtTime(ProtoDataItem proto) {
-		this.validAt = new TimeStamp(proto.getLongValue(0));
+		super(new TimeStamp(proto.getLongValue(0)));
 		this.amount = proto.getDoubleValue(0);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addLongValue(validAt.getStep());
+		super.fillDataFields(builder);
 		builder.addDoubleValue(amount);
 	}
 }

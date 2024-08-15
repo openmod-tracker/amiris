@@ -13,24 +13,24 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek */
 public class PointInTime extends DataItem {
 	/** The transferred TimeStamp */
-	public final TimeStamp timeStamp;
+	public final TimeStamp validAt;
 
 	/** Creates this {@link PointInTime}
 	 * 
 	 * @param timeStamp to be transferred */
-	public PointInTime(TimeStamp timeStamp) {
-		this.timeStamp = timeStamp;
+	public PointInTime(TimeStamp validAt) {
+		this.validAt = validAt;
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addLongValue(timeStamp.getStep());
+		builder.addLongValue(validAt.getStep());
 	}
 
 	/** Mandatory for deserialisation of {@link DataItem}s
 	 * 
 	 * @param proto protobuf representation */
 	public PointInTime(ProtoDataItem proto) {
-		this.timeStamp = new TimeStamp(proto.getLongValue(0));
+		this.validAt = new TimeStamp(proto.getLongValue(0));
 	}
 }

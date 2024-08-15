@@ -4,11 +4,15 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import communications.message.PointInTime;
+import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.communication.message.Message;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Collection of general static methods used across packages
  * 
@@ -17,6 +21,9 @@ public final class Util {
 	static final String INVALID_RANGE = "Interpolation: minValue must be lower equal to maxValue";
 	static final String INVALID_STEPS = "Interpolation steps must not be negative!";
 	static final String NO_INSTANCE = "Do not instantiate class: ";
+	static final String COUNT_MISMATCH = "No equal number of entries for in list of messages for types %s %s";
+	static final String TIME_DUPLICATE = "More than one message of type %s found for same time %s";
+	static final String TIME_UNMATCHED = "Time %s in messages of type %s could not be matched to times in messages of type %s";
 
 	Util() {
 		throw new IllegalStateException(NO_INSTANCE + getClass().getCanonicalName());
@@ -94,5 +101,51 @@ public final class Util {
 			}
 		}
 		return null;
+	}
+
+	public static <T extends PointInTime, U extends PointInTime> HashMap<TimeStamp, MessagePair<T, U>> matchMessagesByTime(
+			ArrayList<Message> messages, Class<T> firstType, Class<U> otherType) {
+		List<Message> messagesOfFirstType = CommUtils.extractMessagesWith(messages, firstType);
+		List<Message> messagesOfOtherType = CommUtils.extractMessagesWith(messages, otherType);
+		if (messagesOfFirstType.size() != messagesOfOtherType.size()) {
+			throw new RuntimeException(String.format(COUNT_MISMATCH, firstType, otherType));
+		}
+		HashMap<TimeStamp, MessagePair<T, U>> result = new HashMap<>(messages.size() / 2);
+		for (var message : messagesOfFirstType) {
+			T dataItem = message.getDataItemOfType(firstType);
+			if (result.containsKey(dataItem.validAt)) {
+				throw new RuntimeException(String.format(TIME_DUPLICATE, firstType, dataItem.validAt));
+			}
+			result.put(dataItem.validAt, new MessagePair<T, U>(dataItem));
+		}
+		for (var message : messagesOfOtherType) {
+			U dataItem = message.getDataItemOfType(otherType);
+			if (!result.containsKey(dataItem.validAt)) {
+				throw new RuntimeException(String.format(TIME_UNMATCHED, dataItem.validAt, otherType, firstType));
+			}
+			result.get(dataItem.validAt).setOtherItem(dataItem);
+		}
+		return result;
+	}
+
+	public static class MessagePair<T extends PointInTime, U extends PointInTime> {
+		private T itemOne;
+		private U otherItem;
+
+		private MessagePair(T itemOne) {
+			this.itemOne = itemOne;
+		}
+
+		private void setOtherItem(U otherItem) {
+			this.otherItem = otherItem;
+		}
+
+		public T getItemOne() {
+			return itemOne;
+		}
+
+		public U getOtherItem() {
+			return otherItem;
+		}
 	}
 }
