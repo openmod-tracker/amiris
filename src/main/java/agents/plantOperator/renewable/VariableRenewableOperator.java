@@ -52,9 +52,9 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		tsYieldProfile = input.getTimeSeries("YieldProfile");
 		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
 
-		call(this::sendPpaInformation).on(Products.PpaInformation).use(GreenHydrogenTrader.Products.PpaInformationRequest);
-		call(this::sendPpaInformation).on(Products.PpaInformationForecast)
+		call(this::sendPpaInformationForecast).on(Products.PpaInformationForecast)
 				.use(GreenHydrogenTrader.Products.PpaInformationForecastRequest);
+		call(this::sendPpaInformation).on(Products.PpaInformation).use(GreenHydrogenTrader.Products.PpaInformationRequest);
 	}
 
 	/** @return single {@link Marginal} considering variable yield */
@@ -73,18 +73,30 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		return tsYieldProfile.getValueLinear(time);
 	}
 
+	private void sendPpaInformationForecast(ArrayList<Message> input, List<Contract> contracts) {
+		sendPpaMultipleTimes(input, contracts);
+	}
+
 	/** send price and yield potential at given time */
-	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
+	private double sendPpaMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
 		if (ppaPriceInEURperMWH == null) {
 			throw new RuntimeException(ERR_PPA_PRICE_MISSING + this);
 		}
 		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		List<TimeStamp> times = message.getDataItemOfType(ClearingTimes.class).getTimes();
+		double totalOfferedEnergyInMWH = 0;
 		for (var time : times) {
 			double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);
 			double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
 			fulfilNext(contract, new PpaInformation(time, ppaPrice, availablePower, getVariableOpexAtTime(time)));
+			totalOfferedEnergyInMWH += availablePower;
 		}
+		return totalOfferedEnergyInMWH;
+	}
+
+	private void sendPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
+		double totalOfferedEnergyInMHW = sendPpaMultipleTimes(input, contracts);
+		store(OutputFields.OfferedEnergyInMWH, totalOfferedEnergyInMHW);
 	}
 }

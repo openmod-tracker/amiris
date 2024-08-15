@@ -38,7 +38,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
 import util.Util.MessagePair;
 
-public class GreenHydrogenTrader extends Trader implements FuelsTrader {
+public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
 	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
@@ -47,8 +47,18 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader {
 	/** Available output columns */
 	@Output
 	private static enum Outputs {
-		ConsumedElectricityInMWH, ProducedHydrogenInMWH, VariableCostsInEUR, ReceivedMoneyForHydrogenInEUR,
-		ReceivedMoneyForElectricityInEUR, OfferedSurplusEnergyInMWH,
+		/** Amount of electricity consumed in this period for operating the electrolysis unit */
+		ConsumedElectricityInMWH, 
+		/** Amount of green hydrogen produced in this period using the electrolysis unit */
+		ProducedHydrogenInMWH, 
+		/** Variable operation and maintenance costs in EUR */
+		VariableCostsInEUR, 
+		/** Total received money for selling hydrogen in EUR */
+		ReceivedMoneyForHydrogenInEUR,
+		/** Total received money for selling electricity in EUR */
+		ReceivedMoneyForElectricityInEUR, 
+		/** Surplus electricity generation offered to the day-ahead market in MWh */
+		OfferedSurplusEnergyInMWH
 	};
 
 	/** Available products */
@@ -76,7 +86,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader {
 
 		call(this::requestPpaInformation).on(Products.PpaInformationForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceRequest)
+		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
 		call(this::sendBidsForecasts).on(Trader.Products.BidsForecast).use(FuelsMarket.Products.FuelPriceForecast,
 				VariableRenewableOperator.Products.PpaInformationForecast);
