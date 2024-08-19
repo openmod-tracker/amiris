@@ -103,49 +103,64 @@ public final class Util {
 		return null;
 	}
 
-	public static <T extends PointInTime, U extends PointInTime> HashMap<TimeStamp, MessagePair<T, U>> matchMessagesByTime(
-			ArrayList<Message> messages, Class<T> firstType, Class<U> otherType) {
+	/** Searches given {@link Message}s for those that contain any of the two given types and extracts (removes) them from the given
+	 * list. Then, matches the extracted messages to {@link MessagePair}s with same {@link TimeStamp}.
+	 * 
+	 * @param <X> first type of PointInTime items
+	 * @param <Y> second type of PointInTime items
+	 * @param messages list of messages to be searched for those containing firstType or secondType
+	 * @param firstType of PointInTime items to be extracted
+	 * @param secondType of PointInTime items to be extracted
+	 * @return Map of {@link MessagePair}s indexed by {@link TimeStamp}
+	 * @throws IllegalArgumentException if {@link TimeStamp}s are not unique among the messages of each type, if number of messages
+	 *           for both types are not equal, if times for both types do not exactly match */
+	public static <X extends PointInTime, Y extends PointInTime> HashMap<TimeStamp, MessagePair<X, Y>> matchMessagesByTime(
+			ArrayList<Message> messages, Class<X> firstType, Class<Y> secondType) {
 		List<Message> messagesOfFirstType = CommUtils.extractMessagesWith(messages, firstType);
-		List<Message> messagesOfOtherType = CommUtils.extractMessagesWith(messages, otherType);
+		List<Message> messagesOfOtherType = CommUtils.extractMessagesWith(messages, secondType);
 		if (messagesOfFirstType.size() != messagesOfOtherType.size()) {
-			throw new RuntimeException(String.format(COUNT_MISMATCH, firstType, otherType));
+			throw new IllegalArgumentException(String.format(COUNT_MISMATCH, firstType, secondType));
 		}
-		HashMap<TimeStamp, MessagePair<T, U>> result = new HashMap<>(messages.size() / 2);
+		HashMap<TimeStamp, MessagePair<X, Y>> result = new HashMap<>(messages.size() / 2);
 		for (var message : messagesOfFirstType) {
-			T dataItem = message.getDataItemOfType(firstType);
+			X dataItem = message.getDataItemOfType(firstType);
 			if (result.containsKey(dataItem.validAt)) {
-				throw new RuntimeException(String.format(TIME_DUPLICATE, firstType, dataItem.validAt));
+				throw new IllegalArgumentException(String.format(TIME_DUPLICATE, firstType, dataItem.validAt));
 			}
-			result.put(dataItem.validAt, new MessagePair<T, U>(dataItem));
+			result.put(dataItem.validAt, new MessagePair<X, Y>(dataItem));
 		}
 		for (var message : messagesOfOtherType) {
-			U dataItem = message.getDataItemOfType(otherType);
+			Y dataItem = message.getDataItemOfType(secondType);
 			if (!result.containsKey(dataItem.validAt)) {
-				throw new RuntimeException(String.format(TIME_UNMATCHED, dataItem.validAt, otherType, firstType));
+				throw new IllegalArgumentException(String.format(TIME_UNMATCHED, dataItem.validAt, secondType, firstType));
 			}
 			result.get(dataItem.validAt).setOtherItem(dataItem);
 		}
 		return result;
 	}
 
-	public static class MessagePair<T extends PointInTime, U extends PointInTime> {
-		private T itemOne;
-		private U otherItem;
+	/** A pair of messages containing a {@link PointInTime} {@link DataItem} that have the same {@link TimeStamp}.
+	 * 
+	 * @param <X> first type of PointInTime items
+	 * @param <Y> second type of PointInTime items */
+	public static class MessagePair<X extends PointInTime, Y extends PointInTime> {
+		private X firstItem;
+		private Y secondItem;
 
-		private MessagePair(T itemOne) {
-			this.itemOne = itemOne;
+		private MessagePair(X firstItem) {
+			this.firstItem = firstItem;
 		}
 
-		private void setOtherItem(U otherItem) {
-			this.otherItem = otherItem;
+		private void setOtherItem(Y secondItem) {
+			this.secondItem = secondItem;
 		}
 
-		public T getItemOne() {
-			return itemOne;
+		public X getFirstItem() {
+			return firstItem;
 		}
 
-		public U getOtherItem() {
-			return otherItem;
+		public Y getSecondItem() {
+			return secondItem;
 		}
 	}
 }

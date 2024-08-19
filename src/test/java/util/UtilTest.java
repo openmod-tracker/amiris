@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package util;
@@ -18,9 +18,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import communications.message.PointInTime;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.communication.message.Message;
+import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 public class UtilTest {
 
@@ -169,5 +172,101 @@ public class UtilTest {
 		assertEquals(2, messages.size());
 		assertTrue(messages.get(0).containsType(DataItem.class));
 		assertTrue(messages.get(1).containsType(DummyDataItemA.class));
+	}
+
+	private class DummyA extends PointInTime {
+		public DummyA(TimeStamp validAt) {
+			super(validAt);
+		}
+
+		public DummyA(ProtoDataItem proto) {
+			super(proto);
+		}
+	}
+
+	private class DummyB extends PointInTime {
+		public DummyB(TimeStamp validAt) {
+			super(validAt);
+		}
+
+		public DummyB(ProtoDataItem proto) {
+			super(proto);
+		}
+	}
+
+	@Test
+	public void matchMessageByTime_emptyLists_returnsEmptyList() {
+		var result = Util.matchMessagesByTime(new ArrayList<Message>(), DummyA.class, DummyB.class);
+		assertEquals(0, result.size());
+	}
+
+	@Test
+	public void matchMessageByTime_messageCountMismatch_throws() {
+		String expectedError = String.format(Util.COUNT_MISMATCH, DummyA.class, DummyB.class);
+
+		var messages = mockPointInTimeMessages(new long[] {1, 2}, new long[] {1});
+		assertThrowsMessage(IllegalArgumentException.class, expectedError,
+				() -> Util.matchMessagesByTime(messages, DummyA.class, DummyB.class));
+
+		var messages2 = mockPointInTimeMessages(new long[] {}, new long[] {1});
+		assertThrowsMessage(IllegalArgumentException.class, expectedError,
+				() -> Util.matchMessagesByTime(messages2, DummyA.class, DummyB.class));
+	}
+
+	/** @return a list of {@link Message}s containing mocked Messages with timesA.size() mocked {@link DummyA} items validAt timesA,
+	 *         and timesB.size() {@link DummyB} items valid at times B **/
+	private ArrayList<Message> mockPointInTimeMessages(long[] timesA, long[] timesB) {
+		ArrayList<Message> messages = new ArrayList<>();
+		for (long time : timesA) {
+			Message mockMessage = mock(Message.class);
+			when(mockMessage.containsType(DummyA.class)).thenReturn(true);
+			when(mockMessage.getDataItemOfType(DummyA.class)).thenReturn(new DummyA(new TimeStamp(time)));
+			messages.add(mockMessage);
+		}
+		for (long time : timesB) {
+			Message mockMessage = mock(Message.class);
+			when(mockMessage.containsType(DummyB.class)).thenReturn(true);
+			when(mockMessage.getDataItemOfType(DummyB.class)).thenReturn(new DummyB(new TimeStamp(time)));
+			messages.add(mockMessage);
+		}
+		return messages;
+	}
+
+	@Test
+	public void matchMessageByTime_duplicateTimes_throws() {
+		String expectedError = String.format(Util.TIME_DUPLICATE, DummyA.class, new TimeStamp(1));
+		var messages = mockPointInTimeMessages(new long[] {1, 1}, new long[] {1, 1});
+		assertThrowsMessage(IllegalArgumentException.class, expectedError,
+				() -> Util.matchMessagesByTime(messages, DummyA.class, DummyB.class));
+	}
+
+	@Test
+	public void matchMessageByTime_timesDoNotMatch_throws() {
+		String expectedError = String.format(Util.TIME_UNMATCHED, new TimeStamp(3), DummyB.class, DummyA.class);
+		var messages = mockPointInTimeMessages(new long[] {1, 2}, new long[] {1, 3});
+		assertThrowsMessage(IllegalArgumentException.class, expectedError,
+				() -> Util.matchMessagesByTime(messages, DummyA.class, DummyB.class));
+	}
+
+	@Test
+	public void matchMessageByTime_twoMessages_mappedToSamePair() {
+		var messages = mockPointInTimeMessages(new long[] {1}, new long[] {1});
+		var result = Util.matchMessagesByTime(messages, DummyA.class, DummyB.class);
+		assertEquals(1, result.size());
+		var pair = result.get(new TimeStamp(1));
+		assertEquals(1L, pair.getFirstItem().validAt.getStep());
+		assertEquals(1L, pair.getSecondItem().validAt.getStep());
+	}
+
+	@Test
+	public void matchMessageByTime_fourMessages_mappedToSamePairs() {
+		var messages = mockPointInTimeMessages(new long[] {2, 1}, new long[] {1, 2});
+		var result = Util.matchMessagesByTime(messages, DummyA.class, DummyB.class);
+		assertEquals(2, result.size());
+		for (long time : new long[] {1, 2}) {
+			var pair = result.get(new TimeStamp(time));
+			assertEquals(time, pair.getFirstItem().validAt.getStep());
+			assertEquals(time, pair.getSecondItem().validAt.getStep());
+		}
 	}
 }

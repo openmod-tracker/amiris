@@ -149,8 +149,8 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 				PpaInformation.class, FuelCost.class);
 		HashMap<TimeStamp, Bid[]> allBids = new HashMap<>();
 		for (TimeStamp time : messagePairs.keySet()) {
-			PpaInformation ppa = messagePairs.get(time).getItemOne();
-			FuelCost fuelCost = messagePairs.get(time).getOtherItem();
+			PpaInformation ppa = messagePairs.get(time).getFirstItem();
+			FuelCost fuelCost = messagePairs.get(time).getSecondItem();
 			double opportunityCostInEURperMWH = fuelCost.amount * electrolyzer.getConversionFactor();
 			double electrolyserElectricDemandInMWH = electrolyzer.calcCappedElectricDemandInMW(ppa.yieldPotentialInMWH, time);
 			double surplusElectricityInMWH = ppa.yieldPotentialInMWH - electrolyserElectricDemandInMWH;
