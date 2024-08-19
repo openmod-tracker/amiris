@@ -85,7 +85,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 
 	/** Creates a new {@link GreenHydrogenTrader}
 	 * 
-	 * @param dataProvider provides input from config
+	 * @param data provides input from config
 	 * @throws MissingDataException if any required data is not provided */
 	public GreenHydrogenTrader(DataProvider data) throws MissingDataException {
 		super(data);
