@@ -338,7 +338,7 @@ AgentTypes:
           OEONearestConcept: OEO_00040003
       FuelBill:
         MetaData:
-          Description: "Sum of costs for purchased fuel."
+          Description: "Sum of costs for purchased fuel"
           OEONearestConcept: OEO_00040003
     Outputs: []
     MetaData:
