@@ -330,7 +330,7 @@ AgentTypes:
     Products:
       FuelPriceForecast:
         MetaData:
-          Description: "Forecasted value of a fuel price."
+          Description: "Forecasted value of a fuel price"
           OEONearestConcept:
       FuelPrice:
         MetaData:
