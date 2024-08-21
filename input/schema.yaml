@@ -318,7 +318,7 @@ AgentTypes:
             List: false
             Mandatory: true
             MetaData:
-              Description: "Fuel price."
+              Description: "Fuel price"
               OEONearestConcept: OEO_00040003
           ConversionFactor:
             AttributeType: double
