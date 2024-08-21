@@ -334,7 +334,7 @@ AgentTypes:
           OEONearestConcept:
       FuelPrice:
         MetaData:
-          Description: "Fuel price."
+          Description: "Fuel price"
           OEONearestConcept: OEO_00040003
       FuelBill:
         MetaData:
