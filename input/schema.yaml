@@ -318,7 +318,7 @@ AgentTypes:
             List: false
             Mandatory: true
             MetaData:
-              Description: "Fuel price."
+              Description: "Fuel price"
               OEONearestConcept: OEO_00040003
           ConversionFactor:
             AttributeType: double
@@ -330,15 +330,15 @@ AgentTypes:
     Products:
       FuelPriceForecast:
         MetaData:
-          Description: "Forecasted value of a fuel price."
+          Description: "Forecasted value of a fuel price"
           OEONearestConcept:
       FuelPrice:
         MetaData:
-          Description: "Fuel price."
+          Description: "Fuel price"
           OEONearestConcept: OEO_00040003
-      FuelsBill:
+      FuelBill:
         MetaData:
-          Description: "Sum of costs for purchased fuel."
+          Description: "Sum of costs for purchased fuel"
           OEONearestConcept: OEO_00040003
     Outputs: []
     MetaData:
@@ -1272,6 +1272,10 @@ AgentTypes:
         MetaData:
           Description: "Details about a Power Purchase Agreement (PPA) with this plant operator"
           OEONearestConcept:
+      PpaInformationForecast:
+        MetaData:
+          Description: "Details about a Power Purchase Agreement (PPA) with this plant operator for the future"
+          OEONearestConcept:
     Ouputs:
       AwardedEnergyInMWH: *PPO_O_AwardedEnergy
       OfferedEnergyInMWH: *PPO_O_OfferedEnergy
@@ -1741,7 +1745,7 @@ AgentTypes:
       Description: "ElectrolysisTrader is a type of FlexibilityTrader that operates an electrolyzer unit to produce hydrogen from electricity."
       OEONearestConcept:
 
-  GreenHydrogenOperator:
+  GreenHydrogenTrader:
     Attributes:
       Device: *Electrolyzer_G_Device
       FuelType: *FuelsTrader_A_FuelType
@@ -1750,9 +1754,15 @@ AgentTypes:
         MetaData:
           Description: "Request for available power and price from a renewable power plant operator contracted via a Power Purchase Agreement"
           OEONearestConcept:
+      PpaInformationForecastRequest:
+        MetaData:
+          Description: "Request for available power and price at a future time from a renewable power plant operator contracted via a Power Purchase Agreement"
+          OEONearestConcept:
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
       FuelBid: *FuelsTrader_P_FuelBid
+      Bids: *DamTrader_P_Bids
+      BidsForecast: *Trader_P_BidsForecast
       Payout: *PowerPlantScheduler_P_Payout
       DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
     Outputs:
@@ -1768,10 +1778,20 @@ AgentTypes:
         MetaData:
           Description: "Variable operation and maintenance costs in EUR"
           OEONearestConcept:
-      ReceivedMoneyInEUR:
+      ReceivedMoneyForHydrogenInEUR:
         MetaData:
-          Description: "Total received money in EUR"
+          Description: "Total received money for selling hydrogen in EUR"
           OEONearestConcept:
+      ReceivedMoneyForElectricityInEUR:
+        MetaData:
+          Description: "Total received money for selling electricity in EUR"
+          OEONearestConcept:
+      OfferedSurplusEnergyInMWH:
+        MetaData:
+          Description: "Surplus electricity generation offered to the day-ahead market in MWh"
+          OEONearestConcept:        
+      OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
+      AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
     MetaData:
       Description: "A green hydrogen electrolysis operator; It purchases electricity directly from renewable power plants operators."
       OEONearestConcept:

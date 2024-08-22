@@ -3,8 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.electrolysis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -17,9 +15,6 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class Electrolyzer {
-	private static final Logger logger = LoggerFactory.getLogger(Electrolyzer.class);
-	static final String ERR_LARGE_CONSUMPTION = "Requested power for electrolysis was capped to peak power at time: ";
-
 	/** Input parameters of an {@link Electrolyzer} unit */
 	public static final Tree parameters = Make.newTree().add(
 			Make.newSeries("PeakConsumptionInMW"),
@@ -57,7 +52,6 @@ public class Electrolyzer {
 	 * @return given value, possible reduced to peak electric conversion power available at given time */
 	public double calcCappedElectricDemandInMW(double electricPowerInMW, TimeStamp time) {
 		if (electricPowerInMW > getPeakPower(time)) {
-			logger.warn(ERR_LARGE_CONSUMPTION + time);
 			electricPowerInMW = getPeakPower(time);
 		}
 		return electricPowerInMW;

@@ -57,7 +57,7 @@ public class PriceForecasterFile extends Forecaster {
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
-				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).timeStamp;
+				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
 				nextForecasts.computeIfAbsent(requestedTime, __ -> priceForecasts.getValueLinear(requestedTime));
 				AmountAtTime priceForecastMessage = new AmountAtTime(requestedTime, nextForecasts.get(requestedTime));
 				fulfilNext(contract, priceForecastMessage);

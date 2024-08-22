@@ -39,7 +39,7 @@ public class MeritOrderForecaster extends MarketForecaster {
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
-				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).timeStamp;
+				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
 				MarketClearingResult result = getResultForRequestedTime(requestedTime);
 				MeritOrderMessage meritOrderMessage = new MeritOrderMessage(result.getSupplyBook(), result.getDemandBook(),
 						requestedTime);
