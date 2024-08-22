@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.markets.DayAheadMarketMultiZone.MarketZone;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -12,7 +11,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class TransmissionCapacity implements Portable, Cloneable {
-	private MarketZone target;
+	private String target;
 	private double remainingTransferCapacityInMW;
 
 	/** required for {@link Portable}s */
@@ -20,22 +19,22 @@ public class TransmissionCapacity implements Portable, Cloneable {
 
 	/** Constructs a new {@link TransmissionCapacity} object based on:
 	 * 
-	 * @param target {@link MarketZone}
-	 * @param amount of energy that can be maximally transfered from origin {@link MarketZone} to target */
-	public TransmissionCapacity(MarketZone target, double amount) {
+	 * @param target market zone name
+	 * @param amount of energy that can be maximally transfered from origin to target market zone */
+	public TransmissionCapacity(String target, double amount) {
 		this.target = target;
 		this.remainingTransferCapacityInMW = amount;
 	}
 
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
-		collector.storeInts(target.ordinal());
+		collector.storeStrings(target);
 		collector.storeDoubles(remainingTransferCapacityInMW);
 	}
 
 	@Override
 	public void populate(ComponentProvider provider) {
-		target = MarketZone.values()[provider.nextInt()];
+		target = provider.nextString();
 		remainingTransferCapacityInMW = provider.nextDouble();
 	}
 
@@ -48,7 +47,7 @@ public class TransmissionCapacity implements Portable, Cloneable {
 	}
 
 	/** @return market zone that is the target of the transmission */
-	public MarketZone getTarget() {
+	public String getTarget() {
 		return target;
 	}
 

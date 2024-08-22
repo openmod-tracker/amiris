@@ -37,40 +37,6 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 	static final String TIME_SERIES_MISSING = "No transmission capacity specified for market zone: ";
 	static final String ERR_CLEARING_FAILED = ": Market clearing failed due to: ";
 
-	/** Available market zones labels */
-	public static enum MarketZone {
-		/** Germany */
-		DE,
-		/** France */
-		FR,
-		/** Poland */
-		PL,
-		/** Austria */
-		AT,
-		/** Belgium */
-		BE,
-		/** Netherlands */
-		NL,
-		/** Norway */
-		NO,
-		/** Luxembourg */
-		LU,
-		/** Sweden */
-		SE,
-		/** Denmark (West) */
-		DKW,
-		/** Denmark (East) */
-		DKO,
-		/** Czech Republic */
-		CZ,
-		/** Switzerland */
-		CH,
-		/** Dummy market A */
-		A,
-		/** Dummy market B */
-		B
-	};
-
 	/** Products of {@link DayAheadMarketMultiZone}s */
 	@Product
 	public static enum Products {
@@ -94,19 +60,19 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(
-					Make.newEnum("OwnMarketZone", MarketZone.class).optional()
-							.help("Identifier specifying the market zone of this DayAheadMarket"),
+					Make.newString("MarketZone").optional()
+							.help("Identifier specifying the market zone this DayAheadMarket is representing"),
 					Make.newGroup("Transmission").list()
-							.add(Make.newEnum("ConnectedMarketZone", MarketZone.class).optional(),
+							.add(Make.newString("MarketZone").optional(),
 									Make.newSeries("CapacityInMW").optional()
 											.help("Net transfer capacity of supply from own to connected market zone.")))
 			.buildTree();
 
 	/** Market region of this energy exchange instance */
-	private final MarketZone ownMarketZone;
+	private final String ownMarketZone;
 	private DemandOrderBook demandBook = new DemandOrderBook();
 	private SupplyOrderBook supplyBook = new SupplyOrderBook();
-	private final HashMap<MarketZone, TimeSeries> transmissionCapacities = new HashMap<>();
+	private final HashMap<String, TimeSeries> transmissionCapacities = new HashMap<>();
 	private TransferOrderBook importBook = new TransferOrderBook();
 	private TransferOrderBook exportBook = new TransferOrderBook();
 
@@ -128,7 +94,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 	public DayAheadMarketMultiZone(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
-		ownMarketZone = input.getEnumOrDefault("OwnMarketZone", MarketZone.class, null);
+		ownMarketZone = input.getStringOrDefault("MarketZone", null);
 		if (ownMarketZone != null) {
 			loadTransmissionCapacities(input.getGroupList("Transmission"));
 		}
@@ -143,9 +109,9 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 	 * @param transmissions list of all available transmission time-series with the current market as origin of supply */
 	private void loadTransmissionCapacities(List<ParameterData> transmissions) {
 		for (ParameterData dataItem : transmissions) {
-			MarketZone targetRegion = null;
+			String targetRegion = null;
 			try {
-				targetRegion = dataItem.getEnum("ConnectedMarketZone", MarketZone.class);
+				targetRegion = dataItem.getString("MarketZone");
 			} catch (MissingDataException e) {
 				logger.error(MARKET_ZONE_MISSING);
 			}
@@ -176,7 +142,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 
 		TransmissionBook transmissionBook = new TransmissionBook(ownMarketZone);
-		for (MarketZone targetRegion : transmissionCapacities.keySet()) {
+		for (String targetRegion : transmissionCapacities.keySet()) {
 			transmissionBook.add(getTransmissionCapacity(targetRegion, now()));
 		}
 		MarketClearingResult result = marketClearing.clear(supplyBook.clone(), demandBook.clone(), getClearingEventId());
@@ -192,7 +158,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 	 * @param targetRegion given target Region
 	 * @param time given TimeStamp
 	 * @return TransmissionCapacity for a given target Region and TimeStamp */
-	private TransmissionCapacity getTransmissionCapacity(MarketZone targetRegion, TimeStamp time) {
+	private TransmissionCapacity getTransmissionCapacity(String targetRegion, TimeStamp time) {
 		double amount = getTransmissionCapacityAmount(targetRegion, time);
 		TransmissionCapacity transmissionCapacity = new TransmissionCapacity(targetRegion, amount);
 		return transmissionCapacity;
@@ -203,7 +169,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 	 * @param targetRegion given target Region
 	 * @param time given TimeStamp
 	 * @return transmission capacity amount for a given target Region and TimeStamp */
-	private double getTransmissionCapacityAmount(MarketZone targetRegion, TimeStamp time) {
+	private double getTransmissionCapacityAmount(String targetRegion, TimeStamp time) {
 		TimeSeries transmissionCapacityOverTime = transmissionCapacities.get(targetRegion);
 		if (transmissionCapacityOverTime == null) {
 			throw Logging.logFatalException(logger, TIME_SERIES_MISSING + targetRegion);

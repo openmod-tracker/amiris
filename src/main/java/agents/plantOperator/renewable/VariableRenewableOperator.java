@@ -35,8 +35,10 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 	/** Products of {@link VariableRenewableOperator}s */
 	@Product
 	public static enum Products {
-		/** Price set in PPA and the current yield potential */
-		PpaInformation, PpaInformationForecast
+		/** Information about the PPA for the current time */
+		PpaInformation,
+		/** Information about the PPA for a future time */
+		PpaInformationForecast
 	};
 
 	private TimeSeries tsYieldProfile;
