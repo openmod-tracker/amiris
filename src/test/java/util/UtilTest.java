@@ -233,9 +233,17 @@ public class UtilTest {
 	}
 
 	@Test
-	public void matchMessageByTime_duplicateTimes_throws() {
+	public void matchMessageByTime_duplicateTimesFirstType_throws() {
 		String expectedError = String.format(Util.TIME_DUPLICATE, DummyA.class, new TimeStamp(1));
-		var messages = mockPointInTimeMessages(new long[] {1, 1}, new long[] {1, 1});
+		var messages = mockPointInTimeMessages(new long[] {1, 1}, new long[] {1, 2});
+		assertThrowsMessage(IllegalArgumentException.class, expectedError,
+				() -> Util.matchMessagesByTime(messages, DummyA.class, DummyB.class));
+	}
+
+	@Test
+	public void matchMessageByTime_duplicateTimesSecondType_throws() {
+		String expectedError = String.format(Util.TIME_DUPLICATE, DummyB.class, new TimeStamp(1));
+		var messages = mockPointInTimeMessages(new long[] {1, 2}, new long[] {1, 1});
 		assertThrowsMessage(IllegalArgumentException.class, expectedError,
 				() -> Util.matchMessagesByTime(messages, DummyA.class, DummyB.class));
 	}

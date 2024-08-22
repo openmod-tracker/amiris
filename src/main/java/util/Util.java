@@ -134,7 +134,11 @@ public final class Util {
 			if (!result.containsKey(dataItem.validAt)) {
 				throw new IllegalArgumentException(String.format(TIME_UNMATCHED, dataItem.validAt, secondType, firstType));
 			}
-			result.get(dataItem.validAt).setOtherItem(dataItem);
+			MessagePair<X, Y> pair = result.get(dataItem.validAt);
+			if (pair.getSecondItem() != null) {
+				throw new IllegalArgumentException(String.format(TIME_DUPLICATE, secondType, dataItem.validAt));
+			}
+			result.get(dataItem.validAt).setSecondItem(dataItem);
 		}
 		return result;
 	}
@@ -151,7 +155,7 @@ public final class Util {
 			this.firstItem = firstItem;
 		}
 
-		private void setOtherItem(Y secondItem) {
+		private void setSecondItem(Y secondItem) {
 			this.secondItem = secondItem;
 		}
 

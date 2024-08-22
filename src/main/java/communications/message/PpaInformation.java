@@ -36,7 +36,7 @@ public class PpaInformation extends PointInTime {
 	 * 
 	 * @param proto protobuf representation */
 	public PpaInformation(ProtoDataItem proto) {
-		super(new TimeStamp(proto.getLongValue(0)));
+		super(proto);
 		this.priceInEURperMWH = proto.getDoubleValue(0);
 		this.yieldPotentialInMWH = proto.getDoubleValue(1);
 		this.marginalCostsInEURperMWH = proto.getDoubleValue(2);

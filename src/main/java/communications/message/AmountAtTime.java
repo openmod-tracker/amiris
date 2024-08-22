@@ -28,7 +28,7 @@ public class AmountAtTime extends PointInTime {
 	 * 
 	 * @param proto protobuf representation */
 	public AmountAtTime(ProtoDataItem proto) {
-		super(new TimeStamp(proto.getLongValue(0)));
+		super(proto);
 		this.amount = proto.getDoubleValue(0);
 	}
 
