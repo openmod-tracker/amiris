@@ -133,7 +133,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * 
 	 * @param input one GateClosureInfo message containing ClearingTimes
 	 * @param contracts single contract with a {@link DayAheadMarket} */
-	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
+	protected void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
@@ -202,7 +202,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	}
 
 	@Override
-	protected Strategist getStrategist() {
+	protected ElectrolyzerStrategist getStrategist() {
 		return strategist;
 	}
 }

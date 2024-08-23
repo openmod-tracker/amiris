@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import agents.electrolysis.Electrolyzer;
+import agents.electrolysis.GreenHydrogen;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -34,7 +35,6 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
-import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -42,38 +42,17 @@ import util.Util;
 import util.Util.MessagePair;
 
 /** @author Johannes Kochems, Christoph Schimeczek */
-public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler {
+public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler, GreenHydrogen {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
-	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
+	@Input public static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
 			.addAs("Device", Electrolyzer.parameters).buildTree();
-
-	/** Available output columns */
-	@Output
-	private static enum Outputs {
-		/** Amount of electricity consumed in this period for operating the electrolysis unit */
-		ConsumedElectricityInMWH,
+	
+	@Output enum AgentOutputs {		
 		/** Amount of green hydrogen produced in this period using the electrolysis unit */
 		ProducedHydrogenInMWH,
-		/** Variable operation and maintenance costs in EUR */
-		VariableCostsInEUR,
-		/** Total received money for selling hydrogen in EUR */
-		ReceivedMoneyForHydrogenInEUR,
-		/** Total received money for selling electricity in EUR */
-		ReceivedMoneyForElectricityInEUR,
-		/** Surplus electricity generation offered to the day-ahead market in MWh */
-		OfferedSurplusEnergyInMWH
-	};
-
-	/** Available products */
-	@Product
-	public static enum Products {
-		/** Request for Power Purchase Agreement (PPA) contract data with electricity production unit */
-		PpaInformationRequest,
-		/** Request for forecasted Power Purchase Agreement (PPA) contract data with electricity production unit */
-		PpaInformationForecastRequest
-	};
-
+	}
+	
 	private final String fuelType;
 	private final FuelData fuelData;
 	private final Electrolyzer electrolyzer;
@@ -94,14 +73,15 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		fuelData = new FuelData(fuelType);
 		electrolyzer = new Electrolyzer(input.getGroup("Device"));
 
-		call(this::requestPpaInformation).on(Products.PpaInformationForecastRequest)
+		call(this::requestPpaInformation).on(GreenHydrogen.Products.PpaInformationForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
 		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
 		call(this::sendBidsForecasts).on(Trader.Products.BidsForecast).use(FuelsMarket.Products.FuelPriceForecast,
 				VariableRenewableOperator.Products.PpaInformationForecast);
 
-		call(this::requestPpaInformation).on(Products.PpaInformationRequest).use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::requestPpaInformation).on(GreenHydrogen.Products.PpaInformationRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sendBids).on(DayAheadMarketTrader.Products.Bids).use(FuelsMarket.Products.FuelPrice,
@@ -213,7 +193,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		store(OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
 		store(Outputs.ReceivedMoneyForElectricityInEUR, award.supplyEnergyInMWH * award.powerPriceInEURperMWH);
 		store(Outputs.ConsumedElectricityInMWH, electrolyserDispatchInMWH);
-		store(Outputs.ProducedHydrogenInMWH, lastHydrogenProducedInMWH);
+		store(AgentOutputs.ProducedHydrogenInMWH, lastHydrogenProducedInMWH);
 	}
 
 	/** Sell hydrogen according to production schedule following the contracted renewable power plant

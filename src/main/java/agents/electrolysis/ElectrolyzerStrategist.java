@@ -25,6 +25,8 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		DISPATCH_FILE,
 		/** Schedules based on a moving target of hydrogen production totals and electricity prices */
 		SINGLE_AGENT_SIMPLE,
+		/** Schedules green hydrogen dispatch for monthly equivalence between electrolysis demand and renewable generation */
+		GREEN_HYDROGEN_MONTHLY
 	}
 
 	/** Planned production schedule for hydrogen in thermal MWh */
@@ -71,6 +73,9 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 				break;
 			case SINGLE_AGENT_SIMPLE:
 				strategist = new SingleAgentSimple(input, input.getGroup("Simple"));
+				break;
+			case GREEN_HYDROGEN_MONTHLY:
+				strategist = new GreenHydrogenMonthly(input);
 				break;
 			default:
 				throw new RuntimeException(ERR_UNKNOWN_STRATEGIST + type);
