@@ -5,7 +5,6 @@ package agents.markets.meritOrder.books;
 
 import java.util.ArrayList;
 import agents.markets.DayAheadMarket;
-import agents.markets.DayAheadMarketMultiZone.MarketZone;
 import communications.message.TransmissionCapacity;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
@@ -15,7 +14,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author A. Achraf El Ghazi, Felix Nitsch */
 public class TransmissionBook implements Portable, Cloneable {
-	private MarketZone origin;
+	private String origin;
 	private ArrayList<TransmissionCapacity> transmissionCapacities = new ArrayList<>();
 
 	/** required for {@link Portable}s */
@@ -24,7 +23,7 @@ public class TransmissionBook implements Portable, Cloneable {
 	/** Create new {@link TransmissionBook}
 	 * 
 	 * @param origin region of the transmissions */
-	public TransmissionBook(MarketZone origin) {
+	public TransmissionBook(String origin) {
 		this.origin = origin;
 	}
 
@@ -36,7 +35,7 @@ public class TransmissionBook implements Portable, Cloneable {
 	}
 
 	/** @return the Region of the corresponding market */
-	public MarketZone getOrigin() {
+	public String getOrigin() {
 		return origin;
 	}
 
@@ -47,7 +46,7 @@ public class TransmissionBook implements Portable, Cloneable {
 
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
-		collector.storeInts(origin.ordinal());
+		collector.storeStrings(origin);
 		for (TransmissionCapacity transmissionCapacity : transmissionCapacities) {
 			collector.storeComponents(transmissionCapacity);
 		}
@@ -55,7 +54,7 @@ public class TransmissionBook implements Portable, Cloneable {
 
 	@Override
 	public void populate(ComponentProvider provider) {
-		origin = MarketZone.values()[provider.nextInt()];
+		origin = provider.nextString();
 		transmissionCapacities = provider.nextComponentList(TransmissionCapacity.class);
 	}
 
