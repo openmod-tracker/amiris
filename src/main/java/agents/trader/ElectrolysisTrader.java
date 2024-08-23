@@ -51,15 +51,20 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
 
 	@Output
-	private static enum Outputs {
-		OfferedEnergyPriceInEURperMWH, ProducedHydrogenInMWH
+	protected static enum Outputs {
+		OfferedEnergyPriceInEURperMWH, ProducedHydrogenInMWH, 		
+		/** Total received money for selling hydrogen in EUR */
+		ReceivedMoneyForHydrogenInEUR,
 	};
 
 	private final String fuelType;
 	private final FuelData fuelData;
-	private final Electrolyzer electrolyzer;
-	private final ElectrolyzerStrategist strategist;
+	protected final Electrolyzer electrolyzer;
+	protected final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
+
+	protected double lastProducedHydrogenInMWH = 0;
+	protected TimeStamp lastClearingTime;
 
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
@@ -83,7 +88,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
+		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
+		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
 	}
 
@@ -155,34 +161,33 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		return demandBid;
 	}
 
-	/** Digests award information from {@link DayAheadMarket}, writes dispatch and sells hydrogen at fuels market using a "negative
-	 * purchase" message
+	/** Digests award information from {@link DayAheadMarket}, writes dispatch
 	 * 
 	 * @param messages award information received from {@link DayAheadMarket}
-	 * @param contracts a contract with one {@link FuelsMarket} */
-	private void sellProducedHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
+	 * @param contracts none */
+	protected void digestAwards(ArrayList<Message> messages, List<Contract> contracts) {
 		Message awardMessage = CommUtils.getExactlyOneEntry(messages);
 		AwardData award = awardMessage.getDataItemOfType(AwardData.class);
 
 		double awardedEnergyInMWH = award.demandEnergyInMWH;
 		double costs = award.powerPriceInEURperMWH * awardedEnergyInMWH;
-		TimeStamp deliveryTime = award.beginOfDeliveryInterval;
+		lastClearingTime = award.beginOfDeliveryInterval;
 
-		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH,
-				deliveryTime);
-		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
-		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
+		lastProducedHydrogenInMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH, lastClearingTime);
+		strategist.updateProducedHydrogenTotal(lastProducedHydrogenInMWH);
 
 		store(OutputColumns.AwardedEnergyInMWH, awardedEnergyInMWH);
-		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
+		store(Outputs.ProducedHydrogenInMWH, lastProducedHydrogenInMWH);
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}
 
-	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
-	private void sendHydrogenSellMessage(List<Contract> contracts, double producedHydrogenInThermalMWH,
-			TimeStamp deliveryTime) {
+	/** Sells hydrogen at fuels market using a "negative purchase" message
+	 * 
+	 * @param messages none
+	 * @param contracts a contract with one {@link FuelsMarket} */
+	private void sellProducedHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		FuelBid fuelBid = new FuelBid(deliveryTime, producedHydrogenInThermalMWH, BidType.Supply, fuelType);
+		FuelBid fuelBid = new FuelBid(lastClearingTime, lastProducedHydrogenInMWH, BidType.Supply, fuelType);
 		sendFuelBid(contract, fuelBid);
 	}
 
@@ -193,7 +198,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	private void digestSaleReturns(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		double cost = readFuelBillMessage(message);
-		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
+		store(Outputs.ReceivedMoneyForHydrogenInEUR, -cost);
 	}
 
 	@Override

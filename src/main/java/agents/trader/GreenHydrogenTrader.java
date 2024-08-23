@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import agents.electrolysis.Electrolyzer;
-import agents.electrolysis.GreenHydrogen;
+import agents.electrolysis.GreenHydrogenProducer;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -42,17 +42,24 @@ import util.Util;
 import util.Util.MessagePair;
 
 /** @author Johannes Kochems, Christoph Schimeczek */
-public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler, GreenHydrogen {
+public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler, GreenHydrogenProducer {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
 	@Input public static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
 			.addAs("Device", Electrolyzer.parameters).buildTree();
-	
-	@Output enum AgentOutputs {		
+
+	@Output
+	enum AgentOutputs {
 		/** Amount of green hydrogen produced in this period using the electrolysis unit */
 		ProducedHydrogenInMWH,
+		/** Surplus electricity generation offered to the day-ahead market in MWh */
+		OfferedSurplusEnergyInMWH,
+		/** Variable operation and maintenance costs in EUR */
+		VariableCostsInEUR,
+		/** Total received money for selling hydrogen in EUR */
+		ReceivedMoneyForHydrogenInEUR,
 	}
-	
+
 	private final String fuelType;
 	private final FuelData fuelData;
 	private final Electrolyzer electrolyzer;
@@ -73,14 +80,14 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		fuelData = new FuelData(fuelType);
 		electrolyzer = new Electrolyzer(input.getGroup("Device"));
 
-		call(this::requestPpaInformation).on(GreenHydrogen.Products.PpaInformationForecastRequest)
+		call(this::requestPpaInformation).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
 		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
 		call(this::sendBidsForecasts).on(Trader.Products.BidsForecast).use(FuelsMarket.Products.FuelPriceForecast,
 				VariableRenewableOperator.Products.PpaInformationForecast);
 
-		call(this::requestPpaInformation).on(GreenHydrogen.Products.PpaInformationRequest)
+		call(this::requestPpaInformation).on(GreenHydrogenProducer.Products.PpaInformationRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
@@ -92,16 +99,6 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		call(this::digestHydrogenSales).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
 				.use(VariableRenewableOperator.Products.PpaInformation);
-	}
-
-	/** Forwards one ClearingTimes to connected clients
-	 * 
-	 * @param input a single ClearingTimes message
-	 * @param contracts connected client */
-	private void requestPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
-		Message message = CommUtils.getExactlyOneEntry(input);
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		fulfilNext(contract, message.getDataItemOfType(ClearingTimes.class));
 	}
 
 	/** Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}
@@ -165,7 +162,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 			totalSurplusInMWH += bids[1].getEnergyAmountInMWH();
 		}
 		store(OutputColumns.OfferedEnergyInMWH, totalElectrolyserDemandInMWH + totalSurplusInMWH);
-		store(Outputs.OfferedSurplusEnergyInMWH, totalSurplusInMWH);
+		store(AgentOutputs.OfferedSurplusEnergyInMWH, totalSurplusInMWH);
 
 		if (allBids.values().size() > 1) {
 			throw new RuntimeException(this + ERR_MULTIPLE_TIMES);
@@ -213,7 +210,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 	private void digestHydrogenSales(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		double cost = readFuelBillMessage(message);
-		store(Outputs.ReceivedMoneyForHydrogenInEUR, -cost);
+		store(AgentOutputs.ReceivedMoneyForHydrogenInEUR, -cost);
 	}
 
 	/** Pay client according to PPA specification
@@ -226,6 +223,6 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		PpaInformation ppa = message.getDataItemOfType(PpaInformation.class);
 		double payment = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
 		fulfilNext(contract, new AmountAtTime(ppa.validAt, payment));
-		store(Outputs.VariableCostsInEUR, payment);
+		store(AgentOutputs.VariableCostsInEUR, payment);
 	}
 }

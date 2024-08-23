@@ -1545,7 +1545,7 @@ AgentTypes:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
       ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
-      HydrogenForecastRequestOffsetInSeconds:
+      HydrogenForecastRequestOffsetInSeconds: &ElectrolysisTrader_A_HydrogenForecastRequestOffset
         AttributeType: integer
         Mandatory: true
         List: false
@@ -1600,28 +1600,28 @@ AgentTypes:
                 MetaData:
                   Description: "Schedules based on a moving target of hydrogen production totals and electricity prices"
                   OEONearestConcept:
-          ForecastPeriodInHours:
+          ForecastPeriodInHours: &ElectrolysisTrader_Strategy_A_ForecastPeriod
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
               Description: "Number of hours to the future at which the forecast is available. Must be smaller or equal to that of the MarketForecaster."
               OEONearestConcept:
-          ScheduleDurationInHours:
+          ScheduleDurationInHours: &ElectrolysisTrader_Strategy_A_ScheduleDuration
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
               Description: "Number of hours each created schedule is viable"
               OEONearestConcept:
-          BidToleranceInEURperMWH:
+          BidToleranceInEURperMWH: &ElectrolysisTrader_Strategy_A_BidTolerance
             AttributeType: double
             Mandatory: false
             List: false
             MetaData:
               Description: "Tolerance value added to each calculated electricity bid in EUR/MWh."
               OEONearestConcept:            
-          PriceLimitOverrideInEURperMWH:
+          PriceLimitOverrideInEURperMWH: &ElectrolysisTrader_Strategy_A_PriceLimitOverride
             AttributeType: time_series
             Mandatory: false
             List: false
@@ -1719,7 +1719,6 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
       PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
       AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
@@ -1733,11 +1732,15 @@ AgentTypes:
       InvestmentAnnuityInEUR: *FlexibilityTrader_O_InvestmentAnnuity
       VariableCostsInEUR: *FlexibilityTrader_O_VariableCosts
       ReceivedMoneyInEUR: *FlexibilityTrader_O_ReceivedMoney
-      OfferedEnergyPriceInEURperMWH:
+      ReceivedMoneyForHydrogenInEUR: &ElectrolysisTrader_O_ReceivedMoneyForHydrogen
+        MetaData:
+          Description: "Total received money for selling hydrogen in EUR"
+          OEONearestConcept:
+      OfferedEnergyPriceInEURperMWH: &ElectrolysisTrader_O_OfferedEnergyPrice
         MetaData:
           Description: "Offered electricity price in EUR per MWh"
           OEONearestConcept:
-      ProducedHydrogenInMWH:
+      ProducedHydrogenInMWH: &ElectrolysisTrader_O_ProducedHydrogen
         MetaData:
           Description: "Produced amount of hydrogen in thermal MWh"
           OEONearestConcept:
@@ -1750,11 +1753,11 @@ AgentTypes:
       Device: *Electrolyzer_G_Device
       FuelType: *FuelsTrader_A_FuelType
     Products:
-      PpaInformationRequest:
+      PpaInformationRequest: &GreenHydrogenProducer_P_PpaInformationRequest
         MetaData:
           Description: "Request for available power and price from a renewable power plant operator contracted via a Power Purchase Agreement"
           OEONearestConcept:
-      PpaInformationForecastRequest:
+      PpaInformationForecastRequest: &GreenHydrogenProducer_P_PpaInformationForecastRequest
         MetaData:
           Description: "Request for available power and price at a future time from a renewable power plant operator contracted via a Power Purchase Agreement"
           OEONearestConcept:
@@ -1766,7 +1769,7 @@ AgentTypes:
       Payout: *PowerPlantScheduler_P_Payout
       DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
     Outputs:
-      ConsumedElectricityInMWH:
+      ConsumedElectricityInMWH: &GreenHydrogenProducer_O_ConsumedElectricity
         MetaData:
           Description: "Amount of electricity consumed in this period for operating the electrolysis unit"
           OEONearestConcept:
@@ -1782,7 +1785,7 @@ AgentTypes:
         MetaData:
           Description: "Total received money for selling hydrogen in EUR"
           OEONearestConcept:
-      ReceivedMoneyForElectricityInEUR:
+      ReceivedMoneyForElectricityInEUR: &GreenHydrogenProducer_O_ReceivedMoneyForElectricity
         MetaData:
           Description: "Total received money for selling electricity in EUR"
           OEONearestConcept:
@@ -1794,4 +1797,64 @@ AgentTypes:
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
     MetaData:
       Description: "A green hydrogen electrolysis operator; It purchases electricity directly from renewable power plants operators."
+      OEONearestConcept:
+
+  GreenHydrogenTraderMonthly:
+    Attributes:
+      FuelType: *FuelsTrader_A_FuelType
+      ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
+      HydrogenForecastRequestOffsetInSeconds: *ElectrolysisTrader_A_HydrogenForecastRequestOffset
+      Refinancing: *FlexibilityTrader_G_Refinancing
+      Device: *Electrolyzer_G_Device
+      Strategy:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Strategy parameters to operate the electrolyser unit"
+          OEONearestConcept:
+        NestedAttributes:
+          StrategistType:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Type of strategist employed to dispatch the electrolyzer unit"
+              OEONearestConcept:
+            Values: 
+              GREEN_HYDROGEN_MONTHLY:
+                MetaData:
+                  Description: "Creates the dispatch schedule thereby ensuring monthly equivalence between the electrolysis demand and the associated renewable generation."
+                  OEONearestConcept:
+          ForecastPeriodInHours: *ElectrolysisTrader_Strategy_A_ForecastPeriod
+          ScheduleDurationInHours: *ElectrolysisTrader_Strategy_A_ScheduleDuration
+          BidToleranceInEURperMWH: *ElectrolysisTrader_Strategy_A_BidTolerance        
+          PriceLimitOverrideInEURperMWH: *ElectrolysisTrader_Strategy_A_PriceLimitOverride
+    Products:
+      PpaInformationRequest: *GreenHydrogenProducer_P_PpaInformationRequest
+      PpaInformationForecastRequest: *GreenHydrogenProducer_P_PpaInformationForecastRequest
+      Bids: *DamTrader_P_Bids
+      BidsForecast: *Trader_P_BidsForecast
+      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
+      FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
+      FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
+      FuelBid: *FuelsTrader_P_FuelBid
+      Payout: *PowerPlantScheduler_P_Payout
+      DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
+    Outputs:
+      OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
+      AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
+      RequestedEnergyInMWH: *DamTrader_O_RequestedEnergy    
+      FixedCostsInEUR: *FlexibilityTrader_O_FixedCosts
+      InvestmentAnnuityInEUR: *FlexibilityTrader_O_InvestmentAnnuity
+      VariableCostsInEUR: *FlexibilityTrader_O_VariableCosts
+      ReceivedMoneyInEUR: *FlexibilityTrader_O_ReceivedMoney
+      OfferedEnergyPriceInEURperMWH: *ElectrolysisTrader_O_OfferedEnergyPrice
+      ProducedHydrogenInMWH: *ElectrolysisTrader_O_ProducedHydrogen   
+      ConsumedElectricityInMWH: *GreenHydrogenProducer_O_ConsumedElectricity
+      ReceivedMoneyForHydrogenInEUR: *ElectrolysisTrader_O_ReceivedMoneyForHydrogen
+      ReceivedMoneyForElectricityInEUR: *GreenHydrogenProducer_O_ReceivedMoneyForElectricity      
+    MetaData:
+      Description: "GreenHydrogenTraderMonthly is a type of ElectrolysisTrader that operates an electrolyzer unit to produce hydrogen from green electricity purchased via a PPA ensuring monthly equivalence."
       OEONearestConcept:

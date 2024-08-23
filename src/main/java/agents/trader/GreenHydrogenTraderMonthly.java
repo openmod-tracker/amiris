@@ -6,12 +6,15 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import agents.electrolysis.GreenHydrogen;
 import agents.electrolysis.GreenHydrogenMonthly;
+import agents.electrolysis.GreenHydrogenProducer;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.markets.meritOrder.Bid;
+import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.renewable.VariableRenewableOperator;
+import communications.message.AmountAtTime;
+import communications.message.AwardData;
 import communications.message.PointInTime;
 import communications.message.PpaInformation;
 import communications.portable.BidsAtTime;
@@ -23,22 +26,29 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements GreenHydrogen {
+/** GreenHydrogenTraderMonthly is a type of ElectrolysisTrader that operates an electrolyzer unit to produce hydrogen from green
+ * electricity purchased via a PPA ensuring monthly equivalence
+ * 
+ * @author Christoph Schimeczek, Johannes Kochems */
+public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements GreenHydrogenProducer {
+
+	private double lastUsedResElectricityInMWH = 0;
 
 	public GreenHydrogenTraderMonthly(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 
-		call(this::requestPpaForecast).on(GreenHydrogen.Products.PpaInformationForecastRequest);
+		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
 		call(this::updatePpaForecast).on(VariableRenewableOperator.Products.PpaInformationForecast)
 				.use(VariableRenewableOperator.Products.PpaInformationForecast);
+		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
+		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout);
 	}
 
 	private void requestPpaForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
 				Strategist.OPERATION_PERIOD);
-		GreenHydrogenMonthly strategist = (GreenHydrogenMonthly) getStrategist();
-		ArrayList<TimeStamp> missingForecastTimes = strategist.getTimesMissingPpaForecastTimes(nextTime);
+		ArrayList<TimeStamp> missingForecastTimes = getStrategist().getTimesMissingPpaForecastTimes(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
@@ -49,8 +59,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		for (Message inputMessage : input) {
 			PpaInformation ppaForecast = inputMessage.getDataItemOfType(PpaInformation.class);
 			TimePeriod timeSegment = new TimePeriod(ppaForecast.validAt, Strategist.OPERATION_PERIOD);
-			GreenHydrogenMonthly strategist = (GreenHydrogenMonthly) getStrategist();
-			strategist.storePpaForecast(timeSegment, ppaForecast);
+			getStrategist().storePpaForecast(timeSegment, ppaForecast);
 		}
 	}
 
@@ -80,4 +89,53 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		return new Bid(supplyPower, price, Double.NaN);
 	}
 
+	@Override
+	protected void digestAwards(ArrayList<Message> messages, List<Contract> contracts) {
+		Message awardMessage = CommUtils.getExactlyOneEntry(messages);
+		AwardData award = awardMessage.getDataItemOfType(AwardData.class);
+
+		lastClearingTime = award.beginOfDeliveryInterval;
+		double netAwardedEnergyInMWH = award.demandEnergyInMWH - award.supplyEnergyInMWH;
+		PpaInformation ppa = getPpa(lastClearingTime);
+		double availableEnergy = netAwardedEnergyInMWH + ppa.yieldPotentialInMWH;
+		double electrolyzerDispatch = electrolyzer.calcCappedElectricDemandInMW(availableEnergy, lastClearingTime);
+		lastUsedResElectricityInMWH = electrolyzerDispatch - netAwardedEnergyInMWH;
+		lastProducedHydrogenInMWH = electrolyzer.calcProducedHydrogenOneHour(electrolyzerDispatch, lastClearingTime);
+		strategist.updateProducedHydrogenTotal(lastProducedHydrogenInMWH);
+
+		double ppaCosts = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
+		double marketCosts = award.powerPriceInEURperMWH * award.demandEnergyInMWH;
+		double marketRevenue = award.powerPriceInEURperMWH * award.supplyEnergyInMWH;
+		store(OutputColumns.AwardedEnergyInMWH, netAwardedEnergyInMWH);
+		store(ElectrolysisTrader.Outputs.ProducedHydrogenInMWH, lastProducedHydrogenInMWH);
+		store(FlexibilityTrader.Outputs.VariableCostsInEUR, ppaCosts + marketCosts);
+		store(GreenHydrogenProducer.Outputs.ReceivedMoneyForElectricityInEUR, marketRevenue);
+	}
+
+	/** @param time to request PpaInformation for
+	 * @return PpaInformation for given time stored in strategist */
+	private PpaInformation getPpa(TimeStamp time) {
+		return getStrategist().getPpaForPeriod(new TimePeriod(time, Strategist.OPERATION_PERIOD));
+	}
+
+	/** Pay client according to PPA specification
+	 * 
+	 * @param messages none
+	 * @param contracts payment to client from PPA */
+	private void payoutClient(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		PpaInformation ppa = getPpa(lastClearingTime);
+		double payment = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
+		fulfilNext(contract, new AmountAtTime(ppa.validAt, payment));
+	}
+
+	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		fulfilNext(contract, new AmountAtTime(lastClearingTime, lastUsedResElectricityInMWH));
+	}
+
+	@Override
+	protected GreenHydrogenMonthly getStrategist() {
+		return (GreenHydrogenMonthly) strategist;
+	}
 }

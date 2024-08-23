@@ -5,7 +5,7 @@ package agents.plantOperator.renewable;
 
 import java.util.ArrayList;
 import java.util.List;
-import agents.electrolysis.GreenHydrogen;
+import agents.electrolysis.GreenHydrogenProducer;
 import agents.plantOperator.Marginal;
 import agents.plantOperator.RenewablePlantOperator;
 import communications.message.ClearingTimes;
@@ -53,8 +53,8 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);
 
 		call(this::sendPpaInformationForecast).on(Products.PpaInformationForecast)
-				.use(GreenHydrogen.Products.PpaInformationForecastRequest);
-		call(this::sendPpaInformation).on(Products.PpaInformation).use(GreenHydrogen.Products.PpaInformationRequest);
+				.use(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
+		call(this::sendPpaInformation).on(Products.PpaInformation).use(GreenHydrogenProducer.Products.PpaInformationRequest);
 	}
 
 	/** @return single {@link Marginal} considering variable yield */
