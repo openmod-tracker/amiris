@@ -9,6 +9,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs @dlr_jk)
 - README: Update minimum Python version requirement to 3.9 !114 (@dlr_fn)
 
+### Added
+- add new agent `GreenHydrogenTraderMonthly` that has a PPA with a renewable operator to produce hydrogen with monthly equivalence #125 (@dlr-cjs, @dlr_jk)
+
 ### Fixed
 - **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
 - Remove unnecessary warnings in `ArbitrageStrategist` #122 (@dlr_fn @dlr-cjs)
