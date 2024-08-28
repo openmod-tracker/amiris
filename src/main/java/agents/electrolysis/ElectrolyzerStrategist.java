@@ -35,7 +35,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected double actualProducedHydrogen = 0;
 	/** the associated electrolysis unit */
 	protected Electrolyzer electrolyzer;
-	private DispatchSchedule schedule;
+	protected DispatchSchedule schedule;
 	private TreeMap<TimePeriod, Double> hydrogenPrices = new TreeMap<>();
 	private TimeSeries priceLimitOverrideInEURperMWH;
 

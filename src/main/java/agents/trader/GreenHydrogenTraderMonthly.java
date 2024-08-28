@@ -22,8 +22,10 @@ import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
+import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** GreenHydrogenTraderMonthly is a type of ElectrolysisTrader that operates an electrolyzer unit to produce hydrogen from green
@@ -31,6 +33,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements GreenHydrogenProducer {
+
+	@Product
+	public enum Products {
+		MonthlyReset
+	}
 
 	private double lastUsedResElectricityInMWH = 0;
 
@@ -40,6 +47,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
 		call(this::updatePpaForecast).on(VariableRenewableOperator.Products.PpaInformationForecast)
 				.use(VariableRenewableOperator.Products.PpaInformationForecast);
+		call(this::resetMonthlySchedule).on(Products.MonthlyReset);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout);
 	}
@@ -61,6 +69,18 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 			TimePeriod timeSegment = new TimePeriod(ppaForecast.validAt, Strategist.OPERATION_PERIOD);
 			getStrategist().storePpaForecast(timeSegment, ppaForecast);
 		}
+	}
+
+	/** Reset monthly schedule and green electricity surplus
+	 * 
+	 * @param input not used
+	 * @param contracts not used */
+	private void resetMonthlySchedule(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		long offset = -contract.getFirstDeliveryTime().getStep() + 1;
+		TimeSpan duration = contract.getDeliveryInterval();
+		TimeStamp beginOfNextMonth = now().laterBy(new TimeSpan(offset + duration.getSteps()));
+		getStrategist().resetMonthly(beginOfNextMonth);
 	}
 
 	@Override
@@ -101,7 +121,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		double electrolyzerDispatch = electrolyzer.calcCappedElectricDemandInMW(availableEnergy, lastClearingTime);
 		lastUsedResElectricityInMWH = electrolyzerDispatch - netAwardedEnergyInMWH;
 		lastProducedHydrogenInMWH = electrolyzer.calcProducedHydrogenOneHour(electrolyzerDispatch, lastClearingTime);
-		strategist.updateProducedHydrogenTotal(lastProducedHydrogenInMWH);
+		getStrategist().updateGreenElectricitySurplus(-netAwardedEnergyInMWH);
 
 		double ppaCosts = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
 		double marketCosts = award.powerPriceInEURperMWH * award.demandEnergyInMWH;

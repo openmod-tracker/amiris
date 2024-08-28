@@ -1842,6 +1842,10 @@ AgentTypes:
       FuelBid: *FuelsTrader_P_FuelBid
       Payout: *PowerPlantScheduler_P_Payout
       DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
+      MonthlyReset:
+        MetaData:
+          Description: "Request for reset of monthly schedule"
+          OEONearestConcept:
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
