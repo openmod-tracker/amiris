@@ -74,11 +74,6 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	}
 
 	@Override
-	protected double[] getInternalEnergySchedule() {
-		return scheduledGreenElectricitySurplus;
-	}
-
-	@Override
 	protected void updateSchedule(TimePeriod timePeriod) {
 		clearPlanningArrays();
 		updateElectricityPriceForecasts(timePeriod);
@@ -112,19 +107,26 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	private void schedulePpaProductionWithPositiveOpportunity(TimePeriod firstPeriod) {
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
 			double ppaProduction = ppaInformationForecast[index].yieldPotentialInMWH;
-			if (priceScheduleInEURperMWH[index] > hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
+			if (electricityPriceForecasts[index] > hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
 				purchasedElectricityInMWH[index] = -ppaProduction;
 				bidPricesInEURperMWH[index] = hydrogenSaleOpportunityCostsPerElectricMWH[index];
 			} else {
 				electricDemandOfElectrolysisInMW[index] = electrolyzer.calcCappedElectricDemandInMW(ppaProduction,
 						stepTimes[index]);
 				double surplus = ppaProduction - electricDemandOfElectrolysisInMW[index];
-				if (priceScheduleInEURperMWH[index] > 0) {
+				if (electricityPriceForecasts[index] > 0) {
 					purchasedElectricityInMWH[index] = -surplus;
 					bidPricesInEURperMWH[index] = 0;
 				}
 			}
 		}
+	}
+
+	/** @return Number of planning steps limited to forecastSteps or end of month */
+	private int calcNumberOfPlanningSteps(TimePeriod firstPeriod) {
+		long stepDelta = lastTimePeriodInCurrentMonth.getStartTime().getStep() - firstPeriod.getStartTime().getStep();
+		int stepsUntilEndOfMonth = (int) (stepDelta / OPERATION_PERIOD.getSteps()) + 1;
+		return Math.min(forecastSteps, stepsUntilEndOfMonth);
 	}
 
 	/** Plan grey electricity purchases based on projected green electricity sales */
@@ -143,7 +145,7 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		double surplusPosition = greenElectricitySurplusTotal;
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
 			surplusPosition -= purchasedElectricityInMWH[index];
-			if (priceScheduleInEURperMWH[index] < hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
+			if (electricityPriceForecasts[index] < hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
 				surplusPosition += -getRemainingPowerInMW(index);
 			}
 		}
@@ -153,7 +155,7 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	/** Assuming an overall surplus of sold green electricity, maximize hydrogen production */
 	private void schedulePurchaseForFullLoadOperation(TimePeriod firstPeriod) {
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
-			if (priceScheduleInEURperMWH[index] < hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
+			if (electricityPriceForecasts[index] < hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
 				purchasedElectricityInMWH[index] = getRemainingPowerInMW(index);
 				bidPricesInEURperMWH[index] = hydrogenSaleOpportunityCostsPerElectricMWH[index];
 				electricDemandOfElectrolysisInMW[index] += purchasedElectricityInMWH[index];
@@ -228,13 +230,6 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		double yieldPotential = ppaInformationForecast[hour].yieldPotentialInMWH;
 		return Math.max(0, Math.min(yieldPotential, yieldPotential - electricDemandOfElectrolysisInMW[hour]
 				+ purchasedElectricityInMWH[hour]));
-	}
-
-	/** @return Number of planning steps limited to forecastSteps or end of month */
-	private int calcNumberOfPlanningSteps(TimePeriod firstPeriod) {
-		long stepDelta = lastTimePeriodInCurrentMonth.getStartTime().getStep() - firstPeriod.getStartTime().getStep();
-		int stepsUntilEndOfMonth = (int) (stepDelta / OPERATION_PERIOD.getSteps()) + 1;
-		return Math.min(forecastSteps, stepsUntilEndOfMonth);
 	}
 
 	@Override
@@ -333,4 +328,9 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 			greenElectricitySurplus -= purchasedElectricityInMWH[hour];
 		}
 	}
+	
+	@Override
+	protected double[] getInternalEnergySchedule() {
+		return scheduledGreenElectricitySurplus;
+	}	
 }

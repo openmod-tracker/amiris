@@ -24,7 +24,7 @@ public class Electrolyzer {
 					.help("Factor < 1 to convert electric energy to hydrogen's thermal energy equivalent"))
 			.buildTree();
 
-	private static final double NEGATIVE_TOLERANCE = 1E-5;
+	private static final double NEGATIVE_TOLERANCE = -1E-5;
 	private final double conversionFactor;
 	private final TimeSeries peakConsumptions;
 

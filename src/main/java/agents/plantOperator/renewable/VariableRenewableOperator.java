@@ -8,7 +8,7 @@ import java.util.List;
 import agents.electrolysis.GreenHydrogenProducer;
 import agents.plantOperator.Marginal;
 import agents.plantOperator.RenewablePlantOperator;
-import communications.message.ClearingTimes;
+import communications.message.PointInTime;
 import communications.message.PpaInformation;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -82,11 +82,10 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		if (ppaPriceInEURperMWH == null) {
 			throw new RuntimeException(ERR_PPA_PRICE_MISSING + this);
 		}
-		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		List<TimeStamp> times = message.getDataItemOfType(ClearingTimes.class).getTimes();
 		double totalOfferedEnergyInMWH = 0;
-		for (var time : times) {
+		for (var message : input) {
+			var time = message.getDataItemOfType(PointInTime.class).validAt;
 			double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);
 			double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
 			fulfilNext(contract, new PpaInformation(time, ppaPrice, availablePower, getVariableOpexAtTime(time)));

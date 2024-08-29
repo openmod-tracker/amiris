@@ -10,6 +10,7 @@ import agents.electrolysis.GreenHydrogenMonthly;
 import agents.electrolysis.GreenHydrogenProducer;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.renewable.VariableRenewableOperator;
@@ -47,6 +48,8 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
 		call(this::updatePpaForecast).on(VariableRenewableOperator.Products.PpaInformationForecast)
 				.use(VariableRenewableOperator.Products.PpaInformationForecast);
+		call(this::requestPpaInformation).on(GreenHydrogenProducer.Products.PpaInformationRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::resetMonthlySchedule).on(Products.MonthlyReset);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout);
@@ -76,7 +79,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	 * @param input not used
 	 * @param contracts not used */
 	private void resetMonthlySchedule(ArrayList<Message> input, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		Contract contract = contracts.get(0);
 		long offset = -contract.getFirstDeliveryTime().getStep() + 1;
 		TimeSpan duration = contract.getDeliveryInterval();
 		TimeStamp beginOfNextMonth = now().laterBy(new TimeSpan(offset + duration.getSteps()));

@@ -6,6 +6,7 @@ package agents.electrolysis;
 import java.util.ArrayList;
 import java.util.List;
 import communications.message.ClearingTimes;
+import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
@@ -32,15 +33,18 @@ public interface GreenHydrogenProducer extends AgentAbility {
 		/** Request for forecasted Power Purchase Agreement (PPA) contract data with electricity production unit */
 		PpaInformationForecastRequest
 	};
-
-	/** Forwards one ClearingTimes to connected clients
+	
+	/** Sends {@link PointInTime}s to connected clients based on {@link ClearingTimes} message
 	 * 
 	 * @param input a single ClearingTimes message
 	 * @param contracts connected client */
-	public default void requestPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
+	default void requestPpaInformation(ArrayList<Message> input, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(input);
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		fulfilNext(contract, message.getDataItemOfType(ClearingTimes.class));
+		ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
+		for (var clearingTime : clearingTimes.getTimes()) {
+			fulfilNext(contract, new PointInTime(clearingTime));
+		}
 	}
 
 }

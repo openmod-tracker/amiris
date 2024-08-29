@@ -26,10 +26,12 @@ import util.Polynomial;
 public class SingleAgentSimple extends ElectrolyzerStrategist {
 	/** Inputs specific to {@link SingleAgentSimple} electrolyzer strategists */
 	public static final Tree parameters = Make.newTree().add(
-			Make.newSeries("HydrogenProductionTargetInMWH").help("How much hydrogen to produce per production interval"),
-			Make.newInt("ProductionTargetIntervalInHours").help("How many hours a production interval spans"),
-			Make.newDouble("PriceSensitivityFunction").list().help("Price change per additional load in EUR per MWH per MWH"),
-			Make.newDouble("PowerStepInMW")).buildTree();
+			Make.newSeries("HydrogenProductionTargetInMWH").optional()
+					.help("How much hydrogen to produce per production interval"),
+			Make.newInt("ProductionTargetIntervalInHours").optional().help("How many hours a production interval spans"),
+			Make.newDouble("PriceSensitivityFunction").optional().list()
+					.help("Price change per additional load in EUR per MWH per MWH"),
+			Make.newDouble("PowerStepInMW").optional()).buildTree();
 
 	private final TimeSeries productionTargets;
 	private final int productionInterval;

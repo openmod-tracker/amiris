@@ -207,8 +207,8 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 			}
 		}
 		return bestHour;
-	}	
-	
+	}
+
 	/** @return remaining electric power in MW for given hour */
 	protected double getRemainingPowerInMW(int hour) {
 		return Math.max(0., electrolyzer.getPeakPower(stepTimes[hour]) - electricDemandOfElectrolysisInMW[hour]);
