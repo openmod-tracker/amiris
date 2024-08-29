@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
+import agents.markets.meritOrder.sensitivities.PriceNoSensitivity;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -33,6 +34,14 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected double[] scheduledChargedHydrogenTotal;
 	/** total actual hydrogen produced in thermal MWH */
 	protected double actualProducedHydrogen = 0;
+	/** Electricity price forecasts for planning horizon */
+	protected double[] electricityPriceForecasts;
+	/** Maximum willingness to pay for electricity compared to selling hydrogen */
+	protected double[] hydrogenSaleOpportunityCostsPerElectricMWH;
+	/** Electric power demand of electrolysis unit */
+	protected double[] electricDemandOfElectrolysisInMW;
+	/** Time stamps at the beginning of each scheduling period */
+	protected TimeStamp[] stepTimes;
 	/** the associated electrolysis unit */
 	protected Electrolyzer electrolyzer;
 	protected DispatchSchedule schedule;
@@ -54,6 +63,10 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected ElectrolyzerStrategist(ParameterData input) throws MissingDataException {
 		super(input);
 		scheduledChargedHydrogenTotal = new double[scheduleDurationPeriods];
+		electricityPriceForecasts = new double[forecastSteps];
+		hydrogenSaleOpportunityCostsPerElectricMWH = new double[forecastSteps];
+		electricDemandOfElectrolysisInMW = new double[forecastSteps];
+		stepTimes = new TimeStamp[forecastSteps];
 		priceLimitOverrideInEURperMWH = input.getTimeSeriesOrDefault("PriceLimitOverrideInEURperMWH", null);
 	}
 
@@ -89,6 +102,32 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	 * @param electrolyzer to be assigned to this strategist */
 	protected final void setElectrolyzer(Electrolyzer electrolyzer) {
 		this.electrolyzer = electrolyzer;
+	}
+
+	/** copies forecasted prices from sensitivities */
+	protected void updateElectricityPriceForecasts(TimePeriod startTime) {
+		for (int period = 0; period < forecastSteps; period++) {
+			TimePeriod timePeriod = startTime.shiftByDuration(period);
+			PriceNoSensitivity priceObject = ((PriceNoSensitivity) getSensitivityForPeriod(timePeriod));
+			electricityPriceForecasts[period] = priceObject != null ? priceObject.getPriceForecast() : 0;
+		}
+	}
+
+	/** calculates electricity price equivalent of opportunity costs for selling hydrogen with expected prices */
+	protected void updateOpportunityCosts(TimePeriod startTime) {
+		for (int period = 0; period < forecastSteps; period++) {
+			TimePeriod timePeriod = startTime.shiftByDuration(period);
+			double hydrogenPriceInEURperThermalMWH = getHydrogenPriceForPeriod(timePeriod);
+			hydrogenSaleOpportunityCostsPerElectricMWH[period] = hydrogenPriceInEURperThermalMWH
+					* electrolyzer.getConversionFactor();
+		}
+	}
+
+	/** set start time of each hour in forecast interval */
+	protected void updateStepTimes(TimePeriod timePeriod) {
+		for (int hour = 0; hour < forecastSteps; hour++) {
+			stepTimes[hour] = timePeriod.shiftByDuration(hour).getStartTime();
+		}
 	}
 
 	/** Provides forecast for electricity demand at given time;<br>
@@ -153,5 +192,30 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected double getHydrogenPriceForPeriod(TimePeriod timePeriod) {
 		Double priceForecast = hydrogenPrices.get(timePeriod);
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
+	}
+
+	/** @return Hour with highest economic potential among those with remaining production capabilities; -1 of no capability left in
+	 *         any hour */
+	protected int getHourWithHighestEconomicPotential(int endOfHorizon) {
+		int bestHour = -1;
+		double highestPotential = 0; // start with 0 to ignore hours with negative economic potential
+		for (int hour = 0; hour < endOfHorizon; hour++) {
+			double economicPotential = getEconomicHydrogenPotential(hour);
+			if (economicPotential > highestPotential && getRemainingPowerInMW(hour) > 0) {
+				highestPotential = economicPotential;
+				bestHour = hour;
+			}
+		}
+		return bestHour;
+	}	
+	
+	/** @return remaining electric power in MW for given hour */
+	protected double getRemainingPowerInMW(int hour) {
+		return Math.max(0., electrolyzer.getPeakPower(stepTimes[hour]) - electricDemandOfElectrolysisInMW[hour]);
+	}
+
+	/** @return Economic potential in given hour to purchase electricity and sell hydrogen */
+	protected double getEconomicHydrogenPotential(int hour) {
+		return hydrogenSaleOpportunityCostsPerElectricMWH[hour] - electricityPriceForecasts[hour];
 	}
 }
