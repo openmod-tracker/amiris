@@ -305,7 +305,8 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		return -electricityPriceForecasts[hour] - ppaInformationForecast[hour].priceInEURperMWH;
 	}
 
-	/** @return Hour with lowest, but positive economic potential among those with scheduled purchase; -1 if no such hour exists */
+	/** @param endOfHorizon last step of planning horizon
+	 * @return Hour with lowest, but positive economic potential among those with scheduled purchase; -1 if no such hour exists */
 	protected int getHourWithLowestEconomicPotential(int endOfHorizon) {
 		int bestHour = -1;
 		double lowestPotential = Double.MAX_VALUE;
@@ -328,9 +329,9 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 			greenElectricitySurplus -= purchasedElectricityInMWH[hour];
 		}
 	}
-	
+
 	@Override
 	protected double[] getInternalEnergySchedule() {
 		return scheduledGreenElectricitySurplus;
-	}	
+	}
 }

@@ -104,7 +104,9 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		this.electrolyzer = electrolyzer;
 	}
 
-	/** copies forecasted prices from sensitivities */
+	/** copies forecasted prices from sensitivities
+	 * 
+	 * @param startTime first time period that update is done for */
 	protected void updateElectricityPriceForecasts(TimePeriod startTime) {
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timePeriod = startTime.shiftByDuration(period);
@@ -113,7 +115,9 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		}
 	}
 
-	/** calculates electricity price equivalent of opportunity costs for selling hydrogen with expected prices */
+	/** calculates electricity price equivalent of opportunity costs for selling hydrogen with expected prices
+	 * 
+	 * @param startTime first time period that update is done for */
 	protected void updateOpportunityCosts(TimePeriod startTime) {
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timePeriod = startTime.shiftByDuration(period);
@@ -123,10 +127,12 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		}
 	}
 
-	/** set start time of each hour in forecast interval */
-	protected void updateStepTimes(TimePeriod timePeriod) {
+	/** set start time of each hour in forecast interval
+	 * 
+	 * @param startTime first time period that update is done for */
+	protected void updateStepTimes(TimePeriod startTime) {
 		for (int hour = 0; hour < forecastSteps; hour++) {
-			stepTimes[hour] = timePeriod.shiftByDuration(hour).getStartTime();
+			stepTimes[hour] = startTime.shiftByDuration(hour).getStartTime();
 		}
 	}
 
@@ -194,7 +200,8 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
 	}
 
-	/** @return Hour with highest economic potential among those with remaining production capabilities; -1 of no capability left in
+	/** @param endOfHorizon last step of planning horizon
+	 * @return Hour with highest economic potential among those with remaining production capabilities; -1 of no capability left in
 	 *         any hour */
 	protected int getHourWithHighestEconomicPotential(int endOfHorizon) {
 		int bestHour = -1;
@@ -209,12 +216,14 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		return bestHour;
 	}
 
-	/** @return remaining electric power in MW for given hour */
+	/** @param hour to evaluate
+	 * @return remaining electric power in MW for given hour */
 	protected double getRemainingPowerInMW(int hour) {
 		return Math.max(0., electrolyzer.getPeakPower(stepTimes[hour]) - electricDemandOfElectrolysisInMW[hour]);
 	}
 
-	/** @return Economic potential in given hour to purchase electricity and sell hydrogen */
+	/** @param hour to evaluate
+	 * @return Economic potential in given hour to purchase electricity and sell hydrogen */
 	protected double getEconomicHydrogenPotential(int hour) {
 		return hydrogenSaleOpportunityCostsPerElectricMWH[hour] - electricityPriceForecasts[hour];
 	}
