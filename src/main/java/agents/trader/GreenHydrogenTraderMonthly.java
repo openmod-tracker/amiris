@@ -59,7 +59,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
 				Strategist.OPERATION_PERIOD);
-		ArrayList<TimeStamp> missingForecastTimes = getStrategist().getTimesMissingPpaForecastTimes(nextTime);
+		ArrayList<TimeStamp> missingForecastTimes = getStrategist().getTimesMissingPpaForecast(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
@@ -93,6 +93,8 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 			DispatchSchedule schedule = getStrategist().getValidSchedule(targetTime);
 			Bid demandBid = prepareHourlyDemandBid(targetTime, schedule);
 			Bid supplyBid = prepareHourlySupplyBid(targetTime, schedule);
+			store(ElectrolysisTrader.Outputs.OfferedEnergyPriceInEURperMWH,
+					schedule.getScheduledBidInHourInEURperMWH(targetTime));
 			fulfilNext(contractToFulfil,
 					new BidsAtTime(targetTime, getId(), Arrays.asList(supplyBid), Arrays.asList(demandBid)));
 		}

@@ -39,7 +39,7 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		bidPricesInEURperMWH = new double[forecastSteps];
 	}
 
-	public ArrayList<TimeStamp> getTimesMissingPpaForecastTimes(TimePeriod firstTime) {
+	public ArrayList<TimeStamp> getTimesMissingPpaForecast(TimePeriod firstTime) {
 		return getMissingForecastTimes(ppaForesight, firstTime);
 	}
 
