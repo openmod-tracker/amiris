@@ -48,28 +48,46 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	private final TreeMap<TimePeriod, PpaInformation> ppaForesight = new TreeMap<>();
 	private double greenElectricitySurplusTotal = 0;
 	private TimePeriod lastTimePeriodInCurrentMonth;
-	private double[] scheduledGreenElectricitySurplus;
+	/** Replaces internal energy schedule: the relevant state to monitor in the schedule is the green electricity surplus */
+	private final double[] scheduledGreenElectricitySurplus = new double[scheduleDurationPeriods];
 
-	private PpaInformation[] ppaInformationForecast;
+	private PpaInformation[] ppaInformationForecasts;
 	private double[] purchasedElectricityInMWH;
 	private double[] bidPricesInEURperMWH;
 
 	protected GreenHydrogenMonthly(ParameterData input) throws MissingDataException {
 		super(input);
-		scheduledGreenElectricitySurplus = new double[scheduleDurationPeriods];
-		ppaInformationForecast = new PpaInformation[forecastSteps];
+		allocatePlanningArrays();
+	}
+
+	/** Allocate arrays that are used for bidding strategy planning */
+	private void allocatePlanningArrays() {
+		ppaInformationForecasts = new PpaInformation[forecastSteps];
 		purchasedElectricityInMWH = new double[forecastSteps];
 		bidPricesInEURperMWH = new double[forecastSteps];
 	}
 
+	/** Returns list of times at which PPA forecasts are missing but needed for schedule planning
+	 * 
+	 * @param firstTime first time period to be covered by a created schedule
+	 * @return List of {@link TimeStamp}s at which {@link PpaInformation} is not yet defined */
 	public ArrayList<TimeStamp> getTimesMissingPpaForecast(TimePeriod firstTime) {
 		return getMissingForecastTimes(ppaForesight, firstTime);
 	}
 
+	/** Stores given {@link PpaInformation} at the specified {@link TimePeriod}
+	 * 
+	 * @param timePeriod at which the PpaInformation is valid
+	 * @param ppaInformation to be stored for later reference */
 	public void storePpaForecast(TimePeriod timePeriod, PpaInformation ppaInformation) {
 		ppaForesight.put(timePeriod, ppaInformation);
 	}
 
+	/** Returns {@link PpaInformation} stored earlier for the given {@link TimePeriod}
+	 * 
+	 * @param timePeriod to search for
+	 * @return previously stored PpaInformation for the specified TimePeriod or null if no data is available at the specified
+	 *         TimePeriod */
 	public PpaInformation getPpaForPeriod(TimePeriod timePeriod) {
 		return ppaForesight.get(timePeriod);
 	}
@@ -109,12 +127,14 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		updateScheduleArrays(greenElectricitySurplusTotal);
 	}
 
+	/** Reset all entries to Zero in relevant planning arrays */
 	private void clearPlanningArrays() {
 		Arrays.fill(purchasedElectricityInMWH, 0);
 		Arrays.fill(bidPricesInEURperMWH, 0);
 		Arrays.fill(electricDemandOfElectrolysisInMW, 0);
 	}
 
+	/** Read {@link PpaInformation} forecasts for all planning times and store them to {@link #ppaInformationForecasts} */
 	private void updatePpaInformationForecast(TimePeriod startTime) {
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timePeriod = startTime.shiftByDuration(period);
@@ -122,22 +142,22 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 			if (ppa == null) {
 				throw new RuntimeException(ERR_PPA_MISSING + timePeriod);
 			}
-			ppaInformationForecast[period] = ppa;
+			ppaInformationForecasts[period] = ppa;
 		}
 	}
 
 	/** Schedule production of electrolyzer and market offers for times with renewable electricity provision from PPA */
 	private void schedulePpaProductionWithPositiveOpportunity(TimePeriod firstPeriod) {
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
-			double ppaProduction = ppaInformationForecast[index].yieldPotentialInMWH;
+			double ppaProduction = ppaInformationForecasts[index].yieldPotentialInMWH;
 			if (electricityPriceForecasts[index] > hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
 				purchasedElectricityInMWH[index] = -ppaProduction;
 				bidPricesInEURperMWH[index] = hydrogenSaleOpportunityCostsPerElectricMWH[index];
 			} else {
 				electricDemandOfElectrolysisInMW[index] = electrolyzer.calcCappedElectricDemandInMW(ppaProduction,
 						stepTimes[index]);
-				double surplus = ppaProduction - electricDemandOfElectrolysisInMW[index];
 				if (electricityPriceForecasts[index] > 0) {
+					double surplus = ppaProduction - electricDemandOfElectrolysisInMW[index];
 					purchasedElectricityInMWH[index] = -surplus;
 					bidPricesInEURperMWH[index] = 0;
 				}
@@ -145,7 +165,7 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		}
 	}
 
-	/** @return Number of planning steps limited to forecastSteps or end of month */
+	/** @return Number of planning steps limited to either end of forecast period or end of month */
 	private int calcNumberOfPlanningSteps(TimePeriod firstPeriod) {
 		long stepDelta = lastTimePeriodInCurrentMonth.getStartTime().getStep() - firstPeriod.getStartTime().getStep();
 		int stepsUntilEndOfMonth = (int) (stepDelta / OPERATION_PERIOD.getSteps()) + 1;
@@ -163,7 +183,8 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		}
 	}
 
-	/** @return surplus from selling renewable energy minus purchasing grey energy to run electrolyzer at full capacity */
+	/** @return expected surplus from selling green electricity compared to purchasing grey electricity when running the
+	 *         electrolyzer at full capacity */
 	private double calcSurplusPosition(TimePeriod firstPeriod) {
 		double surplusPosition = greenElectricitySurplusTotal;
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
@@ -175,7 +196,7 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		return surplusPosition;
 	}
 
-	/** Assuming an overall surplus of sold green electricity, maximize hydrogen production */
+	/** Assuming an overall surplus of sold green electricity, maximise hydrogen production */
 	private void schedulePurchaseForFullLoadOperation(TimePeriod firstPeriod) {
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
 			if (electricityPriceForecasts[index] < hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
@@ -186,9 +207,9 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		}
 	}
 
-	/** Assuming an overall deficit of sold green electricity, maximize profits */
+	/** Assuming an overall deficit of sold green electricity, maximise profits while maintaining monthly equivalence */
 	private void schedulePurchaseForSurplusDeficit(TimePeriod firstPeriod) {
-		double netSurplus = calcNetSurplus(firstPeriod);
+		double netSurplus = calcNetGreenElectricitySurplus(firstPeriod);
 		while (netSurplus > 0) {
 			int bestHour = getHourWithHighestEconomicPotential(calcNumberOfPlanningSteps(firstPeriod));
 			if (bestHour < 0) {
@@ -202,8 +223,8 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		}
 	}
 
-	/** @return surplus from selling renewable energy */
-	private double calcNetSurplus(TimePeriod firstPeriod) {
+	/** @return surplus from selling green electricity compared to buying grey electricity */
+	private double calcNetGreenElectricitySurplus(TimePeriod firstPeriod) {
 		double netSurplus = greenElectricitySurplusTotal;
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
 			netSurplus -= purchasedElectricityInMWH[index];
@@ -211,8 +232,8 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		return netSurplus;
 	}
 
-	/** Schedule sales of renewable energy at negative electricity prices if corresponding purchasing option exists that has higher
-	 * economic potential compared to selling at negative prices */
+	/** Schedule sales of green electricity at negative electricity prices if a corresponding purchasing option exists that has
+	 * higher economic potential compared to selling at negative prices */
 	private void scheduleSalesForNegativePrices(TimePeriod firstPeriod) {
 		int endOfHorizon = calcNumberOfPlanningSteps(firstPeriod);
 		int bestBuyHour = getHourWithHighestEconomicPotential(endOfHorizon);
@@ -234,7 +255,8 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		}
 	}
 
-	/** @returns hour with the highest negative price with remaining renewable capacity, -1 if no such hour exists */
+	/** @returns hour with the highest negative price (i.e. smallest absolute value) of those that still have unused renewable
+	 *          electricity production capacity, -1 if no such hour exists */
 	private int getHourWithLowestSaleCosts(int endOfHorizon) {
 		int bestHour = -1;
 		double bestPrice = -Double.MAX_VALUE;
@@ -249,31 +271,25 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		return bestHour;
 	}
 
+	/** @return green electricity production potential in given hour that is not yet used by electrolyzer or sold at market */
 	private double getUnusedResPotential(int hour) {
-		double yieldPotential = ppaInformationForecast[hour].yieldPotentialInMWH;
+		double yieldPotential = ppaInformationForecasts[hour].yieldPotentialInMWH;
 		return Math.max(0, Math.min(yieldPotential, yieldPotential - electricDemandOfElectrolysisInMW[hour]
 				+ purchasedElectricityInMWH[hour]));
 	}
 
-	@Override
-	public void updateProducedHydrogenTotal(double producedHydrogenInMWH) {
-		throw new RuntimeException(ERR_NOT_INTENDED + this.getClass().getSimpleName());
-	}
-
-	public void updateGreenElectricitySurplus(double greenElectricitySurplusInMWH) {
-		greenElectricitySurplusTotal += greenElectricitySurplusInMWH;
-	}
-
-	public void resetMonthly(TimeStamp beginOfNextMonth) {
-		schedule = null;
-		greenElectricitySurplusTotal = 0;
-		lastTimePeriodInCurrentMonth = new TimePeriod(beginOfNextMonth.earlierBy(OPERATION_PERIOD), OPERATION_PERIOD);
-	}
-
-	/** Curtail renewable generation and buy at exchange for extremely negative prices exceeding negative PPA price */
+	/** Curtail renewable generation and buy at exchange for negative prices below the negative of the PPA price */
 	private void rescheduleForExtremelyNegativePrices(TimePeriod firstPeriod) {
 		int endOfHorizon = calcNumberOfPlanningSteps(firstPeriod);
-		double netSurplus = calcNetSurplus(firstPeriod);
+		double netSurplus = calcNetGreenElectricitySurplus(firstPeriod);
+		netSurplus = curtailWithNetSurplus(netSurplus, endOfHorizon, firstPeriod);
+		if (netSurplus <= TOLERANCE) {
+			curtailWithoutNetSurplus(endOfHorizon);
+		}
+	}
+
+	/** Curtails green electricity production in hours with very low prices and buys green electricity instead */
+	private double curtailWithNetSurplus(double netSurplus, int endOfHorizon, TimePeriod firstPeriod) {
 		while (netSurplus > 0) {
 			int bestHour = getBestCurtailmentHour(endOfHorizon);
 			if (bestHour < 0) {
@@ -284,24 +300,9 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 			purchasedElectricityInMWH[bestHour] += curtailedEnergy;
 			// TODO: Need multiple bids with different price limits
 			bidPricesInEURperMWH[bestHour] = hydrogenSaleOpportunityCostsPerElectricMWH[bestHour];
-			netSurplus = calcNetSurplus(firstPeriod);
+			netSurplus = calcNetGreenElectricitySurplus(firstPeriod);
 		}
-		if (netSurplus <= TOLERANCE) {
-			int bestCurtailmentHour = getBestCurtailmentHour(endOfHorizon);
-			int lowestEconomicPotentialHour = getHourWithLowestEconomicPotential(endOfHorizon);
-			while (bestCurtailmentHour >= 0 && lowestEconomicPotentialHour >= 0) {
-				double purchasedElectricity = purchasedElectricityInMWH[lowestEconomicPotentialHour];
-				double usedRenewableElectricity = getUsedResPotentialFor(bestCurtailmentHour);
-				double rescheduledAmount = Math.min(purchasedElectricity, usedRenewableElectricity);
-				purchasedElectricityInMWH[lowestEconomicPotentialHour] -= rescheduledAmount;
-				electricDemandOfElectrolysisInMW[lowestEconomicPotentialHour] -= rescheduledAmount;
-				purchasedElectricityInMWH[bestCurtailmentHour] += rescheduledAmount;
-				// TODO: Need multiple bids with different price limits
-				bidPricesInEURperMWH[bestCurtailmentHour] = hydrogenSaleOpportunityCostsPerElectricMWH[bestCurtailmentHour];
-				bestCurtailmentHour = getBestCurtailmentHour(endOfHorizon);
-				lowestEconomicPotentialHour = getHourWithLowestEconomicPotential(endOfHorizon);
-			}
-		}
+		return netSurplus;
 	}
 
 	/** @returns hour with highest difference between electricity price and negative PPA price, -1 if no such hour exists */
@@ -320,12 +321,33 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		return bestHour;
 	}
 
+	/** @return green electricity production potential used by either the electrolyzer or sold at market */
 	private double getUsedResPotentialFor(int hour) {
-		return ppaInformationForecast[hour].yieldPotentialInMWH - getUnusedResPotential(hour);
+		return ppaInformationForecasts[hour].yieldPotentialInMWH - getUnusedResPotential(hour);
 	}
 
+	/** @return price difference between curtailment of already purchased electricity from PPA partner and the spot market */
 	private double getCurtailmentPriceDifferenceFor(int hour) {
-		return -electricityPriceForecasts[hour] - ppaInformationForecast[hour].priceInEURperMWH;
+		return -electricityPriceForecasts[hour] - ppaInformationForecasts[hour].priceInEURperMWH;
+	}
+
+	/** Curtails green electricity production in hours with very low prices and reduces hydrogen production in other hours for
+	 * compensation */
+	private void curtailWithoutNetSurplus(int endOfHorizon) {
+		int bestCurtailmentHour = getBestCurtailmentHour(endOfHorizon);
+		int lowestEconomicPotentialHour = getHourWithLowestEconomicPotential(endOfHorizon);
+		while (bestCurtailmentHour >= 0 && lowestEconomicPotentialHour >= 0) {
+			double purchasedElectricity = purchasedElectricityInMWH[lowestEconomicPotentialHour];
+			double usedRenewableElectricity = getUsedResPotentialFor(bestCurtailmentHour);
+			double rescheduledAmount = Math.min(purchasedElectricity, usedRenewableElectricity);
+			purchasedElectricityInMWH[lowestEconomicPotentialHour] -= rescheduledAmount;
+			electricDemandOfElectrolysisInMW[lowestEconomicPotentialHour] -= rescheduledAmount;
+			purchasedElectricityInMWH[bestCurtailmentHour] += rescheduledAmount;
+			// TODO: Need multiple bids with different price limits
+			bidPricesInEURperMWH[bestCurtailmentHour] = hydrogenSaleOpportunityCostsPerElectricMWH[bestCurtailmentHour];
+			bestCurtailmentHour = getBestCurtailmentHour(endOfHorizon);
+			lowestEconomicPotentialHour = getHourWithLowestEconomicPotential(endOfHorizon);
+		}
 	}
 
 	/** @param endOfHorizon last step of planning horizon
@@ -353,6 +375,26 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 		}
 	}
 
+	@Override
+	public void updateProducedHydrogenTotal(double producedHydrogenInMWH) {
+		throw new RuntimeException(ERR_NOT_INTENDED + this.getClass().getSimpleName());
+	}
+
+	/** Adds the given green electricity surplus (or deficit if negative) to the running total of the current months green
+	 * electricity surplus */
+	public void updateGreenElectricitySurplus(double greenElectricitySurplusInMWH) {
+		greenElectricitySurplusTotal += greenElectricitySurplusInMWH;
+	}
+
+	/** Resets the current status of the Strategist to a new month: deletes the schedule and resets the green electricity surplus to
+	 * Zero */
+	public void resetMonthly(TimeStamp beginOfNextMonth) {
+		schedule = null;
+		greenElectricitySurplusTotal = 0;
+		lastTimePeriodInCurrentMonth = new TimePeriod(beginOfNextMonth.earlierBy(OPERATION_PERIOD), OPERATION_PERIOD);
+	}
+
+	/** Replaces internal energy schedule: the relevant state to monitor in the schedule is the green electricity surplus */
 	@Override
 	protected double[] getInternalEnergySchedule() {
 		return scheduledGreenElectricitySurplus;
