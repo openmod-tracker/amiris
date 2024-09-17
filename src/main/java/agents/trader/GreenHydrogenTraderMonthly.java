@@ -30,7 +30,11 @@ import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** GreenHydrogenTraderMonthly is a type of ElectrolysisTrader that operates an electrolyzer unit to produce hydrogen from green
- * electricity purchased via a PPA ensuring monthly equivalence
+ * electricity purchased via a PPA ensuring monthly equivalence of used electricity for electrolysis and produced green
+ * electricity. Grey electricity may be bought from the market, as long as the monthly total of electricity used for hydrogen
+ * production is less than or equal to the total amount of produced green electricity from connected renewable plant operators.
+ * Planning of when to sell green electricity, when to purchase grey electricity, and how to operate the electrolysis unit
+ * requires forecasts of hydrogen prices, of electricity prices and of green electricity production.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements GreenHydrogenProducer {

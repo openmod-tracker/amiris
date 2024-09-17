@@ -41,7 +41,12 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import util.Util;
 import util.Util.MessagePair;
 
-/** @author Johannes Kochems, Christoph Schimeczek */
+/** Electricity and Hydrogen Trader that uses electricity produced by a renewable plant operator to produce green hydrogen
+ * (utilising an electrolysis device) in hourly equivalence. No grey electricity is bought from the market. Thus, if not enough
+ * green electricity is available, less hydrogen is produced. In hours with a green electricity surplus (or hours with electricity
+ * prices above their corresponding hydrogen equivalence), the electricity is sold at the day-ahead market.
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler, GreenHydrogenProducer {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 

@@ -17,6 +17,29 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
+/** Strategist for operation of an electrolysis unit operation plus corresponding bidding strategies for purchasing grey
+ * electricity and selling green electricity. This Strategist tries to maximise profits while **not** jeopardizing the monthly
+ * green hydrogen production equivalence. It considers forecasts of:
+ * <ul>
+ * <li>costs for buying green electricity from a PPA contract partner,</li>
+ * <li>costs for buying grey electricity from the day-ahead market,</li>
+ * <li>rewards of selling green electricity to the day-head market,</li>
+ * <li>rewards of selling green hydrogen to the fuels market,</li>
+ * <li>amount of available green electricity produced by a PPA contract partner,</li>
+ * <li>operational restrictions of the employed electrolysis unit.</li>
+ * </ul>
+ * Based on these forecasts a multi-layered operation and bidding strategy is devised, considering:
+ * <ul>
+ * <li>The sum of produced hydrogen is (just) below the sum of its green electricity equivalent produced by the PPA contract
+ * partner (monthly equivalence).</li>
+ * <li>If electricity prices exceed their corresponding hydrogen value, all green electricity is sold.</li>
+ * <li>Surplus green electricity is sold, if the electricity price is above the negative corresponding hydrogen value.</li>
+ * <li>Green electricity is curtailed if electricity prices are below that threshold and monthly equivalence is not
+ * endangered.</li>
+ * </ul>
+ * Months are considered to have an identical number of hours.
+ * 
+ * @author Christoph Schimeczek, Johannes Kochems */
 public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	static final String ERR_PPA_MISSING = "PpaInformationForecast missing for time period: ";
 	static final String ERR_NOT_INTENDED = "Method not intended for strategist type: ";

@@ -7,6 +7,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - **Breaking**: Change `FuelType` input parameter from `enum` to `string_set` and move to `FuelsTrader` #120 (@dlr_fn @dlr-cjs)
 - **Breaking**: Change `Set` input parameter from `enum` to `string_set` and rename to `PolicySet` #5 (@dlr_fn @dlr-cjs)
 - Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs @dlr_jk)
+- Change minimum requirement `fameio` version to 2.3.1 #5, #120 (@dlr-cjs)
 - README: Update minimum Python version requirement to 3.9 !114 (@dlr_fn)
 
 ### Added
