@@ -122,29 +122,39 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	protected void digestAwards(ArrayList<Message> messages, List<Contract> contracts) {
 		Message awardMessage = CommUtils.getExactlyOneEntry(messages);
 		AwardData award = awardMessage.getDataItemOfType(AwardData.class);
-
 		lastClearingTime = award.beginOfDeliveryInterval;
+
 		double netAwardedEnergyInMWH = award.demandEnergyInMWH - award.supplyEnergyInMWH;
-		PpaInformation ppa = getPpa(lastClearingTime);
-		double availableEnergy = netAwardedEnergyInMWH + ppa.yieldPotentialInMWH;
-		double electrolyzerDispatch = electrolyzer.calcCappedElectricDemandInMW(availableEnergy, lastClearingTime);
-		lastUsedResElectricityInMWH = electrolyzerDispatch - netAwardedEnergyInMWH;
-		lastProducedHydrogenInMWH = electrolyzer.calcProducedHydrogenOneHour(electrolyzerDispatch, lastClearingTime);
+		store(OutputColumns.AwardedEnergyInMWH, netAwardedEnergyInMWH);
 		getStrategist().updateGreenElectricitySurplus(-netAwardedEnergyInMWH);
 
-		double ppaCosts = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
-		double marketCosts = award.powerPriceInEURperMWH * award.demandEnergyInMWH;
-		double marketRevenue = award.powerPriceInEURperMWH * award.supplyEnergyInMWH;
-		store(OutputColumns.AwardedEnergyInMWH, netAwardedEnergyInMWH);
-		store(ElectrolysisTrader.Outputs.ProducedHydrogenInMWH, lastProducedHydrogenInMWH);
-		store(FlexibilityTrader.Outputs.VariableCostsInEUR, ppaCosts + marketCosts);
-		store(GreenHydrogenProducer.Outputs.ReceivedMoneyForElectricityInEUR, marketRevenue);
+		PpaInformation ppa = getPpa(lastClearingTime);
+		updateDispatchAssignments(ppa.yieldPotentialInMWH, netAwardedEnergyInMWH);
+		logElectricityCostsAndRevenues(ppa, award);
 	}
 
 	/** @param time to request PpaInformation for
 	 * @return PpaInformation for given time stored in strategist */
 	private PpaInformation getPpa(TimeStamp time) {
 		return getStrategist().getPpaForPeriod(new TimePeriod(time, Strategist.OPERATION_PERIOD));
+	}
+
+	/** updates dispatch assignments for electrolyzer and PPA contract partner */
+	private void updateDispatchAssignments(double yieldPotentialInMWH, double netAwardedEnergyInMWH) {
+		double availableEnergy = netAwardedEnergyInMWH + yieldPotentialInMWH;
+		double electrolyzerDispatch = electrolyzer.calcCappedElectricDemandInMW(availableEnergy, lastClearingTime);
+		lastUsedResElectricityInMWH = electrolyzerDispatch - netAwardedEnergyInMWH;
+		lastProducedHydrogenInMWH = electrolyzer.calcProducedHydrogenOneHour(electrolyzerDispatch, lastClearingTime);
+		store(ElectrolysisTrader.Outputs.ProducedHydrogenInMWH, lastProducedHydrogenInMWH);
+	}
+
+	/** stores costs and revenues from purchasing and selling electricity */
+	private void logElectricityCostsAndRevenues(PpaInformation ppa, AwardData award) {
+		double ppaCosts = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
+		double marketCosts = award.powerPriceInEURperMWH * award.demandEnergyInMWH;
+		double marketRevenue = award.powerPriceInEURperMWH * award.supplyEnergyInMWH;
+		store(FlexibilityTrader.Outputs.VariableCostsInEUR, ppaCosts + marketCosts);
+		store(GreenHydrogenProducer.Outputs.ReceivedMoneyForElectricityInEUR, marketRevenue);
 	}
 
 	/** Pay client according to PPA specification
