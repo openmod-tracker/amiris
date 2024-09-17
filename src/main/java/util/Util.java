@@ -159,10 +159,12 @@ public final class Util {
 			this.secondItem = secondItem;
 		}
 
+		/** @return first Item of this {@link MessagePair} */
 		public X getFirstItem() {
 			return firstItem;
 		}
 
+		/** @return Second Item of this {@link MessagePair} */
 		public Y getSecondItem() {
 			return secondItem;
 		}

@@ -35,8 +35,10 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 	/** Products of {@link VariableRenewableOperator}s */
 	@Product
 	public static enum Products {
+		/** (Perfect) Forecast of Price set in PPA and the future yield potential */
+		PpaInformationForecast,
 		/** Price set in PPA and the current yield potential */
-		PpaInformation, PpaInformationForecast
+		PpaInformation,
 	};
 
 	private TimeSeries tsYieldProfile;
@@ -54,7 +56,8 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 
 		call(this::sendPpaInformationForecast).on(Products.PpaInformationForecast)
 				.use(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
-		call(this::sendPpaInformation).on(Products.PpaInformation).use(GreenHydrogenProducer.Products.PpaInformationRequest);
+		call(this::sendPpaInformation).on(Products.PpaInformation)
+				.use(GreenHydrogenProducer.Products.PpaInformationRequest);
 	}
 
 	/** @return single {@link Marginal} considering variable yield */

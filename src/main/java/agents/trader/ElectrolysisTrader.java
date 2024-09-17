@@ -50,20 +50,28 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 			.addAs("Strategy", ElectrolyzerStrategist.parameters)
 			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
 
+	/** Available output columns */
 	@Output
 	protected static enum Outputs {
-		OfferedEnergyPriceInEURperMWH, ProducedHydrogenInMWH, 		
+		/** Price at which electricity offers are placed at the day-ahead market */
+		OfferedEnergyPriceInEURperMWH,
+		/** Amount of hydrogen produced */
+		ProducedHydrogenInMWH,
 		/** Total received money for selling hydrogen in EUR */
 		ReceivedMoneyForHydrogenInEUR,
 	};
 
 	private final String fuelType;
 	private final FuelData fuelData;
-	protected final Electrolyzer electrolyzer;
-	protected final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
 
+	/** Electrolyzer device used for hydrogen production */
+	protected final Electrolyzer electrolyzer;
+	/** Strategist used to plan the dispatch of the electrolyzer device and the bidding at the day-ahead market */
+	protected final ElectrolyzerStrategist strategist;
+	/** Amount of hydrogen produced based on the last electricity price clearing */
 	protected double lastProducedHydrogenInMWH = 0;
+	/** First TimeStamp of the last electricity price clearing interval */
 	protected TimeStamp lastClearingTime;
 
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters

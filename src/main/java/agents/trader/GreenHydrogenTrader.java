@@ -50,7 +50,7 @@ import util.Util.MessagePair;
 public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler, GreenHydrogenProducer {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
-	@Input public static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
+	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
 			.addAs("Device", Electrolyzer.parameters).buildTree();
 
 	@Output

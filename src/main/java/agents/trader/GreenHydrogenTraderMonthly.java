@@ -40,12 +40,16 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements GreenHydrogenProducer {
 
 	@Product
-	public enum Products {
+	private enum Products {
 		MonthlyReset
 	}
 
 	private double lastUsedResElectricityInMWH = 0;
 
+	/** Creates a new {@link GreenHydrogenTraderMonthly}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public GreenHydrogenTraderMonthly(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 

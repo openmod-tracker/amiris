@@ -42,9 +42,11 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected double[] electricDemandOfElectrolysisInMW;
 	/** Time stamps at the beginning of each scheduling period */
 	protected TimeStamp[] stepTimes;
-	/** the associated electrolysis unit */
+	/** The associated electrolysis unit */
 	protected Electrolyzer electrolyzer;
+	/** The Dispatch schedule controlled / created by this Strategist */
 	protected DispatchSchedule schedule;
+
 	private TreeMap<TimePeriod, Double> hydrogenPrices = new TreeMap<>();
 	private TimeSeries priceLimitOverrideInEURperMWH;
 

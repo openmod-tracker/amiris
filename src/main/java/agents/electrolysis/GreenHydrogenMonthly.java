@@ -55,6 +55,10 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	private double[] purchasedElectricityInMWH;
 	private double[] bidPricesInEURperMWH;
 
+	/** Create new {@link GreenHydrogenMonthly}
+	 * 
+	 * @param input parameters associated with this strategist
+	 * @throws MissingDataException if any required input is missing */
 	protected GreenHydrogenMonthly(ParameterData input) throws MissingDataException {
 		super(input);
 		allocatePlanningArrays();
@@ -381,13 +385,17 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	}
 
 	/** Adds the given green electricity surplus (or deficit if negative) to the running total of the current months green
-	 * electricity surplus */
+	 * electricity surplus
+	 * 
+	 * @param greenElectricitySurplusInMWH amount of green electricity surplus to add */
 	public void updateGreenElectricitySurplus(double greenElectricitySurplusInMWH) {
 		greenElectricitySurplusTotal += greenElectricitySurplusInMWH;
 	}
 
 	/** Resets the current status of the Strategist to a new month: deletes the schedule and resets the green electricity surplus to
-	 * Zero */
+	 * Zero
+	 * 
+	 * @param beginOfNextMonth first TimeStamp at the beginning of the next month */
 	public void resetMonthly(TimeStamp beginOfNextMonth) {
 		schedule = null;
 		greenElectricitySurplusTotal = 0;
