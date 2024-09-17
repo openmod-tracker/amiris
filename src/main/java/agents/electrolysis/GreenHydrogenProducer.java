@@ -14,6 +14,9 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 
+/** Ability to produce green hydrogen from green electricity sold by a PPA contract partner
+ * 
+ * @author Christoph Schimeczek, Johannes Kochems */
 public interface GreenHydrogenProducer extends AgentAbility {
 
 	/** Available output columns */
@@ -33,7 +36,7 @@ public interface GreenHydrogenProducer extends AgentAbility {
 		/** Request for forecasted Power Purchase Agreement (PPA) contract data with electricity production unit */
 		PpaInformationForecastRequest
 	};
-	
+
 	/** Sends {@link PointInTime}s to connected clients based on {@link ClearingTimes} message
 	 * 
 	 * @param input a single ClearingTimes message
@@ -46,5 +49,4 @@ public interface GreenHydrogenProducer extends AgentAbility {
 			fulfilNext(contract, new PointInTime(clearingTime));
 		}
 	}
-
 }

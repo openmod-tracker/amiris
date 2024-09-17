@@ -38,7 +38,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected double[] electricityPriceForecasts;
 	/** Maximum willingness to pay for electricity compared to selling hydrogen */
 	protected double[] hydrogenSaleOpportunityCostsPerElectricMWH;
-	/** Electric power demand of electrolysis unit */
+	/** Electric power dedicated to electrolysis unit */
 	protected double[] electricDemandOfElectrolysisInMW;
 	/** Time stamps at the beginning of each scheduling period */
 	protected TimeStamp[] stepTimes;
@@ -63,11 +63,15 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	protected ElectrolyzerStrategist(ParameterData input) throws MissingDataException {
 		super(input);
 		scheduledChargedHydrogenTotal = new double[scheduleDurationPeriods];
+		allocatePlanningArrays();
+		priceLimitOverrideInEURperMWH = input.getTimeSeriesOrDefault("PriceLimitOverrideInEURperMWH", null);
+	}
+
+	private void allocatePlanningArrays() {
 		electricityPriceForecasts = new double[forecastSteps];
 		hydrogenSaleOpportunityCostsPerElectricMWH = new double[forecastSteps];
 		electricDemandOfElectrolysisInMW = new double[forecastSteps];
 		stepTimes = new TimeStamp[forecastSteps];
-		priceLimitOverrideInEURperMWH = input.getTimeSeriesOrDefault("PriceLimitOverrideInEURperMWH", null);
 	}
 
 	/** Creates new electrolysis Strategist based on its associated input group
@@ -217,7 +221,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	}
 
 	/** @param hour to evaluate
-	 * @return remaining electric power in MW for given hour */
+	 * @return remaining (unused) electrolyzer electric capacity in MW for given hour */
 	protected double getRemainingPowerInMW(int hour) {
 		return Math.max(0., electrolyzer.getPeakPower(stepTimes[hour]) - electricDemandOfElectrolysisInMW[hour]);
 	}
