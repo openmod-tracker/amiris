@@ -34,7 +34,7 @@ public class FuelBid extends AmountAtTime {
 	public FuelBid(TimeStamp timeStamp, double amount, BidType bidType, String fuelType) {
 		super(timeStamp, amount);
 		if (validAt == null) {
-			throw new RuntimeException("Nully not allowed!");
+			throw new RuntimeException("Null is not allowed!");
 		}
 		this.bidType = bidType;
 		this.fuelType = fuelType;
