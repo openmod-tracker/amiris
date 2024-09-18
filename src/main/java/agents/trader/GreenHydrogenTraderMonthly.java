@@ -108,6 +108,10 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		}
 	}
 
+	/** Creates demand {@link Bid} for given targetTime based on provided schedule; logs requested energy amount in that bid to
+	 * Outputs
+	 * 
+	 * @return newly created demand Bid */
 	private Bid prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
 		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
@@ -115,6 +119,10 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		return new Bid(demandPower, price, Double.NaN);
 	}
 
+	/** Creates supply {@link Bid} for given targetTime based on provided schedule; logs offered energy amount in that bid to
+	 * Outputs
+	 * 
+	 * @return newly created demand Bid */
 	private Bid prepareHourlySupplyBid(TimeStamp targetTime, DispatchSchedule schedule) {
 		double supplyPower = schedule.getScheduledDischargingPowerInMW(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
@@ -161,20 +169,25 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		store(GreenHydrogenProducer.Outputs.ReceivedMoneyForElectricityInEUR, marketRevenue);
 	}
 
-	/** Pay client according to PPA specification
+	/** Assigns PPA client the amount of electricity to produce
 	 * 
-	 * @param messages none
+	 * @param messages not used
+	 * @param contracts payment to client from PPA */
+	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		fulfilNext(contract, new AmountAtTime(lastClearingTime, lastUsedResElectricityInMWH));
+	}
+
+	/** Pay client according to PPA specification: we assume that all power potential has to be paid by the electrolyzer party,
+	 * regardless if it was used, sold, or curtailed
+	 * 
+	 * @param messages not used
 	 * @param contracts payment to client from PPA */
 	private void payoutClient(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		PpaInformation ppa = getPpa(lastClearingTime);
 		double payment = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
 		fulfilNext(contract, new AmountAtTime(ppa.validAt, payment));
-	}
-
-	private void assignDispatch(ArrayList<Message> messages, List<Contract> contracts) {
-		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		fulfilNext(contract, new AmountAtTime(lastClearingTime, lastUsedResElectricityInMWH));
 	}
 
 	@Override
