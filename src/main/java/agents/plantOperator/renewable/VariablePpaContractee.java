@@ -59,9 +59,6 @@ public class VariablePpaContractee extends VariableRenewableOperator {
 	 * @param contracts one contracted partner */
 	private void sendPpaMultipleTimes(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		if (ppaPriceInEURperMWH == null) {
-			throw new RuntimeException(ERR_PPA_PRICE_MISSING + this);
-		}
 		for (var message : input) {
 			var time = message.getDataItemOfType(PointInTime.class).validAt;
 			double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);

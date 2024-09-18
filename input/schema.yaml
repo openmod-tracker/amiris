@@ -1281,7 +1281,7 @@ AgentTypes:
       YieldProfile: *VRPO_A_YieldProfile
       PpaPriceInEURperMWH: &VPPAC_A_PpaPrice
         AttributeType: time_series
-        Mandatory: false
+        Mandatory: true
         List: false
         MetaData:
           Description: "Price for selling power via a bilateral Power Purchase Agreement"
