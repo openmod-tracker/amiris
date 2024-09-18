@@ -88,3 +88,4 @@ The following people made significant contributions to AMIRIS (in calendaric ord
 1. [Felix Nitsch](https://orcid.org/0000-0002-9824-3371)
 1. [Johannes Kochems](https://orcid.org/0000-0002-3461-3679)
 1. [A. Achraf El Ghazi](https://orcid.org/0000-0001-5064-9148)
+1. [Leonard Willeke](https://orcid.org/0009-0004-4859-2452)

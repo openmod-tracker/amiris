@@ -16,7 +16,7 @@ import agents.markets.FuelsMarket;
 import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.plantOperator.PowerPlantScheduler;
-import agents.plantOperator.renewable.VariableRenewableOperator;
+import agents.plantOperator.renewable.VariablePpaContractee;
 import agents.trader.Trader;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
@@ -90,20 +90,20 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
 		call(this::sendBidsForecasts).on(Trader.Products.BidsForecast).use(FuelsMarket.Products.FuelPriceForecast,
-				VariableRenewableOperator.Products.PpaInformationForecast);
+				VariablePpaContractee.Products.PpaInformationForecast);
 
 		call(this::requestPpaInformation).on(GreenHydrogenProducer.Products.PpaInformationRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::requestHydrogenPrice).on(FuelsTrader.Products.FuelPriceRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sendBids).on(DayAheadMarketTrader.Products.Bids).use(FuelsMarket.Products.FuelPrice,
-				VariableRenewableOperator.Products.PpaInformation);
+				VariablePpaContractee.Products.PpaInformation);
 
 		call(this::digestAwards).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestHydrogenSales).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
-				.use(VariableRenewableOperator.Products.PpaInformation);
+				.use(VariablePpaContractee.Products.PpaInformation);
 	}
 
 	/** Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}

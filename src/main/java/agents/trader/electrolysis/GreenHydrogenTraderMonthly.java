@@ -11,7 +11,7 @@ import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
 import agents.markets.meritOrder.Bid;
 import agents.plantOperator.PowerPlantScheduler;
-import agents.plantOperator.renewable.VariableRenewableOperator;
+import agents.plantOperator.renewable.VariablePpaContractee;
 import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
@@ -53,8 +53,8 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		super(dataProvider);
 
 		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
-		call(this::updatePpaForecast).on(VariableRenewableOperator.Products.PpaInformationForecast)
-				.use(VariableRenewableOperator.Products.PpaInformationForecast);
+		call(this::updatePpaForecast).on(VariablePpaContractee.Products.PpaInformationForecast)
+				.use(VariablePpaContractee.Products.PpaInformationForecast);
 		call(this::resetMonthlySchedule).on(Products.MonthlyReset);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout);
