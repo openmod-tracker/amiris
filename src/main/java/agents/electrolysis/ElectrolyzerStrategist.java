@@ -94,7 +94,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 				strategist = new SingleAgentSimple(input, input.getGroup("Simple"));
 				break;
 			case GREEN_HYDROGEN_MONTHLY:
-				strategist = new GreenHydrogenMonthly(input);
+				strategist = new MonthlyEquivalence(input);
 				break;
 			default:
 				throw new RuntimeException(ERR_UNKNOWN_STRATEGIST + type);

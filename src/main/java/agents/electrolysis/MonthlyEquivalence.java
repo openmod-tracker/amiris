@@ -40,7 +40,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * Months are considered to have an identical number of hours.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
-public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
+public class MonthlyEquivalence extends ElectrolyzerStrategist {
 	static final String ERR_PPA_MISSING = "PpaInformationForecast missing for time period: ";
 	static final String ERR_NOT_INTENDED = "Method not intended for strategist type: ";
 	static final double TOLERANCE = 1E-3;
@@ -55,11 +55,11 @@ public class GreenHydrogenMonthly extends ElectrolyzerStrategist {
 	private double[] purchasedElectricityInMWH;
 	private double[] bidPricesInEURperMWH;
 
-	/** Create new {@link GreenHydrogenMonthly}
+	/** Create new {@link MonthlyEquivalence}
 	 * 
 	 * @param input parameters associated with this strategist
 	 * @throws MissingDataException if any required input is missing */
-	protected GreenHydrogenMonthly(ParameterData input) throws MissingDataException {
+	protected MonthlyEquivalence(ParameterData input) throws MissingDataException {
 		super(input);
 		allocatePlanningArrays();
 	}

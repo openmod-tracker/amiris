@@ -5,9 +5,9 @@ package agents.plantOperator.renewable;
 
 import java.util.ArrayList;
 import java.util.List;
-import agents.electrolysis.GreenHydrogenProducer;
 import agents.plantOperator.Marginal;
 import agents.plantOperator.RenewablePlantOperator;
+import agents.trader.electrolysis.GreenHydrogenProducer;
 import communications.message.PointInTime;
 import communications.message.PpaInformation;
 import de.dlr.gitlab.fame.agent.input.DataProvider;

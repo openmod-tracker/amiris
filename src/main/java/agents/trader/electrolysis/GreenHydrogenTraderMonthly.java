@@ -1,19 +1,18 @@
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.trader;
+package agents.trader.electrolysis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import agents.electrolysis.GreenHydrogenMonthly;
-import agents.electrolysis.GreenHydrogenProducer;
+import agents.electrolysis.MonthlyEquivalence;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
-import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.renewable.VariableRenewableOperator;
+import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.PointInTime;
@@ -56,8 +55,6 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
 		call(this::updatePpaForecast).on(VariableRenewableOperator.Products.PpaInformationForecast)
 				.use(VariableRenewableOperator.Products.PpaInformationForecast);
-		call(this::requestPpaInformation).on(GreenHydrogenProducer.Products.PpaInformationRequest)
-				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::resetMonthlySchedule).on(Products.MonthlyReset);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout);
@@ -191,7 +188,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	}
 
 	@Override
-	protected GreenHydrogenMonthly getStrategist() {
-		return (GreenHydrogenMonthly) strategist;
+	protected MonthlyEquivalence getStrategist() {
+		return (MonthlyEquivalence) strategist;
 	}
 }

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.trader;
+package agents.trader.electrolysis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +20,8 @@ import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.storage.arbitrageStrategists.FileDispatcher;
+import agents.trader.FlexibilityTrader;
+import agents.trader.Trader;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
 import communications.message.FuelBid;
