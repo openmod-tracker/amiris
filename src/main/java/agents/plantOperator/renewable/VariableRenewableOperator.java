@@ -42,7 +42,10 @@ public class VariableRenewableOperator extends RenewablePlantOperator {
 		return new Marginal(availablePower, marginalCost);
 	}
 
-	/** @return yield [0..1] relative to peak capacity at given time */
+	/** Return relative yield profile
+	 * 
+	 * @param time at which to fetch the yield profile's value
+	 * @return yield [0..1] relative to peak capacity at given time */
 	protected double getYieldAtTime(TimeStamp time) {
 		return tsYieldProfile.getValueLinear(time);
 	}
