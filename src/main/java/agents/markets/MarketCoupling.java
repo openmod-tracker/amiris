@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import agents.markets.DayAheadMarketMultiZone.MarketZone;
 import agents.markets.meritOrder.DemandBalancer;
 import agents.markets.meritOrder.books.TransmissionBook;
 import communications.message.TransmissionCapacity;
@@ -130,7 +129,7 @@ public class MarketCoupling extends Agent {
 			for (int i = 0; i < transmissionBook.size(); i++) {
 				double remainingCapacity = transmissionBook.get(i).getRemainingTransferCapacityInMW();
 				double initialCapacity = initialTransmissionBook.get(i).getRemainingTransferCapacityInMW();
-				MarketZone targetMarketZone = transmissionBook.get(i).getTarget();
+				String targetMarketZone = transmissionBook.get(i).getTarget();
 				Long targetId = getAgentIdOfMarketZone(targetMarketZone);
 				store(
 						availableCapacity.key(TransferKey.OriginAgentId, originId).key(TransferKey.TargetAgentId, targetId),
@@ -145,10 +144,10 @@ public class MarketCoupling extends Agent {
 	/** Returns the ID of the DayAheadMarket for the given MarketZone
 	 * 
 	 * @param marketZone to get the exchange ID for
-	 * @return the DayAheadMarket agent ID of the given MarketZone */
-	private Long getAgentIdOfMarketZone(MarketZone marketZone) {
+	 * @return the DayAheadMarket agent ID of the given market zone */
+	private Long getAgentIdOfMarketZone(String marketZone) {
 		for (Long exchangeId : couplingRequests.keySet()) {
-			MarketZone candidateZone = couplingRequests.get(exchangeId).getOrigin();
+			String candidateZone = couplingRequests.get(exchangeId).getOrigin();
 			if (candidateZone.equals(marketZone)) {
 				return exchangeId;
 			}
