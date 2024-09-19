@@ -35,6 +35,11 @@ StringSets:
 A typo in the often used input parameter `InvestmentExpensesesInEURperMW` was fixed to `InvestmentExpensesInEURperMW`.
 Update your schema files and scenarios, and if necessary, adjust you scripts if these refer to this parameter name explicitly.
 
+### Remove ForecastRequestOffsets
+1. Update your scenarios and remove Agent input Attributes `ElectricityForecastRequestOffsetInSeconds`, `HydrogenForecastRequestOffsetInSeconds`, and `ForecastRequestOffsetInSeconds` from `StorageTrader`, `ElectrolysisTrader`, `MeritOrderForecaster`, and `PriceForecaster`.
+1. Add a new Contract from DayAheadMarket to your Forecaster(s), sending a `GateClosureInfo` at `-30` with an hourly delivery interval.
+1. Change the FirstDeliveryTime of all Contracts with Product `GateClosureInfo` to `-30`.
+
 
 ## [2.0.0]
 ### Minimum JDK 11
