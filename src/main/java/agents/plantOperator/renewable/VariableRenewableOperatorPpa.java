@@ -21,11 +21,11 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** An power plant operating on variable renewable energy sources, fulfilling a single private purchase agreement (PPA) to market
- * its energy.
+/** An power plant operating on variable renewable energy sources and fulfilling a single private purchase agreement (PPA) to
+ * market its energy.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
-public class VariablePpaContractee extends VariableRenewableOperator {
+public class VariableRenewableOperatorPpa extends VariableRenewableOperator {
 	/** Products of {@link VariableRenewableOperator}s */
 	@Product
 	public static enum Products {
@@ -41,7 +41,7 @@ public class VariablePpaContractee extends VariableRenewableOperator {
 
 	private TimeSeries ppaPriceInEURperMWH;
 
-	public VariablePpaContractee(DataProvider dataProvider) throws MissingDataException {
+	public VariableRenewableOperatorPpa(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		ppaPriceInEURperMWH = input.getTimeSeriesOrDefault("PpaPriceInEURperMWH", null);

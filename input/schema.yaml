@@ -1269,7 +1269,7 @@ AgentTypes:
       Description: "The VariableRenewableOperator is a RenewablePlantOperator for renewable plants with a variable yield profile."
       OEONearestConcept: OEO_00140130
 
-  VariablePpaContractee:
+  VariableRenewableOperatorPpa:
     Attributes:
       PolicySet: *RPO_A_Set
       EnergyCarrier: *RPO_A_EnergyCarrier
@@ -1277,7 +1277,7 @@ AgentTypes:
       InstalledPowerInMW: *RPO_A_InstalledPower
       OpexVarInEURperMWH: *RPO_A_OpexVar
       YieldProfile: *VRPO_A_YieldProfile
-      PpaPriceInEURperMWH: &VPPAC_A_PpaPrice
+      PpaPriceInEURperMWH: &VRPOP_A_PpaPrice
         AttributeType: time_series
         Mandatory: true
         List: false
@@ -1290,15 +1290,15 @@ AgentTypes:
       MarginalCostForecast: *PPO_P_MarginalCostForecast
       AnnualCostReport: *PPO_P_AnnualCostReport
       SetRegistration: *RPO_P_SetRegistration
-      PpaInformation: &VPPAC_P_PpaInformation
+      PpaInformation: &VRPOP_P_PpaInformation
         MetaData:
           Description: "Details about a Power Purchase Agreement (PPA) with this plant operator"
           OEONearestConcept:
-      PpaInformationForecast: &VPPAC_P_PpaInformationForecast
+      PpaInformationForecast: &VRPOP_P_PpaInformationForecast
         MetaData:
           Description: "Details about a Power Purchase Agreement (PPA) with this plant operator for the future"
           OEONearestConcept:
-      PotentialLogging: &VPPAC_P_Ppa_PotentialLogging
+      PotentialLogging: &VRPOP_P_Ppa_PotentialLogging
         MetaData:
           Description: "Trigger for logging own power plant production potential."
           OEONearestConcept:
