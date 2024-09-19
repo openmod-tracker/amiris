@@ -61,7 +61,8 @@ public class StorageTrader extends FlexibilityTrader {
 		this.strategist = ArbitrageStrategist.createStrategist(input.getGroup("Strategy"), storage);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest);
+		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
 		call(this::requestElectricityForecast).on(Products.PriceForecastRequest);

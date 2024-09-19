@@ -3,16 +3,23 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [3.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.0) - TBA
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
 - **Breaking**: Change `FuelType` input parameter from `enum` to `string_set` and move to `FuelsTrader` #120 (@dlr_fn @dlr-cjs)
 - **Breaking**: Change `Set` input parameter from `enum` to `string_set` and rename to `PolicySet` #5 (@dlr_fn @dlr-cjs)
 - **Breaking**: Change market zone inputs `OwnMarketZone` and `ConnectedMarketZone` to `string_set` and rename to `MarketZone` #123 (@dlr-cjs)
+- **Breaking**: Change contract structure GateClosureInfo to be sent before forecasting #126 (@dlr-cjs @dlr_fn)
 - Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs @dlr_jk)
 - Change minimum requirement `fameio` version to 2.3.1 #5, #120 (@dlr-cjs)
 - README: Update minimum Python version requirement to 3.9 !114 (@dlr_fn)
 
 ### Added
 - add new agent `GreenHydrogenTraderMonthly` that has a PPA with a renewable operator to produce hydrogen with monthly equivalence #125 (@dlr-cjs, @dlr_jk)
+
+### Removed 
+- **Breaking**: Deleted input Attribute `ElectricityForecastRequestOffsetInSeconds` from `StorageTrader` and `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
+- **Breaking**: Deleted input Attribute `HydrogenForecastRequestOffsetInSeconds` from `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
+- **Breaking**: Deleted input Attribute `ForecastRequestOffsetInSeconds` from `MeritOrderForecaster` and `PriceForecaster` #126 (@dlr-cjs @dlr_fn)
 
 ### Fixed
 - **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)

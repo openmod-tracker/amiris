@@ -20,6 +20,7 @@ import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
@@ -33,8 +34,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class MarketForecaster extends Forecaster {
-	@Input private static final Tree parameters = Make.newTree().add(Make.newInt("ForecastPeriodInHours"),
-			Make.newInt("ForecastRequestOffsetInSeconds")).addAs("Clearing", MarketClearing.parameters).buildTree();
+	@Input private static final Tree parameters = Make.newTree().add(Make.newInt("ForecastPeriodInHours"))
+			.addAs("Clearing", MarketClearing.parameters).buildTree();
 
 	/** Products of {@link MarketForecaster}s */
 	@Product
@@ -50,9 +51,6 @@ public abstract class MarketForecaster extends Forecaster {
 
 	/** maximum number of future hours to provide forecasts for */
 	protected final int forecastPeriodInHours;
-	/** offset in seconds of the {@link MarketForecaster} to send out its forecast requests to associated traders - must match the
-	 * associated times -1 in the contracts with the traders */
-	protected final TimeSpan forecastRequestOffset;
 	/** the algorithm used to clear the market */
 	protected final MarketClearing marketClearing;
 	/** contains all previously calculated forecasts with their associated time */
@@ -67,30 +65,30 @@ public abstract class MarketForecaster extends Forecaster {
 		ParameterData input = parameters.join(dataProvider);
 		marketClearing = new MarketClearing(input.getGroup("Clearing"));
 		forecastPeriodInHours = input.getInteger("ForecastPeriodInHours");
-		forecastRequestOffset = new TimeSpan(input.getInteger("ForecastRequestOffsetInSeconds"));
 
 		/** Send out forecast requests to make other agents prepare their bids ahead of time */
-		call(this::sendForecastRequests).on(Products.ForecastRequest);
+		call(this::sendForecastRequests).on(Products.ForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		/** On incoming bid forecasts: clear the market ahead and store the clearing result */
 		call(this::calcMarketClearingForecasts).on(Trader.Products.BidsForecast).use(Trader.Products.BidsForecast);
 	}
 
 	/** Requests bid forecast for all future hours within forecast period
 	 * 
-	 * @param input not used
+	 * @param input one GateClosureInfo from forecasted {@link DayAheadMarket}
 	 * @param contracts with all agents that start an {@link DayAheadMarket} bidding chain */
 	private void sendForecastRequests(ArrayList<Message> input, List<Contract> contracts) {
-		List<TimeStamp> missingForecastTimes = findTimesMissing(now().laterBy(forecastRequestOffset));
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		List<TimeStamp> missingForecastTimes = findTimesMissing(clearingTimes.getTimes().get(0));
 		fulfilForecastRequestContracts(contracts, missingForecastTimes);
 		removeOutdatedForecasts();
 	}
 
 	/** @return TimeStamps based on the given referenceTime that are within the forecast horizon but not yet have a forecast */
-	private List<TimeStamp> findTimesMissing(TimeStamp referenceTime) {
+	private List<TimeStamp> findTimesMissing(TimeStamp nextClearingTime) {
 		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
 		for (int i = 0; i < forecastPeriodInHours; i++) {
 			TimeSpan hourOffset = new TimeSpan(i, Interval.HOURS);
-			TimeStamp forecastTime = referenceTime.laterBy(hourOffset);
+			TimeStamp forecastTime = nextClearingTime.laterBy(hourOffset);
 			if (!calculatedForecastContainer.containsKey(forecastTime)) {
 				missingTimes.add(forecastTime);
 			}
