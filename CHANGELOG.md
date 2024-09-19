@@ -8,7 +8,11 @@ SPDX-License-Identifier: CC0-1.0 -->
 - **Breaking**: Change `Set` input parameter from `enum` to `string_set` and rename to `PolicySet` #5 (@dlr_fn @dlr-cjs)
 - **Breaking**: Change market zone inputs `OwnMarketZone` and `ConnectedMarketZone` to `string_set` and rename to `MarketZone` #123 (@dlr-cjs)
 - Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs @dlr_jk)
+- Change minimum requirement `fameio` version to 2.3.1 #5, #120 (@dlr-cjs)
 - README: Update minimum Python version requirement to 3.9 !114 (@dlr_fn)
+
+### Added
+- add new agent `GreenHydrogenTraderMonthly` that has a PPA with a renewable operator to produce hydrogen with monthly equivalence #125 (@dlr-cjs, @dlr_jk)
 
 ### Fixed
 - **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)

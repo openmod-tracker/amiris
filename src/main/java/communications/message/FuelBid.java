@@ -33,6 +33,9 @@ public class FuelBid extends AmountAtTime {
 	 * @param fuelType type of fuel this bid is associated with */
 	public FuelBid(TimeStamp timeStamp, double amount, BidType bidType, String fuelType) {
 		super(timeStamp, amount);
+		if (validAt == null) {
+			throw new RuntimeException("Null is not allowed!");
+		}
 		this.bidType = bidType;
 		this.fuelType = fuelType;
 	}

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.trader;
+package agents.trader.electrolysis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +20,8 @@ import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.storage.arbitrageStrategists.FileDispatcher;
+import agents.trader.FlexibilityTrader;
+import agents.trader.Trader;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
 import communications.message.FuelBid;
@@ -50,16 +52,29 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 			.addAs("Strategy", ElectrolyzerStrategist.parameters)
 			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
 
+	/** Available output columns */
 	@Output
-	private static enum Outputs {
-		OfferedEnergyPriceInEURperMWH, ProducedHydrogenInMWH
+	protected static enum Outputs {
+		/** Price at which electricity offers are placed at the day-ahead market */
+		OfferedElectricityPriceInEURperMWH,
+		/** Amount of hydrogen produced */
+		ProducedHydrogenInMWH,
+		/** Total received money for selling hydrogen in EUR */
+		ReceivedMoneyForHydrogenInEUR,
 	};
 
 	private final String fuelType;
 	private final FuelData fuelData;
-	private final Electrolyzer electrolyzer;
-	private final ElectrolyzerStrategist strategist;
 	private final TimeSpan hydrogenForecastRequestOffset;
+
+	/** Electrolyzer device used for hydrogen production */
+	protected final Electrolyzer electrolyzer;
+	/** Strategist used to plan the dispatch of the electrolyzer device and the bidding at the day-ahead market */
+	protected final ElectrolyzerStrategist strategist;
+	/** Amount of hydrogen produced based on the last electricity price clearing */
+	protected double lastProducedHydrogenInMWH = 0;
+	/** First TimeStamp of the last electricity price clearing interval */
+	protected TimeStamp lastClearingTime;
 
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
@@ -83,7 +98,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
 				.use(FuelsMarket.Products.FuelPriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid).use(DayAheadMarket.Products.Awards);
+		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
+		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
 	}
 
@@ -133,7 +149,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * 
 	 * @param input one GateClosureInfo message containing ClearingTimes
 	 * @param contracts single contract with a {@link DayAheadMarket} */
-	private void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
+	protected void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
 			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
@@ -151,38 +167,37 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
-		store(Outputs.OfferedEnergyPriceInEURperMWH, price);
+		store(Outputs.OfferedElectricityPriceInEURperMWH, price);
 		return demandBid;
 	}
 
-	/** Digests award information from {@link DayAheadMarket}, writes dispatch and sells hydrogen at fuels market using a "negative
-	 * purchase" message
+	/** Digests award information from {@link DayAheadMarket}, writes dispatch
 	 * 
 	 * @param messages award information received from {@link DayAheadMarket}
-	 * @param contracts a contract with one {@link FuelsMarket} */
-	private void sellProducedHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
+	 * @param contracts none */
+	protected void digestAwards(ArrayList<Message> messages, List<Contract> contracts) {
 		Message awardMessage = CommUtils.getExactlyOneEntry(messages);
 		AwardData award = awardMessage.getDataItemOfType(AwardData.class);
 
 		double awardedEnergyInMWH = award.demandEnergyInMWH;
 		double costs = award.powerPriceInEURperMWH * awardedEnergyInMWH;
-		TimeStamp deliveryTime = award.beginOfDeliveryInterval;
+		lastClearingTime = award.beginOfDeliveryInterval;
 
-		double producedHydrogenInThermalMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH,
-				deliveryTime);
-		strategist.updateProducedHydrogenTotal(producedHydrogenInThermalMWH);
-		sendHydrogenSellMessage(contracts, producedHydrogenInThermalMWH, deliveryTime);
+		lastProducedHydrogenInMWH = electrolyzer.calcProducedHydrogenOneHour(awardedEnergyInMWH, lastClearingTime);
+		strategist.updateProducedHydrogenTotal(lastProducedHydrogenInMWH);
 
 		store(OutputColumns.AwardedEnergyInMWH, awardedEnergyInMWH);
-		store(Outputs.ProducedHydrogenInMWH, producedHydrogenInThermalMWH);
+		store(Outputs.ProducedHydrogenInMWH, lastProducedHydrogenInMWH);
 		store(FlexibilityTrader.Outputs.VariableCostsInEUR, costs);
 	}
 
-	/** Sends a single {@link FuelData} message to one contracted {@link FuelsMarket} to sell the given amount of hydrogen */
-	private void sendHydrogenSellMessage(List<Contract> contracts, double producedHydrogenInThermalMWH,
-			TimeStamp deliveryTime) {
+	/** Sells hydrogen at fuels market using a "negative purchase" message
+	 * 
+	 * @param messages none
+	 * @param contracts a contract with one {@link FuelsMarket} */
+	private void sellProducedHydrogen(ArrayList<Message> messages, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		FuelBid fuelBid = new FuelBid(deliveryTime, producedHydrogenInThermalMWH, BidType.Supply, fuelType);
+		FuelBid fuelBid = new FuelBid(lastClearingTime, lastProducedHydrogenInMWH, BidType.Supply, fuelType);
 		sendFuelBid(contract, fuelBid);
 	}
 
@@ -193,7 +208,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	private void digestSaleReturns(ArrayList<Message> messages, List<Contract> contracts) {
 		Message message = CommUtils.getExactlyOneEntry(messages);
 		double cost = readFuelBillMessage(message);
-		store(FlexibilityTrader.Outputs.ReceivedMoneyInEUR, -cost);
+		store(Outputs.ReceivedMoneyForHydrogenInEUR, -cost);
 	}
 
 	@Override
@@ -202,7 +217,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	}
 
 	@Override
-	protected Strategist getStrategist() {
+	protected ElectrolyzerStrategist getStrategist() {
 		return strategist;
 	}
 }
