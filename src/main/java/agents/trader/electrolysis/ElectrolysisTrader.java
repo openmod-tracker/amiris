@@ -56,7 +56,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	@Output
 	protected static enum Outputs {
 		/** Price at which electricity offers are placed at the day-ahead market */
-		OfferedEnergyPriceInEURperMWH,
+		OfferedElectricityPriceInEURperMWH,
 		/** Amount of hydrogen produced */
 		ProducedHydrogenInMWH,
 		/** Total received money for selling hydrogen in EUR */
@@ -167,7 +167,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
-		store(Outputs.OfferedEnergyPriceInEURperMWH, price);
+		store(Outputs.OfferedElectricityPriceInEURperMWH, price);
 		return demandBid;
 	}
 

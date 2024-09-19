@@ -98,7 +98,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 			DispatchSchedule schedule = getStrategist().getValidSchedule(targetTime);
 			Bid demandBid = prepareHourlyDemandBid(targetTime, schedule);
 			Bid supplyBid = prepareHourlySupplyBid(targetTime, schedule);
-			store(ElectrolysisTrader.Outputs.OfferedEnergyPriceInEURperMWH,
+			store(ElectrolysisTrader.Outputs.OfferedElectricityPriceInEURperMWH,
 					schedule.getScheduledBidInHourInEURperMWH(targetTime));
 			fulfilNext(contractToFulfil,
 					new BidsAtTime(targetTime, getId(), Arrays.asList(supplyBid), Arrays.asList(demandBid)));

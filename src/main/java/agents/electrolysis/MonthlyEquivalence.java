@@ -325,14 +325,14 @@ public class MonthlyEquivalence extends ElectrolyzerStrategist {
 		return bestHour;
 	}
 
-	/** @return green electricity production potential used by either the electrolyzer or sold at market */
-	private double getUsedResPotentialFor(int hour) {
-		return ppaInformationForecasts[hour].yieldPotentialInMWH - getUnusedResPotential(hour);
-	}
-
 	/** @return price difference between curtailment of already purchased electricity from PPA partner and the spot market */
 	private double getCurtailmentPriceDifferenceFor(int hour) {
 		return -electricityPriceForecasts[hour] - ppaInformationForecasts[hour].priceInEURperMWH;
+	}
+
+	/** @return green electricity production potential used by either the electrolyzer or sold at market */
+	private double getUsedResPotentialFor(int hour) {
+		return ppaInformationForecasts[hour].yieldPotentialInMWH - getUnusedResPotential(hour);
 	}
 
 	/** Curtails green electricity production in hours with very low prices and reduces hydrogen production in other hours for
