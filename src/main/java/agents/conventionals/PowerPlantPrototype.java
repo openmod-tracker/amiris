@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
 
-import agents.markets.FuelsMarket.FuelType;
+import agents.markets.FuelsTrader;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -19,11 +19,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek */
 public abstract class PowerPlantPrototype implements Portable {
 	static final Tree parameters = Make.newTree().add(
-			Make.newEnum("FuelType", FuelType.class), Make.newDouble("SpecificCo2EmissionsInTperMWH"),
+			FuelsTrader.fuelTypeParameter, Make.newDouble("SpecificCo2EmissionsInTperMWH"),
 			Make.newSeries("PlannedAvailability"), Make.newDouble("UnplannedAvailabilityFactor"),
 			Make.newSeries("OpexVarInEURperMWH"), Make.newDouble("CyclingCostInEURperMW")).buildTree();
 
-	private FuelType fuelType;
+	private String fuelType;
 	private double specificCo2EmissionsInTonsPerThermalMWH;
 	private double unplannedAvailabilityFactor;
 	private double cyclingCostInEURperMW;
@@ -33,7 +33,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	/** Technical specification template for a group conventional power plants */
 	public static class PrototypeData {
 		/** Type of fuel used */
-		public FuelType fuelType;
+		public String fuelType;
 		/** Specific CO2 emissions in tons per use of 1 thermal MWh of fuel */
 		public double specificCo2EmissionsInTonsPerThermalMWH;
 		/** Permanently applied average availability reduction factor */
@@ -50,7 +50,7 @@ public abstract class PowerPlantPrototype implements Portable {
 		 * @param data input parameters of group {@link PowerPlantPrototype#parameters}
 		 * @throws MissingDataException if any required parameter is not specified */
 		public PrototypeData(ParameterData data) throws MissingDataException {
-			fuelType = data.getEnum("FuelType", FuelType.class);
+			fuelType = FuelsTrader.readFuelType(data);
 			specificCo2EmissionsInTonsPerThermalMWH = data.getDouble("SpecificCo2EmissionsInTperMWH");
 			unplannedAvailabilityFactor = data.getDouble("UnplannedAvailabilityFactor");
 			tsAvailability = data.getTimeSeries("PlannedAvailability");
@@ -77,7 +77,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	/** required for {@link Portable}s */
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
-		collector.storeInts(fuelType.ordinal());
+		collector.storeStrings(fuelType);
 		collector.storeDoubles(specificCo2EmissionsInTonsPerThermalMWH, unplannedAvailabilityFactor, cyclingCostInEURperMW);
 		collector.storeTimeSeries(tsAvailability, tsVariableCosts);
 	}
@@ -85,7 +85,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	/** required for {@link Portable}s */
 	@Override
 	public void populate(ComponentProvider provider) {
-		fuelType = FuelType.values()[provider.nextInt()];
+		fuelType = provider.nextString();
 		specificCo2EmissionsInTonsPerThermalMWH = provider.nextDouble();
 		unplannedAvailabilityFactor = provider.nextDouble();
 		cyclingCostInEURperMW = provider.nextDouble();
@@ -128,7 +128,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	/** Returns the fuel type
 	 * 
 	 * @return fuel type */
-	protected FuelType getFuelType() {
+	protected String getFuelType() {
 		return fuelType;
 	}
 

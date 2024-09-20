@@ -119,7 +119,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 		double capacityDeltaInMWH = stateDelta * storage.getInternalPowerInMW() / numberOfTransitionStates;
 		if (stateDelta > ENERGY_STATE_ROUNDING_TOLERANCE) {
 			logger.warn(WARN_ROUND_UP + capacityDeltaInMWH + " MWh");
-		} else if (stateDelta < ENERGY_STATE_ROUNDING_TOLERANCE) {
+		} else if (stateDelta < -ENERGY_STATE_ROUNDING_TOLERANCE) {
 			logger.warn(WARN_ROUND_DOWN + capacityDeltaInMWH + " MWh");
 		}
 		return roundedNumberOfEnergyStates;

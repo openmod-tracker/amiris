@@ -3,8 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.electrolysis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -17,8 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class Electrolyzer {
-	private static final Logger logger = LoggerFactory.getLogger(Electrolyzer.class);
-	static final String ERR_LARGE_CONSUMPTION = "Requested power for electrolysis was capped to peak power at time: ";
+	static final String ERR_NEGATIVE_POWER = " MWh for electrolyzer dispatch. Negative for time step: ";
 
 	/** Input parameters of an {@link Electrolyzer} unit */
 	public static final Tree parameters = Make.newTree().add(
@@ -27,6 +24,7 @@ public class Electrolyzer {
 					.help("Factor < 1 to convert electric energy to hydrogen's thermal energy equivalent"))
 			.buildTree();
 
+	private static final double NEGATIVE_TOLERANCE = -1E-5;
 	private final double conversionFactor;
 	private final TimeSeries peakConsumptions;
 
@@ -56,11 +54,13 @@ public class Electrolyzer {
 	 * @param time of the energy conversion
 	 * @return given value, possible reduced to peak electric conversion power available at given time */
 	public double calcCappedElectricDemandInMW(double electricPowerInMW, TimeStamp time) {
+		if (electricPowerInMW < NEGATIVE_TOLERANCE) {
+			throw new RuntimeException(electricPowerInMW + ERR_NEGATIVE_POWER + time);
+		}
 		if (electricPowerInMW > getPeakPower(time)) {
-			logger.warn(ERR_LARGE_CONSUMPTION + time);
 			electricPowerInMW = getPeakPower(time);
 		}
-		return electricPowerInMW;
+		return Math.max(0, electricPowerInMW);
 	}
 
 	/** Returns true if given amount of hydrogen can be produced in the given time period, false otherwise

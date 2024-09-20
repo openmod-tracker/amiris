@@ -11,38 +11,42 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Specifies an arbitrary amount at a specific time
  * 
  * @author Leonard Willeke, Johannes Kochems */
-public class PpaInformation extends DataItem {
-	/** The time the DataItem is valid at */
-	public final TimeStamp validAt;
+public class PpaInformation extends PointInTime {
 	/** The price for which energy is exchanged between the contract parties */
-	public final double price;
+	public final double priceInEURperMWH;
 	/** The amount of energy to be exchanged between the contract parties */
-	public final double yieldPotential;
+	public final double yieldPotentialInMWH;
+	/** Marginal costs of the associated renewable plants */
+	public final double marginalCostsInEURperMWH;
 
 	/** Creates a new {@link PpaInformation} message
 	 * 
 	 * @param timeStamp to which the specified amount is associated with
 	 * @param price value associated with the given timeStamp
-	 * @param yieldPotential energy yield value associated with the given timeStamp */
-	public PpaInformation(TimeStamp timeStamp, double price, double yieldPotential) {
-		this.validAt = timeStamp;
-		this.price = price;
-		this.yieldPotential = yieldPotential;
+	 * @param yieldPotential energy yield value associated with the given timeStamp
+	 * @param marginalCosts marginal costs of the associated renewable plant */
+	public PpaInformation(TimeStamp timeStamp, double price, double yieldPotential, double marginalCosts) {
+		super(timeStamp);
+		this.priceInEURperMWH = price;
+		this.yieldPotentialInMWH = yieldPotential;
+		this.marginalCostsInEURperMWH = marginalCosts;
 	}
 
 	/** Mandatory for deserialisation of {@link DataItem}s
 	 * 
 	 * @param proto protobuf representation */
 	public PpaInformation(ProtoDataItem proto) {
-		this.validAt = new TimeStamp(proto.getLongValue(0));
-		this.price = proto.getDoubleValue(0);
-		this.yieldPotential = proto.getDoubleValue(1);
+		super(proto);
+		this.priceInEURperMWH = proto.getDoubleValue(0);
+		this.yieldPotentialInMWH = proto.getDoubleValue(1);
+		this.marginalCostsInEURperMWH = proto.getDoubleValue(2);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addLongValue(validAt.getStep());
-		builder.addDoubleValue(price);
-		builder.addDoubleValue(yieldPotential);
+		super.fillDataFields(builder);
+		builder.addDoubleValue(priceInEURperMWH);
+		builder.addDoubleValue(yieldPotentialInMWH);
+		builder.addDoubleValue(marginalCostsInEURperMWH);
 	}
 }

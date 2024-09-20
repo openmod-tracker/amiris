@@ -27,6 +27,8 @@ Issues and Bugs are tracked on the [Repository](https://gitlab.com/dlr-ve/esy/am
 
 We kindly ask you to discuss the AMIRIS development and configuration at the [openMod Forum](https://forum.openmod.org/tag/amiris).
 
+Please find tag naming conventions, definition of done etc. in the wiki's [Contribute](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Contribute) section.
+
 ## Contact / Help
 You can contact the main developers via [amiris@dlr.de](mailto:amiris@dlr.de) to pose any questions or to get involved.
 
@@ -86,3 +88,4 @@ The following people made significant contributions to AMIRIS (in calendaric ord
 1. [Felix Nitsch](https://orcid.org/0000-0002-9824-3371)
 1. [Johannes Kochems](https://orcid.org/0000-0002-3461-3679)
 1. [A. Achraf El Ghazi](https://orcid.org/0000-0001-5064-9148)
+1. [Leonard Willeke](https://orcid.org/0009-0004-4859-2452)

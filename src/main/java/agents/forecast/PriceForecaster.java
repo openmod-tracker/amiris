@@ -40,7 +40,7 @@ public class PriceForecaster extends MarketForecaster {
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
-				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).timeStamp;
+				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
 				MarketClearingResult result = getResultForRequestedTime(requestedTime);
 				double forecastedPriceInEURperMWH = result.getMarketPriceInEURperMWH();
 				AmountAtTime priceForecastMessage = new AmountAtTime(requestedTime, forecastedPriceInEURperMWH);

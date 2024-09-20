@@ -12,6 +12,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  *
  * @author Christoph Schimeczek */
 public class Marginal implements Portable {
+	/** Sorts by costs in ascending order */
 	public static Comparator<Marginal> byCostAscending = new Comparator<Marginal>() {
 		@Override
 		public int compare(Marginal m1, Marginal m2) {
@@ -27,6 +28,10 @@ public class Marginal implements Portable {
 	/** required for {@link Portable}s */
 	public Marginal() {};
 
+	/** Constructs new {@link Marginal}
+	 * 
+	 * @param powerPotentialInMW true power production potential by electricity generation unit in MW
+	 * @param marginalCostInEURperMWH marginal power production costs in EUR per MWh */
 	public Marginal(double powerPotentialInMW, double marginalCostInEURperMWH) {
 		this.powerPotentialInMW = powerPotentialInMW;
 		this.marginalCostInEURperMWH = marginalCostInEURperMWH;
