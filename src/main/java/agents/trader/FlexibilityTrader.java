@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
 import agents.flexibility.Strategist;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import communications.message.AmountAtTime;
+import communications.message.ClearingTimes;
 import communications.message.PointInTime;
 import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -24,21 +26,14 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A type of Trader that also operates a flexibility asset, e.g. storage device or flexible heat pump
  *
  * @author Christoph Schimeczek */
 public abstract class FlexibilityTrader extends Trader {
-	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newInt("ElectricityForecastRequestOffsetInSeconds"))
-			.addAs("Refinancing", AnnualCostCalculator.parameters)
+	@Input private static final Tree parameters = Make.newTree().addAs("Refinancing", AnnualCostCalculator.parameters)
 			.buildTree();
-
-	/** Offset in seconds at which the forecast contracts are sent before the actual marketing time - must equal the associated
-	 * configured contract time -1 */
-	protected final TimeSpan electricityForecastRequestOffset;
 
 	/** Products of {@link FlexibilityTrader}s */
 	@Product
@@ -74,7 +69,6 @@ public abstract class FlexibilityTrader extends Trader {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
-		electricityForecastRequestOffset = new TimeSpan(input.getInteger("ElectricityForecastRequestOffsetInSeconds"));
 
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
@@ -96,12 +90,12 @@ public abstract class FlexibilityTrader extends Trader {
 	/** Requests a forecast from a contracted Forecaster. The type of forecast (either {@link MeritOrderMessage} or PriceForecast)
 	 * is determined by the contract.
 	 * 
-	 * @param input not used
+	 * @param input one ClearingTimes message from connected {@link DayAheadMarket}
 	 * @param contracts single contracted Forecaster to request forecast from */
 	protected void requestElectricityForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
-				Strategist.OPERATION_PERIOD);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		TimePeriod nextTime = new TimePeriod(clearingTimes.getTimes().get(0), Strategist.OPERATION_PERIOD);
 		ArrayList<TimeStamp> missingForecastTimes = getStrategist().getTimesMissingElectricityForecasts(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);

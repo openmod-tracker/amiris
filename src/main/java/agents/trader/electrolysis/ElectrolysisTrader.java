@@ -40,7 +40,6 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A flexible Trader demanding electricity and producing hydrogen from it via electrolysis.
@@ -49,8 +48,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
 			.addAs("Device", Electrolyzer.parameters)
-			.addAs("Strategy", ElectrolyzerStrategist.parameters)
-			.add(Make.newInt("HydrogenForecastRequestOffsetInSeconds")).buildTree();
+			.addAs("Strategy", ElectrolyzerStrategist.parameters).buildTree();
 
 	/** Available output columns */
 	@Output
@@ -65,7 +63,6 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 
 	private final String fuelType;
 	private final FuelData fuelData;
-	private final TimeSpan hydrogenForecastRequestOffset;
 
 	/** Electrolyzer device used for hydrogen production */
 	protected final Electrolyzer electrolyzer;
@@ -85,14 +82,15 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		ParameterData input = parameters.join(data);
 		electrolyzer = new Electrolyzer(input.getGroup("Device"));
 		strategist = ElectrolyzerStrategist.newStrategist(input.getGroup("Strategy"), electrolyzer);
-		hydrogenForecastRequestOffset = new TimeSpan(input.getInteger("HydrogenForecastRequestOffsetInSeconds"));
 
 		fuelType = FuelsTrader.readFuelType(input);
 		fuelData = new FuelData(fuelType);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityForecast).on(FlexibilityTrader.Products.PriceForecastRequest);
-		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest);
+		call(this::requestElectricityForecast).on(FlexibilityTrader.Products.PriceForecastRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
@@ -121,15 +119,16 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 
 	/** Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}
 	 * 
-	 * @param input not used
+	 * @param input one ClearingTimes message from connected {@link DayAheadMarket}
 	 * @param contracts single contracted fuels market to request hydrogen price(s) from */
 	private void requestHydrogenPriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(hydrogenForecastRequestOffset), Strategist.OPERATION_PERIOD);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		TimePeriod nextTime = new TimePeriod(clearingTimes.getTimes().get(0), Strategist.OPERATION_PERIOD);
 		ArrayList<TimeStamp> missingForecastTimes = strategist.getMissingHydrogenPriceForecastsTimes(nextTime);
-		ClearingTimes clearingTimes = new ClearingTimes(
+		ClearingTimes missingTimes = new ClearingTimes(
 				missingForecastTimes.toArray(new TimeStamp[missingForecastTimes.size()]));
-		sendFuelPriceRequest(contract, fuelData, clearingTimes);
+		sendFuelPriceRequest(contract, fuelData, missingTimes);
 	}
 
 	/** Digests one or multiple incoming hydrogen price forecasts

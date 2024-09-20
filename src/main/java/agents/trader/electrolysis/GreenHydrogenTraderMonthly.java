@@ -9,12 +9,14 @@ import java.util.List;
 import agents.electrolysis.MonthlyEquivalence;
 import agents.flexibility.DispatchSchedule;
 import agents.flexibility.Strategist;
+import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.renewable.VariableRenewableOperatorPpa;
 import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
+import communications.message.ClearingTimes;
 import communications.message.PointInTime;
 import communications.message.PpaInformation;
 import communications.portable.BidsAtTime;
@@ -52,7 +54,8 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	public GreenHydrogenTraderMonthly(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 
-		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest);
+		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updatePpaForecast).on(VariableRenewableOperatorPpa.Products.PpaInformationForecast)
 				.use(VariableRenewableOperatorPpa.Products.PpaInformationForecast);
 		call(this::resetMonthlySchedule).on(Products.MonthlyReset);
@@ -62,8 +65,8 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 
 	private void requestPpaForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
-		TimePeriod nextTime = new TimePeriod(now().laterBy(electricityForecastRequestOffset),
-				Strategist.OPERATION_PERIOD);
+		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
+		TimePeriod nextTime = new TimePeriod(clearingTimes.getTimes().get(0), Strategist.OPERATION_PERIOD);
 		ArrayList<TimeStamp> missingForecastTimes = getStrategist().getTimesMissingPpaForecast(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);

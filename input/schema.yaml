@@ -551,13 +551,6 @@ AgentTypes:
 
   StorageTrader:
     Attributes:
-      ElectricityForecastRequestOffsetInSeconds: &FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
-        AttributeType: integer
-        Mandatory: true
-        List: false
-        MetaData:
-          Description: "Compensates for the early sending of the PriceForecastRequest message to the contracted MarketForecaster."
-          OEONearestConcept:
       Refinancing: &FlexibilityTrader_G_Refinancing
         AttributeType: block
         Mandatory: false
@@ -998,13 +991,6 @@ AgentTypes:
         MetaData:
           Description: "The number of hours for which a forecast is produced."
           OEONearestConcept: OEO_00030035
-      ForecastRequestOffsetInSeconds: &MarketForecaster_A_ForecastRequestOffset
-        AttributeType: integer
-        Mandatory: true
-        List: false
-        MetaData:
-          Description: "Compensates for the early sending of the PriceForecastRequest message to the contracted MarketForecaster."
-          OEONearestConcept:
     Products:
       ForecastRequest: &MarketForecaster_P_ForecastRequest
         MetaData:
@@ -1031,7 +1017,6 @@ AgentTypes:
     Attributes:
       Clearing: *DAM_G_Clearing
       ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
-      ForecastRequestOffsetInSeconds: *MarketForecaster_A_ForecastRequestOffset
     Products:
       ForecastRequest: *MarketForecaster_P_ForecastRequest
       PriceForecast:
@@ -1570,14 +1555,6 @@ AgentTypes:
   ElectrolysisTrader:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
-      ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
-      HydrogenForecastRequestOffsetInSeconds: &ElectrolysisTrader_A_HydrogenForecastRequestOffset
-        AttributeType: integer
-        Mandatory: true
-        List: false
-        MetaData:
-          Description: "Compensates for the early sending of the hydrogen price forecast request message to the contracted fuels market."
-          OEONearestConcept:
       Refinancing: *FlexibilityTrader_G_Refinancing
       Device: &Electrolyzer_G_Device
         AttributeType: block
@@ -1828,8 +1805,6 @@ AgentTypes:
   GreenHydrogenTraderMonthly:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
-      ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
-      HydrogenForecastRequestOffsetInSeconds: *ElectrolysisTrader_A_HydrogenForecastRequestOffset
       Refinancing: *FlexibilityTrader_G_Refinancing
       Device: *Electrolyzer_G_Device
       Strategy:
