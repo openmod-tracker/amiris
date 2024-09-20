@@ -102,7 +102,7 @@ deploy:jdk11:
   artifacts:
     paths:
       - target/*.jar
-      - target/site/apidocs
+      - target/reports/apidocs
     expire_in: 2 hrs
   only:
     - main
@@ -112,7 +112,7 @@ pages:
   stage: .post
   script:
     - mkdir .public
-    - cp -r target/site/apidocs/* .public
+    - cp -r target/reports/apidocs/* .public
     - mv .public public
   artifacts:
     paths:
