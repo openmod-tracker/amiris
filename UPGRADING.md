@@ -48,10 +48,10 @@ A typo in the often used input parameter `InvestmentExpensesesInEURperMW` was fi
 Update your schema files and scenarios, and if necessary, adjust you scripts if these refer to this parameter name explicitly.
 
 ### Remove ForecastRequestOffsets
-1. Update your scenarios and remove Agent input Attributes `ElectricityForecastRequestOffsetInSeconds`, `HydrogenForecastRequestOffsetInSeconds`, and `ForecastRequestOffsetInSeconds` from `StorageTrader`, `ElectrolysisTrader`, `MeritOrderForecaster`, and `PriceForecaster`.
-1. Add a new Contract from DayAheadMarket to your Forecaster(s), sending a `GateClosureInfo` at `-30` with an hourly delivery interval.
-1. Change the FirstDeliveryTime of all Contracts with Product `GateClosureInfo` to `-30`.
-1. Change DayAheadMarket's Attribute `GateClosureInfoOffsetInSeconds` to 31. 
+1. Update your scenarios by removing Agent input Attributes `ElectricityForecastRequestOffsetInSeconds`, `HydrogenForecastRequestOffsetInSeconds`, and `ForecastRequestOffsetInSeconds` from `StorageTrader`, `ElectrolysisTrader`, `MeritOrderForecaster`, and `PriceForecaster`.
+1. Contracts: Add a new Contract from `DayAheadMarketSingleZone` to your Forecaster(s), sending a `GateClosureInfo` at `-30` with a `DeliveryIntervalInSteps: 3600`.
+1. Contracts: Change the `FirstDeliveryTime` of all Contracts with Product `GateClosureInfo` to `-30`.
+1. `DayAheadMarketSingleZone`: Change the Attribute `GateClosureInfoOffsetInSeconds` to 31. 
 
 ## [2.0.0]
 ### Minimum JDK 11
