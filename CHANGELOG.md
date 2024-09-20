@@ -24,6 +24,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Fixed
 - **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
 - Remove unnecessary warnings in `ArbitrageStrategist` #122 (@dlr_fn @dlr-cjs)
+- Javadoc publishing pipeline #129 (@dlr-cjs)
 
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - 2024-05-28
 ### Changed
