@@ -103,7 +103,7 @@ deploy:jdk11:
     paths:
       - target/*.jar
       - target/reports/apidocs
-    expire_in: 2 hrs
+    expire_in: 1 year
   only:
     - main
 

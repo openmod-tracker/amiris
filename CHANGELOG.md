@@ -2,6 +2,10 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [3.0.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.1) - 2024-10-14
+### Fixed
+- Configure artifacts to expire after one year #130 (@dlr_fn @dlr-cjs)
+
 ## [3.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.0) - 2024-09-20
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
