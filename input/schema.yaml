@@ -585,42 +585,42 @@ AgentTypes:
         Mandatory: true
         List: false
         NestedAttributes:
-          EnergyToPowerRatio:
+          EnergyToPowerRatio: &Device_A_EnergyToPowerRatio
             AttributeType: double
             Mandatory: true
             List: false
             MetaData:
               Description: "The duration that a storage device can operate while delivering its rated output."
               OEONearestConcept:
-          SelfDischargeRatePerHour:
+          SelfDischargeRatePerHour: &Device_A_SelfDischargeRatePerHour
             AttributeType: double
             Mandatory: true
             List: false
             MetaData:
               Description: "Measure of the rate at which a battery is discharged per hour."
               OEONearestConcept: 
-          ChargingEfficiency:
+          ChargingEfficiency: &Device_A_ChargingEfficiency
             AttributeType: double
             Mandatory: true
             List: false
             MetaData:
               Description: "The efficiency with which a storage device charges."
               OEONearestConcept: OEO_00140050
-          DischargingEfficiency:
+          DischargingEfficiency: &Device_A_DischargingEfficiency
             AttributeType: double
             Mandatory: true
             List: false
             MetaData:
               Description: "The efficiency with which a storage device discharges."
               OEONearestConcept: OEO_00140050
-          InitialEnergyLevelInMWH:
+          InitialEnergyLevelInMWH: &Device_A_InitialEnergyLevelInMWH
             AttributeType: double
             Mandatory: true
             List: false
             MetaData:
               Description: "The initial level of charge in MWH."
               OEONearestConcept:
-          InstalledPowerInMW:
+          InstalledPowerInMW: &Device_A_InstalledPowerInMW
             AttributeType: double
             Mandatory: true
             List: false
@@ -659,21 +659,21 @@ AgentTypes:
             MetaData:
               Description: "Declares the Strategist to be used for Bid calculation. Possible types are DISPATCH_FILE, SINGLE_AGENT_MIN_SYSTEM_COST, SINGLE_AGENT_MAX_PROFIT and MULTI_AGENT_SIMPLE."
               OEONearestConcept:
-          ForecastPeriodInHours:
+          ForecastPeriodInHours: &StorageTrader_A_ForecastPeriod
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
               Description: "Number of hours to the future at which the forecast is available. Must be smaller or equal to that of the MarketForecaster."
               OEONearestConcept:
-          ScheduleDurationInHours:
+          ScheduleDurationInHours: &StorageTrader_A_ScheduleDuration
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
               Description: "Number of hours each created schedule is viable - should at least match (better: significantly larger than) E2P ratio of the Device."
               OEONearestConcept: OEO_00030035
-          BidToleranceInEURperMWH:
+          BidToleranceInEURperMWH: &StorageTrader_A_BidTolerance
             AttributeType: double
             Mandatory: false
             List: false
