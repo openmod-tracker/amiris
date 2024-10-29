@@ -1863,3 +1863,401 @@ AgentTypes:
     MetaData:
       Description: "GreenHydrogenTraderMonthly is a type of ElectrolysisTrader that operates an electrolyzer unit to produce hydrogen from green electricity purchased via a PPA ensuring monthly equivalence."
       OEONearestConcept:
+
+  HeatPumpTrader:
+    Attributes:
+      ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
+      StrategyBasic:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Group of parameters defining basics of the heat pump dispatch strategy."
+          OEONearestConcept:
+        NestedAttributes:
+          ForecastPeriodInHours: *Strategist_A_ForecastPeriod
+          ScheduleDurationInHours: *Strategist_A_ScheduleDuration
+          BidToleranceInEURperMWH: *Strategist_A_BidTolerance
+      HeatPump:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Group of parameters defining the properties of heat pumps."
+          OEONearestConcept:
+        NestedAttributes:
+          MinElectricHeatPumpPowerInKW:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Rated power at the design ambient temperature (typically -14 Celsius for air/water heat pumps)."
+              OEONearestConcept: OEO_00010157
+          MaxElectricHeatPumpPowerInKW:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Rated power at the upper ambient temperature for heat pump specification (typically +10 Celsius for air/water heat pumps) in kW."
+              OEONearestConcept: OEO_00010157
+          MinCOP:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Coefficient of performance at the design ambient temperature (typically -14 Celsius for air/water heat pumps) in kW."
+              OEONearestConcept: OEO_00140051
+          MaxCOP:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Coefficient of performance at the upper ambient temperature for heat pump specification (typically +10 Celsius for air/water heat pumps)."
+              OEONearestConcept: OEO_00140051
+          HeatPumpPenetrationFactor:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Share of heatDemandProfile that should be covered by heat pumps, in case heatDemandProfile is given."
+              OEONearestConcept:
+          InstalledUnits:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Total number of installed heat pumps, in case no heatDemandProfile is given."
+              OEONearestConcept:
+      Device:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Group of parameters defining the thermal storage used for strategist MIN_COST_FILE."
+          OEONearestConcept:
+        NestedAttributes:
+          EnergyToPowerRatio: *Device_A_EnergyToPowerRatio
+          SelfDischargeRatePerHour: *Device_A_SelfDischargeRatePerHour
+          ChargingEfficiency: *Device_A_ChargingEfficiency
+          DischargingEfficiency: *Device_A_DischargingEfficiency
+          InitialEnergyLevelInMWH: *Device_A_InitialEnergyLevelInMWH
+          InstalledPowerInMW: *Device_A_InstalledPowerInMW
+      HeatingInputData:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Group of input time series required for the calculation of electricity demand of heat pumps."
+          OEONearestConcept:
+        NestedAttributes:
+          TemperatureProfile:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Time series of ambient temperature at a specific location in Celsius."
+              OEONearestConcept:
+          SolarRadiation:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Time series of total radiation on a vertical southern surface at a specific location in kW/m2."
+              OEONearestConcept: OEO_00020038
+          HeatDemandProfile:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Time series of heat demand at an aggregate level (e.g. Germany) in MWh/h."
+              OEONearestConcept:
+          PvProfile:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Time series of pv yield at a specific location in kW/kWp."
+              OEONearestConcept:
+      Strategy:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Group of parameters defining the dispatch strategy of heat pumps."
+          OEONearestConcept:
+        NestedAttributes:
+          ModelledChargingSteps:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Number of steps that is used to discretize the building's indoor air temperature."
+              OEONearestConcept:
+          HeatPumpStrategistType:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              MIN_COST_RC:
+                MetaData:
+                  Description: "Creates a cost-optimal dispatch schedule that satisfies a space heating demand that is endogenously calculated by a ThermalResponse model. Flexibility is provided by varying the indoor temperature of the building."
+                  OEONearestConcept:
+              INFLEXIBLE_RC:
+                MetaData:
+                  Description: "Creates an inflexible dispatch schedule that satisfies a space heating demand that is endogenously calculated by a ThermalResponse model. Heat pump operation is only oriented at current space heat demand, not at prices."
+                  OEONearestConcept:
+              MIN_COST_FILE:
+                MetaData:
+                  Description: "Creates a cost-optimal dispatch schedule from a given heat demand input time series. Flexibility is provided by a thermal storage."
+                  OEONearestConcept:
+              INFLEXIBLE_FILE:
+                MetaData:
+                  Description: "Creates an inflexible dispatch schedule from a given heat demand input time series that is independent of electricity prices."
+                  OEONearestConcept:
+              EXTERNAL:
+                MetaData:
+                  Description: "Creates a cost-optimal dispatch schedule according to real-time prices, which is endogenously calculated by a heat pump dispatch model."
+                  OEONearestConcept:
+              MetaData:
+                Description: "Type of strategist employed to dispatch heat pumps Possible types are MIN_COST_RC, INFLEXIBLE_RC, MIN_COST_FILE, INFLEXIBLE_FILE, EXTERNAL."
+                OEONearestConcept:
+          MinimalRoomTemperatureInC:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Minimum accepted indoor air temperature during the heating period in Celsius, in case a ThermalResponse model is used for heating demand calculation."
+              OEONearestConcept:
+          MaximalRoomTemperatureInC:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Maximum accepted indoor air temperature during the heating period in Celsius, in case a ThermalResponse model is used for heating demand calculation."
+              OEONearestConcept:
+          MeanRoomTemperatureInC:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Average accepted indoor air temperature during the heating period in Celsius, in case a ThermalResponse model is used for heating demand calculation."
+              OEONearestConcept:
+          ApiParameters:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Parameters for EXTERNAL strategist."
+              OEONearestConcept:
+            NestedAttributes:
+              ServiceUrl:
+                AttributeType: string
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "URL for the model service used."
+                  OEONearestConcept: 
+              StaticParameterFolder:
+                AttributeType: string
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "Folder that encapsulates all input data required for the external GAMS heat pump dispatch optimization model."
+                  OEONearestConcept:
+      Building:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Group of parameters defining building thermodynamics for strategists MIN_COST_RC and INFLEXIBLE_RC."
+          OEONearestConcept:
+        NestedAttributes:
+          Ria:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Thermal resistance between the building interior and the ambient in Celsius/kW."
+              OEONearestConcept:
+          Ci:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Capacitance of the interior of the building in kWh/Celsius."
+              OEONearestConcept:
+          Ai:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Effective window area for absorption of solar gains on internal air in the building in m2."
+              OEONearestConcept:
+          HeatingLimitTemperatureInC:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Ambient temperature above which heating is turned off in Celsius."
+              OEONearestConcept:
+          InternalHeatGainsInKW:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Internal heat gains inside the building in kW."
+              OEONearestConcept:
+      Policy:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Group of parameters defining tariff policy for an end user flexibility trader."
+          OEONearestConcept: OEO_00140150
+        NestedAttributes:
+          EEGSurchargeInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "The EEG levy (levy from German renewable energy act - EEG) in EUR per MWh."
+              OEONearestConcept:
+          VolumetricNetworkChargeInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh."
+              OEONearestConcept:
+          ElectricityTaxInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Electricity tax in EUR per MWh"
+              OEONearestConcept:
+          OtherSurchargesInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... in EUR per MWh."
+              OEONearestConcept:
+          DynamicTariffComponents:
+            AttributeType: block
+            List: true
+            Mandatory: false
+            MetaData:
+              Description: "Group of tariff components that are made dynamic, i.e. varying with the model-endogenous day-ahead price."
+              OEONearestConcept:
+            NestedAttributes:
+              ComponentName:
+                AttributeType: enum
+                Mandatory: true
+                List: false
+                Values:
+                  POWER_PRICE:
+                    MetaData:
+                      Description: "Power price component corresponding to the day-ahead power price."
+                      OEONearestConcept:
+                  EEG_SURCHARGE:
+                    MetaData:
+                      Description: "The EEG levy (levy from German renewable energy act - EEG)."
+                      OEONearestConcept:
+                  VOLUMETRIC_NETWORK_CHARGE:
+                    MetaData:
+                      Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh."
+                      OEONearestConcept:
+                  OTHER_COMPONENTS:
+                    MetaData:
+                      Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... ."
+                      OEONearestConcept:
+                  DUMMY:
+                    MetaData:
+                      Description: "A dummy entry needed in case no dynamic tariff component shall be simulated."
+                      OEONearestConcept:
+              Multiplier:
+                AttributeType: time_series
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "Multiplier used for calculating dynamic tariff component from model-endogenous day-ahead price."
+                  OEONearestConcept:
+              LowerBound:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Lower price bound to cap tariff component at."
+                  OEONearestConcept:
+              UpperBound:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Upper price bound to cap tariff component at."
+                  OEONearestConcept:
+          VAT:
+            AttributeType: double
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Value added tax multiplier in per cent."
+              OEONearestConcept:
+          CapacityBasedNetworkChargesInEURPerMW:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Network charges based on peak consumption capacity for planning period (year) in EUR per MW."
+              OEONearestConcept:
+          FixedNetworkChargesInEURPerYear:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Fixed network charges based on peak consumption capacity for planning period in EUR per MW."
+              OEONearestConcept:
+      BusinessModel:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Group of parameters specifying the business model of an aggregator."
+              OEONearestConcept:
+            NestedAttributes:
+              ProfitMarginInEURPerMWH:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Group of parameters specifying the business model of an aggregator."
+                  OEONearestConcept:
+              AverageMarketPriceInEURPerMWH:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "The average market price in EUR per MWh to be applied in case of a static tariff."
+                  OEONearestConcept:
+    Products:
+      Bids: *DamTrader_P_Bids
+      MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
+      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+    Outputs:
+      AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
+      COP:
+        MetaData:
+          Description: "Coefficient of performance of heat pump."
+          OEONearestConcept:
+      FinalRoomTemperatureInCelsius:
+        MetaData:
+          Description: "Indoor air temperature in Celsius."
+          OEONearestConcept:
+      StoredEnergyInMWH:
+        MetaData:
+          Description: "Amount of energy in storage in MWh."
+          OEONearestConcept:
+    MetaData:
+      Description: "HeatPumpTrader is a type of FlexibilityTrader that aggregates heat pumps in buildings and arranges procurement at the DayAheadMarket. Different strategies can be used to calculate the electricity demand of heat pumps. Heat pumps can be either dispatched according to heat demand or optimised according to spot market price forecasts."
+      OEONearestConcept:
