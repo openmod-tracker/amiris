@@ -66,6 +66,9 @@ public class EndUserTariff {
 	public static final Tree businessModelParameters = Make.newTree()
 			.add(Make.newDouble("ProfitMarginInEURPerMWH"), Make.newSeries("AverageMarketPriceInEURPerMWH")).buildTree();
 
+	/** Creates an {@link EndUserTariff}
+	 * @param policy containing all policy-based tariff components
+	 * @param businessModel containing all business-model related tariff components */
 	public EndUserTariff(ParameterData policy, ParameterData businessModel) throws MissingDataException {
 		this.eegSurchargeInEURPerMWH = policy.getTimeSeries("EEGSurchargeInEURPerMWH");
 		this.volumetricNetworkChargeInEURPerMWH = policy.getTimeSeries("VolumetricNetworkChargeInEURPerMWH");
@@ -136,19 +139,28 @@ public class EndUserTariff {
 						averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime), targetTime));
 	}
 
-	/** Return true if tariff is static */
+	/** Return true if tariff is static
+	 * @return whether or not power price is static */
 	public boolean isStaticPowerPrice() {
 		return !dynamicTariffComponents.containsKey(ComponentType.POWER_PRICE);
 	}
 
+	/** Gets the static average market price 
+	 * @return static power price*/
 	public double getStaticPowerPrice(TimeStamp targetTime) {
 		return averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime);
 	}
 
+	/** Calculate purchase price based on feed in tariff 
+	 * @param forecastedMarketPriceInEURPerMWH forecasted market price
+	 * @return feed in tariff at given forecasted market price */
 	public double calcPurchasePriceInEURPerMWH(double forecastedMarketPriceInEURPerMWH) {
 		return getFeedInTariff(forecastedMarketPriceInEURPerMWH);
 	}
 
+	/** Get the feed-in tariff, which may be either static or dependent on given market price forecast
+	 * @param forecastedMarketPriceInEURPerMWH forecasted market price
+	 * @return feed-in tariff */
 	private double getFeedInTariff(double forecastedMarketPriceInEURPerMWH) {
 		switch (feedInTariffScheme) {
 			case FIXED:
@@ -161,7 +173,10 @@ public class EndUserTariff {
 		}
 	}
 
-	/** Calculate and individual tariff component and return either its static or a calculated dynamic value */
+	/** Calculate and individual tariff component and return either its static or a calculated dynamic value 
+	 * @param forecastedMarketPriceInEURPerMWH forecasted market price 
+	 * @param componentName name of tariff component
+	 * @return tariff component */
 	private double calcAndReturnTariffComponent(double forecastedMarketPriceInEURPerMWH, ComponentType componentName,
 			double staticValueInEURPerMWH, TimeStamp targetTime) {
 		if (dynamicTariffComponents.containsKey(componentName)) {
@@ -171,7 +186,11 @@ public class EndUserTariff {
 		}
 	}
 
-	/** Calculate the value of a dynamic tariff component for a given power price taking into account upper and lower bounds */
+	/** Calculate the value of a dynamic tariff component for a given power price taking into account upper and lower bounds 
+	 * @param forecastedMarketPriceInEURPerMWH forecasted market price 
+	 * @param componentName name of tariff component
+	 * @param targetTime time at which tariff is calculated
+	 * @return dynamic tariff component */
 	private double calcDynamicTariffComponent(double forecastedMarketPriceInEURPerMWH, ComponentType componentName,
 			TimeStamp targetTime) {
 		double dynamicTariffComponentInEURPerMWH = forecastedMarketPriceInEURPerMWH

@@ -62,7 +62,8 @@ public class StrategistInflexibleRC extends HeatPumpStrategist {
 	}
 
 	/** Updates dispatch schedule in case the room temperature was out of allowed bounds and brings temperature back to allowed
-	 * limits */
+	 * limits 
+	 * @param timeSegment time segment for which schedule is calculated  */
 	protected void updateScheduleOutOfBounds(TimePeriod timeSegment) {
 		double temperatureInC = building.getCurrentRoomTemperatureInC();
 		if (temperatureInC < strategyParams.getMinimalRoomTemperatureInC()) {
