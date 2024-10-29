@@ -68,7 +68,8 @@ public class EndUserTariff {
 
 	/** Creates an {@link EndUserTariff}
 	 * @param policy containing all policy-based tariff components
-	 * @param businessModel containing all business-model related tariff components */
+	 * @param businessModel containing all business-model related tariff components 
+	 * @throws MissingDataException if any required data is not provided*/
 	public EndUserTariff(ParameterData policy, ParameterData businessModel) throws MissingDataException {
 		this.eegSurchargeInEURPerMWH = policy.getTimeSeries("EEGSurchargeInEURPerMWH");
 		this.volumetricNetworkChargeInEURPerMWH = policy.getTimeSeries("VolumetricNetworkChargeInEURPerMWH");
@@ -146,6 +147,7 @@ public class EndUserTariff {
 	}
 
 	/** Gets the static average market price 
+	 * @param targetTime time for which static power price is evaulated
 	 * @return static power price*/
 	public double getStaticPowerPrice(TimeStamp targetTime) {
 		return averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime);
