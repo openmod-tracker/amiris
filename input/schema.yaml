@@ -1866,7 +1866,6 @@ AgentTypes:
 
   HeatPumpTrader:
     Attributes:
-      ElectricityForecastRequestOffsetInSeconds: *FlexibilityTrader_A_ElectricityPriceForecastRequestOffset
       StrategyBasic:
         AttributeType: block
         Mandatory: true
