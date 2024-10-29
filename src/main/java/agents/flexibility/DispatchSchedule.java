@@ -21,7 +21,7 @@ public class DispatchSchedule {
 
 	private double[] chargingPerPeriodInMW;
 	private double[] bidPerPeriodInEURperMWH;
-	private double[] expectedInitialInternalEnergyPerPeriodInMWH;
+	protected double[] expectedInitialInternalEnergyPerPeriodInMWH;
 
 	/** Creates a {@link DispatchSchedule}
 	 * 
@@ -99,15 +99,18 @@ public class DispatchSchedule {
 		return timeDelta % period.getSteps() == 0;
 	}
 
-	/** @return true if the schedule is applicable to the specified hour with the specified energy in storage */
-	private boolean energyLevelWithinTolerance(TimeStamp time, double storageEnergyLevelInMWH) {
+	/** @return true if the schedule is applicable to the specified hour with the specified energy in storage
+	 * @param time for which to check the expected energy level
+	 * @param storageEnergyLevelInMWH actual energy level to be compared with the planned one */
+	protected boolean energyLevelWithinTolerance(TimeStamp time, double storageEnergyLevelInMWH) {
 		double plannedEnergyInStorage = expectedInitialInternalEnergyPerPeriodInMWH[calcElementInSchedule(time)];
 		double absoluteDeviation = Math.abs(plannedEnergyInStorage - storageEnergyLevelInMWH);
 		return absoluteDeviation < MAX_ABSOLUTE_ENERGY_DEVIATION_IN_MWH;
 	}
 
-	/** @return element number in this {@link DispatchSchedule} corresponding to the given {@link TimeStamp} */
-	private int calcElementInSchedule(TimeStamp time) {
+	/** @return element number in this {@link DispatchSchedule} corresponding to the given {@link TimeStamp}
+	 * @param time for which to search the element */
+	protected int calcElementInSchedule(TimeStamp time) {
 		return (int) ((time.getStep() - timeOfFirstElement.getStep()) / period.getSteps());
 	}
 
