@@ -1,0 +1,182 @@
+// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
+package endUser;
+
+import java.util.EnumMap;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.data.TimeSeries;
+import de.dlr.gitlab.fame.time.TimeStamp;
+
+/** Determines end user tariffs for consumption or feed-in.
+ * 
+ * @author Farzad Sarfarazi, Johannes Kochems */
+public class EndUserTariff {
+	private enum FeedInTariffScheme {
+		FIXED, TIME_VARYING, NONE
+	}
+
+	private enum ComponentType {
+		POWER_PRICE, EEG_SURCHARGE, VOLUMETRIC_NETWORK_CHARGE, OTHER_COMPONENTS, DUMMY
+	}
+
+	private FeedInTariffScheme feedInTariffScheme;
+	private EnumMap<ComponentType, DynamicTariffComponent> dynamicTariffComponents = new EnumMap<>(ComponentType.class);
+
+	private TimeSeries eegSurchargeInEURPerMWH;
+	private TimeSeries volumetricNetworkChargeInEURPerMWH;
+	private TimeSeries electricityTaxInEURPerMWH;
+	private TimeSeries otherSurchargesInEURPerMWH;
+	private double vat;
+	private TimeSeries capacityBasedNetworkChargeInEURPerMW;
+	private TimeSeries fixedNetworkChargesInEURPerYear;
+	private double fit;
+	private double timeVaryingFitMultiplier;
+	private double profitMarginInEURPerMWH;
+	private TimeSeries averageMarketPriceInEURPerMWH;
+
+	/** Class holding dynamic tariff components */
+	private class DynamicTariffComponent {
+		public final TimeSeries multiplier;
+		public final double lowerBound;
+		public final double upperBound;
+
+		public DynamicTariffComponent(TimeSeries multiplier, double lowerBound, double upperBound) {
+			this.multiplier = multiplier;
+			this.lowerBound = lowerBound;
+			this.upperBound = upperBound;
+		}
+	}
+
+	public static final Tree policyParameters = Make.newTree()
+			.add(Make.newSeries("EEGSurchargeInEURPerMWH"), Make.newSeries("VolumetricNetworkChargeInEURPerMWH"),
+					Make.newSeries("ElectricityTaxInEURPerMWH"), Make.newSeries("OtherSurchargesInEURPerMWH"),
+					Make.newGroup("DynamicTariffComponents").list().add(
+							Make.newEnum("ComponentName", ComponentType.class).optional(), Make.newSeries("Multiplier").optional(),
+							Make.newDouble("LowerBound").optional(), Make.newDouble("UpperBound").optional()),
+					Make.newDouble("VAT"), Make.newSeries("CapacityBasedNetworkChargesInEURPerMW"),
+					Make.newSeries("FixedNetworkChargesInEURPerYear"),
+					Make.newDouble("FitInEURPerMWH").optional(), Make.newDouble("TimeVaryingFiTMultiplier").optional(),
+					Make.newEnum("FeedInTariffScheme", FeedInTariffScheme.class).optional())
+			.buildTree();
+
+	public static final Tree businessModelParameters = Make.newTree()
+			.add(Make.newDouble("ProfitMarginInEURPerMWH"), Make.newSeries("AverageMarketPriceInEURPerMWH")).buildTree();
+
+	public EndUserTariff(ParameterData policy, ParameterData businessModel) throws MissingDataException {
+		this.eegSurchargeInEURPerMWH = policy.getTimeSeries("EEGSurchargeInEURPerMWH");
+		this.volumetricNetworkChargeInEURPerMWH = policy.getTimeSeries("VolumetricNetworkChargeInEURPerMWH");
+		this.electricityTaxInEURPerMWH = policy.getTimeSeries("ElectricityTaxInEURPerMWH");
+		this.otherSurchargesInEURPerMWH = policy.getTimeSeries("OtherSurchargesInEURPerMWH");
+		for (ParameterData group : policy.getGroupList("DynamicTariffComponents")) {
+			dynamicTariffComponents.put(group.getEnum("ComponentName", ComponentType.class),
+					new DynamicTariffComponent(group.getTimeSeries("Multiplier"), group.getDoubleOrDefault("LowerBound", 0.0),
+							group.getDoubleOrDefault("UpperBound", 200.0)));
+		}
+		this.vat = policy.getDouble("VAT");
+		this.capacityBasedNetworkChargeInEURPerMW = policy.getTimeSeries("CapacityBasedNetworkChargesInEURPerMW");
+		this.fixedNetworkChargesInEURPerYear = policy.getTimeSeries("FixedNetworkChargesInEURPerYear");
+		this.feedInTariffScheme = policy.getEnumOrDefault("FeedInTariffScheme", FeedInTariffScheme.class,
+				FeedInTariffScheme.NONE);
+		this.fit = policy.getDoubleOrDefault("FitInEURPerMWH", -Double.MAX_VALUE);
+		this.timeVaryingFitMultiplier = policy.getDoubleOrDefault("TimeVaryingFiTMultiplier", -Double.MAX_VALUE);
+		this.profitMarginInEURPerMWH = businessModel.getDouble("ProfitMarginInEURPerMWH");
+		this.averageMarketPriceInEURPerMWH = businessModel.getTimeSeries("AverageMarketPriceInEURPerMWH");
+	}
+
+	/** Calculate and return the price at which a retailer energy power to customers
+	 * 
+	 * @param forecastedMarketPriceInEURPerMWH expected electricity price at the day-ahead market
+	 * @param targetTime for which to calculate the electricity retail price
+	 * @return calculated sales price */
+	public double calcSalePriceInEURperMWH(double forecastedMarketPriceInEURPerMWH, TimeStamp targetTime) {
+		double salePrice = ((calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.POWER_PRICE,
+				averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime), targetTime)
+				+ calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.EEG_SURCHARGE,
+						eegSurchargeInEURPerMWH.getValueLowerEqual(targetTime), targetTime)
+				+ calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.VOLUMETRIC_NETWORK_CHARGE,
+						volumetricNetworkChargeInEURPerMWH.getValueLowerEqual(targetTime), targetTime)
+				+ calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.OTHER_COMPONENTS,
+						otherSurchargesInEURPerMWH.getValueLowerEqual(targetTime)
+								+ electricityTaxInEURPerMWH.getValueLowerEqual(targetTime),
+						targetTime)
+				+ profitMarginInEURPerMWH) * vat);
+		return salePrice;
+	}
+
+	/** Calculate and return the price for peak capacity of a customer
+	 * 
+	 * @param targetTime to calculate at
+	 * @return capacity price at given time */
+	public double calcCapacityRelatedPriceInEURPerMW(TimeStamp targetTime) {
+		return capacityBasedNetworkChargeInEURPerMW.getValueLowerEqual(targetTime);
+	}
+
+	/** Calculate and return the fixed price for, e.g., network charges
+	 * 
+	 * @param targetTime at which to calculate
+	 * @return fixed price */
+	public double calcFixedPriceInEURPerYear(TimeStamp targetTime) {
+		return fixedNetworkChargesInEURPerYear.getValueLowerEqual(targetTime);
+	}
+
+	/** Calculate and return the price at which a retailer provides power to customers excluding the actual wholesale day-ahead
+	 * power price
+	 * 
+	 * @param forecastedMarketPriceInEURPerMWH expected wholesale market price
+	 * @param targetTime at which to calculate
+	 * @return retail price without wholesale price component */
+	public double calcSalePriceExcludingPowerPriceInEURPerMWH(double forecastedMarketPriceInEURPerMWH,
+			TimeStamp targetTime) {
+		return calcSalePriceInEURperMWH(forecastedMarketPriceInEURPerMWH, targetTime)
+				- (calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.POWER_PRICE,
+						averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime), targetTime));
+	}
+
+	/** Return true if tariff is static */
+	public boolean isStaticPowerPrice() {
+		return !dynamicTariffComponents.containsKey(ComponentType.POWER_PRICE);
+	}
+
+	public double getStaticPowerPrice(TimeStamp targetTime) {
+		return averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime);
+	}
+
+	public double calcPurchasePriceInEURPerMWH(double forecastedMarketPriceInEURPerMWH) {
+		return getFeedInTariff(forecastedMarketPriceInEURPerMWH);
+	}
+
+	private double getFeedInTariff(double forecastedMarketPriceInEURPerMWH) {
+		switch (feedInTariffScheme) {
+			case FIXED:
+				return fit;
+			case TIME_VARYING:
+				double timeVaryingFiT = forecastedMarketPriceInEURPerMWH * timeVaryingFitMultiplier;
+				return timeVaryingFiT > fit * 2 ? fit * 2 : timeVaryingFiT < 0 ? 0 : timeVaryingFiT;
+			default:
+				throw new RuntimeException("FIT scheme not implemented.");
+		}
+	}
+
+	/** Calculate and individual tariff component and return either its static or a calculated dynamic value */
+	private double calcAndReturnTariffComponent(double forecastedMarketPriceInEURPerMWH, ComponentType componentName,
+			double staticValueInEURPerMWH, TimeStamp targetTime) {
+		if (dynamicTariffComponents.containsKey(componentName)) {
+			return calcDynamicTariffComponent(forecastedMarketPriceInEURPerMWH, componentName, targetTime);
+		} else {
+			return staticValueInEURPerMWH;
+		}
+	}
+
+	/** Calculate the value of a dynamic tariff component for a given power price taking into account upper and lower bounds */
+	private double calcDynamicTariffComponent(double forecastedMarketPriceInEURPerMWH, ComponentType componentName,
+			TimeStamp targetTime) {
+		double dynamicTariffComponentInEURPerMWH = forecastedMarketPriceInEURPerMWH
+				* dynamicTariffComponents.get(componentName).multiplier.getValueLowerEqual(targetTime);
+		DynamicTariffComponent component = dynamicTariffComponents.get(componentName);
+		return Math.max(component.lowerBound, Math.min(component.upperBound, dynamicTariffComponentInEURPerMWH));
+	}
+}
