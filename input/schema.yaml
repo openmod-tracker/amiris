@@ -1874,9 +1874,9 @@ AgentTypes:
           Description: "Group of parameters defining basics of the heat pump dispatch strategy."
           OEONearestConcept:
         NestedAttributes:
-          ForecastPeriodInHours: *Strategist_A_ForecastPeriod
-          ScheduleDurationInHours: *Strategist_A_ScheduleDuration
-          BidToleranceInEURperMWH: *Strategist_A_BidTolerance
+          ForecastPeriodInHours: *StorageTrader_A_ForecastPeriod
+          ScheduleDurationInHours: *StorageTrader_A_ScheduleDuration
+          BidToleranceInEURperMWH: *StorageTrader_A_BidTolerance
       HeatPump:
         AttributeType: block
         Mandatory: false
