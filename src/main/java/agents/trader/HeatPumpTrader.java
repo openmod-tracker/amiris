@@ -99,7 +99,7 @@ public class HeatPumpTrader extends FlexibilityTrader {
 		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
-		call(this::requestElectricityForecast).on(Products.PriceForecastRequest);
+		call(this::requestElectricityForecast).on(Products.PriceForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
