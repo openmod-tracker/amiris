@@ -2,7 +2,7 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [3.0.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.2) - 2024-10-30
+## [3.0.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.2) - 2024-10-31
 ### Fixed
 - StorageTrader: Crash when using strategy MULTI_AGENT_SIMPLE #132 (@dlr-cjs, @dlr_es)
 
