@@ -25,6 +25,7 @@ import util.UrlModelService;
  * 
  * @author Evelyn Sperber, Christoph Schimeczek */
 public class StrategistExternal extends HeatPumpStrategist {
+	/** Input parameters required for connecting to an external API-based model */
 	public static final Tree apiParameters = Make.newTree()
 			.add(Make.newString("ServiceUrl").optional(), Make.newString("StaticParameterFolder").optional())
 			.buildTree();

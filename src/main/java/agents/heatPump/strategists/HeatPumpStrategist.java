@@ -22,20 +22,37 @@ import de.dlr.gitlab.fame.time.TimePeriod;
  * 
  * @author Evelyn Sperber, Christoph Schimeczek */
 public abstract class HeatPumpStrategist extends Strategist {
-	public static enum HeatPumpStrategistType {
-		MIN_COST_RC, INFLEXIBLE_RC, INFLEXIBLE_FILE, MIN_COST_FILE, EXTERNAL
+	/** Types of {@link HeatPumpStrategist}s */
+	public enum HeatPumpStrategistType {
+		/** Aims to minimise heat-pump dispatch costs; heat demand calculated from RC-type building model */
+		MIN_COST_RC,
+		/** Aims to hold a constant target temperature; heat demand calculated from RC-type building model */
+		INFLEXIBLE_RC,
+		/** Uses heat demand from given file */
+		INFLEXIBLE_FILE,
+		/** Minimises costs for heat pump dispatch using active storage (hot water tank) for a given heat demand file */
+		MIN_COST_FILE,
+		/** Creates a cost-optimal HeatPumpSchedule according to real-time prices, using external optimisation model */
+		EXTERNAL
 	}
 
+	/** Common input parameters required by all {@link HeatPumpStrategist}s */
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam).buildTree();
 
+	/** {@link HeatPump} controlled by this Strategist */
 	protected final HeatPump heatPump;
+	/** Input data for heating */
 	protected final HeatingInputData heatingData;
+	/** Resolution of the temperature in degrees Celsius */
 	protected final double temperatureResolutionInC;
+	/** Parameters of the Strategy */
 	protected final StrategyParameters strategyParams;
+	/** Thermal storage device (building) controlled by this Strategist */
 	protected Device thermalStorage;
 	private TimeSeries installedUnits;
 
+	/** Planned initial temperature in degrees Celsius at the beginning of each planned time period */
 	protected double[] hourlyInitialTemperatureInC;
 
 	/** Creates a {@link HeatPumpStrategist}

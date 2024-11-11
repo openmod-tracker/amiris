@@ -8,12 +8,14 @@ package agents.heatPump;
  * 
  * @author Evelyn Sperber */
 public class HeatPump {
-
 	private static final double DESIGN_AMBIENT_TEMPERATURE_IN_C = -14;
 	private static final double UPPER_AMBIENT_TEMPERATURE_FOR_HEAT_PUMP_SPECIFICATION_IN_C = 10;
 	private double coefficientOfPerformance;
 	private final HeatPumpParameters heatPumpParams;
 
+	/** Creates a new {@link HeatPump} instance
+	 * 
+	 * @param heatPumpParams required inputs */
 	public HeatPump(HeatPumpParameters heatPumpParams) {
 		this.heatPumpParams = heatPumpParams;
 	}

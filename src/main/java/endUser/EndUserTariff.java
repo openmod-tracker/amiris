@@ -11,7 +11,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Determines end user tariffs for consumption or feed-in.
+/** Determines end user tariffs for consumption or feed-in
  * 
  * @author Farzad Sarfarazi, Johannes Kochems */
 public class EndUserTariff {
@@ -51,6 +51,7 @@ public class EndUserTariff {
 		}
 	}
 
+	/** Policy-related input parameters to construct an {@link EndUserTariff} */
 	public static final Tree policyParameters = Make.newTree()
 			.add(Make.newSeries("EEGSurchargeInEURPerMWH"), Make.newSeries("VolumetricNetworkChargeInEURPerMWH"),
 					Make.newSeries("ElectricityTaxInEURPerMWH"), Make.newSeries("OtherSurchargesInEURPerMWH"),
@@ -63,13 +64,15 @@ public class EndUserTariff {
 					Make.newEnum("FeedInTariffScheme", FeedInTariffScheme.class).optional())
 			.buildTree();
 
+	/** Business-model related input parameters to construct an {@link EndUserTariff} */
 	public static final Tree businessModelParameters = Make.newTree()
 			.add(Make.newDouble("ProfitMarginInEURPerMWH"), Make.newSeries("AverageMarketPriceInEURPerMWH")).buildTree();
 
 	/** Creates an {@link EndUserTariff}
+	 * 
 	 * @param policy containing all policy-based tariff components
-	 * @param businessModel containing all business-model related tariff components 
-	 * @throws MissingDataException if any required data is not provided*/
+	 * @param businessModel containing all business-model related tariff components
+	 * @throws MissingDataException if any required data is not provided */
 	public EndUserTariff(ParameterData policy, ParameterData businessModel) throws MissingDataException {
 		this.eegSurchargeInEURPerMWH = policy.getTimeSeries("EEGSurchargeInEURPerMWH");
 		this.volumetricNetworkChargeInEURPerMWH = policy.getTimeSeries("VolumetricNetworkChargeInEURPerMWH");
@@ -141,19 +144,22 @@ public class EndUserTariff {
 	}
 
 	/** Return true if tariff is static
+	 * 
 	 * @return whether or not power price is static */
 	public boolean isStaticPowerPrice() {
 		return !dynamicTariffComponents.containsKey(ComponentType.POWER_PRICE);
 	}
 
-	/** Gets the static average market price 
+	/** Gets the static average market price
+	 * 
 	 * @param targetTime time for which static power price is evaulated
-	 * @return static power price*/
+	 * @return static power price */
 	public double getStaticPowerPrice(TimeStamp targetTime) {
 		return averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime);
 	}
 
-	/** Calculate purchase price based on feed in tariff 
+	/** Calculate purchase price based on feed in tariff
+	 * 
 	 * @param forecastedMarketPriceInEURPerMWH forecasted market price
 	 * @return feed in tariff at given forecasted market price */
 	public double calcPurchasePriceInEURPerMWH(double forecastedMarketPriceInEURPerMWH) {
@@ -161,6 +167,7 @@ public class EndUserTariff {
 	}
 
 	/** Get the feed-in tariff, which may be either static or dependent on given market price forecast
+	 * 
 	 * @param forecastedMarketPriceInEURPerMWH forecasted market price
 	 * @return feed-in tariff */
 	private double getFeedInTariff(double forecastedMarketPriceInEURPerMWH) {
@@ -175,8 +182,9 @@ public class EndUserTariff {
 		}
 	}
 
-	/** Calculate and individual tariff component and return either its static or a calculated dynamic value 
-	 * @param forecastedMarketPriceInEURPerMWH forecasted market price 
+	/** Calculate and individual tariff component and return either its static or a calculated dynamic value
+	 * 
+	 * @param forecastedMarketPriceInEURPerMWH forecasted market price
 	 * @param componentName name of tariff component
 	 * @return tariff component */
 	private double calcAndReturnTariffComponent(double forecastedMarketPriceInEURPerMWH, ComponentType componentName,
@@ -188,8 +196,9 @@ public class EndUserTariff {
 		}
 	}
 
-	/** Calculate the value of a dynamic tariff component for a given power price taking into account upper and lower bounds 
-	 * @param forecastedMarketPriceInEURPerMWH forecasted market price 
+	/** Calculate the value of a dynamic tariff component for a given power price taking into account upper and lower bounds
+	 * 
+	 * @param forecastedMarketPriceInEURPerMWH forecasted market price
 	 * @param componentName name of tariff component
 	 * @param targetTime time at which tariff is calculated
 	 * @return dynamic tariff component */

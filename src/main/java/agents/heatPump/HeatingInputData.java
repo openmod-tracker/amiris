@@ -15,6 +15,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
  * @author Evelyn Sperber */
 public class HeatingInputData {
 
+	/** Input parameters for constructing new {@link HeatingInputData} */
 	public static final Tree parameters = Make.newTree().add(Make.newSeries("TemperatureProfile"),
 			Make.newSeries("SolarRadiation"), Make.newSeries("PvProfile"), Make.newSeries("HeatDemandProfile"))
 			.buildTree();

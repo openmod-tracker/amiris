@@ -13,6 +13,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
  * 
  * @author Evelyn Sperber */
 public class BuildingParameters {
+	/** Input parameters required for constructing {@link BuildingParameters} */
 	public static final Tree parameters = Make.newTree().add(Make.newDouble("Ria"), Make.newDouble("Ci"),
 			Make.newDouble("Ai"), Make.newDouble("HeatingLimitTemperatureInC"), Make.newDouble("InternalHeatGainsInKW"))
 			.buildTree();

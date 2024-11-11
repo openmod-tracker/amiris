@@ -14,6 +14,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
  * 
  * @author Evelyn Sperber */
 public class HeatPumpParameters {
+	/** Input structure of {@link HeatPumpParameters} */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("MinElectricHeatPumpPowerInKW"), Make.newDouble("MaxElectricHeatPumpPowerInKW"),
 					Make.newDouble("HeatPumpPenetrationFactor"), Make.newDouble("MaxCOP"), Make.newDouble("MinCOP"),

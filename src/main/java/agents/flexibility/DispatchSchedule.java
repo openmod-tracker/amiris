@@ -21,6 +21,7 @@ public class DispatchSchedule {
 
 	private double[] chargingPerPeriodInMW;
 	private double[] bidPerPeriodInEURperMWH;
+	/** Expected energy "stored" in the flexibility device at the beginning of a dispatch period */
 	protected double[] expectedInitialInternalEnergyPerPeriodInMWH;
 
 	/** Creates a {@link DispatchSchedule}

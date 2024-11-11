@@ -15,6 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Evelyn Sperber */
 public class StrategyParameters {
+	/** Input parameters stored in a {@link StrategyParameters} instance */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newInt("ModelledChargingSteps"),
 					Make.newEnum("HeatPumpStrategistType", HeatPumpStrategistType.class),
