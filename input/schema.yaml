@@ -659,21 +659,21 @@ AgentTypes:
             MetaData:
               Description: "Declares the Strategist to be used for Bid calculation. Possible types are DISPATCH_FILE, SINGLE_AGENT_MIN_SYSTEM_COST, SINGLE_AGENT_MAX_PROFIT and MULTI_AGENT_SIMPLE."
               OEONearestConcept:
-          ForecastPeriodInHours: &StorageTrader_A_ForecastPeriod
+          ForecastPeriodInHours: &Strategist_A_ForecastPeriod
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
               Description: "Number of hours to the future at which the forecast is available. Must be smaller or equal to that of the MarketForecaster."
               OEONearestConcept:
-          ScheduleDurationInHours: &StorageTrader_A_ScheduleDuration
+          ScheduleDurationInHours: &Strategist_A_ScheduleDuration
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
               Description: "Number of hours each created schedule is viable - should at least match (better: significantly larger than) E2P ratio of the Device."
               OEONearestConcept: OEO_00030035
-          BidToleranceInEURperMWH: &StorageTrader_A_BidTolerance
+          BidToleranceInEURperMWH: &Strategist_A_BidTolerance
             AttributeType: double
             Mandatory: false
             List: false
@@ -1874,9 +1874,9 @@ AgentTypes:
           Description: "Group of parameters defining basics of the heat pump dispatch strategy."
           OEONearestConcept:
         NestedAttributes:
-          ForecastPeriodInHours: *StorageTrader_A_ForecastPeriod
-          ScheduleDurationInHours: *StorageTrader_A_ScheduleDuration
-          BidToleranceInEURperMWH: *StorageTrader_A_BidTolerance
+          ForecastPeriodInHours: *Strategist_A_ForecastPeriod
+          ScheduleDurationInHours: *Strategist_A_ScheduleDuration
+          BidToleranceInEURperMWH: *Strategist_A_BidTolerance
       HeatPump:
         AttributeType: block
         Mandatory: false
