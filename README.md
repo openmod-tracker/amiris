@@ -36,7 +36,7 @@ This should show your Java version if Java was found.
 If you get a command not found error, or if Java version is less than 11 please download and install a recent JDK from e.g. [here](https://adoptium.net/).
 
 ### Python
-You will need a Python-enabled shell with Python 3.8 or 3.9 and pip.
+You will need a Python-enabled shell with Python 3.9 or higher and pip.
 You can test if you have Python available by using the command `python --version`.
 This should show your Python version if the Python command was found.
 Note that if you use a Python environment manager you can have several Python versions on your system side by side.
@@ -46,7 +46,7 @@ If you do not have Python installed on your system, you may use e.g. [conda](htt
 In case you do not have any experience with creating a Python environment, we recommend to use [anaconda](https://www.anaconda.com/).
 Install anaconda, start the anaconda prompt or powershell and enter:
 
-1. `conda create -n amirisEnv python=3.8`
+1. `conda create -n amirisEnv python=3.9`
 2. `conda activate amirisEnv`
 
 In case you are using mamba, simple replace "conda" in the first command with "mamba" (but not in the second).
