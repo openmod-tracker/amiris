@@ -6,6 +6,14 @@ SPDX-License-Identifier: CC0-1.0 -->
 ### Added
 - Add new agent `HeatPumpTrader`' that aggregates heat pumps in buildings and arranges procurement at the day-ahead market #131 (@dlr_es, @dlr-cjs)
 
+## [3.0.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.2) - 2024-10-31
+### Fixed
+- StorageTrader: Crash when using strategy MULTI_AGENT_SIMPLE #132 (@dlr-cjs, @dlr_es)
+
+## [3.0.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.1) - 2024-10-14
+### Fixed
+- Configure artifacts to expire after one year #130 (@dlr_fn @dlr-cjs)
+
 ## [3.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.0) - 2024-09-20
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
@@ -15,12 +23,12 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - **Breaking**: Change contract structure GateClosureInfo to be sent before forecasting #126 (@dlr-cjs @dlr_fn)
 - Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs @dlr_jk)
 - Change minimum requirement `fameio` version to 2.3.1 #5, #120 (@dlr-cjs)
-- README: Update minimum Python version requirement to 3.9 !114 (@dlr_fn)
+- README: Update minimum Python version requirement to 3.9 !114, !130 (@dlr_fn, @dlr-cjs)
 
 ### Added
 - add new agent `GreenHydrogenTraderMonthly` that has a PPA with a renewable operator to produce hydrogen with monthly equivalence #125 (@dlr-cjs, @dlr_jk)
 
-### Removed 
+### Removed
 - **Breaking**: Deleted input Attribute `ElectricityForecastRequestOffsetInSeconds` from `StorageTrader` and `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
 - **Breaking**: Deleted input Attribute `HydrogenForecastRequestOffsetInSeconds` from `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
 - **Breaking**: Deleted input Attribute `ForecastRequestOffsetInSeconds` from `MeritOrderForecaster` and `PriceForecaster` #126 (@dlr-cjs @dlr_fn)
@@ -103,7 +111,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Package `electrolysis`: including `Electrolyzer` and related dispatch strategies #54 (@dlr-cjs, @dlr_jk)
 - `ElectrolysisTrader`: new Trader demanding electricity and producing hydrogen from it via electrolysis #54 (@dlr-cjs, @dlr_jk)
 - `FlexibilityTrader`: new abstract Trader operating a type of flexibility asset #54 (@dlr-cjs, @dlr_jk)
-- `PriceForecaster`: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, Evelyn Sperber, Seyedfarzad Sarfarazi, @kriniti)
+- `PriceForecaster`: new forecasting agent that provides forecasted electricity prices #53 (@dlr-cjs, @dlr_es, Seyedfarzad Sarfarazi, @kriniti)
 - Package `storage.arbitrageStrategists`: added new strategist `ProfitMaximiser` #72 (@dlr-cjs)
 - Package `storage.arbitrageStrategists`: added new strategist `MultiAgentSimple` #73 (@dlr-cjs)
 - UrlModelService: utility class to support calling external models via POST web-requests #52 (@dlr-cjs)
