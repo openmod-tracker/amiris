@@ -9,7 +9,6 @@ import agents.heatPump.HeatingInputData;
 import agents.heatPump.StrategyParameters;
 import agents.heatPump.ThermalResponse;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
-import agents.markets.meritOrder.sensitivities.PriceSensitivity;
 import agents.storage.Device;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -101,7 +100,7 @@ public class StrategistInflexibleRC extends HeatPumpStrategist {
 	@Override
 	/** No {@link MeritOrderSensitivity} needed for {@link StrategistInflexibleRC}, as dispatch is not oriented at prices */
 	protected MeritOrderSensitivity createBlankSensitivity() {
-		return new PriceSensitivity();
+		throw new RuntimeException("Forecasts cannot be used with strategist 'StrategistInflexibleFile'.");
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import agents.heatPump.HeatPump;
 import agents.heatPump.HeatingInputData;
 import agents.heatPump.StrategyParameters;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
-import agents.markets.meritOrder.sensitivities.PriceSensitivity;
 import agents.storage.Device;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -60,7 +59,7 @@ public class StrategistInflexibleFile extends HeatPumpStrategist {
 	@Override
 	/** No {@link MeritOrderSensitivity} needed for {@link StrategistInflexibleFile}, as dispatch is not oriented at prices */
 	protected MeritOrderSensitivity createBlankSensitivity() {
-		return new PriceSensitivity();
+		throw new RuntimeException("Forecasts cannot be used with strategist 'StrategistInflexibleFile'.");
 	}
 
 	/** Calculates power demand from given heat file according to the current COP */

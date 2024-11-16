@@ -2255,7 +2255,7 @@ AgentTypes:
           OEONearestConcept:
       StoredEnergyInMWH:
         MetaData:
-          Description: "Amount of energy in storage in MWh."
+          Description: "Amount of heat stored in MWh."
           OEONearestConcept:
     MetaData:
       Description: "HeatPumpTrader is a type of FlexibilityTrader that aggregates heat pumps in buildings and arranges procurement at the DayAheadMarket. Different strategies can be used to calculate the electricity demand of heat pumps. Heat pumps can be either dispatched according to heat demand or optimised according to spot market price forecasts."
