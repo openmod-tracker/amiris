@@ -24,7 +24,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Added
 - add new agent `GreenHydrogenTraderMonthly` that has a PPA with a renewable operator to produce hydrogen with monthly equivalence #125 (@dlr-cjs, @dlr_jk)
 
-### Removed 
+### Removed
 - **Breaking**: Deleted input Attribute `ElectricityForecastRequestOffsetInSeconds` from `StorageTrader` and `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
 - **Breaking**: Deleted input Attribute `HydrogenForecastRequestOffsetInSeconds` from `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
 - **Breaking**: Deleted input Attribute `ForecastRequestOffsetInSeconds` from `MeritOrderForecaster` and `PriceForecaster` #126 (@dlr-cjs @dlr_fn)
