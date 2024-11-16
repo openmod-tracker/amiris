@@ -17,12 +17,12 @@ public class OptimisationInputs {
 	private ArrayList<Double> electricity_prices;
 	private String static_parameter_folder;
 
-	/** @return if optimization model needs to be initialized, typically at the start of the simulation */
+	/** @return if optimisation model needs to be initialised, typically at the start of the simulation */
 	public boolean isInitialize_optimization_model() {
 		return initialize_optimization_model;
 	}
 
-	/** set if optimization model needs to be initialized, typically at the start of the simulation
+	/** set if optimisation model needs to be initialised, typically at the start of the simulation
 	 * 
 	 * @param initialize_optimization_model model is initialised if true */
 	public void setInitialize_optimization_model(boolean initialize_optimization_model) {
@@ -76,5 +76,4 @@ public class OptimisationInputs {
 	public void setForecast_period(int forecast_period) {
 		this.forecast_period = forecast_period;
 	}
-
 }

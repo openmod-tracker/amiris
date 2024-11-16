@@ -11,7 +11,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Determines end user tariffs for consumption or feed-in
+/** Determines end-user tariffs for consumption or feed-in
  * 
  * @author Farzad Sarfarazi, Johannes Kochems */
 public class EndUserTariff {
@@ -30,15 +30,15 @@ public class EndUserTariff {
 	private TimeSeries volumetricNetworkChargeInEURPerMWH;
 	private TimeSeries electricityTaxInEURPerMWH;
 	private TimeSeries otherSurchargesInEURPerMWH;
-	private double vat;
 	private TimeSeries capacityBasedNetworkChargeInEURPerMW;
 	private TimeSeries fixedNetworkChargesInEURPerYear;
+	private TimeSeries averageMarketPriceInEURPerMWH;
+	private double vat;
 	private double fit;
 	private double timeVaryingFitMultiplier;
 	private double profitMarginInEURPerMWH;
-	private TimeSeries averageMarketPriceInEURPerMWH;
 
-	/** Class holding dynamic tariff components */
+	/** Holds configuration for one dynamic tariff component */
 	private class DynamicTariffComponent {
 		public final TimeSeries multiplier;
 		public final double lowerBound;

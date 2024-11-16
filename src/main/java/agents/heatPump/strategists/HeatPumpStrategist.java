@@ -65,8 +65,7 @@ public abstract class HeatPumpStrategist extends Strategist {
 	 * @param strategyParams strategy parameters for heat pump operation
 	 * @throws MissingDataException if any required data is not provided */
 	public HeatPumpStrategist(ParameterData basicStrategy, HeatPump heatPump, HeatingInputData heatingData,
-			Device thermalStorage,
-			TimeSeries installedUnits, StrategyParameters strategyParams) throws MissingDataException {
+			Device thermalStorage, TimeSeries installedUnits, StrategyParameters strategyParams) throws MissingDataException {
 		super(basicStrategy);
 
 		this.strategyParams = strategyParams;
@@ -79,7 +78,7 @@ public abstract class HeatPumpStrategist extends Strategist {
 		allocateScheduleResources();
 	}
 
-	/** Initializes general permanent arrays used for schedule preparation */
+	/** Initialises general permanent arrays used for schedule preparation */
 	private void allocateScheduleResources() {
 		hourlyInitialTemperatureInC = new double[scheduleDurationPeriods];
 	}

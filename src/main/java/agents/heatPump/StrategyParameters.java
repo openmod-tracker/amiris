@@ -11,7 +11,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Encapsulates strategy parameters for heat pump operation
+/** Strategy parameters for heat pump operation
  * 
  * @author Evelyn Sperber */
 public class StrategyParameters {
@@ -54,12 +54,12 @@ public class StrategyParameters {
 		}
 	}
 
-	/** @return api parameters */
+	/** @return API parameters */
 	public ParameterData getApiParameters() {
 		return apiParameters;
 	}
 
-	/** @return modeled room temperature steps for dynamic programming */
+	/** @return modelled room temperature steps for dynamic programming */
 	public int getChargingSteps() {
 		return modelledChargingSteps;
 	}
@@ -83,5 +83,4 @@ public class StrategyParameters {
 	public double getMeanRoomTemperatureInC() {
 		return meanRoomTemperatureInC;
 	}
-
 }

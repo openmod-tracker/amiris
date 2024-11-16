@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.heatPump;
 
-/** Describes basic thermodynamic behavior of one specific type using the 1R1C model according to
+/** Describes basic thermodynamic behaviour of one specific type using the 1R1C model according to
  * https://doi.org/10.1016/j.enbuild.2020.110144.
  * 
  * @author Evelyn Sperber */
 public class ThermalResponse {
-	private static final double TIME_STEP_IN_HOURS = 1; // corresponds to delta T in discretized differential equation
+	private static final double TIME_STEP_IN_HOURS = 1; // corresponds to delta T in discretised differential equation
 	private static final double TEMPERATURE_DEADBAND_IN_C = 1.0;
 	private double roomTemperatureInC;
 	private final BuildingParameters buildingParams;
@@ -160,5 +160,4 @@ public class ThermalResponse {
 	public double getHeatDemandInKW() {
 		return heatDemandInKW;
 	}
-
 }

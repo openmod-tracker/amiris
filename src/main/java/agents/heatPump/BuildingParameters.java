@@ -60,5 +60,4 @@ public class BuildingParameters {
 	public double getInternalHeatGainsInKW() {
 		return internalHeatGainsInKW;
 	}
-
 }

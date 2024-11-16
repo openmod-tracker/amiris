@@ -187,5 +187,4 @@ public class StrategistMinCostFile extends HeatPumpStrategist {
 	public double getHeatLoad(TimePeriod timeSegment) {
 		return totalHeatDemand.getValueLinear(timeSegment.getStartTime()) * heatPumpPenetrationFactor;
 	}
-
 }

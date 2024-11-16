@@ -6,12 +6,10 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.heatPump.BuildingParameters;
 import agents.heatPump.HeatPump;
-import agents.heatPump.HeatPumpParameters;
 import agents.heatPump.HeatPumpSchedule;
 import agents.heatPump.HeatingInputData;
 import agents.heatPump.StrategyParameters;
@@ -53,7 +51,7 @@ import endUser.EndUserTariff;
 public class HeatPumpTrader extends FlexibilityTrader {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters)
 			.addAs("StrategyBasic", HeatPumpStrategist.parameters)
-			.addAs("HeatingInputData", HeatingInputData.parameters).addAs("HeatPump", HeatPumpParameters.parameters)
+			.addAs("HeatingInputData", HeatingInputData.parameters).addAs("HeatPump", HeatPump.parameters)
 			.addAs("Strategy", StrategyParameters.parameters).addAs("Building", BuildingParameters.parameters)
 			.addAs("Policy", EndUserTariff.policyParameters)
 			.addAs("BusinessModel", EndUserTariff.businessModelParameters).buildTree();
@@ -63,12 +61,13 @@ public class HeatPumpTrader extends FlexibilityTrader {
 		COP, FinalRoomTemperatureInCelsius, StoredEnergyInMWH
 	};
 
+	private final TimeSpan operationPeriod = new TimeSpan(1, Interval.HOURS);
+
 	private final ThermalResponse building;
 	private final HeatPumpStrategist strategist;
 	private final HeatPump heatPump;
 	private final Device device;
 	private HeatPumpSchedule schedule;
-	private TimeSpan operationPeriod = new TimeSpan(1, Interval.HOURS);
 	private HeatPumpStrategistType strategistType;
 	private EndUserTariff tariffStrategist;
 
@@ -81,48 +80,28 @@ public class HeatPumpTrader extends FlexibilityTrader {
 		ParameterData input = parameters.join(dataProvider);
 
 		BuildingParameters buildingParams = new BuildingParameters(input.getGroup("Building"));
-		HeatPumpParameters heatPumpParams = new HeatPumpParameters(input.getGroup("HeatPump"));
 		StrategyParameters strategyParams = new StrategyParameters(input.getGroup("Strategy"));
 		HeatingInputData heatingData = new HeatingInputData(input.getGroup("HeatingInputData"));
-		this.tariffStrategist = new EndUserTariff(input.getGroup("Policy"), input.getGroup("BusinessModel"));
+		tariffStrategist = new EndUserTariff(input.getGroup("Policy"), input.getGroup("BusinessModel"));
 		device = new Device(input.getGroup("Device"));
+		strategistType = strategyParams.getHeatPumpStrategistType();
 
 		double initialRoomTemperatureInC = (strategyParams.getMinimalRoomTemperatureInC()
 				+ strategyParams.getMaximalRoomTemperatureInC()) / 2;
-		heatPump = createHeatPump(heatPumpParams);
-		building = createBuilding(buildingParams, heatPump, initialRoomTemperatureInC);
+		heatPump = new HeatPump(input.getGroup("HeatPump"));
+		building = new ThermalResponse(buildingParams, heatPump, initialRoomTemperatureInC);
 		ParameterData strategyBasic = input.getGroup("StrategyBasic");
-		strategist = createStrategist(strategyBasic, building, heatPump, heatPumpParams, heatingData, buildingParams,
-				strategyParams, device);
-		strategistType = strategyParams.getHeatPumpStrategistType();
+		strategist = createStrategist(strategyBasic, building, heatPump, heatingData, strategyParams, device);
 
 		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
-		call(this::requestElectricityForecast).on(Products.PriceForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
-	}
-
-	/** Creates a building associated with the heat pump
-	 * 
-	 * @param buildingParams input data from config
-	 * @param heatPump input data from config
-	 * @param initialRoomTemperatureInC room temperature at start of simulation
-	 * @return newly instantiated {@link ThermalResponse} building based on the given input */
-	private ThermalResponse createBuilding(BuildingParameters buildingParams, HeatPump heatPump,
-			double initialRoomTemperatureInC) {
-		return new ThermalResponse(buildingParams, heatPump, initialRoomTemperatureInC);
-	}
-
-	/** Creates a heat pump
-	 * 
-	 * @param heatPumpParams input data from config
-	 * @return newly instantiated {@link HeatPump} based on the given input */
-	private HeatPump createHeatPump(HeatPumpParameters heatPumpParams) {
-		return new HeatPump(heatPumpParams);
 	}
 
 	/** Creates a heat pump strategist
@@ -138,26 +117,25 @@ public class HeatPumpTrader extends FlexibilityTrader {
 	 * @return newly instantiated {@link HeatPumpStrategist} based on the given input
 	 * @throws MissingDataException if any required data is not provided */
 	private HeatPumpStrategist createStrategist(ParameterData strategyBasic, ThermalResponse building,
-			HeatPump heatPump, HeatPumpParameters heatPumpParams, HeatingInputData heatingData,
-			BuildingParameters buildingParams, StrategyParameters strategyParams, Device device)
+			HeatPump heatPump, HeatingInputData heatingData, StrategyParameters strategyParams, Device device)
 			throws MissingDataException {
 		switch (strategyParams.getHeatPumpStrategistType()) {
 			case MIN_COST_RC:
 				return new StrategistMinCostRC(strategyBasic, building, heatPump, device, heatingData,
-						heatPumpParams.getInstalledUnits(), strategyParams);
+						heatPump.getInstalledUnits(), strategyParams);
 			case INFLEXIBLE_RC:
 				return new StrategistInflexibleRC(strategyBasic, building, heatPump, device, heatingData,
-						heatPumpParams.getInstalledUnits(), strategyParams);
+						heatPump.getInstalledUnits(), strategyParams);
 			case MIN_COST_FILE:
 				return new StrategistMinCostFile(strategyBasic, heatPump, device, heatingData,
-						heatPumpParams.getHeatPumpPenetrationFactor(), heatPumpParams.getInstalledUnits(), strategyParams);
+						heatPump.getHeatPumpPenetrationFactor(), heatPump.getInstalledUnits(), strategyParams);
 			case INFLEXIBLE_FILE:
 				return new StrategistInflexibleFile(strategyBasic, heatPump, device, heatingData,
-						heatPumpParams.getHeatPumpPenetrationFactor(), heatPumpParams.getInstalledUnits(), strategyParams,
+						heatPump.getHeatPumpPenetrationFactor(), heatPump.getInstalledUnits(), strategyParams,
 						building.getCurrentRoomTemperatureInC());
 			case EXTERNAL:
 				return new StrategistExternal(strategyBasic, heatPump, device, heatingData,
-						heatPumpParams.getInstalledUnits(), strategyParams, tariffStrategist,
+						heatPump.getInstalledUnits(), strategyParams, tariffStrategist,
 						building.getCurrentRoomTemperatureInC());
 			default:
 				throw new RuntimeException("Heat Pump Strategist not implemented.");

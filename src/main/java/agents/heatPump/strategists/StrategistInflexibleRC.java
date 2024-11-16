@@ -19,7 +19,6 @@ import de.dlr.gitlab.fame.time.TimePeriod;
 /** Heat pump dispatch orientated at endogenously calculated heat demand, irrespective of electricity prices
  * 
  * @author Christoph Schimeczek, Evelyn Sperber */
-
 public class StrategistInflexibleRC extends HeatPumpStrategist {
 	private ThermalResponse building;
 
@@ -62,8 +61,9 @@ public class StrategistInflexibleRC extends HeatPumpStrategist {
 	}
 
 	/** Updates dispatch schedule in case the room temperature was out of allowed bounds and brings temperature back to allowed
-	 * limits 
-	 * @param timeSegment time segment for which schedule is calculated  */
+	 * limits
+	 * 
+	 * @param timeSegment time segment for which schedule is calculated */
 	protected void updateScheduleOutOfBounds(TimePeriod timeSegment) {
 		double temperatureInC = building.getCurrentRoomTemperatureInC();
 		if (temperatureInC < strategyParams.getMinimalRoomTemperatureInC()) {

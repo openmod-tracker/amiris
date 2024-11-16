@@ -6,11 +6,11 @@ package agents.heatPump;
 
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
-import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
 
-/** Encapsulates input time series required for deriving heating demands
+/** Input time series to derive heating demands
  * 
  * @author Evelyn Sperber */
 public class HeatingInputData {
@@ -55,5 +55,4 @@ public class HeatingInputData {
 	public TimeSeries getPvProfile() {
 		return pvProfile;
 	}
-
 }
