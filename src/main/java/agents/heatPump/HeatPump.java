@@ -6,8 +6,8 @@ package agents.heatPump;
 
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
-import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
 
 /** A basic technical description of heat pump performance
@@ -17,7 +17,7 @@ public class HeatPump {
 	private static final double DESIGN_AMBIENT_TEMPERATURE_IN_C = -14;
 	private static final double UPPER_AMBIENT_TEMPERATURE_FOR_HEAT_PUMP_SPECIFICATION_IN_C = 10;
 
-	/** Input structure of {@link HeatPumpParameters} */
+	/** Input structure of {@link HeatPump} */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("MinElectricHeatPumpPowerInKW"), Make.newDouble("MaxElectricHeatPumpPowerInKW"),
 					Make.newDouble("HeatPumpPenetrationFactor"), Make.newDouble("MaxCOP"), Make.newDouble("MinCOP"),
@@ -33,7 +33,8 @@ public class HeatPump {
 
 	/** Creates a new {@link HeatPump} instance
 	 * 
-	 * @param heatPumpParams required inputs */
+	 * @param data required inputs
+	 * @throws MissingDataException if any required parameter is missing */
 	public HeatPump(ParameterData data) throws MissingDataException {
 		minElectricHeatPumpPowerInKW = data.getDouble("MinElectricHeatPumpPowerInKW");
 		maxElectricHeatPumpPowerInKW = data.getDouble("MaxElectricHeatPumpPowerInKW");
