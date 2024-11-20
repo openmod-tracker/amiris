@@ -6,6 +6,7 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.heatPump.BuildingParameters;
@@ -93,7 +94,7 @@ public class HeatPumpTrader extends FlexibilityTrader {
 		ParameterData strategyBasic = input.getGroup("StrategyBasic");
 		strategist = createStrategist(strategyBasic, building, heatPump, heatingData, strategyParams, device);
 
-		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest);
+		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
 		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)
