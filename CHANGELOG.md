@@ -2,7 +2,7 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [3.1.0][(https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.1.0) - TBA
+## [3.1.0][(https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.1.0) - 2024-11-26
 ### Added
 - Add new agent `HeatPumpTrader`' that aggregates heat pumps in buildings and arranges procurement at the day-ahead market #131 (@dlr_es, @dlr-cjs)
 
