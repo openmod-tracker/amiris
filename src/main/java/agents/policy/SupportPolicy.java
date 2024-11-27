@@ -64,12 +64,12 @@ public class SupportPolicy extends Agent {
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("SetSupportData").list().add(RenewablePlantOperator.setParameter)
-					.addAs(SupportInstrument.FIT.name(), Fit.parameters).optional()
-					.addAs(SupportInstrument.MPFIX.name(), Mpfix.parameters).optional()
-					.addAs(SupportInstrument.MPVAR.name(), Mpvar.parameters).optional()
-					.addAs(SupportInstrument.CFD.name(), Cfd.parameters).optional()
-					.addAs(SupportInstrument.CP.name(), Cp.parameters).optional()
-					.addAs(SupportInstrument.FINANCIAL_CFD.name(), FinancialCfd.parameters).optional())
+					.addAs(SupportInstrument.FIT.name(), Fit.parameters)
+					.addAs(SupportInstrument.MPFIX.name(), Mpfix.parameters)
+					.addAs(SupportInstrument.MPVAR.name(), Mpvar.parameters)
+					.addAs(SupportInstrument.CFD.name(), Cfd.parameters)
+					.addAs(SupportInstrument.CP.name(), Cp.parameters)
+					.addAs(SupportInstrument.FINANCIAL_CFD.name(), FinancialCfd.parameters))
 			.buildTree();
 
 	@Output
