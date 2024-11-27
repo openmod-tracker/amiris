@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class FinancialCfd extends PolicyItem {
-	static final Tree parameters = Make.newTree()
+	static final Tree parameters = Make.newTree().optional()
 			.add(premiumParam,
 					Make.newSeries("ReferenceYieldProfile")
 							.help("Yield profile of the reference plant to calculate payback obligation from its market revenues"))
