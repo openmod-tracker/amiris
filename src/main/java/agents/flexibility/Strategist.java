@@ -124,7 +124,7 @@ public abstract class Strategist {
 	public void storeMeritOrderForesight(TimePeriod timePeriod, SupplyOrderBook supplyForecast,
 			DemandOrderBook demandForecast) {
 		MeritOrderSensitivity sensitivity = createBlankSensitivity();
-		callOnSensitivity(sensitivity);
+		callOnSensitivity(sensitivity, timePeriod);
 		sensitivity.updateSensitivities(supplyForecast, demandForecast);
 		sensitivities.put(timePeriod, sensitivity);
 	}
@@ -134,8 +134,9 @@ public abstract class Strategist {
 
 	/** optional action called on given MeritOrderSensitivities
 	 * 
-	 * @param sensitivity to be modified */
-	protected void callOnSensitivity(MeritOrderSensitivity sensitivity) {};
+	 * @param sensitivity to be modified 
+	 * @param timePeriod that the sensitivity is valid for */
+	protected void callOnSensitivity(MeritOrderSensitivity sensitivity, TimePeriod timePeriod) {};
 
 	/** Stores given electricity price forecast for the associated TimePeriod: price-forecasting method
 	 * 

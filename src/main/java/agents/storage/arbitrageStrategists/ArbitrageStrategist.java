@@ -14,6 +14,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Creates arbitrage strategies for storage devices based on forecasts for merit-order or electricity prices
@@ -90,7 +91,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	}
 
 	@Override
-	protected void callOnSensitivity(MeritOrderSensitivity sensitivity) {
+	protected void callOnSensitivity(MeritOrderSensitivity sensitivity, TimePeriod __) {
 		sensitivity.updatePowers(storage.getExternalChargingPowerInMW(), storage.getExternalDischargingPowerInMW());
 	}
 

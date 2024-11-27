@@ -23,26 +23,27 @@ To configure and run AMIRIS applications, no programming skills are strictly nec
 Developers, who want to modify the functionality or enhance the capabilities of AMIRIS, however, should have at least basic understanding of Java.
 In addition, a basic understanding of [(FAME)](https://gitlab.com/fame-framework) is required in order to design new agents and their interactions.
 
-## System Requirements
+## Get Started
+### System Requirements
+AMIRIS is based on [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
 To run AMIRIS, Python 3.9 or higher and Java Development Kit (JDK) 11 or higher are required.
 In case you want to modify the AMIRIS code, additional tools might be required.
 See our [Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) for additional instructions.
 
-### JDK
-AMIRIS is based on the Java tool [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
-It requires a JDK version 11 or higher and has been tested to work with 11 and 17.
+#### Java
+AMIRIS requires JDK version 11 or higher and has been tested to work with versions 11, 17, and 21.
 You can test if you have a JDK by using the command `java --version` (or `java -version` on some systems).
 This should show your Java version if Java was found.
 If you get a command not found error, or if Java version is less than 11 please download and install a recent JDK from e.g. [here](https://adoptium.net/).
 
-### Python
+#### Python
 You will need a Python-enabled shell with Python 3.9 or higher and pip.
 You can test if you have Python available by using the command `python --version`.
 This should show your Python version if the Python command was found.
 Note that if you use a Python environment manager you can have several Python versions on your system side by side.
 If you do not have Python installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html) or [mamba](https://github.com/conda-forge/miniforge#mambaforge) or [Poetry](https://python-poetry.org/).
 
-#### Set up Python Environment
+### Set up Python Environment
 In case you do not have any experience with creating a Python environment, we recommend to use [anaconda](https://www.anaconda.com/).
 Install anaconda, start the anaconda prompt or powershell and enter:
 
@@ -51,7 +52,7 @@ Install anaconda, start the anaconda prompt or powershell and enter:
 
 In case you are using mamba, simple replace "conda" in the first command with "mamba" (but not in the second).
 
-### Get AMIRIS-Py
+### Install AMIRIS-Py
 We recommend to use [AMIRIS-Py](https://gitlab.com/dlr-ve/esy/amiris/amiris-py/-/blob/main/README.md).
 AMIRIS-Py provides "one-command" installation and execution scripts, but you may also run AMIRIS using FAME scripts (see [here](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started)).
 In your AMIRIS Python environment (called "amirisEnv" above), run
@@ -60,7 +61,7 @@ In your AMIRIS Python environment (called "amirisEnv" above), run
 pip install amirispy
 ```
 
-## Setup with AMIRIS-Py
+### Download AMIRIS
 1. Create a new folder on your disk called, e.g., "AMIRIS": `mkdir <AMIRIS>`
 2. Open your Python-enabled shell and navigate to this newly created folder: `cd <AMIRIS>` 
 3. If not done yet, activate your Python environment with amiris-py: `conda activate <amirisEnv>`
@@ -73,6 +74,7 @@ AMIRIS
 ├─── examples
 │    ├─── Austria2019/
 │    ├─── Germany2019/
+│    ├─── ...
 │    ├─── Simple/
 │    └─── README.md
 ├─── amiris-core_X.y.z-with-dependencies.jar
@@ -82,15 +84,15 @@ AMIRIS
 You are now ready to execute AMIRIS.
 
 ## Run AMIRIS with AMIRIS-Py
-Use amirispy again to run AMIRIS:
+Use amiris-py again to run AMIRIS:
 
 ```
-amiris run -j ./amiris-core_1.2.3.4-jar-with-dependencies.jar -s ./examples/Simple/scenario.yaml -o simple
+amiris run -j ./amiris-core_3.1.0-jar-with-dependencies.jar -s ./examples/Simple/scenario.yaml -o simple
 ```
 
 This runs the packaged AMIRIS Java archive (Jar) file specified after the `-j` option and simulates the scenario specified after the `-s` option.
 The AMIRIS outputs are stored in a folder as designated after the `-o` option. 
-Check out the files in the AMIRIS folder - if a newer version of AMIRIS was installed, use the version code of the jar file you downloaded.
+Check out the files in the AMIRIS folder - use the version code of the jar file you downloaded.
 
 ## Results 
 Open the created output folder called e.g. "simple".
