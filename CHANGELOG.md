@@ -2,7 +2,11 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [3.1.0][(https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.1.0) - 2024-11-26
+## [3.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.2.0) - TBA
+### Changed
+- Update to FAME-Core v2.0 & FAME-Io v3.0 #134 (@dlr-cjs)
+
+## [3.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.1.0) - 2024-11-26
 ### Added
 - Add new agent `HeatPumpTrader`' that aggregates heat pumps in buildings and arranges procurement at the day-ahead market #131 (@dlr_es, @dlr-cjs)
 

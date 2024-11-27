@@ -78,7 +78,7 @@ public class FinancialCfd extends PolicyItem {
 
 	@Override
 	public double calcCapacitySupportRate(TimePeriod accountingPeriod) {
-		return premiumPerMW.getValueLowerEqual(accountingPeriod.getStartTime());
+		return premiumPerMW.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
 
 	@Override

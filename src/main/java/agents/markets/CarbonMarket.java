@@ -116,7 +116,7 @@ public class CarbonMarket extends Agent {
 	 * @param time at which to obtain the price for
 	 * @return Co2Price at the given time */
 	private double getCo2Price(TimeStamp time) {
-		return tsCo2Prices.getValueLowerEqual(time);
+		return tsCo2Prices.getValueEarlierEqual(time);
 	}
 
 	/** Calculates the Co2 price at the specified {@link TimeStamp} and sends it to the receiver of the given {@link Contract}

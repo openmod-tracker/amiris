@@ -82,7 +82,7 @@ public class Mpvar extends PolicyItem {
 	 * @param time at which to evaluate
 	 * @return specific variable market premium in â‚¬/MWh */
 	public double calcMpVar(double marketValue, TimeStamp time) {
-		double valueApplied = lcoe.getValueLowerEqual(time);
+		double valueApplied = lcoe.getValueEarlierEqual(time);
 		return Math.max(0, valueApplied - marketValue);
 	}
 

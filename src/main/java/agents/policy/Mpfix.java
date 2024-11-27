@@ -52,7 +52,7 @@ public class Mpfix extends PolicyItem {
 	/** @param time at which to evaluate
 	 * @return fixed market premium in EUR/MWh for a given time */
 	public double getPremium(TimeStamp time) {
-		double value = premium.getValueLowerEqual(time);
+		double value = premium.getValueEarlierEqual(time);
 		if (value < 0) {
 			throw new RuntimeException(ERR_NEGATIVE_PREMIUM + time);
 		}
@@ -80,7 +80,7 @@ public class Mpfix extends PolicyItem {
 
 	@Override
 	public double calcInfeedSupportRate(TimePeriod accountingPeriod, double marketValue) {
-		return premium.getValueLowerEqual(accountingPeriod.getStartTime());
+		return premium.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
 
 	/** Returns true if given number of hours with negative prices is below or equal their maximum allowed value

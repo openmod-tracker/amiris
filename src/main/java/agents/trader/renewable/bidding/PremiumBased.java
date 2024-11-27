@@ -132,7 +132,7 @@ public abstract class PremiumBased {
 		if (marketValueForecast == null) {
 			throw new RuntimeException(this + ERR_FORECAST_MISSING + energyCarrier);
 		}
-		return marketValueForecasts.get(energyCarrier).getValueLowerEqual(targetTime);
+		return marketValueForecasts.get(energyCarrier).getValueEarlierEqual(targetTime);
 	}
 
 	/** Calculates the market premium for a given time, client and market value

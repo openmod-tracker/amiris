@@ -59,7 +59,7 @@ public class Fit extends PolicyItem {
 
 	@Override
 	public double calcInfeedSupportRate(TimePeriod accountingPeriod, double marketValue) {
-		return tsFit.getValueLowerEqual(accountingPeriod.getStartTime());
+		return tsFit.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
 
 	@Override

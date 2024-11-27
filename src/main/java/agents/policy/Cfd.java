@@ -78,7 +78,7 @@ public class Cfd extends PolicyItem {
 	 * @param time at which to evaluate
 	 * @return specific contracts for differences premium in â‚¬/MWh */
 	public double calcCfD(double marketValue, TimeStamp time) {
-		double valueApplied = lcoe.getValueLowerEqual(time);
+		double valueApplied = lcoe.getValueEarlierEqual(time);
 		return valueApplied - marketValue;
 	}
 

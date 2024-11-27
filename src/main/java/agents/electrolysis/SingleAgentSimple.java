@@ -76,7 +76,7 @@ public class SingleAgentSimple extends ElectrolyzerStrategist {
 		}
 		if (productionPeriod.getLastTime().isLessEqualTo(timePeriod.getStartTime())) {
 			double previousPeriodProductionTarget = productionTargets
-					.getValueLowerEqual(timePeriod.getStartTime().earlierByOne());
+					.getValueEarlierEqual(timePeriod.getStartTime().earlierByOne());
 			double missingProductionLastInterval = previousPeriodProductionTarget - actualProducedHydrogen;
 			actualProducedHydrogen = -missingProductionLastInterval;
 			productionPeriod = productionPeriod.shiftByDuration(1);
@@ -112,7 +112,7 @@ public class SingleAgentSimple extends ElectrolyzerStrategist {
 
 	/** @return missing hydrogen production for target until end of current production interval */
 	private double calcMissingProductionCurrentInterval(TimePeriod timePeriod) {
-		double currentProductionTargetInMWH = productionTargets.getValueLowerEqual(timePeriod.getStartTime());
+		double currentProductionTargetInMWH = productionTargets.getValueEarlierEqual(timePeriod.getStartTime());
 		return currentProductionTargetInMWH - actualProducedHydrogen;
 	}
 
@@ -120,7 +120,7 @@ public class SingleAgentSimple extends ElectrolyzerStrategist {
 	private double calcAverageProductionAcrossIntervals(TimePeriod timePeriod, int remainingTimeInCurrentInterval) {
 		double averageProductionThisInterval = calcMissingProductionCurrentInterval(timePeriod)
 				/ (double) remainingTimeInCurrentInterval;
-		double nextProductionTargetInMWH = productionTargets.getValueHigherEqual(timePeriod.getStartTime().laterByOne());
+		double nextProductionTargetInMWH = productionTargets.getValueLaterEqual(timePeriod.getStartTime().laterByOne());
 		double averageProductionNextInterval = nextProductionTargetInMWH / productionInterval;
 		double shareCurrentInterval = remainingTimeInCurrentInterval / (double) forecastSteps;
 		double shareNextInterval = 1.0 - shareCurrentInterval;

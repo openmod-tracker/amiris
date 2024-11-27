@@ -159,7 +159,7 @@ public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	 * @param time to calculate the costs for
 	 * @return variable operational expenses in EUR per MWh at the specified time */
 	protected double getVariableOpexAtTime(TimeStamp time) {
-		return tsOpexVarInEURperMWH.getValueLowerEqual(time);
+		return tsOpexVarInEURperMWH.getValueEarlierEqual(time);
 	}
 
 	@Override

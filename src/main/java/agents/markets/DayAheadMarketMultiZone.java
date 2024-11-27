@@ -174,7 +174,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		if (transmissionCapacityOverTime == null) {
 			throw Logging.logFatalException(logger, TIME_SERIES_MISSING + targetRegion);
 		}
-		return transmissionCapacityOverTime.getValueLowerEqual(time);
+		return transmissionCapacityOverTime.getValueEarlierEqual(time);
 	}
 
 	/** Clears the local market and sends the Awards to the contracted Trader Agents. Depending on whether this EnergyExchange is

@@ -69,7 +69,7 @@ public class Cp extends PolicyItem {
 
 	@Override
 	public double calcCapacitySupportRate(TimePeriod accountingPeriod) {
-		return premium.getValueLowerEqual(accountingPeriod.getStartTime());
+		return premium.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
 	
 	@Override
