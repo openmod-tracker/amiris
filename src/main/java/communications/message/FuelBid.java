@@ -45,14 +45,14 @@ public class FuelBid extends AmountAtTime {
 	 * @param proto protobuf representation */
 	public FuelBid(ProtoDataItem proto) {
 		super(proto);
-		bidType = BidType.values()[proto.getIntValue(0)];
-		fuelType = proto.getStringValue(0);
+		bidType = BidType.values()[proto.getIntValues(0)];
+		fuelType = proto.getStringValues(0);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
 		super.fillDataFields(builder);
-		builder.addIntValue(bidType.ordinal());
-		builder.addStringValue(fuelType);
+		builder.addIntValues(bidType.ordinal());
+		builder.addStringValues(fuelType);
 	}
 }

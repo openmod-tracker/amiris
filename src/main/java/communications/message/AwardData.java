@@ -37,17 +37,17 @@ public class AwardData extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public AwardData(ProtoDataItem proto) {
-		demandEnergyInMWH = proto.getDoubleValue(0);
-		supplyEnergyInMWH = proto.getDoubleValue(1);
-		powerPriceInEURperMWH = proto.getDoubleValue(2);
-		beginOfDeliveryInterval = new TimeStamp(proto.getLongValue(0));
+		demandEnergyInMWH = proto.getDoubleValues(0);
+		supplyEnergyInMWH = proto.getDoubleValues(1);
+		powerPriceInEURperMWH = proto.getDoubleValues(2);
+		beginOfDeliveryInterval = new TimeStamp(proto.getLongValues(0));
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addDoubleValue(demandEnergyInMWH);
-		builder.addDoubleValue(supplyEnergyInMWH);
-		builder.addDoubleValue(powerPriceInEURperMWH);
-		builder.addLongValue(beginOfDeliveryInterval.getStep());
+		builder.addDoubleValues(demandEnergyInMWH);
+		builder.addDoubleValues(supplyEnergyInMWH);
+		builder.addDoubleValues(powerPriceInEURperMWH);
+		builder.addLongValues(beginOfDeliveryInterval.getStep());
 	}
 }
