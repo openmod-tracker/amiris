@@ -32,11 +32,10 @@ public class FileDispatcher extends ElectrolyzerStrategist {
 	};
 
 	/** Input parameters for the {@link FileDispatcher} */
-	public static final Tree parameters = Make.newTree().add(
-			Make.newSeries("HourlySchedule").optional(),
-			Make.newEnum("Mode", Mode.class).optional()
-					.help("Whether schedule is absolute or relative to installed converter power"),
-			Make.newEnum("Target", Target.class).optional()
+	public static final Tree parameters = Make.newTree().optional().add(
+			Make.newSeries("HourlySchedule"),
+			Make.newEnum("Mode", Mode.class).help("Whether schedule is absolute or relative to installed converter power"),
+			Make.newEnum("Target", Target.class)
 					.help("Whether the schedule represents hydrogen production or electricity consumption"))
 			.buildTree();
 

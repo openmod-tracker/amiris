@@ -4,6 +4,7 @@
 package endUser;
 
 import java.util.EnumMap;
+import de.dlr.gitlab.fame.agent.input.GroupBuilder;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -52,7 +53,7 @@ public class EndUserTariff {
 	}
 
 	/** Policy-related input parameters to construct an {@link EndUserTariff} */
-	public static final Tree policyParameters = Make.newTree()
+	public static final GroupBuilder policyParameters = Make.newTree()
 			.add(Make.newSeries("EEGSurchargeInEURPerMWH"), Make.newSeries("VolumetricNetworkChargeInEURPerMWH"),
 					Make.newSeries("ElectricityTaxInEURPerMWH"), Make.newSeries("OtherSurchargesInEURPerMWH"),
 					Make.newGroup("DynamicTariffComponents").list().add(
@@ -61,11 +62,10 @@ public class EndUserTariff {
 					Make.newDouble("VAT"), Make.newSeries("CapacityBasedNetworkChargesInEURPerMW"),
 					Make.newSeries("FixedNetworkChargesInEURPerYear"),
 					Make.newDouble("FitInEURPerMWH").optional(), Make.newDouble("TimeVaryingFiTMultiplier").optional(),
-					Make.newEnum("FeedInTariffScheme", FeedInTariffScheme.class).optional())
-			.buildTree();
+					Make.newEnum("FeedInTariffScheme", FeedInTariffScheme.class).optional());
 
 	/** Business-model related input parameters to construct an {@link EndUserTariff} */
-	public static final Tree businessModelParameters = Make.newTree()
+	public static final Tree businessModelParameters = Make.newTree().optional()
 			.add(Make.newDouble("ProfitMarginInEURPerMWH"), Make.newSeries("AverageMarketPriceInEURPerMWH")).buildTree();
 
 	/** Creates an {@link EndUserTariff}

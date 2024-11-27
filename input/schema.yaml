@@ -114,7 +114,7 @@ AgentTypes:
           MarketZone:
             AttributeType: string_set
             List: false
-            Mandatory: false
+            Mandatory: true
             help: "Connected market zone that can be supplied with additional energy"
             MetaData:
               Description: "Connected Market zone that can be supplied with additional energy"
@@ -122,7 +122,7 @@ AgentTypes:
           CapacityInMW:
             AttributeType: time_series
             List: false
-            Mandatory: false
+            Mandatory: true
             help: "Net transfer capacity of supply from own to connected market zone"
             MetaData:
               Description: "Net transfer capacity of supply from own to connected market zone"
@@ -364,7 +364,7 @@ AgentTypes:
             NestedAttributes:
               TsFit:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "A feed-in-tariff (FIT) timeseries."
@@ -379,7 +379,7 @@ AgentTypes:
             NestedAttributes:
               Lcoe:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "A group for a TechnologySet holding the specific MPVAR information."
@@ -394,7 +394,7 @@ AgentTypes:
             NestedAttributes:
               Premium:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "A group for a TechnologySet holding the specific MPFIX information."
@@ -409,7 +409,7 @@ AgentTypes:
             NestedAttributes:
               Lcoe:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "A TimeSeries with the Lcoe used as the value to be applied in a variable ex post market premium scheme given in EUR/MWh."
@@ -424,7 +424,7 @@ AgentTypes:
             NestedAttributes:
               Premium:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "A TimeSeries with the Premium used as the value of the fixed market premium in a fixed market premium scheme given in EUR/MWh."
@@ -439,13 +439,13 @@ AgentTypes:
             NestedAttributes:
               Premium:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
               ReferenceYieldProfile:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
-                help: "yield profile of the reference plant to calculate payback obligation from its market revenues"
+                help: "Yield profile of the reference plant to calculate payback obligation from its market revenues"
                 MetaData:
                   Description: "A TimeSeries with the Premium used as yield profile of the reference plant to calculate payback obligation from its market revenues given in EUR/MWh."
                   OEONearestConcept:
@@ -510,17 +510,17 @@ AgentTypes:
     Attributes:
       minMarkup:
         AttributeType: double
-        Mandatory: true
+        Mandatory: false
         List: false
         MetaData:
-          Description: "Is the lower bound of the interpolation for changes to the marginal costs."
+          Description: "Is the lower bound of the interpolation for changes to the marginal costs (default=0)"
           OEONearestConcept: OEO_00020076
       maxMarkup:
         AttributeType: double
-        Mandatory: true
+        Mandatory: false
         List: false
         MetaData:
-          Description: "Is the upper bound of the interpolation for changes to the marginal costs."
+          Description: "Is the upper bound of the interpolation for changes to the marginal costs (default=0)"
           OEONearestConcept: OEO_00020076
     Products:
       Bids: *DamTrader_P_Bids
@@ -2218,27 +2218,27 @@ AgentTypes:
               Description: "Fixed network charges based on peak consumption capacity for planning period in EUR per MW."
               OEONearestConcept:
       BusinessModel:
-            AttributeType: block
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Group of parameters specifying the business model of an aggregator."
+          OEONearestConcept:
+        NestedAttributes:
+          ProfitMarginInEURPerMWH:
+            AttributeType: double
             Mandatory: false
             List: false
             MetaData:
               Description: "Group of parameters specifying the business model of an aggregator."
               OEONearestConcept:
-            NestedAttributes:
-              ProfitMarginInEURPerMWH:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description: "Group of parameters specifying the business model of an aggregator."
-                  OEONearestConcept:
-              AverageMarketPriceInEURPerMWH:
-                AttributeType: time_series
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description: "The average market price in EUR per MWh to be applied in case of a static tariff."
-                  OEONearestConcept:
+          AverageMarketPriceInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "The average market price in EUR per MWh to be applied in case of a static tariff."
+              OEONearestConcept:
     Products:
       Bids: *DamTrader_P_Bids
       MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest

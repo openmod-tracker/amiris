@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage;
 
+import de.dlr.gitlab.fame.agent.input.GroupBuilder;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
-import de.dlr.gitlab.fame.agent.input.Tree;
 
 /** Represents a physical energy storage device (e.g. LiIon battery or pumped-hydro plant)
  *
@@ -17,11 +17,10 @@ public class Device extends AbstractDevice {
 	private double accountedFullStorageCycles = 0;
 
 	/** Input parameters of a storage {@link Device} */
-	public static final Tree parameters = Make.newTree()
+	public static final GroupBuilder parameters = Make.newTree()
 			.add(Make.newDouble("EnergyToPowerRatio"), Make.newDouble("SelfDischargeRatePerHour"),
 					Make.newDouble("ChargingEfficiency"), Make.newDouble("DischargingEfficiency"),
-					Make.newDouble("InitialEnergyLevelInMWH"), Make.newDouble("InstalledPowerInMW"))
-			.buildTree();
+					Make.newDouble("InitialEnergyLevelInMWH"), Make.newDouble("InstalledPowerInMW"));
 
 	/** Creates a physical {@link Device}
 	 * 

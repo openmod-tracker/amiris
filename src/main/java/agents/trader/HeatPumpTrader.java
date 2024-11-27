@@ -50,11 +50,11 @@ import endUser.EndUserTariff;
  * 
  * @author Evelyn Sperber, Christoph Schimeczek */
 public class HeatPumpTrader extends FlexibilityTrader {
-	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters)
+	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters.optional().buildTree())
 			.addAs("StrategyBasic", HeatPumpStrategist.parameters)
 			.addAs("HeatingInputData", HeatingInputData.parameters).addAs("HeatPump", HeatPump.parameters)
 			.addAs("Strategy", StrategyParameters.parameters).addAs("Building", BuildingParameters.parameters)
-			.addAs("Policy", EndUserTariff.policyParameters)
+			.addAs("Policy", EndUserTariff.policyParameters.optional().buildTree())
 			.addAs("BusinessModel", EndUserTariff.businessModelParameters).buildTree();
 
 	@Output
@@ -94,7 +94,8 @@ public class HeatPumpTrader extends FlexibilityTrader {
 		ParameterData strategyBasic = input.getGroup("StrategyBasic");
 		strategist = createStrategist(strategyBasic, building, heatPump, heatingData, strategyParams, device);
 
-		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
 		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)

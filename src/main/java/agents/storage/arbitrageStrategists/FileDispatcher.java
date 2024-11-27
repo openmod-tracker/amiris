@@ -22,7 +22,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek, Johannes Kochems, Ulrich Frey, Felix Nitsch */
 public class FileDispatcher extends ArbitrageStrategist {
 	/** Input for the {@link FileDispatcher} */
-	public static final Tree parameters = Make.newTree()
+	public static final Tree parameters = Make.newTree().optional()
 			.add(Make.newSeries("Schedule").optional().help(
 					"Change of internal storage energy relative to available charging power. Values should be -1 <= x <= 1."),
 					Make.newDouble("DispatchToleranceInMWH").optional()

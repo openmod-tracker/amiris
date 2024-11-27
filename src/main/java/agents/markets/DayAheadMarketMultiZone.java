@@ -62,9 +62,9 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 			.add(
 					Make.newString("MarketZone").optional()
 							.help("Identifier specifying the market zone this DayAheadMarket is representing"),
-					Make.newGroup("Transmission").list()
-							.add(Make.newString("MarketZone").optional(),
-									Make.newSeries("CapacityInMW").optional()
+					Make.newGroup("Transmission").list().optional()
+							.add(Make.newString("MarketZone"),
+									Make.newSeries("CapacityInMW")
 											.help("Net transfer capacity of supply from own to connected market zone.")))
 			.buildTree();
 

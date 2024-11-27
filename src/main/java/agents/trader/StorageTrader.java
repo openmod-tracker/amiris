@@ -37,7 +37,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems, Farzad Sarfarazi, Felix Nitsch */
 public class StorageTrader extends FlexibilityTrader {
-	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters)
+	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters.buildTree())
 			.addAs("Strategy", ArbitrageStrategist.parameters).buildTree();
 
 	@Output

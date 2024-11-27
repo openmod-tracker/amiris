@@ -39,9 +39,9 @@ public abstract class PremiumBased {
 	public static final ParameterBuilder marketValueForecastParam = Make
 			.newEnum("MarketValueForecastMethod", MarketValueForecastMethod.class).optional();
 	/** Specific inputs for file-based market value forecasts */
-	public static final GroupBuilder fileForecastParams = Make.newGroup("MarketValueForecasts").list().add(
-			Make.newEnum("EnergyCarrier", EnergyCarrier.class).optional(),
-			Make.newSeries("Forecast").optional());
+	public static final GroupBuilder fileForecastParams = Make.newGroup("MarketValueForecasts").list().optional().add(
+			Make.newEnum("EnergyCarrier", EnergyCarrier.class),
+			Make.newSeries("Forecast"));
 
 	private final MarketValueForecastMethod marketValueForecastMethod;
 	private final HashMap<EnergyCarrier, TimeSeries> marketValueForecasts = new HashMap<>();
