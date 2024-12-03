@@ -97,9 +97,8 @@ public class SupportPolicy extends Agent {
 		loadSetSupportData(inputData.getGroupList("SetSupportData"));
 
 		call(this::sendSupportInfo).on(Products.SupportInfo).use(AggregatorTrader.Products.SupportInfoRequest);
-		call(this::logYieldPotentials).on(AggregatorTrader.Products.YieldPotential)
-				.use(AggregatorTrader.Products.YieldPotential);
-		call(this::logPowerPrice).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
+		call(this::logYieldPotentials).onAndUse(AggregatorTrader.Products.YieldPotential);
+		call(this::logPowerPrice).onAndUse(DayAheadMarket.Products.Awards);
 		call(this::calcSupportPayout).on(Products.SupportPayout).use(AggregatorTrader.Products.SupportPayoutRequest);
 		call(this::calculateAndStoreMarketValues).on(Products.MarketValueCalculation);
 	}

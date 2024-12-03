@@ -69,7 +69,7 @@ public abstract class MarketForecaster extends Forecaster {
 		/** Send out forecast requests to make other agents prepare their bids ahead of time */
 		call(this::sendForecastRequests).on(Products.ForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		/** On incoming bid forecasts: clear the market ahead and store the clearing result */
-		call(this::calcMarketClearingForecasts).on(Trader.Products.BidsForecast).use(Trader.Products.BidsForecast);
+		call(this::calcMarketClearingForecasts).onAndUse(Trader.Products.BidsForecast);
 	}
 
 	/** Requests bid forecast for all future hours within forecast period

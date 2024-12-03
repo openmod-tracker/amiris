@@ -75,8 +75,7 @@ public class CarbonMarket extends Agent {
 		loadOperationModeParameters(data);
 		call(this::sendPrice).on(Products.Co2PriceForecast).use(ConventionalPlantOperator.Products.Co2PriceForecastRequest);
 		call(this::sendPrice).on(Products.Co2Price).use(ConventionalPlantOperator.Products.Co2PriceRequest);
-		call(this::registerCertificateOrders).on(ConventionalPlantOperator.Products.Co2Emissions)
-				.use(ConventionalPlantOperator.Products.Co2Emissions);
+		call(this::registerCertificateOrders).onAndUse(ConventionalPlantOperator.Products.Co2Emissions);
 		call(this::sendBill).on(Products.CertificateBill);
 	}
 

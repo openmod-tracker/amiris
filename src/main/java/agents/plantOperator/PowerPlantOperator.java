@@ -66,9 +66,8 @@ public abstract class PowerPlantOperator extends Agent {
 		ParameterData input = parameters.join(dataProvider);
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
 
-		call(this::executeDispatch).on(PowerPlantScheduler.Products.DispatchAssignment)
-				.use(PowerPlantScheduler.Products.DispatchAssignment);
-		call(this::digestPayment).on(PowerPlantScheduler.Products.Payout).use(PowerPlantScheduler.Products.Payout);
+		call(this::executeDispatch).onAndUse(PowerPlantScheduler.Products.DispatchAssignment);
+		call(this::digestPayment).onAndUse(PowerPlantScheduler.Products.Payout);
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 

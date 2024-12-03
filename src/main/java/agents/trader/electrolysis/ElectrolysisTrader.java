@@ -91,14 +91,12 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
-				.use(Forecaster.Products.PriceForecast);
-		call(this::updateHydrogenPriceForecast).on(FuelsMarket.Products.FuelPriceForecast)
-				.use(FuelsMarket.Products.FuelPriceForecast);
+		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
+		call(this::updateHydrogenPriceForecast).onAndUse(FuelsMarket.Products.FuelPriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
+		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid);
-		call(this::digestSaleReturns).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
+		call(this::digestSaleReturns).onAndUse(FuelsMarket.Products.FuelBill);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for

@@ -92,8 +92,7 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 	public ConventionalPlantOperator(DataProvider dataProvider) {
 		super(dataProvider);
 
-		call(this::updatePortfolio).on(PlantBuildingManager.Products.PowerPlantPortfolio)
-				.use(PlantBuildingManager.Products.PowerPlantPortfolio);
+		call(this::updatePortfolio).onAndUse(PlantBuildingManager.Products.PowerPlantPortfolio);
 		call(this::requestFuelPrice).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(TraderWithClients.Products.ForecastRequestForward);
 		call(this::requestCo2Price).on(Products.Co2PriceForecastRequest)

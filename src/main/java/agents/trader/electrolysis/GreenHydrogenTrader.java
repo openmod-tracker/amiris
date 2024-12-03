@@ -101,7 +101,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 
 		call(this::digestAwards).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::sellProducedGreenHydrogen).on(FuelsTrader.Products.FuelBid);
-		call(this::digestHydrogenSales).on(FuelsMarket.Products.FuelBill).use(FuelsMarket.Products.FuelBill);
+		call(this::digestHydrogenSales).onAndUse(FuelsMarket.Products.FuelBill);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
 				.use(VariableRenewableOperatorPpa.Products.PpaInformation);
 	}
