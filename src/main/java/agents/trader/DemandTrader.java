@@ -58,8 +58,7 @@ public class DemandTrader extends Trader {
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::evaluateAwardedDemandBids).on(DayAheadMarket.Products.Awards)
-				.use(DayAheadMarket.Products.Awards);
+		call(this::evaluateAwardedDemandBids).onAndUse(DayAheadMarket.Products.Awards);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}

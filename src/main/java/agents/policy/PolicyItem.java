@@ -24,8 +24,8 @@ public abstract class PolicyItem implements Portable {
 	static final String ERR_CONFIG = "Config data for Policy incomplete: ";
 	static final String ERR_INVALID_NEGATIVE = "Negative values are invalid for 'MaxNumberOfNegativeHours' - leave out if not desired! Specified value: ";
 
-	static final ParameterBuilder lcoeParam = Make.newSeries("Lcoe").optional();
-	static final ParameterBuilder premiumParam = Make.newSeries("Premium").optional();
+	static final ParameterBuilder lcoeParam = Make.newSeries("Lcoe");
+	static final ParameterBuilder premiumParam = Make.newSeries("Premium");
 	static final ParameterBuilder maxNumberOfNegativeHoursParam = Make.newInt("MaxNumberOfNegativeHours").optional();
 	private static final int INFINITE_NEGATIVE_HOURS = -1;
 

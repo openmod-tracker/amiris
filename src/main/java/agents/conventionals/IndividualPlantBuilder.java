@@ -21,18 +21,17 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek */
 public class IndividualPlantBuilder extends PlantBuildingManager {
 	@Input private static final Tree parameters = Make.newTree().add(
-			Make.newGroup("Plants").add(
+			Make.newGroup("Plants").list().add(
 					Make.newDouble("Efficiency"),
 					Make.newDouble("NetCapacityInMW"),
 					Make.newTimeStamp("ActivationTime").optional(),
 					Make.newTimeStamp("DeactivationTime").optional(),
 					Make.newString("Id").optional(),
-					Make.newGroup("Override").add(
+					Make.newGroup("Override").optional().add(
 							Make.newSeries("PlannedAvailability").optional(),
 							Make.newDouble("UnplannedAvailabilityFactor").optional(),
 							Make.newSeries("OpexVarInEURperMWH").optional(),
-							Make.newDouble("CyclingCostInEURperMW").optional()))
-					.list())
+							Make.newDouble("CyclingCostInEURperMW").optional())))
 			.buildTree();
 
 	private final List<PowerPlant> powerPlants;

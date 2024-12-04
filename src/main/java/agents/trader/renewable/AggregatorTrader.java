@@ -128,17 +128,16 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 			errorGenerator = null;
 		}
 
-		call(this::registerClient).on(RenewablePlantOperator.Products.SetRegistration)
-				.use(RenewablePlantOperator.Products.SetRegistration);
+		call(this::registerClient).onAndUse(RenewablePlantOperator.Products.SetRegistration);
 		call(this::requestSupportInfo).on(Products.SupportInfoRequest);
-		call(this::digestSupportInfo).on(SupportPolicy.Products.SupportInfo).use(SupportPolicy.Products.SupportInfo);
+		call(this::digestSupportInfo).onAndUse(SupportPolicy.Products.SupportInfo);
 		call(this::prepareForecastBids).on(Trader.Products.BidsForecast)
 				.use(PowerPlantOperator.Products.MarginalCostForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(PowerPlantOperator.Products.MarginalCost);
 		call(this::sendYieldPotentials).on(Products.YieldPotential).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment).use(DayAheadMarket.Products.Awards);
 		call(this::requestSupportPayout).on(Products.SupportPayoutRequest);
-		call(this::digestSupportPayout).on(SupportPolicy.Products.SupportPayout).use(SupportPolicy.Products.SupportPayout);
+		call(this::digestSupportPayout).onAndUse(SupportPolicy.Products.SupportPayout);
 		call(this::payoutClients).on(PowerPlantScheduler.Products.Payout);
 	}
 

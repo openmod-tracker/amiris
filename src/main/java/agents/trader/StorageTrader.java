@@ -37,7 +37,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems, Farzad Sarfarazi, Felix Nitsch */
 public class StorageTrader extends FlexibilityTrader {
-	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters)
+	@Input private static final Tree parameters = Make.newTree().addAs("Device", Device.parameters.buildTree())
 			.addAs("Strategy", ArbitrageStrategist.parameters).buildTree();
 
 	@Output
@@ -63,14 +63,12 @@ public class StorageTrader extends FlexibilityTrader {
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
 		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
-				.use(Forecaster.Products.MeritOrderForecast);
+		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
 		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateElectricityPriceForecast).on(Forecaster.Products.PriceForecast)
-				.use(Forecaster.Products.PriceForecast);
+		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
+		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for

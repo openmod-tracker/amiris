@@ -29,12 +29,12 @@ public class AmountAtTime extends PointInTime {
 	 * @param proto protobuf representation */
 	public AmountAtTime(ProtoDataItem proto) {
 		super(proto);
-		this.amount = proto.getDoubleValue(0);
+		this.amount = proto.getDoubleValues(0);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
 		super.fillDataFields(builder);
-		builder.addDoubleValue(amount);
+		builder.addDoubleValues(amount);
 	}
 }

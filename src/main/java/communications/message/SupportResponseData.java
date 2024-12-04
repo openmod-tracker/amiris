@@ -42,22 +42,22 @@ public class SupportResponseData extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public SupportResponseData(ProtoDataItem proto) {
-		this.setType = proto.getStringValue(0);
-		TimeStamp startTime = new TimeStamp(proto.getLongValue(0));
-		TimeSpan duration = new TimeSpan(proto.getLongValue(1));
-		this.clientId = proto.getLongValue(2);
+		this.setType = proto.getStringValues(0);
+		TimeStamp startTime = new TimeStamp(proto.getLongValues(0));
+		TimeSpan duration = new TimeSpan(proto.getLongValues(1));
+		this.clientId = proto.getLongValues(2);
 		this.accountingPeriod = new TimePeriod(startTime, duration);
-		this.payment = proto.getDoubleValue(0);
-		this.marketPremium = proto.getDoubleValue(1);
+		this.payment = proto.getDoubleValues(0);
+		this.marketPremium = proto.getDoubleValues(1);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addStringValue(setType);
-		builder.addLongValue(accountingPeriod.getStartTime().getStep());
-		builder.addLongValue(accountingPeriod.getDuration().getSteps());
-		builder.addLongValue(clientId);
-		builder.addDoubleValue(payment);
-		builder.addDoubleValue(marketPremium);
+		builder.addStringValues(setType);
+		builder.addLongValues(accountingPeriod.getStartTime().getStep());
+		builder.addLongValues(accountingPeriod.getDuration().getSteps());
+		builder.addLongValues(clientId);
+		builder.addDoubleValues(payment);
+		builder.addDoubleValues(marketPremium);
 	}
 }

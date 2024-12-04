@@ -27,7 +27,7 @@ import util.Util;
  * @author Christoph Schimeczek */
 public class MultiAgentMedian extends ArbitrageStrategist {
 	/** Input parameters for the {@link MultiAgentMedian} strategist */
-	public static final Tree parameters = Make.newTree()
+	public static final Tree parameters = Make.newTree().optional()
 			.add(Make.newDouble("AssessmentFunctionPrefactors").optional().list()
 					.help("Prefactors `a`,`b`,`c`, ... of a polynomial `a + bx + cx² + ...`, "
 							+ "where `x` is the difference between the hourly price and the price median. "

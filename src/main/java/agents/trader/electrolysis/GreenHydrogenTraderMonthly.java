@@ -56,8 +56,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 
 		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updatePpaForecast).on(VariableRenewableOperatorPpa.Products.PpaInformationForecast)
-				.use(VariableRenewableOperatorPpa.Products.PpaInformationForecast);
+		call(this::updatePpaForecast).onAndUse(VariableRenewableOperatorPpa.Products.PpaInformationForecast);
 		call(this::resetMonthlySchedule).on(Products.MonthlyReset);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout);

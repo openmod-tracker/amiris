@@ -38,7 +38,7 @@ import util.Util;
  * @author Christoph Schimeczek, Marc Deissenroth, Ulrich Frey */
 public class ConventionalTrader extends TraderWithClients implements PowerPlantScheduler {
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newDouble("minMarkup"), Make.newDouble("maxMarkup")).buildTree();
+			.add(Make.newDouble("minMarkup").optional(), Make.newDouble("maxMarkup").optional()).buildTree();
 
 	private double minMarkup;
 	private double maxMarkup;
@@ -50,8 +50,8 @@ public class ConventionalTrader extends TraderWithClients implements PowerPlantS
 	public ConventionalTrader(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
-		minMarkup = input.getDouble("minMarkup");
-		maxMarkup = input.getDouble("maxMarkup");
+		minMarkup = input.getDoubleOrDefault("minMarkup", 0.);
+		maxMarkup = input.getDoubleOrDefault("maxMarkup", 0.);
 		ensureValidMarkups();
 
 		call(this::sendForecastBids).on(Trader.Products.BidsForecast)

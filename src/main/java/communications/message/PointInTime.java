@@ -24,13 +24,13 @@ public class PointInTime extends DataItem {
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addLongValue(validAt.getStep());
+		builder.addLongValues(validAt.getStep());
 	}
 
 	/** Mandatory for deserialisation of {@link DataItem}s
 	 * 
 	 * @param proto protobuf representation */
 	public PointInTime(ProtoDataItem proto) {
-		this.validAt = new TimeStamp(proto.getLongValue(0));
+		this.validAt = new TimeStamp(proto.getLongValues(0));
 	}
 }

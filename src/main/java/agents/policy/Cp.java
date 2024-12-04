@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class Cp extends PolicyItem {
-	static final Tree parameters = Make.newTree().add(premiumParam).buildTree();
+	static final Tree parameters = Make.newTree().optional().add(premiumParam).buildTree();
 
 	/** The capacity premium in EUR/MW installed */
 	private TimeSeries premium;
@@ -69,7 +69,7 @@ public class Cp extends PolicyItem {
 
 	@Override
 	public double calcCapacitySupportRate(TimePeriod accountingPeriod) {
-		return premium.getValueLowerEqual(accountingPeriod.getStartTime());
+		return premium.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
 	
 	@Override

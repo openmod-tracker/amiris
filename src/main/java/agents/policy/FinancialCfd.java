@@ -20,10 +20,10 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class FinancialCfd extends PolicyItem {
-	static final Tree parameters = Make.newTree()
+	static final Tree parameters = Make.newTree().optional()
 			.add(premiumParam,
-					Make.newSeries("ReferenceYieldProfile").optional().help(
-							"yield profile of the reference plant to calculate payback obligation from its market revenues"))
+					Make.newSeries("ReferenceYieldProfile")
+							.help("Yield profile of the reference plant to calculate payback obligation from its market revenues"))
 			.buildTree();
 
 	private TimeSeries referenceYieldProfile;
@@ -78,7 +78,7 @@ public class FinancialCfd extends PolicyItem {
 
 	@Override
 	public double calcCapacitySupportRate(TimePeriod accountingPeriod) {
-		return premiumPerMW.getValueLowerEqual(accountingPeriod.getStartTime());
+		return premiumPerMW.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
 
 	@Override

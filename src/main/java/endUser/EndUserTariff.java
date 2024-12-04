@@ -4,6 +4,7 @@
 package endUser;
 
 import java.util.EnumMap;
+import de.dlr.gitlab.fame.agent.input.GroupBuilder;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -52,7 +53,7 @@ public class EndUserTariff {
 	}
 
 	/** Policy-related input parameters to construct an {@link EndUserTariff} */
-	public static final Tree policyParameters = Make.newTree()
+	public static final GroupBuilder policyParameters = Make.newTree()
 			.add(Make.newSeries("EEGSurchargeInEURPerMWH"), Make.newSeries("VolumetricNetworkChargeInEURPerMWH"),
 					Make.newSeries("ElectricityTaxInEURPerMWH"), Make.newSeries("OtherSurchargesInEURPerMWH"),
 					Make.newGroup("DynamicTariffComponents").list().add(
@@ -61,11 +62,10 @@ public class EndUserTariff {
 					Make.newDouble("VAT"), Make.newSeries("CapacityBasedNetworkChargesInEURPerMW"),
 					Make.newSeries("FixedNetworkChargesInEURPerYear"),
 					Make.newDouble("FitInEURPerMWH").optional(), Make.newDouble("TimeVaryingFiTMultiplier").optional(),
-					Make.newEnum("FeedInTariffScheme", FeedInTariffScheme.class).optional())
-			.buildTree();
+					Make.newEnum("FeedInTariffScheme", FeedInTariffScheme.class).optional());
 
 	/** Business-model related input parameters to construct an {@link EndUserTariff} */
-	public static final Tree businessModelParameters = Make.newTree()
+	public static final Tree businessModelParameters = Make.newTree().optional()
 			.add(Make.newDouble("ProfitMarginInEURPerMWH"), Make.newSeries("AverageMarketPriceInEURPerMWH")).buildTree();
 
 	/** Creates an {@link EndUserTariff}
@@ -101,14 +101,14 @@ public class EndUserTariff {
 	 * @return calculated sales price */
 	public double calcSalePriceInEURperMWH(double forecastedMarketPriceInEURPerMWH, TimeStamp targetTime) {
 		double salePrice = ((calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.POWER_PRICE,
-				averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime), targetTime)
+				averageMarketPriceInEURPerMWH.getValueEarlierEqual(targetTime), targetTime)
 				+ calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.EEG_SURCHARGE,
-						eegSurchargeInEURPerMWH.getValueLowerEqual(targetTime), targetTime)
+						eegSurchargeInEURPerMWH.getValueEarlierEqual(targetTime), targetTime)
 				+ calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.VOLUMETRIC_NETWORK_CHARGE,
-						volumetricNetworkChargeInEURPerMWH.getValueLowerEqual(targetTime), targetTime)
+						volumetricNetworkChargeInEURPerMWH.getValueEarlierEqual(targetTime), targetTime)
 				+ calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.OTHER_COMPONENTS,
-						otherSurchargesInEURPerMWH.getValueLowerEqual(targetTime)
-								+ electricityTaxInEURPerMWH.getValueLowerEqual(targetTime),
+						otherSurchargesInEURPerMWH.getValueEarlierEqual(targetTime)
+								+ electricityTaxInEURPerMWH.getValueEarlierEqual(targetTime),
 						targetTime)
 				+ profitMarginInEURPerMWH) * vat);
 		return salePrice;
@@ -119,7 +119,7 @@ public class EndUserTariff {
 	 * @param targetTime to calculate at
 	 * @return capacity price at given time */
 	public double calcCapacityRelatedPriceInEURPerMW(TimeStamp targetTime) {
-		return capacityBasedNetworkChargeInEURPerMW.getValueLowerEqual(targetTime);
+		return capacityBasedNetworkChargeInEURPerMW.getValueEarlierEqual(targetTime);
 	}
 
 	/** Calculate and return the fixed price for, e.g., network charges
@@ -127,7 +127,7 @@ public class EndUserTariff {
 	 * @param targetTime at which to calculate
 	 * @return fixed price */
 	public double calcFixedPriceInEURPerYear(TimeStamp targetTime) {
-		return fixedNetworkChargesInEURPerYear.getValueLowerEqual(targetTime);
+		return fixedNetworkChargesInEURPerYear.getValueEarlierEqual(targetTime);
 	}
 
 	/** Calculate and return the price at which a retailer provides power to customers excluding the actual wholesale day-ahead
@@ -140,7 +140,7 @@ public class EndUserTariff {
 			TimeStamp targetTime) {
 		return calcSalePriceInEURperMWH(forecastedMarketPriceInEURPerMWH, targetTime)
 				- (calcAndReturnTariffComponent(forecastedMarketPriceInEURPerMWH, ComponentType.POWER_PRICE,
-						averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime), targetTime));
+						averageMarketPriceInEURPerMWH.getValueEarlierEqual(targetTime), targetTime));
 	}
 
 	/** Return true if tariff is static
@@ -152,10 +152,10 @@ public class EndUserTariff {
 
 	/** Gets the static average market price
 	 * 
-	 * @param targetTime time for which static power price is evaulated
+	 * @param targetTime time for which static power price is evaluated
 	 * @return static power price */
 	public double getStaticPowerPrice(TimeStamp targetTime) {
-		return averageMarketPriceInEURPerMWH.getValueLowerEqual(targetTime);
+		return averageMarketPriceInEURPerMWH.getValueEarlierEqual(targetTime);
 	}
 
 	/** Calculate purchase price based on feed in tariff
@@ -205,7 +205,7 @@ public class EndUserTariff {
 	private double calcDynamicTariffComponent(double forecastedMarketPriceInEURPerMWH, ComponentType componentName,
 			TimeStamp targetTime) {
 		double dynamicTariffComponentInEURPerMWH = forecastedMarketPriceInEURPerMWH
-				* dynamicTariffComponents.get(componentName).multiplier.getValueLowerEqual(targetTime);
+				* dynamicTariffComponents.get(componentName).multiplier.getValueEarlierEqual(targetTime);
 		DynamicTariffComponent component = dynamicTariffComponents.get(componentName);
 		return Math.max(component.lowerBound, Math.min(component.upperBound, dynamicTariffComponentInEURPerMWH));
 	}

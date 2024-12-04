@@ -37,16 +37,16 @@ public class PpaInformation extends PointInTime {
 	 * @param proto protobuf representation */
 	public PpaInformation(ProtoDataItem proto) {
 		super(proto);
-		this.priceInEURperMWH = proto.getDoubleValue(0);
-		this.yieldPotentialInMWH = proto.getDoubleValue(1);
-		this.marginalCostsInEURperMWH = proto.getDoubleValue(2);
+		this.priceInEURperMWH = proto.getDoubleValues(0);
+		this.yieldPotentialInMWH = proto.getDoubleValues(1);
+		this.marginalCostsInEURperMWH = proto.getDoubleValues(2);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
 		super.fillDataFields(builder);
-		builder.addDoubleValue(priceInEURperMWH);
-		builder.addDoubleValue(yieldPotentialInMWH);
-		builder.addDoubleValue(marginalCostsInEURperMWH);
+		builder.addDoubleValues(priceInEURperMWH);
+		builder.addDoubleValues(yieldPotentialInMWH);
+		builder.addDoubleValues(marginalCostsInEURperMWH);
 	}
 }
