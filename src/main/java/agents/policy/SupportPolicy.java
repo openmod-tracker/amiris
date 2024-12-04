@@ -64,8 +64,10 @@ public class SupportPolicy extends Agent {
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("SetSupportData").list().add(RenewablePlantOperator.setParameter)
-					.addAs(SupportInstrument.FIT.name(), Fit.parameters).addAs(SupportInstrument.MPFIX.name(), Mpfix.parameters)
-					.addAs(SupportInstrument.MPVAR.name(), Mpvar.parameters).addAs(SupportInstrument.CFD.name(), Cfd.parameters)
+					.addAs(SupportInstrument.FIT.name(), Fit.parameters)
+					.addAs(SupportInstrument.MPFIX.name(), Mpfix.parameters)
+					.addAs(SupportInstrument.MPVAR.name(), Mpvar.parameters)
+					.addAs(SupportInstrument.CFD.name(), Cfd.parameters)
 					.addAs(SupportInstrument.CP.name(), Cp.parameters)
 					.addAs(SupportInstrument.FINANCIAL_CFD.name(), FinancialCfd.parameters))
 			.buildTree();
@@ -95,9 +97,8 @@ public class SupportPolicy extends Agent {
 		loadSetSupportData(inputData.getGroupList("SetSupportData"));
 
 		call(this::sendSupportInfo).on(Products.SupportInfo).use(AggregatorTrader.Products.SupportInfoRequest);
-		call(this::logYieldPotentials).on(AggregatorTrader.Products.YieldPotential)
-				.use(AggregatorTrader.Products.YieldPotential);
-		call(this::logPowerPrice).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
+		call(this::logYieldPotentials).onAndUse(AggregatorTrader.Products.YieldPotential);
+		call(this::logPowerPrice).onAndUse(DayAheadMarket.Products.Awards);
 		call(this::calcSupportPayout).on(Products.SupportPayout).use(AggregatorTrader.Products.SupportPayoutRequest);
 		call(this::calculateAndStoreMarketValues).on(Products.MarketValueCalculation);
 	}

@@ -31,12 +31,12 @@ public class YieldPotential extends AmountAtTime {
 	 * @param proto protobuf representation */
 	public YieldPotential(ProtoDataItem proto) {
 		super(proto);
-		this.energyCarrier = EnergyCarrier.values()[proto.getIntValue(0)];
+		this.energyCarrier = EnergyCarrier.values()[proto.getIntValues(0)];
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
 		super.fillDataFields(builder);
-		builder.addIntValue(energyCarrier.ordinal());
+		builder.addIntValues(energyCarrier.ordinal());
 	}
 }

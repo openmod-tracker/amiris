@@ -37,9 +37,9 @@ public class TechnologySet extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public TechnologySet(ProtoDataItem proto) {
-		energyCarrier = EnergyCarrier.values()[proto.getIntValue(0)];
-		supportInstrument = getEnumOrNull(SupportInstrument.values(), proto.getIntValue(1));
-		setType = getStringOrNull(proto.getStringValue(0));
+		energyCarrier = EnergyCarrier.values()[proto.getIntValues(0)];
+		supportInstrument = getEnumOrNull(SupportInstrument.values(), proto.getIntValues(1));
+		setType = getStringOrNull(proto.getStringValues(0));
 	}
 
 	/** @return if given index >= 0: item with corresponding index in given array of choices, null otherwise */
@@ -58,8 +58,8 @@ public class TechnologySet extends DataItem {
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addIntValue(energyCarrier.ordinal());
-		builder.addIntValue(supportInstrument == null ? -1 : supportInstrument.ordinal());
-		builder.addStringValue(setType == null ? "" : setType);
+		builder.addIntValues(energyCarrier.ordinal());
+		builder.addIntValues(supportInstrument == null ? -1 : supportInstrument.ordinal());
+		builder.addStringValues(setType == null ? "" : setType);
 	}
 }

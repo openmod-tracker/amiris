@@ -23,11 +23,11 @@ public class FuelData extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public FuelData(ProtoDataItem proto) {
-		fuelType = proto.getStringValue(0);
+		fuelType = proto.getStringValues(0);
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addStringValue(fuelType);
+		builder.addStringValues(fuelType);
 	}
 }

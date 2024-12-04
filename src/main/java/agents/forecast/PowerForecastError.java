@@ -15,7 +15,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 public class PowerForecastError {
 
 	/** Specific inputs to parameterise {@link PowerForecastError} modelling */
-	public static final Tree parameters = Make.newTree()
+	public static final Tree parameters = Make.newTree().optional()
 			.add(Make.newDouble("Mean").optional().help("Relative offset of the power forecasts"),
 					Make.newDouble("StandardDeviation").optional()
 							.help("Standard deviation of the relative power forecasting errors"))

@@ -13,7 +13,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
  * @author Christoph Schimeczek, Johannes Kochems */
 public class AnnualCostCalculator {
 	/** Input parameters used by {@link AnnualCostCalculator} */
-	public static final Tree parameters = Make.newTree()
+	public static final Tree parameters = Make.newTree().optional()
 			.add(Make.newDouble("InvestmentExpensesInEURperMW").optional(),
 					Make.newDouble("AnnuityFactor").optional(),
 					Make.newDouble("AnnualFixedCostsInEURperMW").optional())

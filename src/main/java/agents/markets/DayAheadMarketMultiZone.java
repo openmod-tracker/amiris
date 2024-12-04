@@ -62,9 +62,9 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 			.add(
 					Make.newString("MarketZone").optional()
 							.help("Identifier specifying the market zone this DayAheadMarket is representing"),
-					Make.newGroup("Transmission").list()
-							.add(Make.newString("MarketZone").optional(),
-									Make.newSeries("CapacityInMW").optional()
+					Make.newGroup("Transmission").list().optional()
+							.add(Make.newString("MarketZone"),
+									Make.newSeries("CapacityInMW")
 											.help("Net transfer capacity of supply from own to connected market zone.")))
 			.buildTree();
 
@@ -99,7 +99,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 			loadTransmissionCapacities(input.getGroupList("Transmission"));
 		}
 
-		call(this::digestBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarketTrader.Products.Bids);
+		call(this::digestBids).onAndUse(DayAheadMarketTrader.Products.Bids);
 		call(this::provideTransmissionAndBids).on(Products.TransmissionAndBids);
 		call(this::clearMarket).on(DayAheadMarket.Products.Awards).use(MarketCoupling.Products.MarketCouplingResult);
 	}
@@ -174,7 +174,7 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 		if (transmissionCapacityOverTime == null) {
 			throw Logging.logFatalException(logger, TIME_SERIES_MISSING + targetRegion);
 		}
-		return transmissionCapacityOverTime.getValueLowerEqual(time);
+		return transmissionCapacityOverTime.getValueEarlierEqual(time);
 	}
 
 	/** Clears the local market and sends the Awards to the contracted Trader Agents. Depending on whether this EnergyExchange is

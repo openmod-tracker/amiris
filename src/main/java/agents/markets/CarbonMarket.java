@@ -75,8 +75,7 @@ public class CarbonMarket extends Agent {
 		loadOperationModeParameters(data);
 		call(this::sendPrice).on(Products.Co2PriceForecast).use(ConventionalPlantOperator.Products.Co2PriceForecastRequest);
 		call(this::sendPrice).on(Products.Co2Price).use(ConventionalPlantOperator.Products.Co2PriceRequest);
-		call(this::registerCertificateOrders).on(ConventionalPlantOperator.Products.Co2Emissions)
-				.use(ConventionalPlantOperator.Products.Co2Emissions);
+		call(this::registerCertificateOrders).onAndUse(ConventionalPlantOperator.Products.Co2Emissions);
 		call(this::sendBill).on(Products.CertificateBill);
 	}
 
@@ -116,7 +115,7 @@ public class CarbonMarket extends Agent {
 	 * @param time at which to obtain the price for
 	 * @return Co2Price at the given time */
 	private double getCo2Price(TimeStamp time) {
-		return tsCo2Prices.getValueLowerEqual(time);
+		return tsCo2Prices.getValueEarlierEqual(time);
 	}
 
 	/** Calculates the Co2 price at the specified {@link TimeStamp} and sends it to the receiver of the given {@link Contract}

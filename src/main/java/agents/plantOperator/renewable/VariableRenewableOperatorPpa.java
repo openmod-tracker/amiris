@@ -65,7 +65,7 @@ public class VariableRenewableOperatorPpa extends VariableRenewableOperator {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		for (var message : input) {
 			var time = message.getDataItemOfType(PointInTime.class).validAt;
-			double ppaPrice = ppaPriceInEURperMWH.getValueLowerEqual(time);
+			double ppaPrice = ppaPriceInEURperMWH.getValueEarlierEqual(time);
 			double availablePower = getInstalledPowerAtTimeInMW(time) * getYieldAtTime(time);
 			fulfilNext(contract, new PpaInformation(time, ppaPrice, availablePower, getVariableOpexAtTime(time)));
 		}

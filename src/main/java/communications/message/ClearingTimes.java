@@ -33,9 +33,9 @@ public class ClearingTimes extends DataItem {
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addIntValue(times.length);
+		builder.addIntValues(times.length);
 		for (TimeStamp time : times) {
-			builder.addLongValue(time.getStep());
+			builder.addLongValues(time.getStep());
 		}
 	}
 
@@ -43,10 +43,10 @@ public class ClearingTimes extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public ClearingTimes(ProtoDataItem proto) {
-		int itemCount = proto.getIntValue(0);
+		int itemCount = proto.getIntValues(0);
 		times = new TimeStamp[itemCount];
 		for (int i = 0; i < itemCount; i++) {
-			times[i] = new TimeStamp(proto.getLongValue(i));
+			times[i] = new TimeStamp(proto.getLongValues(i));
 		}
 	}
 

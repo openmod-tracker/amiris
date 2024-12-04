@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class Cfd extends PolicyItem {
-	static final Tree parameters = Make.newTree().add(lcoeParam, maxNumberOfNegativeHoursParam).buildTree();
+	static final Tree parameters = Make.newTree().optional().add(lcoeParam, maxNumberOfNegativeHoursParam).buildTree();
 
 	/** The levelised cost of electricity (value applied) */
 	private TimeSeries lcoe;
@@ -78,7 +78,7 @@ public class Cfd extends PolicyItem {
 	 * @param time at which to evaluate
 	 * @return specific contracts for differences premium in â‚¬/MWh */
 	public double calcCfD(double marketValue, TimeStamp time) {
-		double valueApplied = lcoe.getValueLowerEqual(time);
+		double valueApplied = lcoe.getValueEarlierEqual(time);
 		return valueApplied - marketValue;
 	}
 

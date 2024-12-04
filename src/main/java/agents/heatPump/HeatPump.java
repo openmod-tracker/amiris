@@ -18,7 +18,7 @@ public class HeatPump {
 	private static final double UPPER_AMBIENT_TEMPERATURE_FOR_HEAT_PUMP_SPECIFICATION_IN_C = 10;
 
 	/** Input structure of {@link HeatPump} */
-	public static final Tree parameters = Make.newTree()
+	public static final Tree parameters = Make.newTree().optional()
 			.add(Make.newDouble("MinElectricHeatPumpPowerInKW"), Make.newDouble("MaxElectricHeatPumpPowerInKW"),
 					Make.newDouble("HeatPumpPenetrationFactor"), Make.newDouble("MaxCOP"), Make.newDouble("MinCOP"),
 					Make.newSeries("InstalledUnits"))

@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Evelyn Sperber, Christoph Schimeczek */
 public abstract class DynamicProgrammingStrategist extends ArbitrageStrategist {
 	/** Specific input parameters for storage strategists using dynamic programming */
-	public static final Tree parameters = Make.newTree()
+	public static final Tree parameters = Make.newTree().optional()
 			.add(Make.newInt("ModelledChargingSteps").optional()
 					.help("Resolution of discretisation, total levels = ModelledChargingSteps * Device.EnergyToPowerRatio + 1"))
 			.buildTree();

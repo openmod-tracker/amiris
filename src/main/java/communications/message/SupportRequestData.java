@@ -51,29 +51,29 @@ public class SupportRequestData extends DataItem {
 	 * 
 	 * @param proto protobuf representation */
 	public SupportRequestData(ProtoDataItem proto) {
-		this.setType = proto.getStringValue(0);
-		this.supportInstrument = SupportInstrument.values()[proto.getIntValue(0)];
-		this.installedCapacityInMW = proto.getDoubleValue(0);
-		TimeStamp startTime = new TimeStamp(proto.getLongValue(0));
-		TimeSpan duration = new TimeSpan(proto.getLongValue(1));
-		this.clientId = proto.getLongValue(2);
+		this.setType = proto.getStringValues(0);
+		this.supportInstrument = SupportInstrument.values()[proto.getIntValues(0)];
+		this.installedCapacityInMW = proto.getDoubleValues(0);
+		TimeStamp startTime = new TimeStamp(proto.getLongValues(0));
+		TimeSpan duration = new TimeSpan(proto.getLongValues(1));
+		this.clientId = proto.getLongValues(2);
 		this.accountingPeriod = new TimePeriod(startTime, duration);
 		this.infeed = new TreeMap<>();
-		for (int i = 0; i < proto.getIntValue(1); i++) {
-			TimeStamp timeStamp = new TimeStamp(proto.getLongValue(i + 3));
-			double value = proto.getDoubleValue(i + 1);
+		for (int i = 0; i < proto.getIntValues(1); i++) {
+			TimeStamp timeStamp = new TimeStamp(proto.getLongValues(i + 3));
+			double value = proto.getDoubleValues(i + 1);
 			infeed.put(timeStamp, value);
 		}
 	}
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addStringValue(setType);
-		builder.addIntValue(supportInstrument.ordinal());
-		builder.addDoubleValue(installedCapacityInMW);
-		builder.addLongValue(accountingPeriod.getStartTime().getStep());
-		builder.addLongValue(accountingPeriod.getDuration().getSteps());
-		builder.addLongValue(clientId);
+		builder.addStringValues(setType);
+		builder.addIntValues(supportInstrument.ordinal());
+		builder.addDoubleValues(installedCapacityInMW);
+		builder.addLongValues(accountingPeriod.getStartTime().getStep());
+		builder.addLongValues(accountingPeriod.getDuration().getSteps());
+		builder.addLongValues(clientId);
 
 		int counter = 0;
 		for (Entry<TimeStamp, Double> entry : infeed.entrySet()) {
@@ -82,11 +82,11 @@ public class SupportRequestData extends DataItem {
 			}
 			if (entry.getKey().isLessEqualTo(accountingPeriod.getLastTime())) {
 				counter++;
-				builder.addLongValue(entry.getKey().getStep());
-				builder.addDoubleValue(entry.getValue());
+				builder.addLongValues(entry.getKey().getStep());
+				builder.addDoubleValues(entry.getValue());
 			}
 		}
-		builder.addIntValue(counter);
+		builder.addIntValues(counter);
 	}
 
 	@Override

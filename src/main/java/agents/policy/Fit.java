@@ -20,7 +20,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class Fit extends PolicyItem {
-	static final Tree parameters = Make.newTree().add(Make.newSeries("TsFit").optional()).buildTree();
+	static final Tree parameters = Make.newTree().optional().add(Make.newSeries("TsFit")).buildTree();
 
 	/** The time series containing the FIT applicable in EUR/MWh */
 	private TimeSeries tsFit;
@@ -59,7 +59,7 @@ public class Fit extends PolicyItem {
 
 	@Override
 	public double calcInfeedSupportRate(TimePeriod accountingPeriod, double marketValue) {
-		return tsFit.getValueLowerEqual(accountingPeriod.getStartTime());
+		return tsFit.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
 
 	@Override

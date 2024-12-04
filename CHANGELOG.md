@@ -2,7 +2,15 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [3.1.0][(https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.1.0) - 2024-11-26
+## [3.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.2.0) - 2024-12-04
+### Changed
+- Update to FAME-Core v2.0.1 & FAME-Io v3.0 #134 (@dlr-cjs)
+- Update actions to use "ActionBuilder.onAndUse()" where possible #134 (@dlr-cjs)
+- Update @Input definitions to state group optionality according to schema #134 (@dlr-cjs)
+- Rename protobuf methods "add/get<X>Value" to "add/get<X>Values" #134 (@dlr-cjs)
+- Update `getValueHigherEqual` and `getValueLowerEqual ` to `getValueLaterEqual` and `getValueEarlierEqual` #134 (@dlr-cjs)
+
+## [3.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.1.0) - 2024-11-26
 ### Added
 - Add new agent `HeatPumpTrader`' that aggregates heat pumps in buildings and arranges procurement at the day-ahead market #131 (@dlr_es, @dlr-cjs)
 
