@@ -140,13 +140,12 @@ Please also refer to the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wi
 
 
 ## Available Support
-This is a purely scientific project by (at the moment) one research group. 
-Thus, there is no paid technical support available.
-However, we will give our best to answer your questions and provide support.
-
 If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/tag/amiris) or via [amiris@dlr.de](mailto:amiris@dlr.de).
 Please report bugs and make feature requests by filing issues following the provided templates (see also [CONTRIBUTING](CONTRIBUTING.md)).
 For substantial enhancements, we recommend that you contact us via [amiris@dlr.de](mailto:amiris@dlr.de) for working together on the code in joint projects or towards common publications in order to further develop AMIRIS.
+
+### AMIRIS Open Forum
+You are also welcome to join the [AMIRIS Open Forum](https://meet.jit.si/AMIRISOpenForum) to discuss issues and ideas, every Friday morning from 10:00 to 10:30 CET - no registration required.
 
 ## Citing AMIRIS
 If you use AMIRIS in your scientific work please cite:

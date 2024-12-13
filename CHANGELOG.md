@@ -2,6 +2,11 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+
+## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - tba.
+### Added
+- Add link to AMIRIS Open Forum in documentation #136 @dlr_fn
+
 ## [3.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.2.0) - 2024-12-04
 ### Changed
 - Update to FAME-Core v2.0.1 & FAME-Io v3.0 #134 (@dlr-cjs)

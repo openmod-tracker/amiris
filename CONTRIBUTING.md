@@ -31,6 +31,7 @@ Please find tag naming conventions, definition of done etc. in the wiki's [Contr
 
 ## Contact / Help
 You can contact the main developers via [amiris@dlr.de](mailto:amiris@dlr.de) to pose any questions or to get involved.
+You are also welcome to join the [AMIRIS Open Forum](https://meet.jit.si/AMIRISOpenForum) to discuss issues and ideas, every Friday morning from 10:00 to 10:30 CET - no registration required.
 
 # How to Contribute
 You are welcome to contribute to AMIRIS via bug reports and feature requests at any time.
