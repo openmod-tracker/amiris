@@ -5,7 +5,8 @@ SPDX-License-Identifier: CC0-1.0 -->
 
 ## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - tba.
 ### Added
-- Add link to AMIRIS Open Forum in documentation #136 @dlr_fn
+- Add new agent `LoadShiftingTrader` that markets a portfolio of loads eligible for load shifting at the day-ahead market #137 (@dlr_jk, @dlr-cjs)
+- Add link to AMIRIS Open Forum in documentation #136 (@dlr_fn)
 
 ## [3.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.2.0) - 2024-12-04
 ### Changed
@@ -34,7 +35,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - **Breaking**: Change `Set` input parameter from `enum` to `string_set` and rename to `PolicySet` #5 (@dlr_fn @dlr-cjs)
 - **Breaking**: Change market zone inputs `OwnMarketZone` and `ConnectedMarketZone` to `string_set` and rename to `MarketZone` #123 (@dlr-cjs)
 - **Breaking**: Change contract structure GateClosureInfo to be sent before forecasting #126 (@dlr-cjs @dlr_fn)
-- Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs @dlr_jk)
+- Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs, @dlr_jk)
 - Change minimum requirement `fameio` version to 2.3.1 #5, #120 (@dlr-cjs)
 - README: Update minimum Python version requirement to 3.9 !114, !130 (@dlr_fn, @dlr-cjs)
 
