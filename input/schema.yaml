@@ -1817,7 +1817,7 @@ AgentTypes:
             Mandatory: true
             List: false
             MetaData:
-              Description: "The (fictious) initial level of load shifting portfolio in MWh"
+              Description: "The (fictitious) initial level of load shifting portfolio in MWh"
               OEONearestConcept:
           InitialShiftTimeInHours:
             AttributeType: integer
@@ -2215,11 +2215,11 @@ AgentTypes:
           OEONearestConcept:
       StoredMWh:
         MetaData:
-          Description: "(fictious) load shifting energy storage level"
+          Description: "(fictitious) load shifting energy storage level"
           OEONearestConcept:
       CurrentShiftTime:
         MetaData:
-          Description: "number of consecutive hours for which the load shifting portfolio has already been shifted into one direction (upwards or downwards), i.e. for which the (fictious) load shifting energy storage level is already unbalanced"
+          Description: "number of consecutive hours for which the load shifting portfolio has already been shifted into one direction (upwards or downwards), i.e. for which the (fictitious) load shifting energy storage level is already unbalanced"
           OEONearestConcept:
       Revenues:
         MetaData:
