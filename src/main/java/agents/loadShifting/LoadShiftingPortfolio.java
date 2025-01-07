@@ -95,7 +95,8 @@ public class LoadShiftingPortfolio {
 	 * <li>chargingPower &gt; 0: charging</li>
 	 * <li>chargingPower &lt; 0: depleting</li>
 	 * </ul>
-	 */
+	 * 
+	 * @param chargingPower power charged (increment of fictitious load shift energy storage level) */
 	public void updateEnergyShiftStorageLevelAndShiftTime(double chargingPower) {
 		int shiftTime = getCurrentShiftTimeInHours();
 		double initialEnergyLevel = getCurrentEnergyShiftStorageLevelInMWH();
@@ -113,7 +114,12 @@ public class LoadShiftingPortfolio {
 		setEnergyShiftStorageLevelInMWH(finalEnergyLevel);
 	}
 
-	/** Check for an initial reset of parts of the LoadShiftingPortfolio */
+	/** Check for an initial reset of parts of the {@link LoadShiftingPortfolio}
+	 * 
+	 * @param chargingPower power charged (increment of fictitious load shift energy storage level)
+	 * @param shiftTime time that the {@link LoadShiftingPortfolio} has been shifted for in one direction so far
+	 * @param initialEnergyLevel start value of fictitious load shifting energy storage level
+	 * @return information on whether shift is a prolonged shift */
 	private boolean isProlongedShift(double chargingPower, int shiftTime, double initialEnergyLevel) {
 		if (shiftTime == maximumShiftTimeInHours - 1
 				&& (initialEnergyLevel < -STORAGE_TOLERANCE || initialEnergyLevel > STORAGE_TOLERANCE)) {
