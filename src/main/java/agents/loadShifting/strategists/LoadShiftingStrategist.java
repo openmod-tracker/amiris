@@ -64,6 +64,7 @@ public abstract class LoadShiftingStrategist extends Strategist {
 	/** Create an {@link LoadShiftingStrategist} - its actual type is determined based on the given
 	 * 
 	 * @param input all parameters associated with strategists
+	 * @param endUserTariff {@link EndUserTariff} applicable for loads
 	 * @param loadShiftingPortfolio for which schedules are to be created
 	 * @return newly instantiated {@link LoadShiftingStrategist} based on the given input
 	 * @throws MissingDataException if any required input is missing */
