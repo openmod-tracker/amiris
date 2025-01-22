@@ -91,7 +91,7 @@ public class CouplingData implements Portable, Cloneable {
 	 * @param target Region */
 	public double getTransmissionTo(String target) {
 		for (TransmissionCapacity tc : transmissionBook.getTransmissionCapacities()) {
-			if (tc.getTarget() == target) {
+			if (tc.getTarget().equals(target)) {
 				return tc.getRemainingTransferCapacityInMW();
 			}
 		}
@@ -111,7 +111,7 @@ public class CouplingData implements Portable, Cloneable {
 	 * @param amount to update with */
 	public void updateTransmissionBook(String region, double amount) {
 		for (TransmissionCapacity tc : transmissionBook.getTransmissionCapacities()) {
-			if (tc.getTarget() == region) {
+			if (tc.getTarget().equals(region)) {
 				tc.setRemainingTransferCapacityInMW(amount);
 			}
 		}

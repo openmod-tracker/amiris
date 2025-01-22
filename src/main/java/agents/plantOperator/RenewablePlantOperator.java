@@ -32,7 +32,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek, Johannes Kochems */
 public abstract class RenewablePlantOperator extends PowerPlantOperator {
 	/** Name for set type input parameter harmonised across agents related to policy sets */
-	public static ParameterBuilder setParameter = Make.newString("PolicySet");
+	public static ParameterBuilder setParameter = Make.newStringSet("PolicySet");
 
 	/** Returns PolicySet type read from given input group or specified default if data is missing
 	 * 

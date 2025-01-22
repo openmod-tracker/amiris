@@ -33,7 +33,7 @@ public interface FuelsTrader extends AgentAbility {
 	};
 
 	/** Name for fuel type input parameter harmonised across agents related to fuels trading */
-	public static final ParameterBuilder fuelTypeParameter = Make.newString("FuelType");
+	public static final ParameterBuilder fuelTypeParameter = Make.newStringSet("FuelType");
 
 	/** @return fuelType read from given input parameter group
 	 * @param input group with a fuel type input parameter
