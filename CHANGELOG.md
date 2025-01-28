@@ -4,9 +4,6 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
 ## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - tba.
-### Changed
-- PriceForecaster replaces `NaN` forecasts with 0.0 to avoid scheduling problems of flexibility options in hours with non-existent demand #139 (dlr_fn, @dlr-cjs)
-
 ### Added
 - Add new storage strategy `MAX_PROFIT_PRICE_TAKER` #139 (dlr_fn, @dlr-cjs)
 - Add link to AMIRIS Open Forum in documentation #136 (@dlr_fn)

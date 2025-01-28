@@ -5,8 +5,6 @@ package agents.forecast;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
@@ -22,9 +20,6 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Evelyn Sperber, Farzad Sarfarazi, Kristina Nienhaus */
 public class PriceForecaster extends MarketForecaster {
-	private static final Logger logger = LoggerFactory.getLogger(PriceForecaster.class);
-	private static final String INFO_NAN_PRICE = "Replaced 'NaN' electricity price forecast with '0.0' for time: ";
-
 	/** Create a {@link PriceForecaster}
 	 * 
 	 * @param dataProvider provides input from config file
@@ -47,11 +42,6 @@ public class PriceForecaster extends MarketForecaster {
 				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
 				MarketClearingResult result = getResultForRequestedTime(requestedTime);
 				double forecastedPriceInEURperMWH = result.getMarketPriceInEURperMWH();
-				if (Double.isNaN(forecastedPriceInEURperMWH)) {
-					forecastedPriceInEURperMWH = 0;
-					logger.info(INFO_NAN_PRICE + requestedTime);
-				}
-				;
 				AmountAtTime priceForecastMessage = new AmountAtTime(requestedTime, forecastedPriceInEURperMWH);
 				fulfilNext(contract, priceForecastMessage);
 			}

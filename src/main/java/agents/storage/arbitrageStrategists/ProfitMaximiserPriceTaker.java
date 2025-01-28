@@ -13,7 +13,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
 /** Strategy to maximise profits via dynamic programming, running backwards in time. Profits are maximised by finding the best
- * sequence of states. In contrast to ProfitMaximiser, the optimization does not account for potential impact on prices, but can
+ * sequence of states. In contrast to ProfitMaximiser, the optimisation does not account for potential impact on prices, but can
  * be considered as a "price taker".
  * 
  * @author Felix Nitsch, Christoph Schimeczek */
@@ -21,6 +21,12 @@ public class ProfitMaximiserPriceTaker extends DynamicProgrammingStrategist {
 	/** incomeSum[t][i]: income that can be collected in time step t being in internal state i */
 	private final double[][] incomeSum;
 
+	/** Creates a {@link ProfitMaximiserPriceTaker}
+	 * 
+	 * @param generalInput general parameters associated with strategists
+	 * @param specificInput specific parameters for this strategist
+	 * @param storage device to be optimised
+	 * @throws MissingDataException if any required input is missing */
 	public ProfitMaximiserPriceTaker(ParameterData generalInput, ParameterData specificInput, Device storage)
 			throws MissingDataException {
 		super(generalInput, specificInput, storage);
@@ -49,6 +55,7 @@ public class ProfitMaximiserPriceTaker extends DynamicProgrammingStrategist {
 			for (int initialState = 0; initialState < numberOfEnergyStates; initialState++) {
 				double currentBestIncome = -Double.MAX_VALUE;
 				int bestFinalState = Integer.MIN_VALUE;
+
 				int firstFinalState = calcFinalStateLowerBound(initialState);
 				int lastFinalState = calcFinalStateUpperBound(initialState);
 				for (int finalState = firstFinalState; finalState <= lastFinalState; finalState++) {
@@ -69,16 +76,6 @@ public class ProfitMaximiserPriceTaker extends DynamicProgrammingStrategist {
 		}
 	}
 
-	/** @return price for charging & discharging in the specified {@link TimePeriod} */
-	private double calcChargePrice(TimePeriod timePeriod) {
-		final PriceNoSensitivity sensitivity = (PriceNoSensitivity) getSensitivityForPeriod(timePeriod);
-		if (sensitivity != null) {
-			return sensitivity.getPriceForecast();
-		} else {
-			return 0;
-		}
-	}
-
 	/** @return power steps from max discharging to max charging */
 	private double[] calcPowerSteps() {
 		StepPower stepPower = new StepPower(storage.getExternalChargingPowerInMW(),
@@ -89,6 +86,17 @@ public class ProfitMaximiserPriceTaker extends DynamicProgrammingStrategist {
 			externalPowerStepsInMW[index] = stepPower.getPower(i);
 		}
 		return externalPowerStepsInMW;
+	}
+
+	/** @return price for (dis-)charging in the specified {@link TimePeriod}; assumes price of Zero if no valid forecast exists */
+	private double calcChargePrice(TimePeriod timePeriod) {
+		final PriceNoSensitivity sensitivity = (PriceNoSensitivity) getSensitivityForPeriod(timePeriod);
+		if (sensitivity != null) {
+			double priceForecast = sensitivity.getPriceForecast();
+			return Double.isNaN(priceForecast) ? 0 : priceForecast;
+		} else {
+			return 0;
+		}
 	}
 
 	/** @return income of best strategy starting in given period at given state */
