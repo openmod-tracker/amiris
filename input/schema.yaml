@@ -680,6 +680,22 @@ AgentTypes:
             MetaData:
               Description: "Tolerance value added or subtracted from each calculated bid in EUR/MWh."
               OEONearestConcept: 
+          ForecastUpdateType: &Strategist_A_ForecastUpdateType
+            AttributeType: enum
+            Mandatory: false
+            List: false
+            Values:
+              ALL:
+                MetaData:
+                  Description: "Forecasts are requested for all time steps, discarding previously received electricity price forecasts."
+                  OEONearestConcept:
+              INCREMENTAL:
+                MetaData:
+                  Description: "Forecasts are only requested for missing time steps, therefore updated incrementally."
+                  OEONearestConcept:
+            MetaData:
+              Description: "Defines the mode which should be applied to request electricity price forecasts."
+              OEONearestConcept: 
           SingleAgent:
             AttributeType: block
             Mandatory: false
