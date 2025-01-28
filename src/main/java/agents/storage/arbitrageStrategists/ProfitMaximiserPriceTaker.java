@@ -40,12 +40,12 @@ public class ProfitMaximiserPriceTaker extends DynamicProgrammingStrategist {
 	/** update most profitable final state for each possible initial state in every period */
 	@Override
 	protected void optimiseDispatch(TimePeriod firstPeriod) {
+		double[] powerDeltasInMW = calcPowerSteps();
 		for (int k = 0; k < forecastSteps; k++) {
 			int period = forecastSteps - k - 1; // step backwards in time
 			int nextPeriod = period + 1;
 			TimePeriod timePeriod = firstPeriod.shiftByDuration(period);
 			double chargePrice = calcChargePrice(timePeriod);
-			double[] powerDeltasInMW = calcPowerDeltas(timePeriod);
 			for (int initialState = 0; initialState < numberOfEnergyStates; initialState++) {
 				double currentBestIncome = -Double.MAX_VALUE;
 				int bestFinalState = Integer.MIN_VALUE;
@@ -79,25 +79,16 @@ public class ProfitMaximiserPriceTaker extends DynamicProgrammingStrategist {
 		}
 	}
 
-	/** @return powers from max discharging to max charging in the specified {@link TimePeriod} */
-	private double[] calcPowerDeltas(TimePeriod timePeriod) {
-		double[] powerDeltasInMW = new double[numberOfTransitionStates * 2 + 1];
-		StepPower stepPower = calcStepPower(timePeriod);
+	/** @return power steps from max discharging to max charging */
+	private double[] calcPowerSteps() {
+		StepPower stepPower = new StepPower(storage.getExternalChargingPowerInMW(),
+				storage.getExternalDischargingPowerInMW(), numberOfTransitionStates);
+		double[] externalPowerStepsInMW = new double[numberOfTransitionStates * 2 + 1];
 		for (int i = -numberOfTransitionStates; i <= numberOfTransitionStates; i++) {
 			int index = i + numberOfTransitionStates;
-			powerDeltasInMW[index] = stepPower.getPower(i);
+			externalPowerStepsInMW[index] = stepPower.getPower(i);
 		}
-		return powerDeltasInMW;
-	}
-
-	/** @return power steps for charging & discharging in the specified {@link TimePeriod} */
-	private StepPower calcStepPower(TimePeriod timePeriod) {
-		final MeritOrderSensitivity sensitivity = getSensitivityForPeriod(timePeriod);
-		if (sensitivity != null) {
-			return sensitivity.getStepPowers(numberOfTransitionStates);
-		} else {
-			return new StepPower(0, 0, numberOfTransitionStates);
-		}
+		return externalPowerStepsInMW;
 	}
 
 	/** @return income of best strategy starting in given period at given state */
