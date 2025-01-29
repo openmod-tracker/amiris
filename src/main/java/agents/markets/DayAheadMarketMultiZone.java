@@ -60,10 +60,10 @@ public class DayAheadMarketMultiZone extends DayAheadMarket {
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(
-					Make.newString("MarketZone").optional()
+					Make.newStringSet("MarketZone").optional()
 							.help("Identifier specifying the market zone this DayAheadMarket is representing"),
 					Make.newGroup("Transmission").list().optional()
-							.add(Make.newString("MarketZone"),
+							.add(Make.newStringSet("MarketZone"),
 									Make.newSeries("CapacityInMW")
 											.help("Net transfer capacity of supply from own to connected market zone.")))
 			.buildTree();

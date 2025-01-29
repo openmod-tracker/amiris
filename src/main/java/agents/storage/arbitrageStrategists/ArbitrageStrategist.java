@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
@@ -32,7 +32,9 @@ public abstract class ArbitrageStrategist extends Strategist {
 		SINGLE_AGENT_MAX_PROFIT,
 		/** Calculates the {@link Device} dispatch in order to maximise the profits of the {@link StorageTrader}. A median of the
 		 * forecasted prices is used to estimate a good dispatch strategy in an environment with more than one flexible agent. */
-		MULTI_AGENT_MEDIAN
+		MULTI_AGENT_MEDIAN,
+		/** Creates dispatch schedules aiming to optimize own profits without considering own price impact. */
+		MAX_PROFIT_PRICE_TAKER,
 	}
 
 	static final String WARN_ROUND_UP = "`EnergyToPowerRatio * ModelledChargingSteps` no integer: storage capacity increased by ";
@@ -41,6 +43,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	/** Specific input parameters for storage strategists */
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
+					Strategist.forecastUpdateTypeParam,
 					Make.newEnum("StrategistType", StrategistType.class))
 			.addAs("SingleAgent", DynamicProgrammingStrategist.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
 			.addAs("MultiAgent", MultiAgentMedian.parameters)
@@ -85,6 +88,8 @@ public abstract class ArbitrageStrategist extends Strategist {
 				return new ProfitMaximiser(input, input.getGroup("SingleAgent"), storage);
 			case MULTI_AGENT_MEDIAN:
 				return new MultiAgentMedian(input, input.getGroup("MultiAgent"), storage);
+			case MAX_PROFIT_PRICE_TAKER:
+				return new ProfitMaximiserPriceTaker(input, input.getGroup("SingleAgent"), storage);
 			default:
 				throw new RuntimeException("Storage Strategist not implemented: " + strategistType);
 		}
@@ -125,8 +130,8 @@ public abstract class ArbitrageStrategist extends Strategist {
 		}
 		return roundedNumberOfEnergyStates;
 	}
-	
-	/** Corrects given internal energy value if it is below Zero or above maximum capacity. 
+
+	/** Corrects given internal energy value if it is below Zero or above maximum capacity.
 	 * 
 	 * @param internalEnergyInMWH to be corrected (if necessary)
 	 * @return internal energy value that is secured to lie within storage bounds */
