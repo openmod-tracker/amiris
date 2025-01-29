@@ -3,12 +3,13 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
-## [3.2.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.2.1) - 2025-01-20
-### Fixed
-- MarketCoupling: market coupling algorithm works as expected with market zones defined as StringSets #138 (@dlr_elghazi, @dlr_fn)
-
+## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - tba.
 ### Added
 - Add link to AMIRIS Open Forum in documentation #136 (@dlr_fn)
+- Add option to specify `ForecastUpdateType` #140 (@dlr_fn, @dlr-cjs)
+
+### Fixed
+- MarketCoupling: market coupling algorithm works as expected with market zones defined as StringSets #138 (@dlr_elghazi, @dlr_fn)
 
 ## [3.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.2.0) - 2024-12-04
 ### Changed

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility;
@@ -22,16 +22,23 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Base class for strategists that operate some kind of flexibility, e.g., an energy storage or flexible electrolysis
  * 
- * @author Christoph Schimeczek */
+ * @author Christoph Schimeczek, Felix Nitsch */
 public abstract class Strategist {
 	/** Error message if used {@link Strategist} type cannot provide forecasts */
 	protected static final String ERR_PROVIDE_FORECAST = "Cannot provide bid forecasts with flexibility strategist of type: ";
-	/** Error message  if used {@link Strategist} type cannot deal with incoming forecasts */
+	/** Error message if used {@link Strategist} type cannot deal with incoming forecasts */
 	protected static final String ERR_USE_PRICE_FORECAST = "Cannot use price forecasts with flexibility strategist of type: ";
-	/** Error message  if used {@link Strategist} type cannot process merit order forecast */
+	/** Error message if used {@link Strategist} type cannot process merit order forecast */
 	protected static final String ERR_USE_MERIT_ORDER_FORECAST = "Cannot use merit order forecasts with flexibility strategist of type: ";
-	/** Error message  if used {@link Strategist} type is not implemented */
+	/** Error message if used {@link Strategist} type is not implemented */
 	protected static final String ERR_UNKNOWN_STRATEGIST = "This type of flexibility strategist is not implemented: ";
+
+	private static enum ForecastUpdateTypes {
+		/** Forecasts are requested for all time steps, discarding previously received electricity price forecasts. */
+		ALL,
+		/** Forecasts are only requested for missing time steps, therefore updated incrementally. */
+		INCREMENTAL,
+	};
 
 	/** Hard coded time granularity of {@link Strategist} */
 	public final static TimeSpan OPERATION_PERIOD = new TimeSpan(1, Interval.HOURS);
@@ -42,6 +49,8 @@ public abstract class Strategist {
 	protected final int scheduleDurationPeriods;
 	/** safety margins at bidding */
 	private final double bidTolerance;
+	/** forecast update type */
+	private final ForecastUpdateTypes forecastUpdateType;
 
 	/** schedule for the electricity demand (or charging) schedule */
 	protected double[] demandScheduleInMWH;
@@ -58,6 +67,10 @@ public abstract class Strategist {
 	public static final ParameterBuilder scheduleDurationParam = Make.newInt("ScheduleDurationInHours");
 	/** Strategist input parameter: safety margin at bidding */
 	public static final ParameterBuilder bidToleranceParam = Make.newDouble("BidToleranceInEURperMWH").optional();
+	/** Strategist input parameter: forecast update type */
+	public static final ParameterBuilder forecastUpdateTypeParam = Make
+			.newEnum("ForecastUpdateType", ForecastUpdateTypes.class)
+			.optional();
 
 	/** Creates new Strategist based on the given input
 	 * 
@@ -67,6 +80,8 @@ public abstract class Strategist {
 		forecastSteps = input.getInteger("ForecastPeriodInHours");
 		scheduleDurationPeriods = input.getInteger("ScheduleDurationInHours");
 		bidTolerance = input.getDoubleOrDefault("BidToleranceInEURperMWH", 1E-3);
+		forecastUpdateType = input.getEnumOrDefault("ForecastUpdateType", ForecastUpdateTypes.class,
+				ForecastUpdateTypes.INCREMENTAL);
 		allocateSchedulingArrays();
 	}
 
@@ -109,8 +124,15 @@ public abstract class Strategist {
 		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timeSegment = firstTime.shiftByDuration(period);
-			if (!map.containsKey(timeSegment)) {
-				missingTimes.add(timeSegment.getStartTime());
+			switch (forecastUpdateType) {
+				case INCREMENTAL:
+					if (!map.containsKey(timeSegment)) {
+						missingTimes.add(timeSegment.getStartTime());
+					}
+					break;
+				case ALL:
+					missingTimes.add(timeSegment.getStartTime());
+					break;
 			}
 		}
 		return missingTimes;
@@ -134,7 +156,7 @@ public abstract class Strategist {
 
 	/** optional action called on given MeritOrderSensitivities
 	 * 
-	 * @param sensitivity to be modified 
+	 * @param sensitivity to be modified
 	 * @param timePeriod that the sensitivity is valid for */
 	protected void callOnSensitivity(MeritOrderSensitivity sensitivity, TimePeriod timePeriod) {};
 

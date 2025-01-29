@@ -41,6 +41,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	/** Specific input parameters for storage strategists */
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
+					Strategist.forecastUpdateTypeParam,
 					Make.newEnum("StrategistType", StrategistType.class))
 			.addAs("SingleAgent", DynamicProgrammingStrategist.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
 			.addAs("MultiAgent", MultiAgentMedian.parameters)
@@ -125,8 +126,8 @@ public abstract class ArbitrageStrategist extends Strategist {
 		}
 		return roundedNumberOfEnergyStates;
 	}
-	
-	/** Corrects given internal energy value if it is below Zero or above maximum capacity. 
+
+	/** Corrects given internal energy value if it is below Zero or above maximum capacity.
 	 * 
 	 * @param internalEnergyInMWH to be corrected (if necessary)
 	 * @return internal energy value that is secured to lie within storage bounds */
