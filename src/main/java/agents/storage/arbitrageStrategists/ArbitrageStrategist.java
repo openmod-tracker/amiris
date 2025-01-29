@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
@@ -43,6 +43,7 @@ public abstract class ArbitrageStrategist extends Strategist {
 	/** Specific input parameters for storage strategists */
 	public static final Tree parameters = Make.newTree()
 			.add(Strategist.forecastPeriodParam, Strategist.scheduleDurationParam, Strategist.bidToleranceParam,
+					Strategist.forecastUpdateTypeParam,
 					Make.newEnum("StrategistType", StrategistType.class))
 			.addAs("SingleAgent", DynamicProgrammingStrategist.parameters).addAs("FixedDispatch", FileDispatcher.parameters)
 			.addAs("MultiAgent", MultiAgentMedian.parameters)

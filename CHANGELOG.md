@@ -1,4 +1,4 @@
-<!-- SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
@@ -6,6 +6,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 ## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - tba.
 ### Added
 - Add new storage strategy `MAX_PROFIT_PRICE_TAKER` #139 (dlr_fn, @dlr-cjs)
+- Add option to specify `ForecastUpdateType` #140 (@dlr_fn, @dlr-cjs)
 - Add link to AMIRIS Open Forum in documentation #136 (@dlr_fn)
 
 ### Fixed
