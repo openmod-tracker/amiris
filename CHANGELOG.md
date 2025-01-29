@@ -3,7 +3,7 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
-## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - tba.
+## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - 2025-01-29
 ### Added
 - Add new storage strategy `MAX_PROFIT_PRICE_TAKER` #139 (dlr_fn, @dlr-cjs)
 - Add option to specify `ForecastUpdateType` #140 (@dlr_fn, @dlr-cjs)
