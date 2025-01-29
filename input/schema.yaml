@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+# SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 #
 # SPDX-License-Identifier: Apache-2.0
 JavaPackages:
@@ -694,7 +694,7 @@ AgentTypes:
                   Description: "Forecasts are only requested for missing time steps, therefore updated incrementally."
                   OEONearestConcept:
             MetaData:
-              Description: "Defines the mode which should be applied to request electricity price forecasts."
+              Description: "Defines the mode of requesting electricity price forecasts (default='INCREMENTAL')"
               OEONearestConcept: 
           SingleAgent:
             AttributeType: block
