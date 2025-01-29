@@ -32,8 +32,10 @@ public abstract class Strategist {
 	protected static final String ERR_USE_MERIT_ORDER_FORECAST = "Cannot use merit order forecasts with flexibility strategist of type: ";
 	/** Error message if used {@link Strategist} type is not implemented */
 	protected static final String ERR_UNKNOWN_STRATEGIST = "This type of flexibility strategist is not implemented: ";
+	/** Error message if used {@link ForecastUpdateType} is not implemented */
+	protected static final String ERR_UNKNOWN_UPDATE_TYPE = "This type of forecast update is not implemented: ";
 
-	private static enum ForecastUpdateTypes {
+	private static enum ForecastUpdateType {
 		/** Forecasts are requested for all time steps, discarding previously received electricity price forecasts. */
 		ALL,
 		/** Forecasts are only requested for missing time steps, therefore updated incrementally. */
@@ -50,7 +52,7 @@ public abstract class Strategist {
 	/** safety margins at bidding */
 	private final double bidTolerance;
 	/** forecast update type */
-	private final ForecastUpdateTypes forecastUpdateType;
+	private final ForecastUpdateType forecastUpdateType;
 
 	/** schedule for the electricity demand (or charging) schedule */
 	protected double[] demandScheduleInMWH;
@@ -69,7 +71,7 @@ public abstract class Strategist {
 	public static final ParameterBuilder bidToleranceParam = Make.newDouble("BidToleranceInEURperMWH").optional();
 	/** Strategist input parameter: forecast update type */
 	public static final ParameterBuilder forecastUpdateTypeParam = Make
-			.newEnum("ForecastUpdateType", ForecastUpdateTypes.class)
+			.newEnum("ForecastUpdateType", ForecastUpdateType.class)
 			.optional();
 
 	/** Creates new Strategist based on the given input
@@ -80,8 +82,8 @@ public abstract class Strategist {
 		forecastSteps = input.getInteger("ForecastPeriodInHours");
 		scheduleDurationPeriods = input.getInteger("ScheduleDurationInHours");
 		bidTolerance = input.getDoubleOrDefault("BidToleranceInEURperMWH", 1E-3);
-		forecastUpdateType = input.getEnumOrDefault("ForecastUpdateType", ForecastUpdateTypes.class,
-				ForecastUpdateTypes.INCREMENTAL);
+		forecastUpdateType = input.getEnumOrDefault("ForecastUpdateType", ForecastUpdateType.class,
+				ForecastUpdateType.INCREMENTAL);
 		allocateSchedulingArrays();
 	}
 
@@ -133,6 +135,8 @@ public abstract class Strategist {
 				case ALL:
 					requestedTimes.add(timeSegment.getStartTime());
 					break;
+				default:
+					throw new RuntimeException(ERR_UNKNOWN_UPDATE_TYPE + forecastUpdateType);
 			}
 		}
 		return requestedTimes;
