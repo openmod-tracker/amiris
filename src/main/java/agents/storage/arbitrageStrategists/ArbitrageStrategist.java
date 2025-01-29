@@ -32,7 +32,9 @@ public abstract class ArbitrageStrategist extends Strategist {
 		SINGLE_AGENT_MAX_PROFIT,
 		/** Calculates the {@link Device} dispatch in order to maximise the profits of the {@link StorageTrader}. A median of the
 		 * forecasted prices is used to estimate a good dispatch strategy in an environment with more than one flexible agent. */
-		MULTI_AGENT_MEDIAN
+		MULTI_AGENT_MEDIAN,
+		/** Creates dispatch schedules aiming to optimize own profits without considering own price impact. */
+		MAX_PROFIT_PRICE_TAKER,
 	}
 
 	static final String WARN_ROUND_UP = "`EnergyToPowerRatio * ModelledChargingSteps` no integer: storage capacity increased by ";
@@ -86,6 +88,8 @@ public abstract class ArbitrageStrategist extends Strategist {
 				return new ProfitMaximiser(input, input.getGroup("SingleAgent"), storage);
 			case MULTI_AGENT_MEDIAN:
 				return new MultiAgentMedian(input, input.getGroup("MultiAgent"), storage);
+			case MAX_PROFIT_PRICE_TAKER:
+				return new ProfitMaximiserPriceTaker(input, input.getGroup("SingleAgent"), storage);
 			default:
 				throw new RuntimeException("Storage Strategist not implemented: " + strategistType);
 		}

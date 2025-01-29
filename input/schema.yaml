@@ -656,6 +656,10 @@ AgentTypes:
                 MetaData:
                   Description: "Creates dispatch schedules based on a price interval and price median. This can be used on multiple storage agents in the same simulation."
                   OEONearestConcept:
+              MAX_PROFIT_PRICE_TAKER:
+                MetaData:
+                  Description: "Creates dispatch schedules aiming to optimize own profits without considering own price impact."
+                  OEONearestConcept:
             MetaData:
               Description: "Declares the Strategist to be used for Bid calculation. Possible types are DISPATCH_FILE, SINGLE_AGENT_MIN_SYSTEM_COST, SINGLE_AGENT_MAX_PROFIT and MULTI_AGENT_SIMPLE."
               OEONearestConcept:

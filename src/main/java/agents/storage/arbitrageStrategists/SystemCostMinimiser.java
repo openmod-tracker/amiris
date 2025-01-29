@@ -101,4 +101,9 @@ public class SystemCostMinimiser extends DynamicProgrammingStrategist {
 	protected MeritOrderSensitivity createBlankSensitivity() {
 		return new MarginalCostSensitivity();
 	}
+
+	@Override
+	public void storeElectricityPriceForecast(TimePeriod timePeriod, double electricityPriceForecastInEURperMWH) {
+		throw new RuntimeException(ERR_USE_PRICE_FORECAST + getClass().getSimpleName());
+	}
 }

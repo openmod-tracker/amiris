@@ -132,9 +132,4 @@ public abstract class DynamicProgrammingStrategist extends ArbitrageStrategist {
 	public double getChargingPowerForecastInMW(TimeStamp targetTime) {
 		throw new RuntimeException(ERR_PROVIDE_FORECAST + getClass().getSimpleName());
 	}
-
-	@Override
-	public void storeElectricityPriceForecast(TimePeriod timePeriod, double electricityPriceForecastInEURperMWH) {
-		throw new RuntimeException(ERR_USE_PRICE_FORECAST + getClass().getSimpleName());
-	}
 }
