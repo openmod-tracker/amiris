@@ -115,27 +115,27 @@ public abstract class Strategist {
 		return getMissingForecastTimes(sensitivities, firstTime);
 	}
 
-	/** Returns list of times at which given TreeMap misses entries needed for schedule planning
+	/** Returns list of times at which given TreeMap are requested for schedule planning
 	 * 
 	 * @param map to be inspected for existing TimeSegment keys
 	 * @param firstTime first time period to be covered by a created schedule
-	 * @return List of {@link TimeStamp}s at which given map misses entries */
+	 * @return List of {@link TimeStamp}s at which entries are requested */
 	protected ArrayList<TimeStamp> getMissingForecastTimes(TreeMap<TimePeriod, ?> map, TimePeriod firstTime) {
-		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
+		ArrayList<TimeStamp> requestedTimes = new ArrayList<>();
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timeSegment = firstTime.shiftByDuration(period);
 			switch (forecastUpdateType) {
 				case INCREMENTAL:
 					if (!map.containsKey(timeSegment)) {
-						missingTimes.add(timeSegment.getStartTime());
+						requestedTimes.add(timeSegment.getStartTime());
 					}
 					break;
 				case ALL:
-					missingTimes.add(timeSegment.getStartTime());
+					requestedTimes.add(timeSegment.getStartTime());
 					break;
 			}
 		}
-		return missingTimes;
+		return requestedTimes;
 	}
 
 	/** Stores given supply and demand bid forecasts for the associated TimePeriod: merit-order forecasting method
