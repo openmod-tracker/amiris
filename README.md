@@ -2,7 +2,6 @@
 
 SPDX-License-Identifier: Apache-2.0 -->
 ![AMIRIS_Logo](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_LogoWTitle.png)
-<hr>
 
 ## _Simulate electricity markets emerging from interactions of producers, consumers, and flexibilities_
 
@@ -16,18 +15,59 @@ AMIRIS is an agent-based simulation of electricity markets and their actors.
 
 Want to get started right away? Check out our [Quick Start Guide](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart).
 
-## Statement of need
-AMIRIS enables researchers to analyse and evaluate energy policy instruments and their impact on the actors involved in the simulation context.
+You can find our full documentation at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
+
+## What is AMIRIS?
+
+AMIRIS enables you to simulate the interplay between electricity market actors, policy instruments, and scenarios.
+Due to its prototypical definitions of agents, you can model decisions on a high level and simulate trans-national electricity systems, e.g., Europe.
+At the same time you can also model very detailed decisions, e.g. from households.
+Whatever you do: Thanks to the powerful framework [FAME](https://gitlab.com/fame-framework), AMIRIS will deliver results quickly: Its typical **runtime is below a minute** for a market zone in hourly resolution.
+
+## Applications
+
+AMIRIS development started 2008 and has seen many different applications since.
+
+### Evaluate Energy Policy Instruments
+- TradeRES: support instruments in 100% renewable electricity systems
+- Diss Johannes: load shifting potentials
+
+### Assess Impact of Extreme Events
+- VERMEER: Dunkelflaute
+- Evelyn: Paper Gas Price
+
+### Model Household Decisions
+- Diss Farzad: households
+- En4U: heatpump, ev, pvs
+
 Different prototypical agents on the electricity market interact with each other, each employing complex decision strategies. 
 AMIRIS allows calculating the impact of policy instruments on economic performance of power plant operators and marketers.
-It is based on [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
-AMIRIS follows an explorative approach.
-Thus, it does not optimise the energy system like other tools, e.g. [REMix](https://gitlab.com/dlr-ve/esy/remix/framework), but explores emerging effects created by energy system actors and their interactions under a given set of assumptions.
 
-## Further information
-Please have a look at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home) for further information.
-Do not hesitate to ask questions about AMIRIS at the [openMod-Forum](https://forum.openmod.org/tag/amiris).
+## Non-Applications
 
+AMIRIS follows an explorative approach: its is perfect to explores emerging effects created by energy system actors and their interactions under a given set of assumptions.
+While individual actors can optimise their decisions, AMIRIS does not optimise the energy system as a whole.
+Also, AMIRIS cannot enforce system-wide constraints like, e.g., a carbon emission cap.
+Thus, if you want to answers question like "What is the cheapest possible electricity system considering a maximum carbon emission of X?", we recommend using optimisation-based tools, e.g., [REMix](https://gitlab.com/dlr-ve/esy/remix/framework), [PyPSA](https://pypsa.org/), or [oemof](https://oemof.org/).
+
+## Community
+AMIRIS is mainly developed by the German Aerospace Center's Institute of Networked Energy Systems.
+We provide multi-level support for AMIRIS users: please see our dedicated [Support Page](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Support).
+
+We welcome any contributions: bug reports, feature request, and, of course code contributions.
+Please follow our [Contribution Guidelines](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute).
+
+## Citing AMIRIS
+
+If you use AMIRIS in your scientific work please cite: [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041)
+
+## Acknowledgements
+
+Development of AMIRIS was funded by the German Aerospace Center, the German Federal Ministry for Economic Affairs and Climate Action, the German Federal Ministry of Education and Research, and the German Federal for the Environment, Nature Conservation and Nuclear Safety. 
+It received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 864276.
+We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contributors).
+
+# Old Stuff - move to wiki
 ## Recommended Skills
 AMIRIS is a *JAVA* application configured via *Python* scripts.
 To configure and run AMIRIS applications, no programming skills are strictly necessary, but experience with energy system modelling and Python is helpful.
@@ -148,25 +188,3 @@ You want to see which inputs led to those results? See the input scenario at "./
 Or do you want to create your own simulation configuration or how to modify AMIRIS?
 Check out the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
 Please also refer to the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wikis) when applying more advanced adaptations to your scenario, such as changing the [simulation duration](https://gitlab.com/fame-framework/wiki/-/wikis/GetStarted/core/Contracts). 
-
-
-## Available Support
-If you experience any trouble with AMIRIS, you may contact the developers at the [openMod-Forum](https://forum.openmod.org/tag/amiris) or via [amiris@dlr.de](mailto:amiris@dlr.de).
-Please report bugs and make feature requests by filing issues following the provided templates (see also [CONTRIBUTING](CONTRIBUTING.md)).
-For substantial enhancements, we recommend that you contact us via [amiris@dlr.de](mailto:amiris@dlr.de) for working together on the code in joint projects or towards common publications in order to further develop AMIRIS.
-
-### AMIRIS Open Forum
-You are also welcome to join the [AMIRIS Open Forum](https://meet.jit.si/AMIRISOpenForum) to discuss issues and ideas, every Friday morning from 10:00 to 10:30 CET - no registration required.
-
-## Citing AMIRIS
-If you use AMIRIS in your scientific work please cite:
-
-Christoph Schimeczek, Kristina Nienhaus, Ulrich Frey, Evelyn Sperber, Seyedfarzad Sarfarazi, Felix Nitsch, Johannes Kochems & A. Achraf El Ghazi (2023).
-AMIRIS: Agent-based Market model for the Investigation of Renewable and Integrated energy Systems.
-Journal of Open Source Software. [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041)
-
-## Acknowledgements
-Development of AMIRIS was funded by the German Aerospace Center, the German Federal Ministry for Economic Affairs and Climate Action, the German Federal Ministry of Education and Research, and the German Federal for the Environment, Nature Conservation and Nuclear Safety. 
-It received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 864276.
-We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contributors).
-
