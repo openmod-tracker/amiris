@@ -3,13 +3,14 @@
 SPDX-License-Identifier: Apache-2.0 -->
 ![AMIRIS_Logo](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_LogoWTitle.png)
 <hr>
+
 #### Simulate electricity markets
-<table>
-  <tr> <th>Quality</th>  <td>A</td> </tr>
-  <tr> <th>FAIR4RS</th>  <td>B</td> </tr>
-  <tr> <th>Docs</th>     <td>C</td> </tr>
-  <tr> <th>Activity</th> <td>D</td> </tr>
-</table>
+
+[![REUSE status](https://api.reuse.software/badge/gitlab.com/dlr-ve/esy/amiris/amiris/)](https://api.reuse.software/info/gitlab.com/dlr-ve/esy/amiris/amiris/)
+[![Pipeline status](https://gitlab.com/dlr-ve/esy/amiris/amiris/badges/main/pipeline.svg)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/commits/main)
+[![JOSS paper](https://joss.theoj.org/papers/10.21105/joss.05041/status.svg)](https://joss.theoj.org/papers/10.21105/joss.05041)
+[![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.7756087.svg)](https://doi.org/10.5281/zenodo.7756087)
+[![Last Commit](https://img.shields.io/gitlab/last-commit/dlr-ve/esy/amiris/amiris)](https://gitlab.com/fame-framework/fame-io/-/commits/main)
 
 ## Statement of need
 AMIRIS is an agent-based simulation of electricity markets and their actors.
