@@ -4,7 +4,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 ![AMIRIS_Logo](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_LogoWTitle.png)
 <hr>
 
-#### Simulate electricity markets
+## _Simulate electricity markets emerging from interactions of producers, consumers, and flexibilities_
 
 [![Pipeline status](https://gitlab.com/dlr-ve/esy/amiris/amiris/badges/main/pipeline.svg)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/commits/main)
 [![REUSE status](https://api.reuse.software/badge/gitlab.com/dlr-ve/esy/amiris/amiris/)](https://api.reuse.software/info/gitlab.com/dlr-ve/esy/amiris/amiris/)
@@ -12,9 +12,12 @@ SPDX-License-Identifier: Apache-2.0 -->
 [![Zenodo](https://img.shields.io/badge/Research-Zenodo-blue)](https://zenodo.org/communities/amiris)
 [![Last Commit](https://img.shields.io/gitlab/last-commit/dlr-ve/esy/amiris/amiris)](https://gitlab.com/fame-framework/fame-io/-/commits/main)
 
-## Statement of need
 AMIRIS is an agent-based simulation of electricity markets and their actors.
-It enables researchers to analyse and evaluate energy policy instruments and their impact on the actors involved in the simulation context.
+
+Want to get started right away? Check out our [Quick Start Guide](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart).
+
+## Statement of need
+AMIRIS enables researchers to analyse and evaluate energy policy instruments and their impact on the actors involved in the simulation context.
 Different prototypical agents on the electricity market interact with each other, each employing complex decision strategies. 
 AMIRIS allows calculating the impact of policy instruments on economic performance of power plant operators and marketers.
 It is based on [FAME](https://gitlab.com/fame-framework), the open Framework for distributed Agent-based Modelling of Energy systems.
