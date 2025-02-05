@@ -1,8 +1,15 @@
-<!-- SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: Apache-2.0 -->
-# AMIRIS
-AMIRIS is the **A**gent-based **M**arket model for the **I**nvestigation of **R**enewable and **I**ntegrated energy **S**ystems.
+![AMIRIS_Logo](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_LogoWTitle.png)
+<hr>
+#### Simulate electricity markets
+<table>
+  <tr> <th>Quality</th>  <td>A</td> </tr>
+  <tr> <th>FAIR4RS</th>  <td>B</td> </tr>
+  <tr> <th>Docs</th>     <td>C</td> </tr>
+  <tr> <th>Activity</th> <td>D</td> </tr>
+</table>
 
 ## Statement of need
 AMIRIS is an agent-based simulation of electricity markets and their actors.
