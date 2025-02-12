@@ -35,24 +35,13 @@ Although not strictly required, [basic knowledge of electricity markets](https:/
 
 ## Applications
 
-AMIRIS development started 2008 and has seen many different applications since.
+AMIRIS development started 2008 and has seen many different applications since. 
+Selected previous applications:
 
-### Evaluate Energy Policy Instruments
-
-* In project [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewable power plants in 100% renewable electricity systems under different support regimes. [Paper](https://doi.org/10.1049/icp.2024.1851)
-* Johannes Kochems analysed the monetary [potential of load shifting](https://depositonce.tu-berlin.de/items/4a364bac-9e97-4d35-8eb6-645824cfc02d) using AMIRIS among other tools.
-
-
-### Assess Impact of Extreme Events
-- VERMEER: Dunkelflaute
-- Evelyn: Paper Gas Price
-
-### Model Household Decisions
-- Diss Farzad: households
-- En4U: heatpump, ev, pvs
-
-Different prototypical agents on the electricity market interact with each other, each employing complex decision strategies. 
-AMIRIS allows calculating the impact of policy instruments on economic performance of power plant operators and marketers.
+- **Energy Policy Instruments**: In project [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewable power plants in 100% renewable electricity systems under different support regimes. [Paper](https://doi.org/10.1049/icp.2024.1851)
+- **Monetary saving potentials of load shifting** were analysed using AMIRIS. [Dissertation](https://depositonce.tu-berlin.de/items/4a364bac-9e97-4d35-8eb6-645824cfc02d)
+- **Impact of Extreme Events**: In project VERMEER impacts of Dunkelflaute events on the European electricity system were investigated using market coupling in AMIRIS. [Paper](https://zenodo.org/records/10561382)
+- **Household flexibility**: Impacts of heat pumps, electric vehicles, and electricity storages on national energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802/)
 
 ## Non-Applications
 
@@ -78,12 +67,14 @@ Development of AMIRIS was funded by the German Aerospace Center, the German Fede
 It received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 864276.
 We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contributors).
 
-## Next Steps
+## What next?
 
 * [Install and run AMIRIS](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart)
 * [Read previous publications & material](https://zenodo.org/communities/amiris)
 * [Ask questions about AMIRIS](https://forum.openmod.org/tag/amiris)
 * [Contribute an issue or code](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute)
+
+<hr>
 
 # Old Stuff - move to wiki
 ## Recommended Skills
