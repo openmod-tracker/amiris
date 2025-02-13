@@ -11,11 +11,9 @@ SPDX-License-Identifier: Apache-2.0 -->
 [![Zenodo](https://img.shields.io/badge/Research-Zenodo-blue)](https://zenodo.org/communities/amiris)
 [![Last Commit](https://img.shields.io/gitlab/last-commit/dlr-ve/esy/amiris/amiris)](https://gitlab.com/fame-framework/fame-io/-/commits/main)
 
-AMIRIS is an agent-based simulation of electricity markets and their actors.
+AMIRIS is an agent-based simulation of electricity markets and their actors. Check out its [full documentation](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
 
-**[Get started right away!](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart)**.
-
-Check out the **[full documentation](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home)**.
+**[Get started right away](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart)**!
 
 ## What is AMIRIS?
 
