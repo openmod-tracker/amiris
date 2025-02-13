@@ -75,9 +75,7 @@ We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contribut
 * [Ask questions](https://forum.openmod.org/tag/amiris)
 * [Contribute an issue or code](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute)
 
-<hr>
-
-# Old Stuff - move to wiki
+<!--
 ## Recommended Skills
 AMIRIS is a *JAVA* application configured via *Python* scripts.
 To configure and run AMIRIS applications, no programming skills are strictly necessary, but experience with energy system modelling and Python is helpful.
@@ -198,3 +196,5 @@ You want to see which inputs led to those results? See the input scenario at "./
 Or do you want to create your own simulation configuration or how to modify AMIRIS?
 Check out the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started).
 Please also refer to the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wikis) when applying more advanced adaptations to your scenario, such as changing the [simulation duration](https://gitlab.com/fame-framework/wiki/-/wikis/GetStarted/core/Contracts). 
+
+-->
