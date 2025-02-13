@@ -58,7 +58,9 @@ Please follow our [Contribution Guidelines](https://gitlab.com/dlr-ve/esy/amiris
 
 ## Citing AMIRIS
 
-If you use AMIRIS in your scientific work please cite: [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041)
+If you use AMIRIS in an academic context please cite [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041).
+
+In other contexts, please include a link to our [main repository](https://gitlab.com/dlr-ve/esy/amiris/amiris).
 
 ## Acknowledgements
 
