@@ -15,16 +15,16 @@ AMIRIS is an agent-based simulation of electricity markets and their actors.
 
 Want to get started right away? Check out our [Quick Start Guide](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart).
 
-You can find our full documentation at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
+Find our full documentation at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
 
 ## What is AMIRIS?
 
 AMIRIS enables you to simulate the interplay between electricity market actors, policy instruments, and scenarios.
 Due to its prototypical definitions of agents, you can model decisions on a high level and simulate trans-national electricity systems, e.g., Europe.
 At the same time you can also model very detailed decisions, e.g. from households.
-Whatever you do: Thanks to the powerful framework [FAME](https://gitlab.com/fame-framework), AMIRIS will deliver results quickly: Its typical **runtime is below a minute** for a market zone in hourly resolution.
+Whatever you do: Thanks to the powerful framework [FAME](https://gitlab.com/fame-framework), AMIRIS will deliver results quickly: The typical **runtime is below a minute** for AMIRIS with one market zone in hourly resolution.
 
-Here we provide an overview of the agents modelled in AMIRIS. The figure and illustrates the associated information, energy, and financial flows.
+Below we provide an overview of the agents modelled in AMIRIS. The figure illustrates their associated information, energy, and financial flows.
 
 ![AMIRIS Model schema](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_ModellSchema_CCBY4.png)
 
@@ -36,25 +36,26 @@ Although not strictly required, [basic knowledge of electricity markets](https:/
 ## Applications
 
 AMIRIS development started 2008 and has seen many different applications since. 
-Selected previous applications:
+Selected recent applications:
 
-- **Energy Policy Instruments**: In project [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewable power plants in 100% renewable electricity systems under different support regimes. [Paper](https://doi.org/10.1049/icp.2024.1851)
-- **Monetary saving potentials of load shifting** were analysed using AMIRIS. [Dissertation](https://depositonce.tu-berlin.de/items/4a364bac-9e97-4d35-8eb6-645824cfc02d)
+- **Energy Policy Instruments**: In project [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewable power plants in ~100% renewable electricity systems under different support regimes. [Paper](https://doi.org/10.1049/icp.2024.1851)
+- **Monetary saving potentials of load shifting** were analysed using AMIRIS by Johannes Kochems. [Dissertation](https://depositonce.tu-berlin.de/items/4a364bac-9e97-4d35-8eb6-645824cfc02d)
 - **Impact of Extreme Events**: In project VERMEER impacts of Dunkelflaute events on the European electricity system were investigated using market coupling in AMIRIS. [Paper](https://zenodo.org/records/10561382)
 - **Household flexibility**: Impacts of heat pumps, electric vehicles, and electricity storages on national energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802/)
 
 ## Non-Applications
 
-AMIRIS follows an explorative approach: its is perfect to explores emerging effects created by energy system actors and their interactions under a given set of assumptions.
+AMIRIS follows an explorative approach: it is perfectly suited to explore effects emerging from interactions of energy system actors under a given set of assumptions.
 While individual actors can optimise their decisions, AMIRIS does not optimise the energy system as a whole.
 Also, AMIRIS cannot enforce system-wide constraints like, e.g., a carbon emission cap.
 Thus, if you want to answers question like "What is the cheapest possible electricity system considering a maximum carbon emission of X?", we recommend using optimisation-based tools, e.g., [REMix](https://gitlab.com/dlr-ve/esy/remix/framework), [PyPSA](https://pypsa.org/), or [oemof](https://oemof.org/).
 
 ## Community
+
 AMIRIS is mainly developed by the German Aerospace Center's Institute of Networked Energy Systems.
 We provide multi-level support for AMIRIS users: please see our dedicated [Support Page](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Support).
 
-We welcome any contributions: bug reports, feature request, and, of course code contributions.
+We welcome any contributions: bug reports, feature request, and, of course, code.
 Please follow our [Contribution Guidelines](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute).
 
 ## Citing AMIRIS
@@ -71,7 +72,7 @@ We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contribut
 
 * [Install and run AMIRIS](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart)
 * [Read previous publications & material](https://zenodo.org/communities/amiris)
-* [Ask questions about AMIRIS](https://forum.openmod.org/tag/amiris)
+* [Ask questions](https://forum.openmod.org/tag/amiris)
 * [Contribute an issue or code](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute)
 
 <hr>
