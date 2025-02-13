@@ -13,9 +13,9 @@ SPDX-License-Identifier: Apache-2.0 -->
 
 AMIRIS is an agent-based simulation of electricity markets and their actors.
 
-Want to get started right away? Check out our [Quick Start Guide](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart).
+**[Get started right away!](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/QuickStart)**.
 
-Find our full documentation at the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
+Check out the **[full documentation](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home)**.
 
 ## What is AMIRIS?
 
