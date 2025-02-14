@@ -41,6 +41,7 @@ Selected recent applications:
 - **Extreme Events**: In project VERMEER impacts of Dunkelflaute events on the European electricity system were investigated using market coupling in AMIRIS. [Paper](https://zenodo.org/records/10561382)
 - Interactions of **Household flexibility** (heat pumps, electric vehicles, and electricity storages) with the German energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802/
 - AMIRIS was used to assess the **Economic potential of large flexibility providers** in future electricity market scenarios. [Paper](https://doi.org/10.1016/j.est.2024.110959)
+- A wide range of scenarios of future electricity markets was explored using an AMIRIS [scenario generator](https://doi.org/10.5281/zenodo.8382789). [Paper](https://doi.org/10.1016/j.egyr.2024.11.013)
 
 ## Non-Applications
 
