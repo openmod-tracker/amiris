@@ -36,7 +36,7 @@ Tag naming conventions, definitions of done, etc. can be found in the [Contribut
 
 ## Support
 
-Please see our dedicated [Support Page]() in the AMIRIS Wiki.
+Please see our dedicated [Support Page](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Support) in the AMIRIS Wiki.
 
 # How to Contribute
 
@@ -56,7 +56,7 @@ You are always welcome to contribute to AMIRIS by submitting bug reports and fea
 
 ## Code contributions
 
-Thank you for your interest in contributing code.
+Thank you for your interest in contributing code which is highly regarded.
 Please note that code contributions (e.g. via pull requests) require you to complete and sign the [Contributor License Agreement](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/CLA.pdf), before we can merge your code into the project.
 
 ### Environment
