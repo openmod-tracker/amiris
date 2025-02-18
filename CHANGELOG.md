@@ -5,6 +5,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 ## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - tba
 ### Changed
 - Improve README.md to be more attractive for first contact #142 (@dlr-cjs)
+- Update CONTRIBUTING.md #142 (@dlr-cjs)
 
 ## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - 2025-01-29
 ### Added
