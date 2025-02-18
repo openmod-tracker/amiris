@@ -33,12 +33,13 @@ Although not strictly necessary, [Basic Knowledge of Electricity Markets](https:
 
 ## Applications
 
-The development of AMIRIS started in 2008 and has since seen many different applications. 
+The development of AMIRIS started in 2008.
+Since then, AMIRIS has seen many different applications. 
 Selected recent applications:
 
 - In [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewables in ~100% renewable electricity systems under different **Energy Policy Instruments**. [Paper](https://doi.org/10.1109/EEM60825.2024.10608886)
 - Intertwined dynamics between **Energy Community Markets** and national electricity markets were analysed with AMIRIS. [Paper](https://doi.org/10.1016/j.egyr.2024.06.052)
-- Interactions of **Household Flexibility** (heat pumps, electric vehicles, and electricity storage) with the German energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802)
+- Interactions of **Household Flexibility** (heat pumps, electric vehicles, and electricity storage units) with the German energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802)
 - In project VERMEER **Impacts of Cold Dunkelflaute** events on the European electricity system were investigated using **Market Coupling** in AMIRIS. [Paper](https://zenodo.org/records/10561382) [Report](https://elib.dlr.de/196641/)
 - AMIRIS was used to assess the **Economic Potential of Large Flexibility Providers** in future electricity market scenarios. [Paper](https://doi.org/10.1016/j.est.2024.110959)
 - **Monetary Saving Potentials of Load Shifting** were analysed using AMIRIS. [Dissertation](https://depositonce.tu-berlin.de/items/4a364bac-9e97-4d35-8eb6-645824cfc02d)
@@ -52,13 +53,13 @@ Therefore, to answer questions like "What is the cheapest possible electricity s
 
 ## Community
 
-AMIRIS is mainly developed by the Institute for Networked Energy Systems of the German Aerospace Center.
+AMIRIS is mainly developed by the German Aerospace Center, Institute of Networked Energy Systems.
 We provide multi-level support for AMIRIS users: please see our dedicated [Support Page](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Support). **We welcome all contributions**: bug reports, feature requests, and, of course, code.
 Please see our [Contribution Guidelines](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute).
 
 ## Citing AMIRIS
 
-If you are using AMIRIS in an academic context please cite [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041).
+If you use AMIRIS in an academic context please cite [doi: 10.21105/joss.05041](https://doi.org/10.21105/joss.05041).
 In other contexts, please include a link to our [Gitlab repository](https://gitlab.com/dlr-ve/esy/amiris/amiris).
 
 ## Acknowledgements
