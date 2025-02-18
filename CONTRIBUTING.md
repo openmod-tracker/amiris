@@ -1,4 +1,4 @@
-<!-- SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: Apache-2.0 -->
 # Welcome
@@ -24,9 +24,9 @@ Here you can find information on how to contribute.
 For an overview of AMIRIS in general please visit the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
 There, you can also find relevant background information like a glossary and a description of existing model components.
 AMIRIS is based on FAME - an open Framework for distributed Agent-based Modelling of Energy systems.
-Please visit [FAME on GitLab](https://gitlab.com/fame-framework) to get more details on that framework.
+Please visit [FAME on GitLab](https://gitlab.com/fame-framework/wiki/-/wikis/home) to get more details on that framework.
 
-Installation instructions can be found in the Wiki's [Getting-started](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/GetStarted/Getting-started) section.
+Installation instructions can be found in the Wiki's [Getting-started](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Get-Started) section.
 
 Issues and Bugs are tracked on the [Repository](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/issues) at GitLab.
 
