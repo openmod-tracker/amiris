@@ -36,12 +36,12 @@ Although not strictly required, [basic knowledge of electricity markets](https:/
 AMIRIS development started 2008 and has seen many different applications since. 
 Selected recent applications:
 
-- **Energy Policy Instruments**: In [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewables in ~100% renewable electricity systems under different support regimes. [Paper](https://doi.org/10.1109/EEM60825.2024.10608886)
+- In [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewables in ~100% renewable electricity systems under different **Energy Policy Instruments**. [Paper](https://doi.org/10.1109/EEM60825.2024.10608886)
 - Intertwined dynamics between **Energy Community Markets** and national electricity markets were analysed with AMIRIS. [Paper](https://doi.org/10.1016/j.egyr.2024.06.052)
 - Interactions of **Household Flexibility** (heat pumps, electric vehicles, and electricity storages) with the German energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802)
 - In project VERMEER **Impacts of Cold Dunkelflaute** events on the European electricity system were investigated using **[Market Coupling](https://zenodo.org/records/10561382)** in AMIRIS. [Report](https://elib.dlr.de/196641/)
 - AMIRIS was used to assess the **Economic Potential of Large Flexibility Providers** in future electricity market scenarios. [Paper](https://doi.org/10.1016/j.est.2024.110959)
-- **Monetary Saving Potentials of Load Shifting** were analysed using AMIRIS by Johannes Kochems. [Dissertation](https://depositonce.tu-berlin.de/items/4a364bac-9e97-4d35-8eb6-645824cfc02d)
+- **Monetary Saving Potentials of Load Shifting** were analysed using AMIRIS. [Dissertation](https://depositonce.tu-berlin.de/items/4a364bac-9e97-4d35-8eb6-645824cfc02d)
 - A wide range of scenarios for **Future Electricity Markets** was explored using an AMIRIS [scenario generator](https://doi.org/10.5281/zenodo.8382789). [Paper](https://doi.org/10.1016/j.egyr.2024.11.013)
 
 ## Non-Applications
