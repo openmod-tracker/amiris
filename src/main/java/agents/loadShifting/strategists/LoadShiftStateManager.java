@@ -144,8 +144,8 @@ public class LoadShiftStateManager {
 
 	/** @return The last feasible power steps as an array of integers */
 	private int[] extractPowerStepLimits(TimePeriod timeSegment) {
-		int maxStepDown = (int) (loadShiftingPortfolio.getMaxPowerDown(timeSegment) / getEnergyResolutionInMWH());
-		int maxStepUp = (int) (loadShiftingPortfolio.getMaxPowerUp(timeSegment) / getEnergyResolutionInMWH());
+		int maxStepDown = (int) (loadShiftingPortfolio.getMaxPowerDownInMW(timeSegment) / getEnergyResolutionInMWH());
+		int maxStepUp = (int) (loadShiftingPortfolio.getMaxPowerUpInMW(timeSegment) / getEnergyResolutionInMWH());
 		return new int[] {maxStepDown, maxStepUp};
 	}
 

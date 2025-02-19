@@ -61,8 +61,8 @@ public class ShiftConsumerCostMinimiserExternal extends LoadShiftingStrategist {
 	private OptimisationInputs prepareInputs(TimePeriod startTime) {
 		OptimisationInputs inputs = new OptimisationInputs();
 		inputs.setActivate_annual_limits(activateAnnualLimits);
-		inputs.setAvailability_down(convertToArray(portfolio.getPowerDownSeries(), startTime));
-		inputs.setAvailability_up(convertToArray(portfolio.getPowerUpSeries(), startTime));
+		inputs.setAvailability_down(convertToArray(portfolio.getDowerDownAvailabilities(), startTime));
+		inputs.setAvailability_up(convertToArray(portfolio.getPowerUpAvailabilities(), startTime));
 		inputs.setEfficiency(portfolio.getEfficiency());
 		inputs.setEnergy_price(updatePriceForecast(startTime));
 		inputs.setInterference_time(portfolio.getInterferenceTimeInHours());

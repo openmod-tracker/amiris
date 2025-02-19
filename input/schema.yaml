@@ -1851,7 +1851,7 @@ AgentTypes:
             Mandatory: true
             List: false
             MetaData:
-              Description: "Maximum shiftable power of load shifting portfolio in MW"
+              Description: "Maximum power in MW of load shifting portfolio that can be shifted up or down"
               OEONearestConcept:
           PowerUpAvailability:
             AttributeType: time_series
@@ -1914,7 +1914,7 @@ AgentTypes:
             Mandatory: true
             List: false
             MetaData:
-              Description: "The maximum peak load occuring before load shifting in MW"
+              Description: "The maximum peak load occurring before load shifting in MW"
               OEONearestConcept:
           Efficiency:
             AttributeType: double

@@ -117,9 +117,9 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 	/** @return true if the {@link LoadShiftingPortfolio loadShiftingPortfolio} is operated outside its power constraints by more
 	 *         than {@link #ABSOLUTE_TOLERANCE_IN_MWH} */
 	private boolean isOutsidePowerTolerance(double chargePowerInMW, TimeStamp planningTime) {
-		final double powerLimitDownInMW = portfolio.getPowerDownSeries().getValueLinear(planningTime)
+		final double powerLimitDownInMW = portfolio.getDowerDownAvailabilities().getValueLinear(planningTime)
 				* portfolio.getPowerInMW();
-		final double powerLimitUpInMW = portfolio.getPowerUpSeries().getValueLinear(planningTime)
+		final double powerLimitUpInMW = portfolio.getPowerUpAvailabilities().getValueLinear(planningTime)
 				* portfolio.getPowerInMW();
 		final boolean belowLowerLimit = chargePowerInMW < -powerLimitDownInMW - ABSOLUTE_TOLERANCE_IN_MWH;
 		final boolean aboveUpperLimit = chargePowerInMW > powerLimitUpInMW + ABSOLUTE_TOLERANCE_IN_MWH;

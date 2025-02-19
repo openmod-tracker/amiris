@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -31,7 +31,7 @@ import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 import endUser.EndUserTariff;
 
-/** Offers the load adjustment possibilities of a {@link LoadShiftingPortfolio} at the energy exchange
+/** Offers load adjustment possibilities of a {@link LoadShiftingPortfolio} at the energy exchange
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class LoadShiftingTrader extends FlexibilityTrader {
@@ -46,7 +46,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 		OfferedUpshiftPowerInMW, OfferedDownshiftPowerInMW, OfferedPrice, AwardedUpshiftPower, AwardedDownshiftPower,
 		NetAwardedPower, StoredMWh, CurrentShiftTime, Revenues, Costs, VariableShiftingCosts, Profit,
 		VariableShiftingCostsFromOptimiser
-	};
+	}
 
 	private final LoadShiftingPortfolio portfolio;
 	private final LoadShiftingStrategist strategist;
