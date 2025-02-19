@@ -16,13 +16,15 @@ public class LoadShiftStateManager {
 	/** A LoadShiftState consists of a shiftTime, i.e. the time that load has already been shifted for and the energyState, i.e. the
 	 * amount of load that has cumulatively been shifted since the last compensation of prior load shifts. */
 	public static class LoadShiftState {
+		/** load shifting duration so far */
 		public final int shiftTime;
+		/** energy state index */
 		public final int energyState;
 
 		/** Construct a LoadShiftState
 		 * 
 		 * @param shiftTime duration for which the portfolio is shifted
-		 * @param energyState internal energy state counter representing the amount of shifted energy */
+		 * @param energyState internal energy state index representing the amount of shifted energy */
 		public LoadShiftState(int shiftTime, int energyState) {
 			this.shiftTime = shiftTime;
 			this.energyState = energyState;
@@ -50,6 +52,7 @@ public class LoadShiftStateManager {
 
 	/** Monetary penalty applied to infeasible Paths (i.e. that cannot balance their shifted load within the maximum shift time */
 	public static final double PENALTY = Math.pow(10, 200);
+	/** Denotes an infeasible state of the load shifting portfolio */
 	public static final LoadShiftState INFEASIBLE_STATE = new LoadShiftState(Integer.MIN_VALUE, Integer.MIN_VALUE);
 
 	private LoadShiftingPortfolio loadShiftingPortfolio;
