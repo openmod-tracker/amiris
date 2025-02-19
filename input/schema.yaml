@@ -2066,7 +2066,7 @@ AgentTypes:
                 MetaData:
                   Description: "Estimate for the price sensitivity, i.e. the price change due to increased/decreased load"
                   OEONearestConcept:
-      Policy: &FlexibilityTrader_G_Policy
+      Policy: &EndUserTariff_G_Policy
         AttributeType: block
         Mandatory: false
         List: false
@@ -2177,7 +2177,7 @@ AgentTypes:
             MetaData:
               Description: "Fixed network charges based on peak consumption capacity for planning period in EUR per MW"
               OEONearestConcept:
-      BusinessModel:
+      BusinessModel: &EndUserTariff_G_BusinessModel
             AttributeType: block
             Mandatory: false
             List: false
@@ -2569,7 +2569,7 @@ AgentTypes:
             MetaData:
               Description: "Internal heat gains inside the building in kW."
               OEONearestConcept:
-      Policy:
+      Policy: *EndUserTariff_G_Policy
         AttributeType: block
         Mandatory: false
         List: false
@@ -2680,28 +2680,7 @@ AgentTypes:
             MetaData:
               Description: "Fixed network charges based on peak consumption capacity for planning period in EUR per MW."
               OEONearestConcept:
-      BusinessModel:
-        AttributeType: block
-        Mandatory: false
-        List: false
-        MetaData:
-          Description: "Group of parameters specifying the business model of an aggregator."
-          OEONearestConcept:
-        NestedAttributes:
-          ProfitMarginInEURPerMWH:
-            AttributeType: double
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Group of parameters specifying the business model of an aggregator."
-              OEONearestConcept:
-          AverageMarketPriceInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "The average market price in EUR per MWh to be applied in case of a static tariff."
-              OEONearestConcept:
+      BusinessModel: *EndUserTariff_G_BusinessModel
     Products:
       Bids: *DamTrader_P_Bids
       MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
