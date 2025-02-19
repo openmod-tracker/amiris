@@ -1971,7 +1971,7 @@ AgentTypes:
                   Description: "Seeks to minimise the total costs of energy consumption from load shifting thereby also considering tariff structures in addition to day-ahead electricity prices; Calls an external optimization micro-model for load shifting scheduling."
                   OEONearestConcept:
             MetaData:
-              Description: "Dispatch strategy to apply for load shifting scheduling"
+              Description: "Type of dispatch strategy to be applied for load shifting scheduling"
               OEONearestConcept:
           ForecastPeriodInHours: *Strategist_A_ForecastPeriod
           ScheduleDurationInHours: *Strategist_A_ScheduleDuration

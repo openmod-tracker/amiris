@@ -74,24 +74,24 @@ public class EndUserTariff {
 	 * @param businessModel containing all business-model related tariff components
 	 * @throws MissingDataException if any required data is not provided */
 	public EndUserTariff(ParameterData policy, ParameterData businessModel) throws MissingDataException {
-		this.eegSurchargeInEURPerMWH = policy.getTimeSeries("EEGSurchargeInEURPerMWH");
-		this.volumetricNetworkChargeInEURPerMWH = policy.getTimeSeries("VolumetricNetworkChargeInEURPerMWH");
-		this.electricityTaxInEURPerMWH = policy.getTimeSeries("ElectricityTaxInEURPerMWH");
-		this.otherSurchargesInEURPerMWH = policy.getTimeSeries("OtherSurchargesInEURPerMWH");
+		eegSurchargeInEURPerMWH = policy.getTimeSeries("EEGSurchargeInEURPerMWH");
+		volumetricNetworkChargeInEURPerMWH = policy.getTimeSeries("VolumetricNetworkChargeInEURPerMWH");
+		electricityTaxInEURPerMWH = policy.getTimeSeries("ElectricityTaxInEURPerMWH");
+		otherSurchargesInEURPerMWH = policy.getTimeSeries("OtherSurchargesInEURPerMWH");
 		for (ParameterData group : policy.getGroupList("DynamicTariffComponents")) {
 			dynamicTariffComponents.put(group.getEnum("ComponentName", ComponentType.class),
 					new DynamicTariffComponent(group.getTimeSeries("Multiplier"), group.getDoubleOrDefault("LowerBound", 0.0),
 							group.getDoubleOrDefault("UpperBound", 200.0)));
 		}
-		this.vat = policy.getDouble("VAT");
-		this.capacityBasedNetworkChargeInEURPerMW = policy.getTimeSeries("CapacityBasedNetworkChargesInEURPerMW");
-		this.fixedNetworkChargesInEURPerYear = policy.getTimeSeries("FixedNetworkChargesInEURPerYear");
-		this.feedInTariffScheme = policy.getEnumOrDefault("FeedInTariffScheme", FeedInTariffScheme.class,
+		vat = policy.getDouble("VAT");
+		capacityBasedNetworkChargeInEURPerMW = policy.getTimeSeries("CapacityBasedNetworkChargesInEURPerMW");
+		fixedNetworkChargesInEURPerYear = policy.getTimeSeries("FixedNetworkChargesInEURPerYear");
+		feedInTariffScheme = policy.getEnumOrDefault("FeedInTariffScheme", FeedInTariffScheme.class,
 				FeedInTariffScheme.NONE);
-		this.fit = policy.getDoubleOrDefault("FitInEURPerMWH", -Double.MAX_VALUE);
-		this.timeVaryingFitMultiplier = policy.getDoubleOrDefault("TimeVaryingFiTMultiplier", -Double.MAX_VALUE);
-		this.profitMarginInEURPerMWH = businessModel.getDouble("ProfitMarginInEURPerMWH");
-		this.averageMarketPriceInEURPerMWH = businessModel.getTimeSeries("AverageMarketPriceInEURPerMWH");
+		fit = policy.getDoubleOrDefault("FitInEURPerMWH", -Double.MAX_VALUE);
+		timeVaryingFitMultiplier = policy.getDoubleOrDefault("TimeVaryingFiTMultiplier", -Double.MAX_VALUE);
+		profitMarginInEURPerMWH = businessModel.getDouble("ProfitMarginInEURPerMWH");
+		averageMarketPriceInEURPerMWH = businessModel.getTimeSeries("AverageMarketPriceInEURPerMWH");
 	}
 
 	/** Calculate and return the price at which a retailer energy power to customers

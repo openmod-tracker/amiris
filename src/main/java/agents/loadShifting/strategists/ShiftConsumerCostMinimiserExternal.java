@@ -35,11 +35,10 @@ public class ShiftConsumerCostMinimiserExternal extends LoadShiftingStrategist {
 	private final boolean activateAnnualLimits;
 	private final Solver solver;
 	private final TimeSeries priceSensitivity;
-
 	private double variableShiftingCostsFromOptimiser;
 
-	public ShiftConsumerCostMinimiserExternal(ParameterData generalInput, ParameterData specificInput, EndUserTariff endUserTariff,
-			LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
+	public ShiftConsumerCostMinimiserExternal(ParameterData generalInput, ParameterData specificInput,
+			EndUserTariff endUserTariff, LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
 		super(generalInput, specificInput, loadShiftingPortfolio);
 		this.tariffStrategist = endUserTariff;
 		optimiserApi = new UrlModelService<OptimisationInputs, OptimisationResult>(
@@ -64,7 +63,7 @@ public class ShiftConsumerCostMinimiserExternal extends LoadShiftingStrategist {
 		inputs.setAvailability_down(convertToArray(portfolio.getDowerDownAvailabilities(), startTime));
 		inputs.setAvailability_up(convertToArray(portfolio.getPowerUpAvailabilities(), startTime));
 		inputs.setEfficiency(portfolio.getEfficiency());
-		inputs.setEnergy_price(updatePriceForecast(startTime));
+		inputs.setEnergy_price(getConsumerPriceForecasts(startTime));
 		inputs.setInterference_time(portfolio.getInterferenceTimeInHours());
 		inputs.setMax_capacity_down(portfolio.getPowerInMW());
 		inputs.setMax_capacity_up(portfolio.getPowerInMW());
@@ -81,17 +80,18 @@ public class ShiftConsumerCostMinimiserExternal extends LoadShiftingStrategist {
 		return inputs;
 	}
 
-	private double[] convertToArray(TimeSeries timeSeries, TimePeriod startTime) {
+	/** @return array of forecastSteps values from given time series beginning with given time periods */
+	private double[] convertToArray(TimeSeries timeSeries, TimePeriod firstPeriod) {
 		double[] array = new double[forecastSteps];
-		for (int period = 0; period < forecastSteps; period++) {
-			TimeStamp time = startTime.shiftByDuration(period).getStartTime();
-			array[period] = timeSeries.getValueLinear(time);
+		for (int shiftIndex = 0; shiftIndex < forecastSteps; shiftIndex++) {
+			TimeStamp time = firstPeriod.shiftByDuration(shiftIndex).getStartTime();
+			array[shiftIndex] = timeSeries.getValueLinear(time);
 		}
 		return array;
 	}
 
-	/** updates {@link #forecastPrices} based on forecasted prices */
-	private double[] updatePriceForecast(TimePeriod startTime) {
+	/** @return forecasted consumer prices based on forecasted prices */
+	private double[] getConsumerPriceForecasts(TimePeriod startTime) {
 		double[] consumerPrices = new double[forecastSteps];
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timePeriod = startTime.shiftByDuration(period);
@@ -125,9 +125,9 @@ public class ShiftConsumerCostMinimiserExternal extends LoadShiftingStrategist {
 		}
 	}
 
+	/** @return bid price for given energy delta */
 	private double calcBidPriceInPeriod(double energyDelta) {
-		return energyDelta > 0 ? Constants.SCARCITY_PRICE_IN_EUR_PER_MWH
-				: Constants.MINIMAL_PRICE_IN_EUR_PER_MWH;
+		return energyDelta > 0 ? Constants.SCARCITY_PRICE_IN_EUR_PER_MWH : Constants.MINIMAL_PRICE_IN_EUR_PER_MWH;
 	}
 
 	@Override

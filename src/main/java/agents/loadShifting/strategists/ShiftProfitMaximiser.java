@@ -32,7 +32,7 @@ public class ShiftProfitMaximiser extends LoadShiftingStrategist {
 		super(generalInput, specificInput, loadShiftingPortfolio);
 		stateManager = new LoadShiftStateManager(loadShiftingPortfolio);
 		maximumShiftTime = loadShiftingPortfolio.getMaximumShiftTimeInHours();
-		this.purchaseLeviesAndTaxesInEURperMWH = specificInput.getDoubleOrDefault("PurchaseTaxesAndLevies", 0.);
+		purchaseLeviesAndTaxesInEURperMWH = specificInput.getDoubleOrDefault("PurchaseTaxesAndLevies", 0.);
 		incomeSum = new double[forecastSteps][maximumShiftTime][stateManager.getNumberOfEnergyStates()];
 		bestNextState = new LoadShiftState[forecastSteps][maximumShiftTime][stateManager
 				.getNumberOfEnergyStates()];

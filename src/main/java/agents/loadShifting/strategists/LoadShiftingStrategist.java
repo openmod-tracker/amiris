@@ -18,6 +18,7 @@ import endUser.EndUserTariff;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public abstract class LoadShiftingStrategist extends Strategist {
+	/** Type of dispatch strategy to be applied for load shifting scheduling */
 	public static enum StrategistType {
 		/** Seeks to minimise the cost from load shifting */
 		SINGLE_AGENT_MIN_SYSTEM_COST,
