@@ -1,12 +1,23 @@
-<!-- SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - tba
+### Changed
+- Improve README.md to be more attractive for first contact #142 (@dlr-cjs)
+- Update CONTRIBUTING.md #142 (@dlr-cjs)
 
-## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - tba.
 ### Added
 - Add new agent `LoadShiftingTrader` that markets a portfolio of loads eligible for load shifting at the day-ahead market #137 (@dlr_jk, @dlr-cjs)
+
+## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - 2025-01-29
+### Added
+- Add new storage strategy `MAX_PROFIT_PRICE_TAKER` #139 (dlr_fn, @dlr-cjs)
+- Add option to specify `ForecastUpdateType` #140 (@dlr_fn, @dlr-cjs)
 - Add link to AMIRIS Open Forum in documentation #136 (@dlr_fn)
+
+### Fixed
+- MarketCoupling: market coupling algorithm works as expected with market zones defined as StringSets #138 (@dlr_elghazi, @dlr_fn)
 
 ## [3.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.2.0) - 2024-12-04
 ### Changed
