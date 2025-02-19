@@ -43,9 +43,9 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 
 	@Output
 	private static enum OutputFields {
-		OfferedUpshiftPowerInMW, OfferedDownshiftPowerInMW, OfferedPrice, AwardedUpshiftPower, AwardedDownshiftPower,
-		NetAwardedPower, StoredMWh, CurrentShiftTime, Revenues, Costs, VariableShiftingCosts, Profit,
-		VariableShiftingCostsFromOptimiser
+		OfferedUpshiftPowerInMW, OfferedDownshiftPowerInMW, OfferedPriceInEURperMWH, AwardedUpshiftPowerInMW,
+		AwardedDownshiftPowerInMW, NetAwardedPowerInMW, StoredMWH, CurrentShiftTimeInH, RevenuesInEUR, CostsInEUR,
+		VariableShiftingCostsInEUR, ProfitInEUR, VariableShiftingCostsFromOptimiserInEUR
 	}
 
 	private final LoadShiftingPortfolio portfolio;
@@ -54,6 +54,10 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 	/** An entity holding consumer tariff information */
 	private final EndUserTariff endUserTariff;
 
+	/** Instantiate new {@link LoadShiftingTrader}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is missing */
 	public LoadShiftingTrader(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
@@ -98,7 +102,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 			schedule = strategist.createSchedule(targetTimeSegment,
 					portfolio.getCurrentEnergyShiftStorageLevelInMWH(),
 					portfolio.getCurrentShiftTimeInHours());
-			store(OutputFields.VariableShiftingCostsFromOptimiser, strategist.getVariableShiftingCostsFromOptimiser());
+			store(OutputFields.VariableShiftingCostsFromOptimiserInEUR, strategist.getVariableShiftingCostsFromOptimiser());
 		}
 	}
 
@@ -107,7 +111,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(OutputFields.OfferedUpshiftPowerInMW, demandPower);
-		store(OutputFields.OfferedPrice, price);
+		store(OutputFields.OfferedPriceInEURperMWH, price);
 		return demandBid;
 	}
 
@@ -133,15 +137,15 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 				* (awardedChargePower + awardedDischargePower) + portfolio.getProlongingCosts(powerDelta, deliveryTime);
 		costs += variableShiftingCosts;
 		portfolio.updateEnergyShiftStorageLevelAndShiftTime(powerDelta);
-		store(OutputFields.AwardedUpshiftPower, awardedChargePower);
-		store(OutputFields.AwardedDownshiftPower, -awardedDischargePower);
-		store(OutputFields.NetAwardedPower, powerDelta);
-		store(OutputFields.StoredMWh, portfolio.getCurrentEnergyShiftStorageLevelInMWH());
-		store(OutputFields.CurrentShiftTime, portfolio.getCurrentShiftTimeInHours());
-		store(OutputFields.Revenues, revenues);
-		store(OutputFields.Costs, costs);
-		store(OutputFields.VariableShiftingCosts, variableShiftingCosts);
-		store(OutputFields.Profit, revenues - costs);
+		store(OutputFields.AwardedUpshiftPowerInMW, awardedChargePower);
+		store(OutputFields.AwardedDownshiftPowerInMW, -awardedDischargePower);
+		store(OutputFields.NetAwardedPowerInMW, powerDelta);
+		store(OutputFields.StoredMWH, portfolio.getCurrentEnergyShiftStorageLevelInMWH());
+		store(OutputFields.CurrentShiftTimeInH, portfolio.getCurrentShiftTimeInHours());
+		store(OutputFields.RevenuesInEUR, revenues);
+		store(OutputFields.CostsInEUR, costs);
+		store(OutputFields.VariableShiftingCostsInEUR, variableShiftingCosts);
+		store(OutputFields.ProfitInEUR, revenues - costs);
 	}
 
 	@Override

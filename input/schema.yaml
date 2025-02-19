@@ -2217,43 +2217,47 @@ AgentTypes:
         MetaData:
           Description: "power offered to be shifted in downwards direction (load reduction) compared to baseline load consumption"
           OEONearestConcept:
-      OfferedPrice:
+      OfferedPriceInEURperMWH:
         MetaData:
           Description: "offered bid price to sell / purchase power at"
           OEONearestConcept:
-      AwardedUpshiftPower:
+      AwardedUpshiftPowerInMW:
         MetaData:
           Description: "power awarded to be shifted in upwards direction (load increase) compared to baseline load consumption"
           OEONearestConcept:
-      AwardedDownshiftPower:
+      AwardedUpshiftPowerInMW:
         MetaData:
           Description: "power awarded to be shifted in downwards direction (load reduction) compared to baseline load consumption"
           OEONearestConcept:
-      NetAwardedPower:
+      NetAwardedPowerInMW:
         MetaData:
           Description: "net power awarded to be shifted compared to baseline load consumption"
           OEONearestConcept:
-      StoredMWh:
+      StoredMWH:
         MetaData:
           Description: "(fictitious) load shifting energy storage level"
           OEONearestConcept:
-      CurrentShiftTime:
+      CurrentShiftTimeInH:
         MetaData:
           Description: "number of consecutive hours for which the load shifting portfolio has already been shifted into one direction (upwards or downwards), i.e. for which the (fictitious) load shifting energy storage level is already unbalanced"
           OEONearestConcept:
-      Revenues:
+      RevenuesInEUR:
         MetaData:
           Description: "revenues from marketing power in the course of a downshift (load decrease)"
           OEONearestConcept:
-      Costs:
+      CostsInEUR:
         MetaData:
           Description: "total costs for load shifting comprising costs for purchasing power in the course of an upshift (load increase) as well as variable costs for load shifting"
           OEONearestConcept:
-      VariableShiftingCosts:
+      VariableShiftingCostsInEUR:
         MetaData:
           Description: "variable costs for load shifting"
           OEONearestConcept:
-      VariableShiftingCostsFromOptimiser:
+      ProfitInEUR:
+        MetaData:
+          Description: "revenues minus all variable costs"
+          OEONearestConcept:
+      VariableShiftingCostsFromOptimiserInEUR:
         MetaData:
           Description: "variable costs for load shifting from optimization micro-model, called for strategist SINGLE_AGENT_MIN_CONSUMER_COSTS_EXTERNAL"
           OEONearestConcept:
