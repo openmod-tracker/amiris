@@ -1077,9 +1077,9 @@ AgentTypes:
         AttributeType: string
         Mandatory: true
         List: false
-        help: "URL to forecastapi model"
+        help: "URL to amiris-priceforecast api"
         MetaData:
-          Description: "A connection to an external model providing forecasts"
+          Description: "URL connection to an external API providing forecasts"
           OEONearestConcept:  
       LookBackWindowInHours:
         AttributeType: integer
@@ -1093,7 +1093,7 @@ AgentTypes:
         AttributeType: integer
         Mandatory: true
         List: false
-        help: "Number of additional TimeSteps to request from API"
+        help: "Number of TimeSteps additional to forecast horizon to be requested from API"
         MetaData:
           Description: "In order to reduce expensive calls of the external API model, additional number of TimeSteps are requested to forecasted"
           OEONearestConcept:         
@@ -1101,7 +1101,7 @@ AgentTypes:
         AttributeType: double
         Mandatory: true
         List: false
-        help: "If deviation between forecasted and realized electricity prices is greater than this tolerance, a new price forecast request is sent"
+        help: "Max accepted deviation between forecasted and realized electricity prices; if violated a new price forecast request is sent"
         MetaData:
           Description: "Tolerance for deviation between forecasted and realized electricity prices. Small tolerances may result in more API calls"
           OEONearestConcept:
@@ -1119,10 +1119,10 @@ AgentTypes:
           OEONearestConcept:
     Outputs:
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast 
-      ElectricityPriceForecastVarianceInEURperMWH:  
+      ElectricityPriceForecastVarianceInEURperMWH:
         MetaData:
           Description: "Variance of forecasted electricity price in EUR per MWh"
-          OEONearestConcept:  
+          OEONearestConcept:
     MetaData:
       Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are calculated by an external forecasting model using URLModelSerive."
       OEONearestConcept:

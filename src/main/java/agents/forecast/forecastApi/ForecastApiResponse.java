@@ -6,11 +6,10 @@ package agents.forecast.forecastApi;
 import java.util.List;
 import java.util.TreeMap;
 
-/** Encapsulates a forecast response from forecastapi with the main objective to handle time series predictions
+/** Encapsulates a forecast response from amiris-priceforecast with the main objective to handle time series predictions
  * 
  * @author Felix Nitsch */
 public class ForecastApiResponse {
-
 	private List<TreeMap<Long, Double>> forecastMeans;
 	private List<TreeMap<Long, Double>> forecastVariances;
 
@@ -33,5 +32,4 @@ public class ForecastApiResponse {
 	public void setForecastVariances(List<TreeMap<Long, Double>> forecastVariances) {
 		this.forecastVariances = forecastVariances;
 	}
-
 }

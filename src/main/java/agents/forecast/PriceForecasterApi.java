@@ -56,11 +56,12 @@ public class PriceForecasterApi extends MarketForecaster {
 	private TimeStamp nextClearingTimeStep = now();
 
 	@Input private static final Tree parameters = Make.newTree()
-			.add(Make.newString("ServiceURL").help("URL to forecastapi model"),
+			.add(Make.newString("ServiceURL").help("URL to amiris-priceforecast api"),
 					Make.newInt("LookBackWindowInHours").help("Number of TimeSteps for look back"),
-					Make.newInt("ForecastWindowExtensionInHours").help("Number of additional TimeSteps to request from API"),
+					Make.newInt("ForecastWindowExtensionInHours")
+							.help("Number of TimeSteps additional to forecast horizon to be requested from API"),
 					Make.newDouble("ForecastErrorToleranceInEURperMWH").help(
-							"If deviation between forecasted and realized electricity prices is greater than this tolerance, a new price forecast request is sent"),
+							"Max accepted deviation between forecasted and realized electricity prices; if violated a new price forecast request is sent"),
 					Make.newSeries("ResidualLoadInMWh").optional())
 			.buildTree();
 
@@ -83,14 +84,13 @@ public class PriceForecasterApi extends MarketForecaster {
 		forecastErrorToleranceInEURperMWH = input.getDouble("ForecastErrorToleranceInEURperMWH");
 		tsResidualLoadInMWh = input.getTimeSeriesOrDefault("ResidualLoadInMWh", null);
 
-		call(this::logClearingPrices).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
-		call(this::registerClearingTime).on(DayAheadMarket.Products.GateClosureInfo)
-				.use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::logClearingPrices).onAndUse(DayAheadMarket.Products.Awards);
+		call(this::registerClearingTime).onAndUse(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
 				.use(FlexibilityTrader.Products.PriceForecastRequest);
 	}
 
-	/** Extract and store power prices reported from {@link DayAheadMarket}
+	/** Extracts and store power prices reported from {@link DayAheadMarket}
 	 * 
 	 * @param input single power price message to read
 	 * @param contracts not used */
@@ -105,7 +105,7 @@ public class PriceForecasterApi extends MarketForecaster {
 		nextClearingTimeStep = clearingTimes.getTimes().get(0);
 	}
 
-	/** sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */
+	/** Sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */
 	private void sendPriceForecast(ArrayList<Message> messages, List<Contract> contracts) {
 		if (tsResidualLoadInMWh != null) {
 			chunkResidualLoad();
@@ -131,7 +131,7 @@ public class PriceForecasterApi extends MarketForecaster {
 		store(OutputFields.ElectricityPriceForecastVarianceInEURperMWH, priceForecastVariances.firstEntry().getValue());
 	}
 
-	/** chunk tsResidualLoadInMWh to residualLoadInMWh from lookBackWindowInHours to forecastPeriodInHours +
+	/** Chunks tsResidualLoadInMWh to residualLoadInMWh from lookBackWindowInHours to forecastPeriodInHours +
 	 * forecastWindowExtensionInHours */
 	private void chunkResidualLoad() {
 		residualLoadInMWh.clear();
@@ -145,7 +145,7 @@ public class PriceForecasterApi extends MarketForecaster {
 		}
 	}
 
-	/** remove all out-dated values from given container */
+	/** Removes all values before given TimeStamp from specified container */
 	private void removeDataBefore(TreeMap<Long, Double> container, TimeStamp time) {
 		Iterator<Entry<Long, Double>> iterator = container.entrySet().iterator();
 		while (iterator.hasNext()) {
@@ -183,7 +183,7 @@ public class PriceForecasterApi extends MarketForecaster {
 		priceForecastVariances = response.getForecastVariances().get(0);
 	}
 
-	/** If forecastUpdateRequired, returns all updated forecasts until requestedTime else, only forecast for requestedTime */
+	/** If forecastUpdateRequired, returns all updated forecasts until requestedTime; else, only forecast for requestedTime */
 	private List<AmountAtTime> calcForecastResponses(TimeStamp requestedTime, boolean forecastUpdateRequired) {
 		var messages = new ArrayList<AmountAtTime>();
 		if (forecastUpdateRequired) {

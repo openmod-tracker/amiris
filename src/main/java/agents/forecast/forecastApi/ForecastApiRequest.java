@@ -5,11 +5,10 @@ package agents.forecast.forecastApi;
 
 import java.util.Map;
 
-/** Encapsulates a forecast request to forecastapi with the main objective to handle time series predictions
+/** Encapsulates a forecast request to amiris-priceforecast with the main objective to handle time series predictions
  * 
  * @author Felix Nitsch */
 public class ForecastApiRequest {
-
 	private long forecastStartTime;
 	private int forecastWindow;
 	private Map<Long, Double> pastTargets;
@@ -34,19 +33,9 @@ public class ForecastApiRequest {
 		return forecastStartTime;
 	}
 
-	/** @param forecastStartTime the forecastStartTime to set */
-	public void setForecastStartTime(long forecastStartTime) {
-		this.forecastStartTime = forecastStartTime;
-	}
-
 	/** @return the forecastWindow */
 	public int getForecastWindow() {
 		return forecastWindow;
-	}
-
-	/** @param forecastWindow the forecastWindow to set */
-	public void setForecastWindow(int forecastWindow) {
-		this.forecastWindow = forecastWindow;
 	}
 
 	/** @return the pastTargets */
@@ -54,19 +43,8 @@ public class ForecastApiRequest {
 		return pastTargets;
 	}
 
-	/** @param pastTargets the pastTargets to set */
-	public void setPastTargets(Map<Long, Double> pastTargets) {
-		this.pastTargets = pastTargets;
-	}
-
 	/** @return the residualLoad */
 	public Map<Long, Double> getResidualLoad() {
 		return residualLoad;
 	}
-
-	/** @param residualLoad the residualLoad to set */
-	public void setResidualLoad(Map<Long, Double> residualLoad) {
-		this.residualLoad = residualLoad;
-	}
-
 }

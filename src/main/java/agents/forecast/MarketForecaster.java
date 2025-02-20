@@ -44,9 +44,13 @@ public abstract class MarketForecaster extends Forecaster {
 		ForecastRequest
 	};
 
+	/** Output columns of {@link MarketForecaster} */
 	@Output
 	protected static enum OutputFields {
-		AwardedEnergyForecastInMWH, ElectricityPriceForecastInEURperMWH
+		/** Energy Awarded in Forecast in MWh */
+		AwardedEnergyForecastInMWH,
+		/** Forecasted electricity price in EUR/MWh */
+		ElectricityPriceForecastInEURperMWH
 	};
 
 	/** maximum number of future hours to provide forecasts for */
