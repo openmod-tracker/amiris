@@ -148,9 +148,11 @@ public class LoadShiftingPortfolio {
 	 * @return cost for prolonging the current load shifting given the provided change of load shift energy */
 	public double getProlongingCosts(double energyChangeInMWh, TimeStamp timeStamp) {
 		int shiftTime = getCurrentShiftTimeInHours();
-		double initialEnergyLevel = getCurrentEnergyShiftStorageLevelInMWH();
-		if (isProlongedShift(energyChangeInMWh, shiftTime, initialEnergyLevel)) {
-			return Math.abs(initialEnergyLevel) * getVariableShiftCostsInEURPerMWH(timeStamp);
+		double initialEnergyLevelInMWH = getCurrentEnergyShiftStorageLevelInMWH();
+		if (isProlongedShift(energyChangeInMWh, shiftTime, initialEnergyLevelInMWH)) {
+			double finalEnergyLevelInMWH = initialEnergyLevelInMWH + energyChangeInMWh;
+			double prolongedEnergyLevelInMWH = Math.min(Math.abs(initialEnergyLevelInMWH), Math.abs(finalEnergyLevelInMWH));
+			return prolongedEnergyLevelInMWH * getVariableShiftCostsInEURPerMWH(timeStamp);
 		} else {
 			return 0.;
 		}
