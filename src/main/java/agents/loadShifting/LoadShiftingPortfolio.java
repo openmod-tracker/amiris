@@ -139,7 +139,9 @@ public class LoadShiftingPortfolio {
 		return false;
 	}
 
-	/** Return cost for prolonging a given load shift beyond its maximum shift duration by counter-shifts within the portfolio
+	/** Return cost for prolonging a given load shift beyond its maximum shift duration by counter-shifts within the portfolio;
+	 * prolonging costs only account for that part of the shifted load that has to be prolonged, excluding costs for additional or
+	 * reduced load
 	 * 
 	 * @param energyChangeInMWh change in energy level in MWh
 	 * @param timeStamp at which the shift prolonging takes place

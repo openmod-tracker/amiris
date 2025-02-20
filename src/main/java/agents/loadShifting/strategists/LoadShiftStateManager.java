@@ -169,24 +169,32 @@ public class LoadShiftStateManager {
 	private void addShiftProlongingOptionAtProlongingCosts(LoadShiftState initialState, int[] powerStepLimits,
 			HashMap<LoadShiftState, Double> nextFeasibleStatesAndCostsForReset, TimePeriod timePeriod) {
 		final int resettedShiftTime = 1;
-		final int differenceToZeroState = Math.abs(initialState.energyState - zeroEnergyStateIndex);
-		double specificShiftingCost = loadShiftingPortfolio.getVariableShiftCostsInEURPerMWH(timePeriod.getStartTime());
-		double shiftedEnergy = 2 * differenceToZeroState * getEnergyResolutionInMWH();
-		double variableCostsForProlongingInEUR = specificShiftingCost * shiftedEnergy;
-		int remainder = Math.min(powerStepLimits[0], powerStepLimits[1]) - 2 * differenceToZeroState;
-		if (remainder >= 0 && differenceToZeroState != 0) {
-			int newEnergyState;
-			if (initialState.energyState < zeroEnergyStateIndex) {
-				// TODO: Add option for partial unloading of shift when prolonging
-				for (int additionalShift = 0; additionalShift <= remainder; additionalShift++) {
-					newEnergyState = Math.max(0, initialState.energyState - additionalShift);
-					nextFeasibleStatesAndCostsForReset.put(stateMap[resettedShiftTime][newEnergyState],
+		double specificShiftingCostInEURperMWH = loadShiftingPortfolio
+				.getVariableShiftCostsInEURPerMWH(timePeriod.getStartTime());
+
+		if (initialState.energyState > zeroEnergyStateIndex) {
+			int requiredDownshift = initialState.energyState - zeroEnergyStateIndex;
+			if (requiredDownshift < powerStepLimits[0]) {
+				double compensationShare = requiredDownshift / (double) powerStepLimits[0];
+				int upshiftRemainder = (int) ((1.0 - compensationShare) * powerStepLimits[1]);
+				for (int upshiftState = 1; upshiftState <= upshiftRemainder; upshiftState++) {
+					int prolongedStates = Math.min(upshiftState, requiredDownshift);
+					double variableCostsForProlongingInEUR = 2 * getEnergyResolutionInMWH() * prolongedStates
+							* specificShiftingCostInEURperMWH;
+					nextFeasibleStatesAndCostsForReset.put(stateMap[resettedShiftTime][zeroEnergyStateIndex + upshiftRemainder],
 							variableCostsForProlongingInEUR);
 				}
-			} else {
-				for (int additionalShift = 0; additionalShift <= remainder; additionalShift++) {
-					newEnergyState = Math.min(numberOfEnergyStates - 1, initialState.energyState + additionalShift);
-					nextFeasibleStatesAndCostsForReset.put(stateMap[resettedShiftTime][newEnergyState],
+			}
+		} else if (initialState.energyState < zeroEnergyStateIndex) {
+			int requiredUpshift = zeroEnergyStateIndex - initialState.energyState;
+			if (requiredUpshift < powerStepLimits[1]) {
+				double compensationShare = requiredUpshift / (double) powerStepLimits[1];
+				int downshiftRemainder = (int) ((1.0 - compensationShare) * powerStepLimits[0]);
+				for (int downshiftState = 1; downshiftState <= downshiftRemainder; downshiftState++) {
+					int prolongedStates = Math.min(downshiftState, requiredUpshift);
+					double variableCostsForProlongingInEUR = 2 * getEnergyResolutionInMWH() * prolongedStates
+							* specificShiftingCostInEURperMWH;
+					nextFeasibleStatesAndCostsForReset.put(stateMap[resettedShiftTime][zeroEnergyStateIndex - downshiftState],
 							variableCostsForProlongingInEUR);
 				}
 			}
