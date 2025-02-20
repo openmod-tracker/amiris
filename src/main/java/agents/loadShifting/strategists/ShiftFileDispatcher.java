@@ -1,18 +1,17 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
 
+import agents.flexibility.DispatchSchedule;
 import agents.loadShifting.LoadShiftingPortfolio;
 import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
-import agents.storage.Device;
 import agents.storage.arbitrageStrategists.FileDispatcher;
-import agents.flexibility.DispatchSchedule;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
-import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -29,13 +28,21 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 							.help("Change of current shifting time indicating how long a load has already been shifted for."))
 			.buildTree();
 
-	public static final String WARN_SUSPICIOUS_ENERGY_DISPATCH = "Warning:: LoadShiftingPortfolio violates energy bounds:: Dispatch file may be not suitable";
-	public static final String WARN_SUSPICIOUS_SHIFT_TIMES = "Warning:: LoadShiftingPortfolio violates shift time restrictions:: Dispatch file may be not suitable";
-	public static final String WARN_SUSPICIOUS_POWER_DISPATCH = "Warning:: LoadShiftingPortfolio violates power bounds:: Dispatch file may be not suitable";
+	static final String WARN_SUSPICIOUS_ENERGY_DISPATCH = "Warning:: LoadShiftingPortfolio violates energy bounds:: Dispatch file may be not suitable";
+	static final String WARN_SUSPICIOUS_SHIFT_TIMES = "Warning:: LoadShiftingPortfolio violates shift time restrictions:: Dispatch file may be not suitable";
+	static final String WARN_SUSPICIOUS_POWER_DISPATCH = "Warning:: LoadShiftingPortfolio violates power bounds:: Dispatch file may be not suitable";
+
 	private static final double ABSOLUTE_TOLERANCE_IN_MWH = 0.1;
+
 	private TimeSeries tsEnergyDispatch;
 	private TimeSeries tsShiftTimes;
 
+	/** Instantiate {@link ShiftFileDispatcher}
+	 * 
+	 * @param generalInput parameters associated with strategists in general
+	 * @param specificInput for {@link ShiftFileDispatcher}
+	 * @param loadShiftingPortfolio for which schedules are to be created
+	 * @throws MissingDataException if any required input is missing */
 	public ShiftFileDispatcher(ParameterData generalInput, ParameterData specificInput,
 			LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
 		super(generalInput, specificInput, loadShiftingPortfolio);
@@ -51,7 +58,7 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 
 	/** Not needed for {@link ShiftFileDispatcher} */
 	@Override
-	protected void updateSchedule(TimePeriod startTime, double currentEnergyShiftStorageLevelInMWH,
+	protected void updateSchedule(TimePeriod startPeriod, double currentEnergyShiftStorageLevelInMWH,
 			int currentShiftTime) {}
 
 	/** @return {@link DispatchSchedule schedule} for the connected {@link LoadShiftingPortfolio loadShiftingPortfolio} for the
@@ -126,7 +133,7 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 		return belowLowerLimit || aboveUpperLimit;
 	}
 
-	/** @return load shifting energy storage level is ensured to be within the bounds of the connected {@link Device} */
+	/** @return load shifting energy storage level ensured to be within the bounds of the connected {@link LoadShiftingPortfolio} */
 	private double ensureWithinBounds(double currentEnergyShiftStorageLevelInMWH) {
 		final double energyLimitDownInMWH = portfolio.getEnergyLimitDownInMWH();
 		final double energyLimitUpInMWH = portfolio.getEnergyLimitUpInMWH();
@@ -145,8 +152,8 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 	}
 
 	/** @return {@link DispatchSchedule} for the given TimeSegment created from prepared Bid arrays */
-	private DispatchSchedule buildSchedule(TimePeriod timeSegment) {
-		final DispatchSchedule schedule = new DispatchSchedule(timeSegment, scheduleDurationPeriods);
+	private DispatchSchedule buildSchedule(TimePeriod timePeriod) {
+		final DispatchSchedule schedule = new DispatchSchedule(timePeriod, scheduleDurationPeriods);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
 		schedule.setChargingPerPeriod(demandScheduleInMWH);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(scheduledInitialEnergyInMWH);
