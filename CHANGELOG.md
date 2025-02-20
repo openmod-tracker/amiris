@@ -7,6 +7,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Improve README.md to be more attractive for first contact #142 (@dlr-cjs)
 - Update CONTRIBUTING.md #142 (@dlr-cjs)
 
+### Added
+- Add new agent `PriceForecasterApi` enabling calling external forecasting models #144 (@dlr_fn, @dlr-cjs)
+
 ## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - 2025-01-29
 ### Added
 - Add new storage strategy `MAX_PROFIT_PRICE_TAKER` #139 (dlr_fn, @dlr-cjs)
