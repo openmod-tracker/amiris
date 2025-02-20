@@ -8,7 +8,7 @@ import java.util.HashMap;
 import agents.loadShifting.LoadShiftingPortfolio;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
-/** Manages {@link LoadShiftState}s which consist of a shiftTime and an energyState by determining feasible resp. infeasible
+/** Manages {@link LoadShiftState}s which consist of a shiftTime and an energyState by determining feasible or infeasible
  * transition paths
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
@@ -38,15 +38,15 @@ public class LoadShiftStateManager {
 			return this.energyState - other.energyState;
 		}
 
-		/** @return true, if this {@link LoadShiftState} cannot be reached, since either its shiftTime or energyState is zero while
-		 *         the other is not
-		 * @param zeroEnergyStateIndex index of the state that refers to no load shifting */
-		public boolean isNotSensible(int zeroEnergyStateIndex) {
-			if ((shiftTime == 0 && energyState != zeroEnergyStateIndex)
-					|| (shiftTime != 0 && energyState == zeroEnergyStateIndex)) {
-				return true;
-			}
-			return false;
+		/** @return true if this {@link LoadShiftState} can be technically reached, i.e.,
+		 *         <ul>
+		 *         <li>its shift time is not zero when the energy state is not balanced</li>
+		 *         <li>its shift time is zero when the energy state is balanced</li>
+		 *         </ul>
+		 */
+		private boolean isTechnicallyPossible(int zeroEnergyStateIndex) {
+			return (shiftTime == 0 && energyState == zeroEnergyStateIndex)
+					|| (shiftTime != 0 && energyState != zeroEnergyStateIndex);
 		}
 	}
 
@@ -98,13 +98,13 @@ public class LoadShiftStateManager {
 
 	/** Return feasible LoadShiftStates, ignoring states not sensible
 	 * 
-	 * @param initialStates list of States that is to be cleared and refilled with new initial states */
+	 * @param initialStates list of states that is to be cleared and refilled with new initial states */
 	public void returnInitialStates(ArrayList<LoadShiftState> initialStates) {
 		initialStates.clear();
 		for (int shiftTime = 0; shiftTime < getMaxShiftTime(); shiftTime++) {
 			for (int energyState = 0; energyState < numberOfEnergyStates; energyState++) {
 				LoadShiftState loadShiftState = stateMap[shiftTime][energyState];
-				if (!loadShiftState.isNotSensible(zeroEnergyStateIndex)) {
+				if (loadShiftState.isTechnicallyPossible(zeroEnergyStateIndex)) {
 					initialStates.add(loadShiftState);
 				}
 			}
@@ -112,24 +112,23 @@ public class LoadShiftStateManager {
 	}
 
 	/** Extract the next feasible LoadShiftStates taking into account the shiftTime and the energy limit restrictions. Feasible
-	 * states are written to given variable. Allow for a reset of shiftTime to 1 coming at the cost of compensation of a prior
-	 * shift.
+	 * states are written to given container. Allow for a reset of shiftTime to 1 at the cost of compensation for a prior shift.
 	 * 
-	 * @param initialState to calculate feasible follow-up states for
-	 * @param nextFeasibleStatesAndCostsForProlonging maps next feasible states to their costs for prolonging (if any)
+	 * @param initialState feasible follow-up states are based on
+	 * @param nextFeasibleStatesAndCostsForProlonging map to be filled with next feasible states and their prolonging cost (if any)
 	 * @param timePeriod of this state transition
-	 * @param isLastPeriod must be true if this is the last transition of the optimisation period */
+	 * @param isLastPeriod must be set to true if this is the last transition of the optimisation period */
 	public void insertNextFeasibleStates(LoadShiftState initialState,
 			HashMap<LoadShiftState, Double> nextFeasibleStatesAndCostsForProlonging, TimePeriod timePeriod,
 			boolean isLastPeriod) {
 		nextFeasibleStatesAndCostsForProlonging.clear();
 
 		int[] powerStepLimits = extractPowerStepLimits(timePeriod);
-		int lowerBound = Math.max(0, initialState.energyState - powerStepLimits[0]);
-		int upperBound = Math.min(numberOfEnergyStates - 1, initialState.energyState + powerStepLimits[1]);
+		int lowestPossibleState = Math.max(0, initialState.energyState - powerStepLimits[0]);
+		int highestPossibleState = Math.min(numberOfEnergyStates - 1, initialState.energyState + powerStepLimits[1]);
 
 		if (!isLastPeriod) {
-			for (int energyStateIndex = lowerBound; energyStateIndex <= upperBound; energyStateIndex++) {
+			for (int energyStateIndex = lowestPossibleState; energyStateIndex <= highestPossibleState; energyStateIndex++) {
 				int nextShiftTime = calcNextShiftTime(initialState, energyStateIndex);
 				if (nextShiftTime < getMaxShiftTime()) {
 					nextFeasibleStatesAndCostsForProlonging.put(stateMap[nextShiftTime][energyStateIndex], 0.0);
@@ -145,14 +144,14 @@ public class LoadShiftStateManager {
 		}
 	}
 
-	/** @return The last feasible power steps as an array of integers */
-	private int[] extractPowerStepLimits(TimePeriod timeSegment) {
-		int maxStepDown = (int) (loadShiftingPortfolio.getMaxPowerDownInMW(timeSegment) / getEnergyResolutionInMWH());
-		int maxStepUp = (int) (loadShiftingPortfolio.getMaxPowerUpInMW(timeSegment) / getEnergyResolutionInMWH());
+	/** @return maximum feasible power steps for decreasing and increasing load */
+	private int[] extractPowerStepLimits(TimePeriod timePeriod) {
+		int maxStepDown = (int) (loadShiftingPortfolio.getMaxPowerDownInMW(timePeriod) / getEnergyResolutionInMWH());
+		int maxStepUp = (int) (loadShiftingPortfolio.getMaxPowerUpInMW(timePeriod) / getEnergyResolutionInMWH());
 		return new int[] {maxStepDown, maxStepUp};
 	}
 
-	/** Calculate the next shift time
+	/** Calculate the next shift time for the suggested state transition
 	 * 
 	 * @return 0 for zeroEnergyState; 1 if immediate shift in the other direction occurs; previous shift time + 1 else */
 	private int calcNextShiftTime(LoadShiftState initialState, int finalEnergyIndex) {
@@ -165,7 +164,7 @@ public class LoadShiftStateManager {
 		return initialState.shiftTime + 1;
 	}
 
-	/** Add an reset option coming at variable costs which allows to balance parts of the {@link LoadShiftingPortfolio} while other
+	/** Add a reset option coming at variable costs which allows to balance parts of the {@link LoadShiftingPortfolio} while other
 	 * parts are continued to be shifted in the same direction */
 	private void addShiftProlongingOptionAtProlongingCosts(LoadShiftState initialState, int[] powerStepLimits,
 			HashMap<LoadShiftState, Double> nextFeasibleStatesAndCostsForReset, TimePeriod timePeriod) {
