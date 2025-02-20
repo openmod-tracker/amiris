@@ -21,7 +21,7 @@ public class EndUserTariff {
 	}
 
 	private enum ComponentType {
-		POWER_PRICE, EEG_SURCHARGE, VOLUMETRIC_NETWORK_CHARGE, OTHER_COMPONENTS, DUMMY
+		POWER_PRICE, EEG_SURCHARGE, VOLUMETRIC_NETWORK_CHARGE, OTHER_COMPONENTS
 	}
 
 	private FeedInTariffScheme feedInTariffScheme;

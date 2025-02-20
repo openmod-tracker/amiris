@@ -2015,7 +2015,7 @@ AgentTypes:
                   OEONearestConcept:
           Api:
             AttributeType: block
-            Mandatory: true
+            Mandatory: false
             List: false
             MetaData:
               Description: "Parameters for SINGLE_AGENT_MIN_ENERGY_COSTS_EXTERNAL strategy"
@@ -2023,21 +2023,21 @@ AgentTypes:
             NestedAttributes:
               ServiceUrl:
                 AttributeType: string
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "URL for the model service used"
                   OEONearestConcept:
               UseAnnualLimit:
                 AttributeType: integer
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "Boolean specifying whether to use annual limits"
                   OEONearestConcept:
               Solver:
                 AttributeType: enum
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "Solver to use for solving load shifting scheduling optimization problem"
@@ -2057,11 +2057,11 @@ AgentTypes:
                       OEONearestConcept:
                   glpk:
                     MetaData:
-                      Description: "COIN OR's CBC solver"
+                      Description: "GNU Linear Programming Kit solver"
                       OEONearestConcept:
               PriceSensitivityEstimate:
                 AttributeType: time_series
-                Mandatory: false
+                Mandatory: true
                 List: false
                 MetaData:
                   Description: "Estimate for the price sensitivity, i.e. the price change due to increased/decreased load"
@@ -2131,10 +2131,6 @@ AgentTypes:
                     MetaData:
                       Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... "
                       OEONearestConcept:
-                  DUMMY:
-                    MetaData:
-                      Description: "A dummy entry needed in case no dynamic tariff component shall be simulated"
-                      OEONearestConcept:
               Multiplier:
                 AttributeType: time_series
                 Mandatory: true
@@ -2190,7 +2186,7 @@ AgentTypes:
                 Mandatory: false
                 List: false
                 MetaData:
-                  Description: "Group of parameters specifying the business model of an aggregator"
+                  Description: "Assumed absolute margin of an aggregator providing electricity to its end users"
                   OEONearestConcept:
               AverageMarketPriceInEURPerMWH:
                 AttributeType: time_series
