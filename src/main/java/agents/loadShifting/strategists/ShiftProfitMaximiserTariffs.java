@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
@@ -15,7 +15,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import endUser.EndUserTariff;
 
-/** Determines a scheduling strategy for a {@link LoadShiftingPortfolio} in order to minimize overall system costs.
+/** Determines a scheduling strategy for a {@link LoadShiftingPortfolio} in order to maximise profits considering end user tariffs
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class ShiftProfitMaximiserTariffs extends LoadShiftingStrategist {
@@ -25,12 +25,18 @@ public class ShiftProfitMaximiserTariffs extends LoadShiftingStrategist {
 
 	/** incomeSum[t][d][i]: summed marginal cost to period t being in internal energy state i for a duration of d */
 	private final double[][][] incomeSum;
-	/** bestNextState[t][d][i]: best next internal load shift state identified when current energy state is i for a duration d in
-	 * period t */
+	/** bestNextState[t][d][i]: best next internal load shift state, when current energy state is i for a duration d in period t */
 	private final LoadShiftState[][][] bestNextState;
 
-	public ShiftProfitMaximiserTariffs(ParameterData generalInput, ParameterData specificInput, EndUserTariff endUserTariff,
-			LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
+	/** Instantiate {@link ShiftProfitMaximiserTariffs}
+	 * 
+	 * @param generalInput parameters associated with strategists in general
+	 * @param specificInput for {@link ShiftProfitMaximiserTariffs}
+	 * @param endUserTariff determines prices for end users of electricity
+	 * @param loadShiftingPortfolio for which schedules are to be created
+	 * @throws MissingDataException if any required input is missing */
+	public ShiftProfitMaximiserTariffs(ParameterData generalInput, ParameterData specificInput,
+			EndUserTariff endUserTariff, LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
 		super(generalInput, specificInput, loadShiftingPortfolio);
 		stateManager = new LoadShiftStateManager(loadShiftingPortfolio);
 		maximumShiftTime = loadShiftingPortfolio.getMaximumShiftTimeInHours();
@@ -67,27 +73,27 @@ public class ShiftProfitMaximiserTariffs extends LoadShiftingStrategist {
 		for (int k = 0; k < forecastSteps; k++) {
 			int period = forecastSteps - k - 1; // step backwards in time
 			int nextPeriod = period + 1;
-			TimePeriod timeSegment = startTime.shiftByDuration(period);
-			double[] chargePrices = calcChargePrices(timeSegment);
-			double[] consumerPrices = calcConsumerPriceAdditions(timeSegment, chargePrices);
-			StepPower stepPower = calcStepPower(timeSegment);
-			stateManager.returnInitialStates(initialStates);
-			double specificShiftCostsInEURperMWH = portfolio.getVariableShiftCostsInEURPerMWH(timeSegment.getStartTime());
+			TimePeriod timePeriod = startTime.shiftByDuration(period);
+			double[] chargePrices = calcChargePrices(timePeriod);
+			double[] consumerPrices = calcConsumerPriceAdditions(timePeriod, chargePrices);
+			StepPower stepPower = calcStepPower(timePeriod);
+			stateManager.insertInitialStates(initialStates);
+			double specificShiftCostsInEURperMWH = portfolio.getVariableShiftCostsInEURPerMWH(timePeriod.getStartTime());
 
 			for (LoadShiftState initialState : initialStates) {
-				TimePeriod nextTimeSegment = timeSegment.shiftByDuration(1);
-				stateManager.insertNextFeasibleStates(initialState, nextFeasibleStates, nextTimeSegment, isLastPeriod);
+				TimePeriod nextTimePeriod = timePeriod.shiftByDuration(1);
+				stateManager.insertNextFeasibleStates(initialState, nextFeasibleStates, nextTimePeriod, isLastPeriod);
 				double currentBestIncome = -Double.MAX_VALUE;
 				LoadShiftState bestFinalState = LoadShiftStateManager.INFEASIBLE_STATE;
 				for (LoadShiftState finalState : nextFeasibleStates.keySet()) {
 					double income;
-					if (stateManager.isInfeasibleTransition(initialState, finalState, nextTimeSegment)) {
+					if (stateManager.isInfeasibleTransition(initialState, finalState, nextTimePeriod)) {
 						income = -LoadShiftStateManager.PENALTY;
 					} else {
 						int powerStateDelta = finalState.calculateStateDelta(initialState);
 						double absPowerDeltaInMWH = Math.abs(powerStateDelta) * portfolio.getEnergyResolutionInMWH();
 						double variableShiftCosts = specificShiftCostsInEURperMWH * absPowerDeltaInMWH;
-						double incomeTransition = calcIncomeTransition(nextTimeSegment, powerStateDelta, chargePrices,
+						double incomeTransition = calcIncomeTransition(nextTimePeriod, powerStateDelta, chargePrices,
 								consumerPrices, stepPower);
 						income = incomeTransition + getBestIncome(nextPeriod, finalState) - variableShiftCosts
 								- nextFeasibleStates.get(finalState);
@@ -117,11 +123,11 @@ public class ShiftProfitMaximiserTariffs extends LoadShiftingStrategist {
 	}
 
 	/** @return consumer price additions (price excluding spot market power price) in the specified {@link TimePeriod} */
-	private double[] calcConsumerPriceAdditions(TimePeriod timeSegment, double[] chargePrices) {
+	private double[] calcConsumerPriceAdditions(TimePeriod timePeriod, double[] chargePrices) {
 		double[] consumerPriceAdditions = new double[chargePrices.length];
 		for (int i = 0; i < chargePrices.length; i++) {
 			consumerPriceAdditions[i] = tariff.calcSalePriceExcludingPowerPriceInEURPerMWH(chargePrices[i],
-					timeSegment.getStartTime());
+					timePeriod.getStartTime());
 		}
 		return consumerPriceAdditions;
 	}
@@ -138,33 +144,32 @@ public class ShiftProfitMaximiserTariffs extends LoadShiftingStrategist {
 
 	/** @return income for a state transition under specified chargePrices. Note: Not having to pay consumer prices is interpreted
 	 *         as opportunity revenues (saved costs) */
-	private double calcIncomeTransition(TimePeriod timeSegment, int stateDelta, double[] chargePrices,
+	private double calcIncomeTransition(TimePeriod timePeriod, int stateDelta, double[] chargePrices,
 			double[] consumerPriceAdditions, StepPower stepPower) {
 		int priceArrayIndex = stateManager.getZeroPowerStateIndex() + stateDelta;
 		double energyDelta = stepPower.getPower(stateDelta);
-		double baselineLoadInMW = portfolio.getBaselineLoadSeries()
-				.getValueEarlierEqual(timeSegment.getStartTime()) * portfolio.getBaselinePeakLoad();
+		double baselineLoadInMW = portfolio.getBaselineLoadSeries().getValueEarlierEqual(timePeriod.getStartTime())
+				* portfolio.getBaselinePeakLoad();
 		double powerPrice = chargePrices[priceArrayIndex];
 		double consumerPriceAddition = consumerPriceAdditions[priceArrayIndex];
 		if (tariff.isStaticPowerPrice()) {
-			powerPrice = tariff.getStaticPowerPrice(timeSegment.getStartTime());
+			powerPrice = tariff.getStaticPowerPrice(timePeriod.getStartTime());
 		}
-		double increaseInCapacityRelatedPayment = calcIncreaseInCapacityRelatedPayment(timeSegment, energyDelta);
+		double increaseInCapacityRelatedPayment = calcIncreaseInCapacityRelatedPayment(timePeriod, energyDelta);
 		return (-energyDelta - baselineLoadInMW) * (powerPrice + consumerPriceAddition) - increaseInCapacityRelatedPayment;
 	}
 
 	/** Calculate increase in capacity-induced payment obligations due to load shifts. Additional payments occur, if new load peak
 	 * results from shifting */
-	private double calcIncreaseInCapacityRelatedPayment(TimePeriod timeSegment, double energyDelta) {
+	private double calcIncreaseInCapacityRelatedPayment(TimePeriod timePeriod, double energyDelta) {
 		double baselinePeakLoad = portfolio.getBaselinePeakLoad();
-		double baselineLoad = portfolio.getBaselineLoadSeries().getValueEarlierEqual(timeSegment.getStartTime())
+		double baselineLoad = portfolio.getBaselineLoadSeries().getValueEarlierEqual(timePeriod.getStartTime())
 				* baselinePeakLoad;
 		double newLoad = baselineLoad + energyDelta;
 		if (newLoad <= baselinePeakLoad) {
 			return 0;
 		} else {
-			return (newLoad - baselinePeakLoad)
-					* tariff.calcCapacityRelatedPriceInEURPerMW(timeSegment.getStartTime());
+			return (newLoad - baselinePeakLoad) * tariff.calcCapacityRelatedPriceInEURPerMW(timePeriod.getStartTime());
 		}
 	}
 
@@ -181,16 +186,15 @@ public class ShiftProfitMaximiserTariffs extends LoadShiftingStrategist {
 		int initialEnergyIndex = (int) Math.round(currentEnergyShiftStorageLevelInMWH / energyPerState)
 				+ stateManager.getZeroEnergyStateIndex();
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			scheduledInitialEnergyInMWH[period] = energyPerState
-					* absoluteToRelativeEnergyLevelIndex(initialEnergyIndex);
+			scheduledInitialEnergyInMWH[period] = energyPerState * absoluteToRelativeEnergyLevelIndex(initialEnergyIndex);
 			LoadShiftState nextState = bestNextState[period][currentShiftTime][initialEnergyIndex];
 			int energyStateDelta = nextState.energyState - initialEnergyIndex;
 			demandScheduleInMWH[period] = energyStateDelta * energyPerState;
 			if (energyStateDelta == 0) {
 				priceScheduleInEURperMWH[period] = Double.NaN;
 			} else {
-				TimePeriod timeSegment = startTime.shiftByDuration(period);
-				priceScheduleInEURperMWH[period] = calcPriceInPeriod(timeSegment, energyStateDelta);
+				TimePeriod timePeriod = startTime.shiftByDuration(period);
+				priceScheduleInEURperMWH[period] = calcPriceInPeriod(timePeriod, energyStateDelta);
 			}
 			initialEnergyIndex = nextState.energyState;
 			currentShiftTime = nextState.shiftTime;
@@ -201,15 +205,15 @@ public class ShiftProfitMaximiserTariffs extends LoadShiftingStrategist {
 		return absoluteIndex - stateManager.getZeroEnergyStateIndex();
 	}
 
-	/** @return electricity price in the specified {@link TimeSegment} for the specified state transition */
-	private double calcPriceInPeriod(TimePeriod timeSegment, int stateDelta) {
-		double[] chargePrices = calcBidPrices(timeSegment);
+	/** @return electricity price in the specified {@link TimePeriod} for the specified state transition */
+	private double calcPriceInPeriod(TimePeriod timePeriod, int stateDelta) {
+		double[] chargePrices = calcBidPrices(timePeriod);
 		int priceArrayIndex = stateManager.getZeroPowerStateIndex() + stateDelta;
 		return chargePrices[priceArrayIndex];
 	}
 
-	private double[] calcBidPrices(TimePeriod timeSegment) {
-		final PriceSensitivity sensitivity = (PriceSensitivity) getSensitivityForPeriod(timeSegment);
+	private double[] calcBidPrices(TimePeriod timePeriod) {
+		final PriceSensitivity sensitivity = (PriceSensitivity) getSensitivityForPeriod(timePeriod);
 		if (sensitivity != null) {
 			return sensitivity.getValuesInSteps(stateManager.getZeroPowerStateIndex());
 		} else {

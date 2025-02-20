@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
@@ -99,7 +99,7 @@ public class LoadShiftStateManager {
 	/** Return feasible LoadShiftStates, ignoring states not sensible
 	 * 
 	 * @param initialStates list of states that is to be cleared and refilled with new initial states */
-	public void returnInitialStates(ArrayList<LoadShiftState> initialStates) {
+	public void insertInitialStates(ArrayList<LoadShiftState> initialStates) {
 		initialStates.clear();
 		for (int shiftTime = 0; shiftTime < getMaxShiftTime(); shiftTime++) {
 			for (int energyState = 0; energyState < numberOfEnergyStates; energyState++) {
@@ -197,12 +197,12 @@ public class LoadShiftStateManager {
 	 * 
 	 * @param initialState starting state of the transition
 	 * @param finalState target state of the transition
-	 * @param timeSegment at which the transition is to occur
+	 * @param timePeriod at which the transition is to occur
 	 * @return true if transition would be infeasible, false otherwise */
 	public boolean isInfeasibleTransition(LoadShiftState initialState, LoadShiftState finalState,
-			TimePeriod timeSegment) {
+			TimePeriod timePeriod) {
 		int energyStateDelta = finalState.calculateStateDelta(initialState);
-		int[] powerStepLimits = extractPowerStepLimits(timeSegment);
+		int[] powerStepLimits = extractPowerStepLimits(timePeriod);
 		return energyStateDelta < -powerStepLimits[0] || energyStateDelta > powerStepLimits[1];
 	}
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
@@ -13,7 +13,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
-/** Determines a scheduling strategy for a {@link LoadShiftingPortfolio} in order to minimize overall system costs.
+/** Determines a scheduling strategy for a {@link LoadShiftingPortfolio} in order to minimise overall system costs.
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class ShiftSystemCostMinimiser extends LoadShiftingStrategist {
@@ -22,18 +22,22 @@ public class ShiftSystemCostMinimiser extends LoadShiftingStrategist {
 
 	/** costSum[t][d][i]: summed marginal cost to period t being in internal energy state i for a duration of d */
 	private final double[][][] followUpCostSum;
-	/** bestNextState[t][d][i]: best next internal load shift state identified when current energy state is i for a duration d in
-	 * period t */
+	/** bestNextState[t][d][i]: best next internal load shift state when current energy state is i for a duration d in period t */
 	private final LoadShiftState[][][] bestNextState;
 
+	/** Instantiate {@link ShiftSystemCostMinimiser}
+	 * 
+	 * @param generalInput parameters associated with strategists in general
+	 * @param specificInput for {@link ShiftSystemCostMinimiser}
+	 * @param loadShiftingPortfolio for which schedules are to be created
+	 * @throws MissingDataException if any required input is missing */
 	public ShiftSystemCostMinimiser(ParameterData generalInput, ParameterData specificInput,
 			LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
 		super(generalInput, specificInput, loadShiftingPortfolio);
 		stateManager = new LoadShiftStateManager(loadShiftingPortfolio);
 		maximumShiftTime = loadShiftingPortfolio.getMaximumShiftTimeInHours();
 		followUpCostSum = new double[forecastSteps][maximumShiftTime][stateManager.getNumberOfEnergyStates()];
-		bestNextState = new LoadShiftState[forecastSteps][maximumShiftTime][stateManager
-				.getNumberOfEnergyStates()];
+		bestNextState = new LoadShiftState[forecastSteps][maximumShiftTime][stateManager.getNumberOfEnergyStates()];
 	}
 
 	@Override
@@ -63,19 +67,19 @@ public class ShiftSystemCostMinimiser extends LoadShiftingStrategist {
 		for (int k = 0; k < forecastSteps; k++) {
 			int period = forecastSteps - k - 1; // step backwards in time
 			int nextPeriod = period + 1;
-			TimePeriod timeSegment = startTime.shiftByDuration(period);
-			double[] costSteps = calcCostSteps(timeSegment);
-			stateManager.returnInitialStates(initialStates);
-			double specificShiftCostsInEURperMWH = portfolio.getVariableShiftCostsInEURPerMWH(timeSegment.getStartTime());
+			TimePeriod timePeriod = startTime.shiftByDuration(period);
+			double[] costSteps = calcCostSteps(timePeriod);
+			stateManager.insertInitialStates(initialStates);
+			double specificShiftCostsInEURperMWH = portfolio.getVariableShiftCostsInEURPerMWH(timePeriod.getStartTime());
 
 			for (LoadShiftState initialState : initialStates) {
-				TimePeriod nextTimeSegment = timeSegment.shiftByDuration(1);
-				stateManager.insertNextFeasibleStates(initialState, nextFeasibleStates, nextTimeSegment, isLastPeriod);
+				TimePeriod nextTimePeriod = timePeriod.shiftByDuration(1);
+				stateManager.insertNextFeasibleStates(initialState, nextFeasibleStates, nextTimePeriod, isLastPeriod);
 				double currentLowestCost = Double.MAX_VALUE;
 				LoadShiftState bestFinalState = LoadShiftStateManager.INFEASIBLE_STATE;
 				for (LoadShiftState finalState : nextFeasibleStates.keySet()) {
 					double cost;
-					if (stateManager.isInfeasibleTransition(initialState, finalState, nextTimeSegment)) {
+					if (stateManager.isInfeasibleTransition(initialState, finalState, nextTimePeriod)) {
 						cost = LoadShiftStateManager.PENALTY;
 					} else {
 						int powerStateDelta = finalState.calculateStateDelta(initialState);
@@ -114,13 +118,11 @@ public class ShiftSystemCostMinimiser extends LoadShiftingStrategist {
 	/** Update the schedule arrays by calculating energy, energy delta and retrieving shift times as well as setting prices based on
 	 * the energy state delta. */
 	private void updateScheduleArrays(double currentEnergyShiftStorageLevelInMWH, int currentShiftTime) {
-		double energyPerState = portfolio.getPowerInMW()
-				/ ((stateManager.getNumberOfPowerStates() - 1) / 2);
+		double energyPerState = portfolio.getPowerInMW() / ((stateManager.getNumberOfPowerStates() - 1) / 2);
 		int initialEnergyState = (int) Math.round(currentEnergyShiftStorageLevelInMWH / energyPerState)
 				+ stateManager.getZeroEnergyStateIndex();
 		for (int period = 0; period < scheduleDurationPeriods; period++) {
-			scheduledInitialEnergyInMWH[period] = energyPerState * initialEnergyState
-					- portfolio.getEnergyLimitDownInMWH();
+			scheduledInitialEnergyInMWH[period] = energyPerState * initialEnergyState - portfolio.getEnergyLimitDownInMWH();
 			LoadShiftState nextState = bestNextState[period][currentShiftTime][initialEnergyState];
 			int energyStateDelta = nextState.energyState - initialEnergyState;
 			double energyDelta = energyStateDelta * energyPerState;

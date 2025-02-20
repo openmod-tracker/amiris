@@ -64,10 +64,10 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 	/** @return {@link DispatchSchedule schedule} for the connected {@link LoadShiftingPortfolio loadShiftingPortfolio} for the
 	 *         specified simulation hour **/
 	@Override
-	public DispatchSchedule createSchedule(TimePeriod timeSegment, double currentEnergyShiftStorageLevelInMWH,
+	public DispatchSchedule createSchedule(TimePeriod timePeriod, double currentEnergyShiftStorageLevelInMWH,
 			int currentShiftTime) {
 		for (int element = 0; element < scheduleDurationPeriods; element++) {
-			final TimeStamp planningTime = timeSegment.shiftByDuration(element).getStartTime();
+			final TimeStamp planningTime = timePeriod.shiftByDuration(element).getStartTime();
 			final double chargePowerInMW = calcChargingPowerAt(planningTime);
 			final int currentShiftTimeInHours = (int) Math.round(tsShiftTimes.getValueEarlierEqual(planningTime));
 
@@ -79,7 +79,7 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 			currentEnergyShiftStorageLevelInMWH = ensureWithinBounds(currentEnergyShiftStorageLevelInMWH);
 			setBidPrice(element, chargePowerInMW);
 		}
-		return buildSchedule(timeSegment);
+		return buildSchedule(timePeriod);
 	}
 
 	/** @return internal charging power in the dispatch file at the given {@link TimeStamp} */
@@ -151,7 +151,7 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 		}
 	}
 
-	/** @return {@link DispatchSchedule} for the given TimeSegment created from prepared Bid arrays */
+	/** @return {@link DispatchSchedule} for the given time period created from prepared Bid arrays */
 	private DispatchSchedule buildSchedule(TimePeriod timePeriod) {
 		final DispatchSchedule schedule = new DispatchSchedule(timePeriod, scheduleDurationPeriods);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
@@ -14,24 +14,23 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import endUser.EndUserTariff;
 
-/** Creates arbitrage strategies for load shifting devices based on given merit order schedules
+/** Creates arbitrage strategies for {@link LoadShiftingPortfolio}s
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public abstract class LoadShiftingStrategist extends Strategist {
 	/** Type of dispatch strategy to be applied for load shifting scheduling */
 	public static enum StrategistType {
-		/** Seeks to minimise the cost from load shifting */
+		/** Minimise the cost from load shifting */
 		SINGLE_AGENT_MIN_SYSTEM_COST,
 		/** Creates a DispatchSchedule following a given TimeSeries for an energy pattern and one for a shift time pattern, both read
 		 * from input file. It can provide forecasts regarding its behaviour. */
 		DISPATCH_FILE,
-		/** Seeks to maximise the profit from load shifting */
+		/** Maximise profits from load shifting */
 		SINGLE_AGENT_MAX_PROFIT,
-		/** Seeks to maximise the profit from load shifting thereby also considering tariff structures in addition to day-ahead
-		 * electricity prices */
+		/** Maximise profits from load shifting also considering end user tariffs in addition to day-ahead electricity prices */
 		SINGLE_AGENT_MAX_PROFIT_TARIFFS,
-		/** Seeks to minimise the total costs of energy consumption from load shifting thereby also considering tariff structures in
-		 * addition to day-ahead electricity prices; Calls an external micro-model for load shifting scheduling. */
+		/** Minimise the total costs of energy consumption from load shifting also considering end user tariffs in addition to
+		 * day-ahead electricity prices; Calls an external micro-model for load shifting scheduling. */
 		SINGLE_AGENT_MIN_CONSUMER_COST_EXTERNAL
 	}
 
@@ -53,16 +52,16 @@ public abstract class LoadShiftingStrategist extends Strategist {
 	 * 
 	 * @param generalInput parameters associated with strategists
 	 * @param loadShiftingPortfolio for which schedules are to be created
-	 * @param __ not used
+	 * @param __ not used here; specific input for child classes
 	 * @throws MissingDataException if any required input is missing */
 	public LoadShiftingStrategist(ParameterData generalInput, ParameterData __,
 			LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
 		super(generalInput);
-		this.portfolio = loadShiftingPortfolio;
+		portfolio = loadShiftingPortfolio;
 		scheduledInitialEnergyInMWH = new double[scheduleDurationPeriods];
 	}
 
-	/** Create an {@link LoadShiftingStrategist} - its actual type is determined based on the given
+	/** Create an {@link LoadShiftingStrategist} - its actual type is determined from the given input
 	 * 
 	 * @param input all parameters associated with strategists
 	 * @param endUserTariff {@link EndUserTariff} applicable for loads
@@ -103,7 +102,7 @@ public abstract class LoadShiftingStrategist extends Strategist {
 	/** Creates a {@link DispatchSchedule Schedule} for the connected {@link LoadShiftingPortfolio}
 	 * 
 	 * @param timePeriod first TimePeriod element of the schedule to be created
-	 * @param currentEnergyShiftStorageLevelInMWH fictious storage energy level the @link{LoadShiftingPortfolio} is at
+	 * @param currentEnergyShiftStorageLevelInMWH fictitious storage energy level the @link{LoadShiftingPortfolio} is at
 	 * @param currentShiftTime time which the @link{LoadShiftingPortfolio} has already been shifted for
 	 * @return {@link DispatchSchedule Schedule} for the specified {@link TimePeriod} */
 	public DispatchSchedule createSchedule(TimePeriod timePeriod, double currentEnergyShiftStorageLevelInMWH,
