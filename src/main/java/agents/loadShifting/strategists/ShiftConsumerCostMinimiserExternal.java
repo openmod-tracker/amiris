@@ -21,10 +21,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import util.UrlModelService;
 
 /** Determines a scheduling strategy for a {@link LoadShiftingPortfolio} in order to minimise overall costs for energy
- * consumption. Calls an external optimization model for scheduling demand response dispatch.
+ * consumption. Calls an external optimisation model for scheduling demand response dispatch.
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class ShiftConsumerCostMinimiserExternal extends LoadShiftingStrategist {
+	/** Input parameters for {@link ShiftConsumerCostMinimiserExternal} */
 	@Input public static final Tree apiParameters = Make.newTree()
 			.add(Make.newString("ServiceUrl"), Make.newInt("UseAnnualLimit"), Make.newEnum("Solver", Solver.class),
 					Make.newSeries("PriceSensitivityEstimate"))
@@ -37,6 +38,13 @@ public class ShiftConsumerCostMinimiserExternal extends LoadShiftingStrategist {
 	private final TimeSeries priceSensitivity;
 	private double variableShiftingCostsFromOptimiser;
 
+	/** Instantiate {@link ShiftConsumerCostMinimiserExternal}
+	 * 
+	 * @param generalInput parameters associated with strategists in general
+	 * @param specificInput for {@link ShiftConsumerCostMinimiserExternal}
+	 * @param endUserTariff determines prices for end users of electricity
+	 * @param loadShiftingPortfolio for which schedules are to be created
+	 * @throws MissingDataException if any required input is missing */
 	public ShiftConsumerCostMinimiserExternal(ParameterData generalInput, ParameterData specificInput,
 			EndUserTariff endUserTariff, LoadShiftingPortfolio loadShiftingPortfolio) throws MissingDataException {
 		super(generalInput, specificInput, loadShiftingPortfolio);

@@ -7,19 +7,16 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Results of load shifting optimisation model
+/** Results received from external load shifting optimisation model
  *
- * @author Johannes Kochems, Christoph Schimeczek
- */
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class OptimisationResult {
 	private ArrayList<Double> demandAfter;
 	private ArrayList<Double> upshift;
 	private ArrayList<Double> downshift;
 	private double overallVariableCosts;
 
-	public OptimisationResult() {
-	}
+	public OptimisationResult() {}
 
 	@JsonProperty("demand_after")
 	public ArrayList<Double> getDemandAfter() {
@@ -45,12 +42,12 @@ public class OptimisationResult {
 	public void setDownshift(ArrayList<Double> downshift) {
 		this.downshift = downshift;
 	}
-	
+
 	@JsonProperty("overall_variable_costs")
 	public double getOverallVariableCosts() {
 		return overallVariableCosts;
 	}
-	
+
 	public void setOverallVariableCosts(double variableCosts) {
 		this.overallVariableCosts = variableCosts;
 	}

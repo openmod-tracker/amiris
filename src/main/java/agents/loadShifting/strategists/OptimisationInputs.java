@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
 
-/** Inputs of load shifting optimisation model
+/** Inputs sent to external load shifting optimisation model
  *
  * @author Johannes Kochems, Christoph Schimeczek */
 public class OptimisationInputs {
