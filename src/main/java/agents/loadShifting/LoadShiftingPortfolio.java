@@ -131,12 +131,10 @@ public class LoadShiftingPortfolio {
 	 * @param initialEnergyLevel start value of fictitious load shifting energy storage level
 	 * @return whether shift is a prolonged shift */
 	private boolean isProlongedShift(double chargingPower, int shiftTime, double initialEnergyLevel) {
-		if (shiftTime == maximumShiftTimeInHours - 1
-				&& (initialEnergyLevel < -STORAGE_TOLERANCE || initialEnergyLevel > STORAGE_TOLERANCE)) {
-			if (chargingPower == 0 || (chargingPower > 0 && initialEnergyLevel > -STORAGE_TOLERANCE)
-					|| (chargingPower < 0 && initialEnergyLevel < STORAGE_TOLERANCE)) {
-				return true;
-			}
+		if (shiftTime == maximumShiftTimeInHours - 1) {
+			double finalEnergyLevel = initialEnergyLevel + chargingPower;
+			return (initialEnergyLevel > STORAGE_TOLERANCE && finalEnergyLevel > STORAGE_TOLERANCE) ||
+					(initialEnergyLevel < -STORAGE_TOLERANCE && finalEnergyLevel < -STORAGE_TOLERANCE);
 		}
 		return false;
 	}
