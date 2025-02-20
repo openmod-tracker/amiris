@@ -1069,6 +1069,64 @@ AgentTypes:
       Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are predetermined before the simulation begins, therefore exogenously defined, making them static in nature."
       OEONearestConcept:
 
+  PriceForecasterApi:
+    Attributes:
+      Clearing: *DAM_G_Clearing
+      ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
+      ServiceURL:
+        AttributeType: string
+        Mandatory: true
+        List: false
+        help: "URL to forecastapi model"
+        MetaData:
+          Description: "A connection to an external model providing forecasts"
+          OEONearestConcept:  
+      LookBackWindowInHours:
+        AttributeType: integer
+        Mandatory: true
+        List: false
+        help: "Number of TimeSteps for look back"
+        MetaData:
+          Description: "Number of TimeSteps the external forecasting model can look back into the past in order to create the forecasts"
+          OEONearestConcept:   
+      ForecastWindowExtensionInHours:
+        AttributeType: integer
+        Mandatory: true
+        List: false
+        help: "Number of additional TimeSteps to request from API"
+        MetaData:
+          Description: "In order to reduce expensive calls of the external API model, additional number of TimeSteps are requested to forecasted"
+          OEONearestConcept:         
+      ForecastErrorToleranceInEURperMWH:
+        AttributeType: double
+        Mandatory: true
+        List: false
+        help: "If deviation between forecasted and realized electricity prices is greater than this tolerance, a new price forecast request is sent"
+        MetaData:
+          Description: "Tolerance for deviation between forecasted and realized electricity prices. Small tolerances may result in more API calls"
+          OEONearestConcept:
+      ResidualLoadInMWh:
+        AttributeType: time_series
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Specific load time series derived from total electricity demand minus all renewable energy supply"
+          OEONearestConcept:
+    Products:
+      PriceForecast:
+        MetaData:
+          Description: "Price forecasts based on an external model."
+          OEONearestConcept:
+    Outputs:
+      ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast 
+      ElectricityPriceForecastVarianceInEURperMWH:  
+        MetaData:
+          Description: "Variance of forecasted electricity price in EUR per MWh"
+          OEONearestConcept:  
+    MetaData:
+      Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are calculated by an external forecasting model using URLModelSerive."
+      OEONearestConcept:
+
   ConventionalPlantOperator:
     Attributes:
       Refinancing: &PPO_G_Refinancing
