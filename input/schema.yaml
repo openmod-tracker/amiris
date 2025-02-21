@@ -1069,6 +1069,64 @@ AgentTypes:
       Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are predetermined before the simulation begins, therefore exogenously defined, making them static in nature."
       OEONearestConcept:
 
+  PriceForecasterApi:
+    Attributes:
+      Clearing: *DAM_G_Clearing
+      ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
+      ServiceURL:
+        AttributeType: string
+        Mandatory: true
+        List: false
+        help: "URL to amiris-priceforecast api"
+        MetaData:
+          Description: "URL connection to an external API providing forecasts"
+          OEONearestConcept:  
+      LookBackWindowInHours:
+        AttributeType: integer
+        Mandatory: true
+        List: false
+        help: "Number of TimeSteps for look back"
+        MetaData:
+          Description: "Number of TimeSteps the external forecasting model can look back into the past in order to create the forecasts"
+          OEONearestConcept:   
+      ForecastWindowExtensionInHours:
+        AttributeType: integer
+        Mandatory: true
+        List: false
+        help: "Number of TimeSteps additional to forecast horizon to be requested from API"
+        MetaData:
+          Description: "In order to reduce expensive calls of the external API model, additional number of TimeSteps are requested to forecasted"
+          OEONearestConcept:         
+      ForecastErrorToleranceInEURperMWH:
+        AttributeType: double
+        Mandatory: true
+        List: false
+        help: "Max accepted deviation between forecasted and realized electricity prices; if violated a new price forecast request is sent"
+        MetaData:
+          Description: "Tolerance for deviation between forecasted and realized electricity prices. Small tolerances may result in more API calls"
+          OEONearestConcept:
+      ResidualLoadInMWh:
+        AttributeType: time_series
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Specific load time series derived from total electricity demand minus all renewable energy supply"
+          OEONearestConcept:
+    Products:
+      PriceForecast:
+        MetaData:
+          Description: "Price forecasts based on an external model."
+          OEONearestConcept:
+    Outputs:
+      ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast 
+      ElectricityPriceForecastVarianceInEURperMWH:
+        MetaData:
+          Description: "Variance of forecasted electricity price in EUR per MWh"
+          OEONearestConcept:
+    MetaData:
+      Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are calculated by an external forecasting model using URLModelSerive."
+      OEONearestConcept:
+
   ConventionalPlantOperator:
     Attributes:
       Refinancing: &PPO_G_Refinancing
@@ -1822,6 +1880,445 @@ AgentTypes:
       Description: "A green hydrogen electrolysis operator; It purchases electricity directly from renewable power plants operators."
       OEONearestConcept:
 
+  LoadShiftingTrader:
+    Attributes:
+      LoadShiftingPortfolio:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "A portfolio of loads that are eligible for load shifting and whose flexibility is marketed by the respective LoadShiftingTrader"
+          OEONearestConcept:
+        NestedAttributes:
+          InitialEnergyLevelInMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The (fictitious) initial level of load shifting portfolio in MWh"
+              OEONearestConcept:
+          InitialShiftTimeInHours:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The time which the load shifting portfolio has already been shifted for at the start of the simulation in hours"
+              OEONearestConcept:
+          PowerInMW:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Maximum power in MW of load shifting portfolio that can be shifted up or down"
+              OEONearestConcept:
+          PowerUpAvailability:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Availability time series for power shifts in upwards direction (increased load), relative to PowerInMW"
+              OEONearestConcept:
+          PowerDownAvailability:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Availability time series for power shifts in downwards direction (decreased load), relative to PowerInMW"
+              OEONearestConcept:
+          EnergyResolutionInMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The resolution of discrete energy steps for any strategist other than ShiftProfitMaximiserExternal in MWh"
+              OEONearestConcept:
+          EnergyLimitUpInMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The absolute energy limit for a shift in upwards direction (increased load) in MWh"
+              OEONearestConcept:
+          EnergyLimitDownInMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The absolute energy limit for a shift in downwards direction (decreased load) in MWh"
+              OEONearestConcept:
+          MaximumShiftTimeInHours:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The maximum allowed time for a load shift in hours, including the initial hour of shifting"
+              OEONearestConcept:
+          VariableShiftCostsInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The variable costs of a load shift given in EUR per MWh and attributed onto both, upshifts and downshifts"
+              OEONearestConcept:
+          BaselineLoadTimeSeries:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The originally planned load consumption before any load shifting given as a time series relative to BaselinePeakLoadInMW"
+              OEONearestConcept:
+          BaselinePeakLoadInMW:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The maximum peak load occurring before load shifting in MW"
+              OEONearestConcept:
+          Efficiency:
+            AttributeType: double
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "The efficiency of load shifting which must be between 0 and 1 (inclusive)"
+              OEONearestConcept:
+          InterferenceTimeInHours:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "The maximum allowed time for an upshift resp. a downshift as part of a shifting process, used only for strategist ShiftProfitMaximiserExternal"
+              OEONearestConcept:
+          MaximumActivations:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "The maximum number of full shift cycles over the course of the planning period (e.g. one year)"
+              OEONearestConcept:
+      Strategy:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Group of parameters to describe the dispatch strategy for the load shifting parameter."
+          OEONearestConcept:
+        NestedAttributes:
+          StrategistType:
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              SINGLE_AGENT_MAX_PROFIT:
+                MetaData:
+                  Description: "Seeks to maximise the profit from load shifting"
+                  OEONearestConcept:
+              SINGLE_AGENT_MIN_SYSTEM_COST:
+                MetaData:
+                  Description: "Seeks to minimise the cost from load shifting"
+                  OEONearestConcept:
+              DISPATCH_FILE:
+                MetaData:
+                  Description: "Creates a DispatchSchedule following a given TimeSeries for an energy pattern and one for a shift time pattern, both read from input file. It can provide forecasts regarding its behaviour."
+                  OEONearestConcept:
+              SINGLE_AGENT_MAX_PROFIT_TARIFFS:
+                MetaData:
+                  Description: "Seeks to maximise the profit from load shifting thereby also considering tariff structures in addition to day-ahead electricity prices"
+                  OEONearestConcept:
+              SINGLE_AGENT_MIN_CONSUMER_COST_EXTERNAL:
+                MetaData:
+                  Description: "Seeks to minimise the total costs of energy consumption from load shifting thereby also considering tariff structures in addition to day-ahead electricity prices; Calls an external optimization micro-model for load shifting scheduling."
+                  OEONearestConcept:
+            MetaData:
+              Description: "Type of dispatch strategy to be applied for load shifting scheduling"
+              OEONearestConcept:
+          ForecastPeriodInHours: *Strategist_A_ForecastPeriod
+          ScheduleDurationInHours: *Strategist_A_ScheduleDuration
+          BidToleranceInEURperMWH: *Strategist_A_BidTolerance
+          SingleAgent:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Parameters for single agent strategies"
+              OEONearestConcept:
+            NestedAttributes:
+              PurchaseLeviesAndTaxesInEURperMWH:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Taxes and levies for load shifting consumers that are due on a per MWh basis"
+                  OEONearestConcept:
+          FixedDispatch:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Parameters for DISPATCH_FILE strategy"
+              OEONearestConcept:
+            NestedAttributes:
+              EnergySchedule:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Time series of energy to be shifted, relative to upwards resp. downwards energy limits"
+                  OEONearestConcept:
+              ShiftTimeSchedule:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Time series for evolvement of current shifting time"
+                  OEONearestConcept:
+          Api:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Parameters for SINGLE_AGENT_MIN_ENERGY_COSTS_EXTERNAL strategy"
+              OEONearestConcept:
+            NestedAttributes:
+              ServiceUrl:
+                AttributeType: string
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "URL for the model service used"
+                  OEONearestConcept:
+              UseAnnualLimit:
+                AttributeType: integer
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "Boolean specifying whether to use annual limits"
+                  OEONearestConcept:
+              Solver:
+                AttributeType: enum
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "Solver to use for solving load shifting scheduling optimization problem"
+                  OEONearestConcept:
+                Values:
+                  gurobi:
+                    MetaData:
+                      Description: "Gurobi Optimization solver"
+                      OEONearestConcept:
+                  cplex:
+                    MetaData:
+                      Description: "IBM's CPLEX solver"
+                      OEONearestConcept:
+                  cbc:
+                    MetaData:
+                      Description: "COIN OR's CBC solver"
+                      OEONearestConcept:
+                  glpk:
+                    MetaData:
+                      Description: "GNU Linear Programming Kit solver"
+                      OEONearestConcept:
+              PriceSensitivityEstimate:
+                AttributeType: time_series
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "Estimate for the price sensitivity, i.e. the price change due to increased/decreased load"
+                  OEONearestConcept:
+      Policy: &EndUserTariff_G_Policy
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+          Description: "Group of parameters defining tariff policy for an end user flexibility trader"
+          OEONearestConcept: OEO_00140150
+        NestedAttributes:
+          EEGSurchargeInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "The EEG levy (levy from German renewable energy act - EEG) in EUR per MWh"
+              OEONearestConcept:
+          VolumetricNetworkChargeInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh"
+              OEONearestConcept:
+          ElectricityTaxInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Electricity tax in EUR per MWh"
+              OEONearestConcept:
+          OtherSurchargesInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... in EUR per MWh"
+              OEONearestConcept:
+          DynamicTariffComponents:
+            AttributeType: block
+            List: true
+            Mandatory: false
+            MetaData:
+              Description: "Group of tariff components that are made dynamic, i.e. varying with the model-endogenous day-ahead price"
+              OEONearestConcept:
+            NestedAttributes:
+              ComponentName:
+                AttributeType: enum
+                Mandatory: true
+                List: false
+                Values:
+                  POWER_PRICE:
+                    MetaData:
+                      Description: "power price component corresponding to the day-ahead power price"
+                      OEONearestConcept:
+                  EEG_SURCHARGE:
+                    MetaData:
+                      Description: "The EEG levy (levy from German renewable energy act - EEG)"
+                      OEONearestConcept:
+                  VOLUMETRIC_NETWORK_CHARGE:
+                    MetaData:
+                      Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh"
+                      OEONearestConcept:
+                  OTHER_COMPONENTS:
+                    MetaData:
+                      Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... "
+                      OEONearestConcept:
+              Multiplier:
+                AttributeType: time_series
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "Multiplier used for calculating dynamic tariff component from model-endogenous day-ahead price"
+                  OEONearestConcept:
+              LowerBound:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Lower price bound to cap tariff component at"
+                  OEONearestConcept:
+              UpperBound:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Upper price bound to cap tariff component at"
+                  OEONearestConcept:
+          VAT:
+            AttributeType: double
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Value added tax multiplier in per cent"
+              OEONearestConcept:
+          CapacityBasedNetworkChargesInEURPerMW:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Network charges based on peak consumption capacity for planning period (year) in EUR per MW"
+              OEONearestConcept:
+          FixedNetworkChargesInEURPerYear:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Fixed network charges based on peak consumption capacity for planning period in EUR per MW"
+              OEONearestConcept:
+      BusinessModel: &EndUserTariff_G_BusinessModel
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Group of parameters specifying the business model of an aggregator"
+              OEONearestConcept:
+            NestedAttributes:
+              ProfitMarginInEURPerMWH:
+                AttributeType: double
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Assumed absolute margin of an aggregator providing electricity to its end users"
+                  OEONearestConcept:
+              AverageMarketPriceInEURPerMWH:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "The average market price in EUR per MWh to be applied in case of a static tariff"
+                  OEONearestConcept:
+    Products:
+      Bids: *DamTrader_P_Bids
+      Payout: *PowerPlantScheduler_P_Payout
+      DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
+      BidsForecast: *Trader_P_BidsForecast
+      MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
+      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      GateClosureForward: *TraderWithClients_P_GateClosureForward
+      ForecastRequestForward: *TraderWithClients_P_ForecastRequestForward
+    Outputs:
+      OfferedUpshiftPowerInMW:
+        MetaData:
+          Description: "power offered to be shifted in upwards direction (load increase) compared to baseline load consumption"
+          OEONearestConcept:
+      OfferedDownshiftPowerInMW:
+        MetaData:
+          Description: "power offered to be shifted in downwards direction (load reduction) compared to baseline load consumption"
+          OEONearestConcept:
+      OfferedPriceInEURperMWH:
+        MetaData:
+          Description: "offered bid price to sell / purchase power at"
+          OEONearestConcept:
+      AwardedUpshiftPowerInMW:
+        MetaData:
+          Description: "power awarded to be shifted in upwards direction (load increase) compared to baseline load consumption"
+          OEONearestConcept:
+      AwardedDownshiftPowerInMW:
+        MetaData:
+          Description: "power awarded to be shifted in downwards direction (load reduction) compared to baseline load consumption"
+          OEONearestConcept:
+      NetAwardedPowerInMW:
+        MetaData:
+          Description: "net power awarded to be shifted compared to baseline load consumption"
+          OEONearestConcept:
+      StoredMWH:
+        MetaData:
+          Description: "(fictitious) load shifting energy storage level"
+          OEONearestConcept:
+      CurrentShiftTimeInH:
+        MetaData:
+          Description: "number of consecutive hours for which the load shifting portfolio has already been shifted into one direction (upwards or downwards), i.e. for which the (fictitious) load shifting energy storage level is already unbalanced"
+          OEONearestConcept:
+      RevenuesInEUR:
+        MetaData:
+          Description: "revenues from marketing power in the course of a downshift (load decrease)"
+          OEONearestConcept:
+      CostsInEUR:
+        MetaData:
+          Description: "total costs for load shifting comprising costs for purchasing power in the course of an upshift (load increase) as well as variable costs for load shifting"
+          OEONearestConcept:
+      VariableShiftingCostsInEUR:
+        MetaData:
+          Description: "variable costs for load shifting"
+          OEONearestConcept:
+      ProfitInEUR:
+        MetaData:
+          Description: "revenues minus all variable costs"
+          OEONearestConcept:
+      VariableShiftingCostsFromOptimiserInEUR:
+        MetaData:
+          Description: "variable costs for load shifting from optimization micro-model, called for strategist SINGLE_AGENT_MIN_CONSUMER_COSTS_EXTERNAL"
+          OEONearestConcept:
+    MetaData:
+      Description: "An aggregator marketing a portfolio of flexibile loads that are eligible for load shifting; It can apply different strategies for dispatch scheduling."
+      OEONearestConcept:
+
   GreenHydrogenTraderMonthly:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
@@ -2126,139 +2623,8 @@ AgentTypes:
             MetaData:
               Description: "Internal heat gains inside the building in kW."
               OEONearestConcept:
-      Policy:
-        AttributeType: block
-        Mandatory: false
-        List: false
-        MetaData:
-          Description: "Group of parameters defining tariff policy for an end user flexibility trader."
-          OEONearestConcept: OEO_00140150
-        NestedAttributes:
-          EEGSurchargeInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "The EEG levy (levy from German renewable energy act - EEG) in EUR per MWh."
-              OEONearestConcept:
-          VolumetricNetworkChargeInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh."
-              OEONearestConcept:
-          ElectricityTaxInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Electricity tax in EUR per MWh"
-              OEONearestConcept:
-          OtherSurchargesInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... in EUR per MWh."
-              OEONearestConcept:
-          DynamicTariffComponents:
-            AttributeType: block
-            List: true
-            Mandatory: false
-            MetaData:
-              Description: "Group of tariff components that are made dynamic, i.e. varying with the model-endogenous day-ahead price."
-              OEONearestConcept:
-            NestedAttributes:
-              ComponentName:
-                AttributeType: enum
-                Mandatory: true
-                List: false
-                Values:
-                  POWER_PRICE:
-                    MetaData:
-                      Description: "Power price component corresponding to the day-ahead power price."
-                      OEONearestConcept:
-                  EEG_SURCHARGE:
-                    MetaData:
-                      Description: "The EEG levy (levy from German renewable energy act - EEG)."
-                      OEONearestConcept:
-                  VOLUMETRIC_NETWORK_CHARGE:
-                    MetaData:
-                      Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh."
-                      OEONearestConcept:
-                  OTHER_COMPONENTS:
-                    MetaData:
-                      Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... ."
-                      OEONearestConcept:
-                  DUMMY:
-                    MetaData:
-                      Description: "A dummy entry needed in case no dynamic tariff component shall be simulated."
-                      OEONearestConcept:
-              Multiplier:
-                AttributeType: time_series
-                Mandatory: true
-                List: false
-                MetaData:
-                  Description: "Multiplier used for calculating dynamic tariff component from model-endogenous day-ahead price."
-                  OEONearestConcept:
-              LowerBound:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description: "Lower price bound to cap tariff component at."
-                  OEONearestConcept:
-              UpperBound:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description: "Upper price bound to cap tariff component at."
-                  OEONearestConcept:
-          VAT:
-            AttributeType: double
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Value added tax multiplier in per cent."
-              OEONearestConcept:
-          CapacityBasedNetworkChargesInEURPerMW:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Network charges based on peak consumption capacity for planning period (year) in EUR per MW."
-              OEONearestConcept:
-          FixedNetworkChargesInEURPerYear:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Fixed network charges based on peak consumption capacity for planning period in EUR per MW."
-              OEONearestConcept:
-      BusinessModel:
-        AttributeType: block
-        Mandatory: false
-        List: false
-        MetaData:
-          Description: "Group of parameters specifying the business model of an aggregator."
-          OEONearestConcept:
-        NestedAttributes:
-          ProfitMarginInEURPerMWH:
-            AttributeType: double
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Group of parameters specifying the business model of an aggregator."
-              OEONearestConcept:
-          AverageMarketPriceInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "The average market price in EUR per MWh to be applied in case of a static tariff."
-              OEONearestConcept:
+      Policy: *EndUserTariff_G_Policy
+      BusinessModel: *EndUserTariff_G_BusinessModel
     Products:
       Bids: *DamTrader_P_Bids
       MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest

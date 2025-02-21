@@ -2,10 +2,18 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - 2025-02-21
+### Changed
+- Improve README.md to be more attractive for first contact #142 (@dlr-cjs)
+- Update CONTRIBUTING.md #142 (@dlr-cjs)
+
+### Added
+- Add new agent `LoadShiftingTrader` that markets a portfolio of loads eligible for load shifting at the day-ahead market #137 (@dlr_jk, @dlr-cjs)
+- Add new agent `PriceForecasterApi` enabling calling external forecasting models #144 (@dlr_fn, @dlr-cjs)
 
 ## [3.3.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.3.0) - 2025-01-29
 ### Added
-- Add new storage strategy `MAX_PROFIT_PRICE_TAKER` #139 (dlr_fn, @dlr-cjs)
+- Add new storage strategy `MAX_PROFIT_PRICE_TAKER` #139 (@dlr_fn, @dlr-cjs)
 - Add option to specify `ForecastUpdateType` #140 (@dlr_fn, @dlr-cjs)
 - Add link to AMIRIS Open Forum in documentation #136 (@dlr_fn)
 
@@ -30,16 +38,16 @@ SPDX-License-Identifier: CC0-1.0 -->
 
 ## [3.0.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.1) - 2024-10-14
 ### Fixed
-- Configure artifacts to expire after one year #130 (@dlr_fn @dlr-cjs)
+- Configure artifacts to expire after one year #130 (@dlr_fn, @dlr-cjs)
 
 ## [3.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.0.0) - 2024-09-20
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
-- **Breaking**: Change `FuelType` input parameter from `enum` to `string_set` and move to `FuelsTrader` #120 (@dlr_fn @dlr-cjs)
-- **Breaking**: Change `Set` input parameter from `enum` to `string_set` and rename to `PolicySet` #5 (@dlr_fn @dlr-cjs)
+- **Breaking**: Change `FuelType` input parameter from `enum` to `string_set` and move to `FuelsTrader` #120 (@dlr_fn, @dlr-cjs)
+- **Breaking**: Change `Set` input parameter from `enum` to `string_set` and rename to `PolicySet` #5 (@dlr_fn, @dlr-cjs)
 - **Breaking**: Change market zone inputs `OwnMarketZone` and `ConnectedMarketZone` to `string_set` and rename to `MarketZone` #123 (@dlr-cjs)
-- **Breaking**: Change contract structure GateClosureInfo to be sent before forecasting #126 (@dlr-cjs @dlr_fn)
-- Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs @dlr_jk)
+- **Breaking**: Change contract structure GateClosureInfo to be sent before forecasting #126 (@dlr-cjs, @dlr_fn)
+- Replace `GreenHydrogenOperator` with `GreenHydrogenTrader` which allows marketing of (surplus) electricity #124 (@dlr-cjs, @dlr_jk)
 - Change minimum requirement `fameio` version to 2.3.1 #5, #120 (@dlr-cjs)
 - README: Update minimum Python version requirement to 3.9 !114, !130 (@dlr_fn, @dlr-cjs)
 
@@ -47,13 +55,13 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - add new agent `GreenHydrogenTraderMonthly` that has a PPA with a renewable operator to produce hydrogen with monthly equivalence #125 (@dlr-cjs, @dlr_jk)
 
 ### Removed
-- **Breaking**: Deleted input Attribute `ElectricityForecastRequestOffsetInSeconds` from `StorageTrader` and `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
-- **Breaking**: Deleted input Attribute `HydrogenForecastRequestOffsetInSeconds` from `ElectrolysisTrader` #126 (@dlr-cjs @dlr_fn)
-- **Breaking**: Deleted input Attribute `ForecastRequestOffsetInSeconds` from `MeritOrderForecaster` and `PriceForecaster` #126 (@dlr-cjs @dlr_fn)
+- **Breaking**: Deleted input Attribute `ElectricityForecastRequestOffsetInSeconds` from `StorageTrader` and `ElectrolysisTrader` #126 (@dlr-cjs, @dlr_fn)
+- **Breaking**: Deleted input Attribute `HydrogenForecastRequestOffsetInSeconds` from `ElectrolysisTrader` #126 (@dlr-cjs, @dlr_fn)
+- **Breaking**: Deleted input Attribute `ForecastRequestOffsetInSeconds` from `MeritOrderForecaster` and `PriceForecaster` #126 (@dlr-cjs, @dlr_fn)
 
 ### Fixed
-- **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn @dlr-cjs)
-- Remove unnecessary warnings in `ArbitrageStrategist` #122 (@dlr_fn @dlr-cjs)
+- **Breaking**: Fixed typo in input attribute name `InvestmentExpensesInEURperMW` #114 (@dlr_fn, @dlr-cjs)
+- Remove unnecessary warnings in `ArbitrageStrategist` #122 (@dlr_fn, @dlr-cjs)
 - Javadoc publishing pipeline #129 (@dlr-cjs)
 
 ## [2.2.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v2.2.0) - 2024-05-28
@@ -63,12 +71,12 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Increase FAME-Core version to 1.7 #110 (@dlr-cjs)
 
 ### Added
-- Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled market zones #36 #109 (@dlr_elghazi @dlr_fn @dlr-cjs)
-- Add new agent `MarketCoupling` which allows coupling of multiple `DayAheadMarketMultiZone` #36 (@dlr-cjs @litotes18 @dlr_elghazi @dlr_fn)
-- Add new agent `ImportTrader` which can account for "negative" load from net-import hours #36 (@dlr-cjs @dlr_elghazi @dlr_fn)
+- Add new agent `DayAheadMarketMultiZone` for market clearing with multiple coupled market zones #36 #109 (@dlr_elghazi, @dlr_fn, @dlr-cjs)
+- Add new agent `MarketCoupling` which allows coupling of multiple `DayAheadMarketMultiZone` #36 (@dlr-cjs, @litotes18, @dlr_elghazi, @dlr_fn)
+- Add new agent `ImportTrader` which can account for "negative" load from net-import hours #36 (@dlr-cjs, @dlr_elghazi, @dlr_fn)
 - add new agent `GreenHydrogenOperator` that has a PPA with a renewable operator to produce hydrogen #103 (@dlr-cjs, @dlr_jk, @LeonardWilleke)
 - add new Product `PpaInformation` to `VariableRenewableOperator` to directly sell power to a client #103 (@dlr_jk, @LeonardWilleke)
-- Metadata added in schema.yaml #102 (@litotes18 @dlr-cjs)
+- Metadata added in schema.yaml #102 (@litotes18, @dlr-cjs)
 
 ### Fixed
 - Fixed inconsistent behaviour for Storage operation at the end of simulation #110 (@dlr-cjs)
