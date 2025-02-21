@@ -2189,10 +2189,6 @@ AgentTypes:
                     MetaData:
                       Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... "
                       OEONearestConcept:
-                  DUMMY:
-                    MetaData:
-                      Description: "A dummy entry needed in case no dynamic tariff component shall be simulated."
-                      OEONearestConcept:
               Multiplier:
                 AttributeType: time_series
                 Mandatory: true
@@ -2283,7 +2279,7 @@ AgentTypes:
         MetaData:
           Description: "power awarded to be shifted in upwards direction (load increase) compared to baseline load consumption"
           OEONearestConcept:
-      AwardedUpshiftPowerInMW:
+      AwardedDownshiftPowerInMW:
         MetaData:
           Description: "power awarded to be shifted in downwards direction (load reduction) compared to baseline load consumption"
           OEONearestConcept:
