@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.forecast;
@@ -44,9 +44,13 @@ public abstract class MarketForecaster extends Forecaster {
 		ForecastRequest
 	};
 
+	/** Output columns of {@link MarketForecaster} */
 	@Output
-	private static enum OutputFields {
-		AwardedEnergyForecastInMWH, ElectricityPriceForecastInEURperMWH
+	protected static enum OutputFields {
+		/** Energy Awarded in Forecast in MWh */
+		AwardedEnergyForecastInMWH,
+		/** Forecasted electricity price in EUR/MWh */
+		ElectricityPriceForecastInEURperMWH
 	};
 
 	/** maximum number of future hours to provide forecasts for */
