@@ -2130,7 +2130,7 @@ AgentTypes:
         List: false
         MetaData:
           Description: "Group of parameters defining tariff policy for an end user flexibility trader"
-          OEONearestConcept:
+          OEONearestConcept: OEO_00140150
         NestedAttributes:
           EEGSurchargeInEURPerMWH:
             AttributeType: time_series
@@ -2188,6 +2188,10 @@ AgentTypes:
                   OTHER_COMPONENTS:
                     MetaData:
                       Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... "
+                      OEONearestConcept:
+                  DUMMY:
+                    MetaData:
+                      Description: "A dummy entry needed in case no dynamic tariff component shall be simulated."
                       OEONearestConcept:
               Multiplier:
                 AttributeType: time_series
@@ -2624,116 +2628,6 @@ AgentTypes:
               Description: "Internal heat gains inside the building in kW."
               OEONearestConcept:
       Policy: *EndUserTariff_G_Policy
-        AttributeType: block
-        Mandatory: false
-        List: false
-        MetaData:
-          Description: "Group of parameters defining tariff policy for an end user flexibility trader."
-          OEONearestConcept: OEO_00140150
-        NestedAttributes:
-          EEGSurchargeInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "The EEG levy (levy from German renewable energy act - EEG) in EUR per MWh."
-              OEONearestConcept:
-          VolumetricNetworkChargeInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh."
-              OEONearestConcept:
-          ElectricityTaxInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Electricity tax in EUR per MWh"
-              OEONearestConcept:
-          OtherSurchargesInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... in EUR per MWh."
-              OEONearestConcept:
-          DynamicTariffComponents:
-            AttributeType: block
-            List: true
-            Mandatory: false
-            MetaData:
-              Description: "Group of tariff components that are made dynamic, i.e. varying with the model-endogenous day-ahead price."
-              OEONearestConcept:
-            NestedAttributes:
-              ComponentName:
-                AttributeType: enum
-                Mandatory: true
-                List: false
-                Values:
-                  POWER_PRICE:
-                    MetaData:
-                      Description: "Power price component corresponding to the day-ahead power price."
-                      OEONearestConcept:
-                  EEG_SURCHARGE:
-                    MetaData:
-                      Description: "The EEG levy (levy from German renewable energy act - EEG)."
-                      OEONearestConcept:
-                  VOLUMETRIC_NETWORK_CHARGE:
-                    MetaData:
-                      Description: "Volumetric network charges, i.e. charges dependent on consumed energy in EUR per MWh."
-                      OEONearestConcept:
-                  OTHER_COMPONENTS:
-                    MetaData:
-                      Description: "Other surcharges, such as CHP levy, § 19 StromNEV levy, concession fee, ... ."
-                      OEONearestConcept:
-                  DUMMY:
-                    MetaData:
-                      Description: "A dummy entry needed in case no dynamic tariff component shall be simulated."
-                      OEONearestConcept:
-              Multiplier:
-                AttributeType: time_series
-                Mandatory: true
-                List: false
-                MetaData:
-                  Description: "Multiplier used for calculating dynamic tariff component from model-endogenous day-ahead price."
-                  OEONearestConcept:
-              LowerBound:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description: "Lower price bound to cap tariff component at."
-                  OEONearestConcept:
-              UpperBound:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description: "Upper price bound to cap tariff component at."
-                  OEONearestConcept:
-          VAT:
-            AttributeType: double
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Value added tax multiplier in per cent."
-              OEONearestConcept:
-          CapacityBasedNetworkChargesInEURPerMW:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Network charges based on peak consumption capacity for planning period (year) in EUR per MW."
-              OEONearestConcept:
-          FixedNetworkChargesInEURPerYear:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Fixed network charges based on peak consumption capacity for planning period in EUR per MW."
-              OEONearestConcept:
       BusinessModel: *EndUserTariff_G_BusinessModel
     Products:
       Bids: *DamTrader_P_Bids
