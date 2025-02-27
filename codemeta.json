@@ -1,0 +1,190 @@
+{
+    "@context": "https://w3id.org/codemeta/3.0",
+    "type": "SoftwareSourceCode",
+    "applicationCategory": "Energy Systems Analysis",
+    "author": [
+        {
+            "id": "https://orcid.org/0000-0002-0791-9365",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "email": "amiris@dlr.de",
+            "familyName": "Schimeczek",
+            "givenName": "Christoph"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-0791-9365",
+            "roleName": "Maintainer",
+            "startDate": "2020-01-01"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-0791-9365",
+            "roleName": "Developer",            
+            "endDate": "2019-12-31",
+            "startDate": "2017-04-01"
+        },
+        {
+            "id": "https://orcid.org/0000-0003-4180-6767",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Nienhaus",
+            "givenName": "Kristina"
+        },
+        {
+            "id": "https://orcid.org/0000-0002-9803-1336",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Frey",
+            "givenName": "Ulrich"
+        },
+        {
+            "id": "https://orcid.org/0000-0001-9093-5042",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Sperber",
+            "givenName": "Evelyn"
+        },
+        {
+            "id": "https://orcid.org/0000-0002-9824-3371",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Nitsch",
+            "givenName": "Felix"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-9824-3371",
+            "roleName": "Maintainer",
+            "startDate": "2024-09-01"
+        },
+        {
+            "id": "https://orcid.org/0000-0002-3461-3679",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Kochems",
+            "givenName": "Johannes"
+        },
+        {
+            "id": "https://orcid.org/0000-0001-5064-9148",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "El Ghazi",
+            "givenName": "A. Achraf"
+        }
+    ],
+    "codeRepository": "https://gitlab.com/dlr-ve/esy/amiris/amiris",
+    "contributor": [
+        {
+            "id": "https://orcid.org/0000-0001-8247-6499",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Reeg",
+            "givenName": "Matthias"
+        },
+        {
+            "id": "_:contributor_2",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Roloff",
+            "givenName": "Nils"
+        },
+        {
+            "id": "https://orcid.org/0000-0002-9103-418X",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Deissenroth-Uhrig",
+            "givenName": "Marc"
+        },
+        {
+            "id": "https://orcid.org/0000-0001-7283-4707",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Klein",
+            "givenName": "Martin"
+        },
+        {
+            "id": "https://orcid.org/0000-0003-0532-5907",
+            "type": "Person",
+            "familyName": "Sarfarazi",
+            "givenName": "Seyedfarzad"
+        },
+        {
+            "id": "https://orcid.org/0009-0004-4859-2452",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Willeke",
+            "givenName": "Leonard"
+        }
+    ],
+    "dateCreated": "2008-01-01",
+    "dateModified": "2025-02-21",
+    "datePublished": "2021-12-06",
+    "description": "AMIRIS is open Agent-based Market model for the Investigation of Renewable and Integrated energy Systems.",
+    "downloadUrl": "https://doi.org/10.5281/zenodo.7756087",
+    "keywords": [
+        "energy system",
+        "electricity market",
+        "agent-based",
+        "simulation"
+    ],
+    "license": [
+        "https://spdx.org/licenses/Apache-2.0",
+        "https://spdx.org/licenses/CC-BY-4.0",
+        "https://spdx.org/licenses/CC0-1.0"
+    ],
+    "name": "AMIRIS",
+    "operatingSystem": [
+        "Linux",
+        "Windows",
+        "Mac"
+    ],
+    "programmingLanguage": "Java",
+    "releaseNotes": "Changed:\n- Improve README.md to be more attractive for first contact\n- Update CONTRIBUTING.md\n\nAdded:\n- Add new agent LoadShiftingTrader that markets a portfolio of loads eligible for load shifting at the day-ahead market\n- Add new agent PriceForecasterApi enabling calling external forecasting models",
+    "runtimePlatform": "JVM",
+    "softwareRequirements": "JDK 11 or greater",
+    "version": "3.4.0",
+    "codemeta:contIntegration": {
+        "id": "https://gitlab.com/dlr-ve/esy/amiris/amiris/-/pipelines"
+    },
+    "continuousIntegration": "https://gitlab.com/dlr-ve/esy/amiris/amiris/-/pipelines",
+    "developmentStatus": "active",
+    "issueTracker": "https://gitlab.com/dlr-ve/esy/amiris/amiris/-/issues",
+    "referencePublication": "https://doi.org/10.21105/joss.05041"
+}
