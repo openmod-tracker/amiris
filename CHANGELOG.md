@@ -2,6 +2,10 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - tba
+### Added
+- Add metadata.json to describe project with metadata #147 (@dlr-cjs)
+
 ## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - 2025-02-21
 ### Changed
 - Improve README.md to be more attractive for first contact #142 (@dlr-cjs)
