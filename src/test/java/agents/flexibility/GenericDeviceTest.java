@@ -59,7 +59,7 @@ public class GenericDeviceTest {
 			builder.addTimeSteps(i);
 			builder.addValues(values[i]);
 		}
-		return new TimeSeries(builder.build());
+		return new TimeSeries(builder.setSeriesId(1).build());
 	}
 
 	@Test
