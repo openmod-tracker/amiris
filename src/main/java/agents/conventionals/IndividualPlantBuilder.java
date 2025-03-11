@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
@@ -53,7 +53,8 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 		for (ParameterData data : plantsData) {
 			plantCount++;
 			String identifier = data.getStringOrDefault("Id", "Auto_" + plantCount);
-			PowerPlant plant = new PowerPlant(prototypeData, data.getDouble("Efficiency"), data.getDouble("NetCapacityInMW"), identifier);
+			PowerPlant plant = new PowerPlant(prototypeData, data.getDouble("Efficiency"), data.getDouble("NetCapacityInMW"),
+					identifier);
 			TimeStamp activationTime = data.getTimeStampOrDefault("ActivationTime", null);
 			TimeStamp deactivationTime = data.getTimeStampOrDefault("DeactivationTime", null);
 			if (activationTime != null) {

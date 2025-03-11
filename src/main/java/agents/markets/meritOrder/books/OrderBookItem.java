@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.books;
@@ -26,7 +26,7 @@ public class OrderBookItem implements Portable {
 
 	/** Creates an {@link OrderBookItem} based in given Bid
 	 * 
-	 * @param bid associated with this order book item 
+	 * @param bid associated with this order book item
 	 * @param traderUuid id of the trader associated with the bids */
 	public OrderBookItem(Bid bid, long traderUuid) {
 		this.bid = bid;
