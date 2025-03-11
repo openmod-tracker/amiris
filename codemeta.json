@@ -17,15 +17,14 @@
         {
             "type": "Role",
             "schema:author": "https://orcid.org/0000-0002-0791-9365",
-            "roleName": "Maintainer",
-            "startDate": "2020-01-01"
+            "roleName": "Developer",
+            "startDate": "2017-04-01"
         },
         {
             "type": "Role",
             "schema:author": "https://orcid.org/0000-0002-0791-9365",
-            "roleName": "Developer",            
-            "endDate": "2019-12-31",
-            "startDate": "2017-04-01"
+            "roleName": "Maintainer",
+            "startDate": "2020-01-01"
         },
         {
             "id": "https://orcid.org/0000-0003-4180-6767",
@@ -38,6 +37,12 @@
             "givenName": "Kristina"
         },
         {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0003-4180-6767",
+            "roleName": "Supervisor",
+            "startDate": "2008-01-01"
+        },
+        {
             "id": "https://orcid.org/0000-0002-9803-1336",
             "type": "Person",
             "affiliation": {
@@ -46,6 +51,12 @@
             },
             "familyName": "Frey",
             "givenName": "Ulrich"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-9803-1336",
+            "roleName": "Developer",
+            "startDate": "2018-01-01"
         },
         {
             "id": "https://orcid.org/0000-0001-9093-5042",
@@ -58,6 +69,12 @@
             "givenName": "Evelyn"
         },
         {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0001-9093-5042",
+            "roleName": "Developer",
+            "startDate": "2019-01-01"
+        },
+        {
             "id": "https://orcid.org/0000-0002-9824-3371",
             "type": "Person",
             "affiliation": {
@@ -66,6 +83,12 @@
             },
             "familyName": "Nitsch",
             "givenName": "Felix"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-9824-3371",
+            "roleName": "Developer",
+            "startDate": "2018-09-01"
         },
         {
             "type": "Role",
@@ -84,6 +107,12 @@
             "givenName": "Johannes"
         },
         {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-3461-3679",
+            "roleName": "Developer",
+            "startDate": "2021-02-01"
+        },
+        {
             "id": "https://orcid.org/0000-0001-5064-9148",
             "type": "Person",
             "affiliation": {
@@ -92,39 +121,12 @@
             },
             "familyName": "El Ghazi",
             "givenName": "A. Achraf"
-        }
-    ],
-    "codeRepository": "https://gitlab.com/dlr-ve/esy/amiris/amiris",
-    "contributor": [
-        {
-            "id": "https://orcid.org/0000-0001-8247-6499",
-            "type": "Person",
-            "affiliation": {
-                "type": "Organization",
-                "name": "German Aerospace Center (DLR)"
-            },
-            "familyName": "Reeg",
-            "givenName": "Matthias"
         },
         {
-            "id": "_:contributor_2",
-            "type": "Person",
-            "affiliation": {
-                "type": "Organization",
-                "name": "German Aerospace Center (DLR)"
-            },
-            "familyName": "Roloff",
-            "givenName": "Nils"
-        },
-        {
-            "id": "https://orcid.org/0000-0002-9103-418X",
-            "type": "Person",
-            "affiliation": {
-                "type": "Organization",
-                "name": "German Aerospace Center (DLR)"
-            },
-            "familyName": "Deissenroth-Uhrig",
-            "givenName": "Marc"
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0001-5064-9148",
+            "roleName": "Developer",
+            "startDate": "2021-03-01"
         },
         {
             "id": "https://orcid.org/0000-0001-7283-4707",
@@ -137,10 +139,48 @@
             "givenName": "Martin"
         },
         {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0001-7283-4707",
+            "endDate": "2019-12-31",
+            "roleName": "Developer",
+            "startDate": "2014-01-01"
+        },
+        {
             "id": "https://orcid.org/0000-0003-0532-5907",
             "type": "Person",
             "familyName": "Sarfarazi",
             "givenName": "Seyedfarzad"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0003-0532-5907",
+            "endDate": "2023-12-31",
+            "roleName": "Developer",
+            "startDate": "2018-01-01"
+        },
+        {
+            "id": "https://orcid.org/0000-0002-9103-418X",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Deissenroth-Uhrig",
+            "givenName": "Marc"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-9103-418X",
+            "endDate": "2017-12-31",
+            "roleName": "Developer",
+            "startDate": "2012-01-01"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-9103-418X",
+            "endDate": "2019-12-31",
+            "roleName": "Maintainer",
+            "startDate": "2017-01-01"
         },
         {
             "id": "https://orcid.org/0009-0004-4859-2452",
@@ -151,12 +191,29 @@
             },
             "familyName": "Willeke",
             "givenName": "Leonard"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0009-0004-4859-2452",
+            "roleName": "Developer",
+            "startDate": "2024-02-01"
+        },
+        {
+            "id": "_:author_12",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "German Aerospace Center (DLR)"
+            },
+            "familyName": "Roloff",
+            "givenName": "Nils"
         }
     ],
+    "codeRepository": "https://gitlab.com/dlr-ve/esy/amiris/amiris",
     "dateCreated": "2008-01-01",
     "dateModified": "2025-02-21",
     "datePublished": "2021-12-06",
-    "description": "AMIRIS is open Agent-based Market model for the Investigation of Renewable and Integrated energy Systems.",
+    "description": "AMIRIS is the open Agent-based Market model for the Investigation of Renewable and Integrated energy Systems.",
     "downloadUrl": "https://doi.org/10.5281/zenodo.7756087",
     "keywords": [
         "energy system",
