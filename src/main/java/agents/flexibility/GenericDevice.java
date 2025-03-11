@@ -66,11 +66,12 @@ public class GenericDevice {
 		double netChargingEnergyInMWH = (chargingPowerInMW.getValueLinear(time) + netInflowPowerInMW.getValueLinear(time))
 				* calcDurationInHours(duration);
 		double selfDischargeRate = calcSelfDischarge(time, duration);
-		return (netChargingEnergyInMWH + initialEnergyContentInMWH * (1 - selfDischargeRate / 2)) / (1 + selfDischargeRate / 2);
+		return (netChargingEnergyInMWH + initialEnergyContentInMWH * (1 - selfDischargeRate / 2))
+				/ (1 + selfDischargeRate / 2);
 	}
 
 	private double calcDurationInHours(TimeSpan duration) {
-		return duration.getSteps() / STEPS_PER_HOUR;
+		return (double) duration.getSteps() / STEPS_PER_HOUR;
 	}
 
 	private double calcSelfDischarge(TimeStamp time, TimeSpan duration) {
