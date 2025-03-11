@@ -65,8 +65,8 @@ public class GenericDevice {
 	public double getMaxTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
 		double netChargingEnergyInMWH = (chargingPowerInMW.getValueLinear(time) + netInflowPowerInMW.getValueLinear(time))
 				* calcDurationInHours(duration);
-		double selfDischargeRate = calcSelfDischarge(time, duration) / 2;
-		return (netChargingEnergyInMWH + initialEnergyContentInMWH * (1 - selfDischargeRate)) / (1 + selfDischargeRate);
+		double selfDischargeRate = calcSelfDischarge(time, duration);
+		return (netChargingEnergyInMWH + initialEnergyContentInMWH * (1 - selfDischargeRate / 2)) / (1 + selfDischargeRate / 2);
 	}
 
 	private double calcDurationInHours(TimeSpan duration) {
@@ -120,7 +120,7 @@ public class GenericDevice {
 	 * @param internalEnergyDelta &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
 	 * @return external energy delta equivalent */
-	public double internalToExternalEnergy(double internalEnergyDelta, TimeStamp time) {
+	private double internalToExternalEnergy(double internalEnergyDelta, TimeStamp time) {
 		if (internalEnergyDelta > 0) {
 			return internalEnergyDelta / chargingEfficiency.getValueLinear(time);
 		} else {
@@ -153,7 +153,7 @@ public class GenericDevice {
 	 * @param externalEnergyDelta &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
 	 * @return corresponding internal energy delta equivalent */
-	public double externalToInternalEnergy(double externalEnergyDelta, TimeStamp time) {
+	private double externalToInternalEnergy(double externalEnergyDelta, TimeStamp time) {
 		if (externalEnergyDelta > 0) {
 			return externalEnergyDelta * chargingEfficiency.getValueLinear(time);
 		} else {
