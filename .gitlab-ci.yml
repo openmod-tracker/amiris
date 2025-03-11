@@ -62,6 +62,14 @@ lint:javadoc:
     - merge_requests
     - main
 
+# Ensure files follow common code style using "spotless"
+lint:spotless:
+  stage: lint
+  dependencies: []
+  script: ["mvn spotless:check"]
+  only: [merge_requests, dev, main]
+   
+
 # Settings for unit tests & coverage analysis
 .unittest:
   script:
@@ -83,7 +91,7 @@ test:Coverage:jdk11:
   extends: .unittest
   stage: compatibility
 
-# Execute unit tests with JDK11
+# Execute unit tests with other JDKs
 compatibility:jdk17:
   extends: .compatibility
   image: maven:3-eclipse-temurin-17
