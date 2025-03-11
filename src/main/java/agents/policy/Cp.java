@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.policy;
@@ -71,9 +71,9 @@ public class Cp extends PolicyItem {
 	public double calcCapacitySupportRate(TimePeriod accountingPeriod) {
 		return premium.getValueEarlierEqual(accountingPeriod.getStartTime());
 	}
-	
+
 	@Override
 	public boolean isTypeOfMarketPremium() {
 		return false;
-	}	
+	}
 }

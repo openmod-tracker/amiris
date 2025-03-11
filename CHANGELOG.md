@@ -2,6 +2,12 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - tba
+### Changed
+
+### Added
+- add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
+
 ## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - 2025-02-21
 ### Changed
 - Improve README.md to be more attractive for first contact #142 (@dlr-cjs)
