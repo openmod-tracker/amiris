@@ -16,7 +16,8 @@ import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A generic device representing any kind of electrical flexibility, e.g., pumped-hydro storages with inflow, reservoir storages,
- * heat pumps, electric vehicle fleets, load-shifting portfolios
+ * heat pumps, electric vehicle fleets, load-shifting portfolios. See also the
+ * <a href="https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Classes/Modules/GenericDevice">Wiki description</a>
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class GenericDevice {
