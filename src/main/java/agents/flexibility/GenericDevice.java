@@ -16,7 +16,8 @@ import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A generic device representing any kind of electrical flexibility, e.g., pumped-hydro storages with inflow, reservoir storages,
- * heat pumps, electric vehicle fleets, load-shifting portfolios
+ * heat pumps, electric vehicle fleets, load-shifting portfolios. See also the
+ * <a href="https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Classes/Modules/GenericDevice">Wiki description</a>
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class GenericDevice {
@@ -65,7 +66,7 @@ public class GenericDevice {
 	/** @param time of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
 	 * @param duration of the transition
-	 * @return maximum allowed energy content for given initial energy content considering charging power and energy bounds */
+	 * @return maximum allowed energy content for given initial energy content in MWh */
 	public double getMaxTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
 		double netChargingEnergyInMWH = (chargingPowerInMW.getValueLinear(time) + netInflowPowerInMW.getValueLinear(time))
 				* calcDurationInHours(duration);
@@ -84,7 +85,7 @@ public class GenericDevice {
 	/** @param time of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
 	 * @param duration of the transition
-	 * @return minimum allowed energy content for given initial energy content considering charging power and energy bounds */
+	 * @return minimum allowed energy content for given initial energy content in MWh */
 	public double getMinTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
 		double netDischargingEnergyInMWH = (netInflowPowerInMW.getValueLinear(time)
 				- dischargingPowerInMW.getValueLinear(time)) * calcDurationInHours(duration);
