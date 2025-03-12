@@ -63,14 +63,21 @@ public class GenericDevice {
 		currentEnergyContentInMWH = input.getDoubleOrDefault("InitialEnergyContentInMWH", 0.);
 	}
 
-	/** @param time of transition
+	/** Returns the maximum reachable internal energy content by applying maximum charging power for the specified duration and
+	 * considering the initial energy content, self discharge, and inward / outward flows. The transitions is assumed to start at
+	 * the specified time - all related values are assumed to not change during the transition's duration. The energy content is
+	 * capped at the upper energy content limit that applies to the {@link GenericDevice} at the <b>end</b> of the transition.
+	 * 
+	 * @param time start of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
 	 * @param duration of the transition
-	 * @return maximum allowed energy content for given initial energy content in MWh */
+	 * @return maximum reachable energy content for given initial energy content in MWh */
 	public double getMaxTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
 		double netChargingEnergyInMWH = (chargingPowerInMW.getValueLinear(time) + netInflowPowerInMW.getValueLinear(time))
 				* calcDurationInHours(duration);
-		return initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration)) + netChargingEnergyInMWH;
+		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
+				+ netChargingEnergyInMWH;
+		return Math.min(targetEnergyInMWH, getEnergyContentUpperLimitInMWH(time.laterBy(duration)));
 	}
 
 	private double calcDurationInHours(TimeSpan duration) {
@@ -82,14 +89,21 @@ public class GenericDevice {
 		return 1. - Math.pow(1 - selfDischargeRatePerHour.getValueLinear(time), calcDurationInHours(duration));
 	}
 
-	/** @param time of transition
+	/** Returns the minimum reachable internal energy content by applying maximum discharging power for the specified duration and
+	 * considering the initial energy content, self discharge, and inward / outward flows. The transitions is assumed to start at
+	 * the specified time - all related values are assumed to not change during the transition's duration. The energy content is
+	 * capped at the lower energy content limit that applies to the {@link GenericDevice} at the <b>end</b> of the transition.
+	 * 
+	 * @param time start of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
 	 * @param duration of the transition
 	 * @return minimum allowed energy content for given initial energy content in MWh */
 	public double getMinTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
 		double netDischargingEnergyInMWH = (netInflowPowerInMW.getValueLinear(time)
 				- dischargingPowerInMW.getValueLinear(time)) * calcDurationInHours(duration);
-		return initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration)) + netDischargingEnergyInMWH;
+		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
+				+ netDischargingEnergyInMWH;
+		return Math.max(targetEnergyInMWH, getEnergyContentLowerLimitInMWH(time.laterBy(duration)));
 	}
 
 	/** Return upper limit of energy content for given time, may be negative;
@@ -179,6 +193,11 @@ public class GenericDevice {
 		}
 	}
 
+	/** Logs an error if the given internal (dis-)charging power exceeds its corresponding limit.
+	 * 
+	 * @param time at which the power is applied
+	 * @param powerInMW positive values represent charging
+	 * @return the applied (dis-)charging power - capped at its corresponding maximum at the given time */
 	private double ensurePowerWithinLimits(TimeStamp time, double powerInMW) {
 		if (powerInMW > chargingPowerInMW.getValueLinear(time) + TOLERANCE) {
 			logger.error(time + ERR_EXCEED_CHARGING_POWER + (powerInMW - chargingPowerInMW.getValueLinear(time)));
@@ -190,19 +209,25 @@ public class GenericDevice {
 		return powerInMW;
 	}
 
-	private double ensureEnergyWithinLimits(TimeStamp time, double energyInMWH) {
-		if (energyInMWH > energyContentUpperLimitInMWH.getValueLinear(time) + TOLERANCE) {
-			logger.error(
-					time + ERR_EXCEED_UPPER_ENERGY_LIMIT + (energyInMWH - energyContentUpperLimitInMWH.getValueLinear(time)));
-			energyInMWH = energyContentUpperLimitInMWH.getValueLinear(time);
-		} else if (energyInMWH < energyContentLowerLimitInMWH.getValueLinear(time) - TOLERANCE) {
-			logger.error(
-					time + ERR_EXCEED_LOWER_ENERGY_LIMIT + (energyContentLowerLimitInMWH.getValueLinear(time) - energyInMWH));
-			energyInMWH = energyContentLowerLimitInMWH.getValueLinear(time);
+	/** Logs an error if the given internal target energy content exceeds its upper or lower limit.
+	 * 
+	 * @param time at which the energy content shall be applied
+	 * @param targetEnergyContentInMWH to be checked for consistency with energy content limits
+	 * @return valid energy content closest to provided energy content target */
+	private double ensureEnergyWithinLimits(TimeStamp time, double targetEnergyContentInMWH) {
+		if (targetEnergyContentInMWH > energyContentUpperLimitInMWH.getValueLinear(time) + TOLERANCE) {
+			double exceedance = (targetEnergyContentInMWH - energyContentUpperLimitInMWH.getValueLinear(time));
+			logger.error(time + ERR_EXCEED_UPPER_ENERGY_LIMIT + exceedance);
+			targetEnergyContentInMWH = energyContentUpperLimitInMWH.getValueLinear(time);
+		} else if (targetEnergyContentInMWH < energyContentLowerLimitInMWH.getValueLinear(time) - TOLERANCE) {
+			double exceedance = (energyContentLowerLimitInMWH.getValueLinear(time) - targetEnergyContentInMWH);
+			logger.error(time + ERR_EXCEED_LOWER_ENERGY_LIMIT + exceedance);
+			targetEnergyContentInMWH = energyContentLowerLimitInMWH.getValueLinear(time);
 		}
-		return energyInMWH;
+		return targetEnergyContentInMWH;
 	}
 
+	/** Logs an error in case self discharge is applied based on a negative energy content */
 	private void ensureNoNegativeSelfDischarge(TimeStamp time, double selfDischargeRate) {
 		if (currentEnergyContentInMWH < 0 && selfDischargeRate > 0) {
 			logger.error(ERR_NEGATIVE_SELF_DISCHARGE + time);

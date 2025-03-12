@@ -310,4 +310,11 @@ public class GenericDeviceTest {
 		assertEquals(-500., device.getCurrentInternalEnergyInMWH(), 1E-12);
 		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_LOWER_ENERGY_LIMIT);
 	}
+
+	@Test
+	public void transition_negativeSelfDischarge_logsError() {
+		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0.1, 0, -450);
+		device.transition(defaultTime, 100, oneHour);
+		logChecker.assertLogsContain(GenericDevice.ERR_NEGATIVE_SELF_DISCHARGE);
+	}
 }
