@@ -46,6 +46,10 @@ public class GenericDevice {
 					Make.newSeries("EnergyContentLowerLimitInMWH"), Make.newSeries("SelfDischargeRatePerHour"),
 					Make.newSeries("NetInflowPowerInMW"), Make.newDouble("InitialEnergyContentInMWH"));
 
+	/** Instantiate new {@link GenericDevice}
+	 * 
+	 * @param input parameters from file
+	 * @throws MissingDataException if any required input parameter is missing */
 	public GenericDevice(ParameterData input) throws MissingDataException {
 		chargingPowerInMW = input.getTimeSeries("ChargingPowerInMW");
 		dischargingPowerInMW = input.getTimeSeries("DischargingPowerInMW");
@@ -87,14 +91,23 @@ public class GenericDevice {
 		return initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration)) + netDischargingEnergyInMWH;
 	}
 
+	/** Return upper limit of energy content for given time, may be negative;
+	 * 
+	 * @param time for which to get the upper energy content limit
+	 * @return maximum internal energy content of {@link GenericDevice} in MWh */
 	public double getEnergyContentUpperLimitInMWH(TimeStamp time) {
 		return energyContentUpperLimitInMWH.getValueLinear(time);
 	}
 
+	/** Return lower limit of energy content for given time, may be negative;
+	 * 
+	 * @param time for which to get the lower energy content limit
+	 * @return minimum internal energy content of {@link GenericDevice} in MWh */
 	public double getEnergyContentLowerLimitInMWH(TimeStamp time) {
 		return energyContentLowerLimitInMWH.getValueLinear(time);
 	}
 
+	/** @return current internal energy level of this {@link GenericDevice} in MWh */
 	public double getCurrentInternalEnergyInMWH() {
 		return currentEnergyContentInMWH;
 	}
