@@ -5,7 +5,9 @@ package agents.flexibility;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -17,11 +19,12 @@ import de.dlr.gitlab.fame.protobuf.Input.InputData.TimeSeriesDao;
 import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
+import testUtils.LogChecker;
 
 public class GenericDeviceTest {
 
 	@Mock private ParameterData parameterDataMock;
-	// private LogChecker logChecker = new LogChecker(GenericDevice.class);
+	private static LogChecker logChecker;
 	private AutoCloseable closable;
 
 	private GenericDevice device;
@@ -30,15 +33,25 @@ public class GenericDeviceTest {
 	private TimeSpan twoHours = new TimeSpan(2, Interval.HOURS);
 	private TimeSpan quarterHour = new TimeSpan(15, Interval.MINUTES);
 
+	@BeforeAll
+	public static void setupLogCaptor() {
+		logChecker = new LogChecker(GenericDevice.class);
+	}
+
 	@BeforeEach
 	public void setUp() throws MissingDataException {
 		closable = MockitoAnnotations.openMocks(this);
-		// logChecker.clear();
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	public void clear() throws Exception {
 		closable.close();
+		logChecker.clear();
+	}
+
+	@AfterAll
+	public static void tearDown() {
+		logChecker.close();
 	}
 
 	private GenericDevice createGenericDevice(double chargingPowerInMW, double dischargingPowerInMW,
@@ -268,7 +281,7 @@ public class GenericDeviceTest {
 		double result = device.transition(defaultTime, 300, oneHour);
 		assertEquals(200., result, 1E-12);
 		assertEquals(150., device.getCurrentInternalEnergyInMWH(), 1E-12);
-		// logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_CHARGING_POWER);
+		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_CHARGING_POWER);
 	}
 
 	@Test
@@ -277,7 +290,7 @@ public class GenericDeviceTest {
 		double result = device.transition(defaultTime, -120, oneHour);
 		assertEquals(-80, result, 1E-12);
 		assertEquals(150., device.getCurrentInternalEnergyInMWH(), 1E-12);
-		// logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_DISCHARGING_POWER);
+		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_DISCHARGING_POWER);
 	}
 
 	@Test
@@ -286,7 +299,7 @@ public class GenericDeviceTest {
 		double result = device.transition(defaultTime, 150, oneHour);
 		assertEquals(100, result, 1E-12);
 		assertEquals(500., device.getCurrentInternalEnergyInMWH(), 1E-12);
-		// logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_UPPER_ENERGY_LIMIT);
+		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_UPPER_ENERGY_LIMIT);
 	}
 
 	@Test
@@ -295,6 +308,6 @@ public class GenericDeviceTest {
 		double result = device.transition(defaultTime, -75, oneHour);
 		assertEquals(-40, result, 1E-12);
 		assertEquals(-500., device.getCurrentInternalEnergyInMWH(), 1E-12);
-		// logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_LOWER_ENERGY_LIMIT);
+		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_LOWER_ENERGY_LIMIT);
 	}
 }
