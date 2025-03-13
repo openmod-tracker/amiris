@@ -6,8 +6,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 ### Changed
 
 ### Added
+- Add new package `dynamicProgramming` for controlling dynamic programming algorithms for flexibility scheduling #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add new class `GenericDevice` that represents a generic electrical flexibility #115 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
-- Add new class `GenericDevice` that represents a generic electrical flexibility #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
 
 ## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - 2025-02-21
 ### Changed
