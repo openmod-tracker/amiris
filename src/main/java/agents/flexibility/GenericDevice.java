@@ -66,7 +66,7 @@ public class GenericDevice {
 	/** Returns the maximum reachable internal energy content by applying maximum charging power for the specified duration and
 	 * considering the initial energy content, self discharge, and inward / outward flows. The transitions is assumed to start at
 	 * the specified time - all related values are assumed to not change during the transition's duration. The energy content is
-	 * capped at the upper energy content limit that applies to the {@link GenericDevice} at the <b>end</b> of the transition.
+	 * capped at the upper energy content limit that applies to the {@link GenericDevice}.
 	 * 
 	 * @param time start of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
@@ -77,7 +77,7 @@ public class GenericDevice {
 				* calcDurationInHours(duration);
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
 				+ netChargingEnergyInMWH;
-		return Math.min(targetEnergyInMWH, getEnergyContentUpperLimitInMWH(time.laterBy(duration)));
+		return Math.min(targetEnergyInMWH, getEnergyContentUpperLimitInMWH(time));
 	}
 
 	private double calcDurationInHours(TimeSpan duration) {
@@ -92,7 +92,7 @@ public class GenericDevice {
 	/** Returns the minimum reachable internal energy content by applying maximum discharging power for the specified duration and
 	 * considering the initial energy content, self discharge, and inward / outward flows. The transitions is assumed to start at
 	 * the specified time - all related values are assumed to not change during the transition's duration. The energy content is
-	 * capped at the lower energy content limit that applies to the {@link GenericDevice} at the <b>end</b> of the transition.
+	 * capped at the lower energy content limit that applies to the {@link GenericDevice}.
 	 * 
 	 * @param time start of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
@@ -103,7 +103,7 @@ public class GenericDevice {
 				- dischargingPowerInMW.getValueLinear(time)) * calcDurationInHours(duration);
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
 				+ netDischargingEnergyInMWH;
-		return Math.max(targetEnergyInMWH, getEnergyContentLowerLimitInMWH(time.laterBy(duration)));
+		return Math.max(targetEnergyInMWH, getEnergyContentLowerLimitInMWH(time));
 	}
 
 	/** Return upper limit of energy content for given time, may be negative;
