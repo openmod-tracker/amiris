@@ -21,37 +21,33 @@ public class Optimiser {
 	}
 
 	private final StateManager stateManager;
-	private final AssessmentFunction assessmentFunction;
-	private final int numberOfTimeSteps;
 	private final Target target;
 
 	/** Instantiates new {@link Optimiser}
 	 * 
 	 * @param stateManager to control feasible states
 	 * @param assessmentFunction to evaluate transitions and states */
-	public Optimiser(StateManager stateManager, AssessmentFunction assessmentFunction,
-			int numberOfTimeSteps, Target target) {
+	public Optimiser(StateManager stateManager, Target target) {
 		this.stateManager = stateManager;
-		this.assessmentFunction = assessmentFunction;
-		this.numberOfTimeSteps = numberOfTimeSteps;
 		this.target = target;
 	}
 
 	/** Optimise for a defined target */
 	public void optimise(TimePeriod startingPeriod) {
-		stateManager.initialise(startingPeriod, numberOfTimeSteps);
+		stateManager.initialise(startingPeriod);
 		double initialAssessmentValue = target == Target.MAXIMISE ? -Double.MAX_VALUE : Double.MAX_VALUE;
 		BiFunction<Double, Double, Boolean> compare = target == Target.MAXIMISE ? (v, b) -> v > b : (v, b) -> v < b;
-		for (int k = 0; k < numberOfTimeSteps; k++) {
-			int step = numberOfTimeSteps - k - 1; // step backwards in time
+		for (int k = 0; k < stateManager.getNumberOfTimeSteps(); k++) {
+			int step = stateManager.getNumberOfTimeSteps() - k - 1; // step backwards in time
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(step);
-			assessmentFunction.prepareFor(timePeriod);
 			stateManager.prepareFor(timePeriod);
-			for (int initialStateIndex : stateManager.getInitialStates()) {
+			int[] initialIndexBounds = stateManager.getInitialStates();
+			for (int initialStateIndex = initialIndexBounds[0]; initialStateIndex <= initialIndexBounds[1]; initialStateIndex++) {
 				double bestAssessmentValue = initialAssessmentValue;
 				int bestFinalStateIndex = Integer.MIN_VALUE;
-				for (int finalStateIndex : stateManager.getFinalStates(initialStateIndex)) {
-					double value = assessmentFunction.getTransitionValueFor(initialStateIndex, finalStateIndex)
+				int[] finalIndexBounds = stateManager.getFinalStates(initialStateIndex);
+				for (int finalStateIndex = finalIndexBounds[0]; finalStateIndex <= finalIndexBounds[1]; finalStateIndex++) {
+					double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
 							+ stateManager.getBestValueNextPeriod(finalStateIndex);
 					if (compare.apply(value, bestAssessmentValue)) {
 						bestAssessmentValue = value;
