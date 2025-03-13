@@ -41,12 +41,10 @@ public class Optimiser {
 			int step = stateManager.getNumberOfTimeSteps() - k - 1; // step backwards in time
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(step);
 			stateManager.prepareFor(timePeriod);
-			int[] initialIndexBounds = stateManager.getInitialStates();
-			for (int initialStateIndex = initialIndexBounds[0]; initialStateIndex <= initialIndexBounds[1]; initialStateIndex++) {
+			for (int initialStateIndex : stateManager.getInitialStates()) {
 				double bestAssessmentValue = initialAssessmentValue;
 				int bestFinalStateIndex = Integer.MIN_VALUE;
-				int[] finalIndexBounds = stateManager.getFinalStates(initialStateIndex);
-				for (int finalStateIndex = finalIndexBounds[0]; finalStateIndex <= finalIndexBounds[1]; finalStateIndex++) {
+				for (int finalStateIndex : stateManager.getFinalStates(initialStateIndex)) {
 					double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
 							+ stateManager.getBestValueNextPeriod(finalStateIndex);
 					if (compare.apply(value, bestAssessmentValue)) {
@@ -57,7 +55,7 @@ public class Optimiser {
 				if (bestFinalStateIndex == Integer.MIN_VALUE) {
 					throw new RuntimeException(ERR_NO_FEASIBLE_SOLUTION + timePeriod);
 				}
-				stateManager.updateBestFinalState(bestFinalStateIndex, bestAssessmentValue);
+				stateManager.updateBestFinalState(initialStateIndex, bestFinalStateIndex, bestAssessmentValue);
 			}
 		}
 	}

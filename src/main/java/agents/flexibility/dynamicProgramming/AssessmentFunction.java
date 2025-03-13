@@ -12,5 +12,5 @@ public interface AssessmentFunction {
 	/** @param timePeriod currently evaluated */
 	void prepareFor(TimePeriod timePeriod);
 
-	double getTransitionValueFor(int initialStateIndex, int finalStateIndex);
+	double getEnergyCosts(double externalEnergyDeltaInMWH);
 }

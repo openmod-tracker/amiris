@@ -1,5 +1,6 @@
 package agents.flexibility.storage;
 
+import java.util.stream.IntStream;
 import agents.flexibility.GenericDevice;
 import agents.flexibility.dynamicProgramming.AssessmentFunction;
 import agents.flexibility.dynamicProgramming.StateManager;
@@ -64,7 +65,7 @@ public class StorageStateManager implements StateManager {
 	public int[] getInitialStates() {
 		int lowestIndex = energyToIndex(device.getEnergyContentLowerLimitInMWH(currentOptimisationTime));
 		int highestIndex = energyToIndex(device.getEnergyContentUpperLimitInMWH(currentOptimisationTime));
-		return new int[] {lowestIndex, highestIndex};
+		return IntStream.range(lowestIndex, highestIndex + 1).toArray();
 	}
 
 	private int energyToIndex(double energyAmountInMWH) {
@@ -79,14 +80,15 @@ public class StorageStateManager implements StateManager {
 				initialEnergyContentInMWH, startingPeriod.getDuration());
 		double highestEnergyContentInMWH = device.getMaxTargetEnergyContentInMWH(currentOptimisationTime,
 				initialEnergyContentInMWH, startingPeriod.getDuration());
-		return new int[] {energyToIndex(lowestEnergyContentInMWH), energyToIndex(highestEnergyContentInMWH)};
+		return IntStream.range(energyToIndex(lowestEnergyContentInMWH), energyToIndex(highestEnergyContentInMWH) + 1)
+				.toArray();
 	}
 
 	@Override
 	public double getTransitionValueFor(int initialStateIndex, int finalStateIndex) {
 		double externalEnergyDeltaInMWH = device.simulateTransition(currentOptimisationTime,
 				indexToEnergy(initialStateIndex), indexToEnergy(finalStateIndex), startingPeriod.getDuration());
-		return 0;
+		return assessmentFunction.getEnergyCosts(externalEnergyDeltaInMWH);
 	}
 
 	private double indexToEnergy(int index) {
@@ -95,14 +97,18 @@ public class StorageStateManager implements StateManager {
 
 	@Override
 	public double getBestValueNextPeriod(int finalStateIndex) {
-		// TODO Auto-generated method stub
-		return 0;
+		return currentOptimisationTimeIndex < numberOfTimeSteps ? bestValue[currentOptimisationTimeIndex][finalStateIndex]
+				: getWaterValue();
+	}
+
+	private double getWaterValue() {
+		return 0.;
 	}
 
 	@Override
-	public void updateBestFinalState(int bestFinalStateIndex, double bestAssessmentValue) {
-		// TODO Auto-generated method stub
-
+	public void updateBestFinalState(int initialStateIndex, int bestFinalStateIndex, double bestAssessmentValue) {
+		bestValue[currentOptimisationTimeIndex][initialStateIndex] = bestAssessmentValue;
+		bestNextState[currentOptimisationTimeIndex][initialStateIndex] = bestFinalStateIndex;
 	}
 
 	@Override
