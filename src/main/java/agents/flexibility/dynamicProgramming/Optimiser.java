@@ -1,6 +1,5 @@
 package agents.flexibility.dynamicProgramming;
 
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
