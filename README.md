@@ -64,7 +64,7 @@ In other contexts, please include a link to our [Gitlab repository](https://gitl
 
 ## Acknowledgements
 
-The development of AMIRIS was funded by the German Aerospace Center, the German Federal Ministry for Economic Affairs and Climate Action, the German Federal Ministry of Education and Research, and the German Federal for the Environment, Nature Conservation and Nuclear Safety. 
+The development of AMIRIS was funded by the German Aerospace Center, the German Federal Ministry for Economic Affairs and Climate Action, the German Federal Ministry of Education and Research, and the German Federal Ministry for the Environment, Nature Conservation and Nuclear Safety. 
 It has also received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 864276.
 An extended list of third-party funded research projects can be found on the [AMIRIS Home Page](https://helmholtz.software/software/amiris).
 We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contributors).

@@ -9,6 +9,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add new class `GenericDevice` that represents a generic electrical flexibility #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
 
+### Fixed
+- ReadMe: Fixed typo in Acknowledgements (@dlr_fn)
+
 ## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - 2025-02-21
 ### Changed
 - Improve README.md to be more attractive for first contact #142 (@dlr-cjs)
