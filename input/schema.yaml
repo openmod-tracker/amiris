@@ -1833,6 +1833,7 @@ AgentTypes:
     Attributes:
       Device: *Electrolyzer_G_Device
       FuelType: *FuelsTrader_A_FuelType
+      Refinancing: *FlexibilityTrader_G_Refinancing
     Products:
       PpaInformationRequest: &GreenHydrogenProducer_P_PpaInformationRequest
         MetaData:

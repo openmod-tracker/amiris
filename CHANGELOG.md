@@ -9,6 +9,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 ### Added
 - Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add new class `GenericDevice` that represents a generic electrical flexibility #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add optional "Refinancing" parameters for `GreenHydrogenTrader` #149 (@dlr_jk)
 
 ### Fixed
 - ReadMe: Fixed typo in Acknowledgements (@dlr_fn)
