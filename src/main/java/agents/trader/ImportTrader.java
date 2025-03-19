@@ -55,7 +55,8 @@ public class ImportTrader extends Trader {
 		ParameterData input = parameters.join(dataProvider);
 		for (ParameterData group : input.getGroupList("Imports")) {
 			imports.add(
-					new EnergyImport(group.getTimeSeries("AvailableEnergyForImport"), group.getTimeSeries("ImportCostInEURperMWH")));
+					new EnergyImport(group.getTimeSeries("AvailableEnergyForImport"),
+							group.getTimeSeries("ImportCostInEURperMWH")));
 		}
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
