@@ -10,7 +10,7 @@ import org.json.JSONObject;
  * @author A. Achraf El Ghazi, Christoph Schimeczek */
 public interface JSONable {
 	/** Return JSON representation of this object. The default implementation will rely on {@link JSONObject} constructor using this
-	 * object's getters and setters. May be overwritten to implement manual translation to JSON.
+	 * object's getters. May be overwritten to implement manual translation to JSON.
 	 * 
 	 * @return JSON object created from the implementing object */
 	default JSONObject toJson() {
