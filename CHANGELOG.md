@@ -4,11 +4,17 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - tba
 ### Changed
+- Change data type of `ImportCostInEURperMWH` to time series #150 (@dlr_jk)
 - Improve README #149 (@LeonardWilleke, @dlr_fn, @dlr-cjs)
 
 ### Added
 - Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add new class `GenericDevice` that represents a generic electrical flexibility #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add optional "Refinancing" parameters for `GreenHydrogenTrader` #149 (@dlr_jk)
+- Add JSONable interface for UrlModelService input classes #151 (@dlr_elghazi, @dlr-cjs)
+
+### Fixed
+- ReadMe: Fixed typo in Acknowledgements (@dlr_fn)
 
 ## [3.4.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.4.0) - 2025-02-21
 ### Changed
