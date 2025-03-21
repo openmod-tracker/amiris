@@ -5,6 +5,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 ## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - tba
 ### Changed
 - Change data type of `ImportCostInEURperMWH` to time series #150 (@dlr_jk)
+- Improve README #149 (@LeonardWilleke, @dlr_fn, @dlr-cjs)
 
 ### Added
 - Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
