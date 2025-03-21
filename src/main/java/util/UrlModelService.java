@@ -38,7 +38,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
  * @param <T> POJO model of the <b>request</b> to be sent to external API
  * @param <U> POJO model of the <b>response</b> to be received from the external API
  * @author Christoph Schimeczek */
-public abstract class UrlModelService<T, U> {
+public abstract class UrlModelService<T extends JSONable, U> {
 	static final String ERR_URL = "Service's URL is malformed: ";
 	static final String ERR_RESULT_TYPE_MISSING = "Raw type is not allowed for result - please specify result type";
 	static final String ERR_CONNECTION = "Could not open connection to service at: ";
@@ -132,7 +132,7 @@ public abstract class UrlModelService<T, U> {
 
 	/** @return given input translated to JSON String */
 	private String marshall(T input) {
-		return (new JSONObject(input)).toString();
+		return input.toJson().toString();
 	}
 
 	/** @return given response String translated to the result type */

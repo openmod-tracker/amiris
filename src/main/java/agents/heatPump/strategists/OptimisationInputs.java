@@ -4,12 +4,13 @@
 package agents.heatPump.strategists;
 
 import java.util.ArrayList;
+import util.JSONable;
 
 /** Encapsulates all input data from AMIRIS for the external model that is called by heat pump strategist
  * {@link StrategistExternal}
  * 
  * @author Evelyn Sperber, Christoph Schimeczek */
-public class OptimisationInputs {
+public class OptimisationInputs implements JSONable {
 
 	private boolean initialize_optimization_model;
 	private int schedule_duration;
