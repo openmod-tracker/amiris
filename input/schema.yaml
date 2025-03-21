@@ -1833,6 +1833,7 @@ AgentTypes:
     Attributes:
       Device: *Electrolyzer_G_Device
       FuelType: *FuelsTrader_A_FuelType
+      Refinancing: *FlexibilityTrader_G_Refinancing
     Products:
       PpaInformationRequest: &GreenHydrogenProducer_P_PpaInformationRequest
         MetaData:
@@ -1842,6 +1843,7 @@ AgentTypes:
         MetaData:
           Description: "Request for available power and price at a future time from a renewable power plant operator contracted via a Power Purchase Agreement"
           OEONearestConcept:
+      AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
       FuelBid: *FuelsTrader_P_FuelBid
