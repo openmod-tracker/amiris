@@ -20,7 +20,7 @@ Check out its [full documentation](https://gitlab.com/dlr-ve/esy/amiris/amiris/-
 
 AMIRIS enables you to assess the interplay between actors, market designs, and policy instruments for diverse electricity market scenarios.
 You can freely select and combine scopes in AMIRIS due to its versatile implementation of agents.
-For example, you may model large-scale transnational energy systems and decisions of individual households at the same time.
+For example, you may model large-scale transnational energy systems and small-scale decisions of individual households at the same time.
 Whatever you do: AMIRIS will deliver results quickly thanks to the powerful framework [FAME](https://gitlab.com/fame-framework/wiki/-/wikis/home).
 The typical **runtime is less than a minute** when simulating a market zone in hourly resolution for one year.
 
