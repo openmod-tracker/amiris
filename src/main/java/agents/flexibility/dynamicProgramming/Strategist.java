@@ -4,6 +4,7 @@
 package agents.flexibility.dynamicProgramming;
 
 import java.util.function.BiFunction;
+import agents.flexibility.BidSchedule;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
 public class Strategist {
@@ -25,7 +26,7 @@ public class Strategist {
 	 * 
 	 * @param stateManager to control feasible states
 	 * @param assessmentFunction to evaluate transitions and states */
-	public Strategist(StateManager stateManager, Target target, BidScheduler bidScheduler) {
+	public Strategist(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
 		this.target = target;
 		this.bidScheduler = bidScheduler;
@@ -33,7 +34,9 @@ public class Strategist {
 
 	public BidSchedule createSchedule(TimePeriod startingPeriod) {
 		optimise(startingPeriod);
-		return bidScheduler.createBidSchedule(stateManager.getBestDispatchSchedule(bidScheduler.getSchedulingSteps()));
+		double[] dispatchSchedule = stateManager.getBestDispatchSchedule(bidScheduler.getSchedulingSteps());
+		double currentEnergyContent = stateManager.getCurrentDeviceEnergyContentInMWH();
+		return bidScheduler.createBidSchedule(startingPeriod, dispatchSchedule, currentEnergyContent);
 	}
 
 	/** Optimise for a defined target */
@@ -44,7 +47,7 @@ public class Strategist {
 		for (int k = 0; k < stateManager.getNumberOfForecastTimeSteps(); k++) {
 			int step = stateManager.getNumberOfForecastTimeSteps() - k - 1; // step backwards in time
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(step);
-			stateManager.prepareFor(timePeriod);
+			stateManager.prepareFor(timePeriod.getStartTime());
 			for (int initialStateIndex : stateManager.getInitialStates()) {
 				double bestAssessmentValue = initialAssessmentValue;
 				int bestFinalStateIndex = Integer.MIN_VALUE;
@@ -63,5 +66,4 @@ public class Strategist {
 			}
 		}
 	}
-
 }

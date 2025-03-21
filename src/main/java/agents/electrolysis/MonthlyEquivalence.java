@@ -6,7 +6,7 @@ package agents.electrolysis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
@@ -109,7 +109,7 @@ public class MonthlyEquivalence extends ElectrolyzerStrategist {
 	}
 
 	@Override
-	public DispatchSchedule getValidSchedule(TimeStamp targetTime) {
+	public BidSchedule getValidSchedule(TimeStamp targetTime) {
 		if (schedule == null || !schedule.isApplicable(targetTime, greenElectricitySurplusTotal)) {
 			clearSensitivitiesBefore(targetTime);
 			TimePeriod targetTimeSegment = new TimePeriod(targetTime, OPERATION_PERIOD);

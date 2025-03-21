@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import agents.electrolysis.Electrolyzer;
 import agents.electrolysis.ElectrolyzerStrategist;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
@@ -149,7 +149,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	protected void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
-			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
+			BidSchedule schedule = strategist.getValidSchedule(targetTime);
 			Bid bid = prepareHourlyDemandBid(targetTime, schedule);
 			store(OutputColumns.RequestedEnergyInMWH, bid.getEnergyAmountInMWH());
 			fulfilNext(contractToFulfil, new BidsAtTime(targetTime, getId(), null, Arrays.asList(bid)));
@@ -160,8 +160,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * 
 	 * @param requestedTime TimeStamp at which the demand bid should be defined
 	 * @return demand bid for requestedTime */
-	private Bid prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
-		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
+	private Bid prepareHourlyDemandBid(TimeStamp targetTime, BidSchedule schedule) {
+		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(Outputs.OfferedElectricityPriceInEURperMWH, price);

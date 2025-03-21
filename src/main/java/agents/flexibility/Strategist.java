@@ -182,16 +182,16 @@ public abstract class Strategist {
 		return sensitivities.get(timePeriod);
 	}
 
-	/** Creates a {@link DispatchSchedule} for the connected flexibility
+	/** Creates a {@link BidSchedule} for the connected flexibility
 	 * 
 	 * @param timePeriod first TimePeriod element of the schedule to be created
-	 * @return created {@link DispatchSchedule} for the specified {@link TimePeriod} */
-	public DispatchSchedule createSchedule(TimePeriod timePeriod) {
+	 * @return created {@link BidSchedule} for the specified {@link TimePeriod} */
+	public BidSchedule createSchedule(TimePeriod timePeriod) {
 		updateSchedule(timePeriod);
 		updateBidSchedule();
-		DispatchSchedule schedule = new DispatchSchedule(timePeriod, scheduleDurationPeriods);
+		BidSchedule schedule = new BidSchedule(timePeriod, scheduleDurationPeriods);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
-		schedule.setChargingPerPeriod(demandScheduleInMWH);
+		schedule.setRequestedEnergyPerPeriod(demandScheduleInMWH);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(getInternalEnergySchedule());
 		return schedule;
 	}

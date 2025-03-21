@@ -5,7 +5,6 @@ package agents.flexibility.storage;
 
 import java.util.TreeMap;
 import agents.flexibility.dynamicProgramming.AssessmentFunction;
-import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A profit maximiser using an electricity price forecast insensitive to price repercussions
@@ -16,13 +15,12 @@ public class MaxProfitPriceTaker implements AssessmentFunction {
 	private TreeMap<TimeStamp, Double> electricityPriceForecastsInEURperMWH = new TreeMap<>();
 
 	@Override
-	public void prepareFor(TimePeriod timePeriod) {
-		currentElectricityPriceInEURperMWH = electricityPriceForecastsInEURperMWH.getOrDefault(timePeriod.getStartTime(),
-				0.);
+	public void prepareFor(TimeStamp time) {
+		currentElectricityPriceInEURperMWH = electricityPriceForecastsInEURperMWH.getOrDefault(time, 0.);
 	}
 
 	@Override
-	public double getEnergyCosts(double externalEnergyDeltaInMWH) {
+	public double assessTransition(double externalEnergyDeltaInMWH) {
 		return externalEnergyDeltaInMWH * currentElectricityPriceInEURperMWH;
 	}
 

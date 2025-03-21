@@ -6,7 +6,7 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.loadShifting.LoadShiftingPortfolio;
@@ -50,7 +50,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 
 	private final LoadShiftingPortfolio portfolio;
 	private final LoadShiftingStrategist strategist;
-	private DispatchSchedule schedule;
+	private BidSchedule schedule;
 	/** An entity holding consumer tariff information */
 	private final EndUserTariff endUserTariff;
 
@@ -105,7 +105,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 	}
 
 	private Bid prepareHourlyDemandBid(TimeStamp requestedTime) {
-		double demandPower = schedule.getScheduledChargingPowerInMW(requestedTime);
+		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(OutputFields.OfferedUpshiftPowerInMW, demandPower);
@@ -114,7 +114,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 	}
 
 	private Bid prepareHourlySupplyBid(TimeStamp requestedTime) {
-		double supplyPower = schedule.getScheduledDischargingPowerInMW(requestedTime);
+		double supplyPower = schedule.getScheduledEnergySalesInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		double marginalShiftingCost = portfolio.getVariableShiftCostsInEURPerMWH(requestedTime);
 		Bid supplyBid = new Bid(supplyPower, price, marginalShiftingCost);

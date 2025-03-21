@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
 
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.loadShifting.LoadShiftingPortfolio;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
@@ -99,19 +99,19 @@ public abstract class LoadShiftingStrategist extends Strategist {
 		return scheduledInitialEnergyInMWH;
 	}
 
-	/** Creates a {@link DispatchSchedule Schedule} for the connected {@link LoadShiftingPortfolio}
+	/** Creates a {@link BidSchedule Schedule} for the connected {@link LoadShiftingPortfolio}
 	 * 
 	 * @param timePeriod first TimePeriod element of the schedule to be created
 	 * @param currentEnergyShiftStorageLevelInMWH fictitious storage energy level the @link{LoadShiftingPortfolio} is at
 	 * @param currentShiftTime time which the @link{LoadShiftingPortfolio} has already been shifted for
-	 * @return {@link DispatchSchedule Schedule} for the specified {@link TimePeriod} */
-	public DispatchSchedule createSchedule(TimePeriod timePeriod, double currentEnergyShiftStorageLevelInMWH,
+	 * @return {@link BidSchedule Schedule} for the specified {@link TimePeriod} */
+	public BidSchedule createSchedule(TimePeriod timePeriod, double currentEnergyShiftStorageLevelInMWH,
 			int currentShiftTime) {
 		updateSchedule(timePeriod, currentEnergyShiftStorageLevelInMWH, currentShiftTime);
 		updateBidSchedule();
-		DispatchSchedule schedule = new DispatchSchedule(timePeriod, scheduleDurationPeriods);
+		BidSchedule schedule = new BidSchedule(timePeriod, scheduleDurationPeriods);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
-		schedule.setChargingPerPeriod(demandScheduleInMWH);
+		schedule.setRequestedEnergyPerPeriod(demandScheduleInMWH);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(scheduledInitialEnergyInMWH);
 		return schedule;
 	}
@@ -130,7 +130,7 @@ public abstract class LoadShiftingStrategist extends Strategist {
 	}
 
 	@Override
-	public DispatchSchedule createSchedule(TimePeriod timePeriod) {
+	public BidSchedule createSchedule(TimePeriod timePeriod) {
 		throw new RuntimeException("This shall not be used!");
 	}
 

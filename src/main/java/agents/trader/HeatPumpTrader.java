@@ -181,7 +181,7 @@ public class HeatPumpTrader extends FlexibilityTrader {
 				demandBid = new Bid(energyBalance, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN);
 				break;
 			default:
-				double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
+				double demandPower = schedule.getScheduledEnergyPurchaseInMWH(targetTime);
 				demandBid = new Bid(demandPower, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN);
 		}
 		return demandBid;
@@ -192,7 +192,7 @@ public class HeatPumpTrader extends FlexibilityTrader {
 	public double calcEnergyBalanceInPeriod(TimePeriod currentTimeSegment) {
 		double ambientTemperatureInC = strategist.getAmbientTemperatureInC(currentTimeSegment);
 		double coefficientOfPerformance = heatPump.calcCoefficientOfPerformance(ambientTemperatureInC);
-		double powerToStorage = schedule.getScheduledChargingPowerInMW(currentTimeSegment.getStartTime());
+		double powerToStorage = schedule.getScheduledEnergyPurchaseInMWH(currentTimeSegment.getStartTime());
 		double heatToStorage = powerToStorage * coefficientOfPerformance;
 		device.chargeInMW(heatToStorage);
 		return powerToStorage + strategist.getHeatLoad(currentTimeSegment) / coefficientOfPerformance;

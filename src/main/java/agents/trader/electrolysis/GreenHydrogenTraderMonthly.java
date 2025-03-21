@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import agents.electrolysis.MonthlyEquivalence;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.Bid;
@@ -97,7 +97,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	protected void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
-			DispatchSchedule schedule = getStrategist().getValidSchedule(targetTime);
+			BidSchedule schedule = getStrategist().getValidSchedule(targetTime);
 			Bid demandBid = prepareHourlyDemandBid(targetTime, schedule);
 			Bid supplyBid = prepareHourlySupplyBid(targetTime, schedule);
 			store(ElectrolysisTrader.Outputs.OfferedElectricityPriceInEURperMWH,
@@ -111,8 +111,8 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	 * Outputs
 	 * 
 	 * @return newly created demand Bid */
-	private Bid prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
-		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
+	private Bid prepareHourlyDemandBid(TimeStamp targetTime, BidSchedule schedule) {
+		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
 		store(OutputColumns.RequestedEnergyInMWH, demandPower);
 		return new Bid(demandPower, price, Double.NaN);
@@ -122,8 +122,8 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	 * Outputs
 	 * 
 	 * @return newly created demand Bid */
-	private Bid prepareHourlySupplyBid(TimeStamp targetTime, DispatchSchedule schedule) {
-		double supplyPower = schedule.getScheduledDischargingPowerInMW(targetTime);
+	private Bid prepareHourlySupplyBid(TimeStamp targetTime, BidSchedule schedule) {
+		double supplyPower = schedule.getScheduledEnergySalesInMWH(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
 		store(OutputColumns.OfferedEnergyInMWH, supplyPower);
 		return new Bid(supplyPower, price, Double.NaN);

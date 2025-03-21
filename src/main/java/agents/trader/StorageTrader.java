@@ -6,7 +6,7 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
@@ -48,7 +48,7 @@ public class StorageTrader extends FlexibilityTrader {
 
 	private final Device storage;
 	private final ArbitrageStrategist strategist;
-	private DispatchSchedule schedule;
+	private BidSchedule schedule;
 
 	/** Creates a {@link StorageTrader}
 	 * 
@@ -128,7 +128,7 @@ public class StorageTrader extends FlexibilityTrader {
 	 * @param requestedTime TimeStamp at which the demand bid should be defined
 	 * @return demand bid for requestedTime */
 	private Bid prepareHourlyDemandBids(TimeStamp requestedTime) {
-		double demandPower = schedule.getScheduledChargingPowerInMW(requestedTime);
+		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(OutputFields.OfferedChargePriceInEURperMWH, price);
@@ -140,7 +140,7 @@ public class StorageTrader extends FlexibilityTrader {
 	 * @param requestedTime TimeStamp at which the supply bid should be defined
 	 * @return supply bid for requestedTime */
 	private Bid prepareHourlySupplyBids(TimeStamp requestedTime) {
-		double supplyPower = schedule.getScheduledDischargingPowerInMW(requestedTime);
+		double supplyPower = schedule.getScheduledEnergySalesInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		Bid supplyBid = new Bid(supplyPower, price, Double.NaN);
 		store(OutputFields.OfferedDischargePriceInEURperMWH, price);

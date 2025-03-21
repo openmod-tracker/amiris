@@ -44,9 +44,9 @@ public class StorageStateManager implements StateManager {
 		double minLowerLevel = Double.MAX_VALUE;
 		double maxUpperLevel = -Double.MAX_VALUE;
 		for (int i = 0; i < numberOfTimeSteps; i++) {
-			TimePeriod timePeriod = startingPeriod.shiftByDuration(i);
-			double lowerLevel = device.getEnergyContentLowerLimitInMWH(timePeriod.getStartTime());
-			double upperLevel = device.getEnergyContentUpperLimitInMWH(timePeriod.getStartTime());
+			TimeStamp time = startingPeriod.shiftByDuration(i).getStartTime();
+			double lowerLevel = device.getEnergyContentLowerLimitInMWH(time);
+			double upperLevel = device.getEnergyContentUpperLimitInMWH(time);
 			minLowerLevel = lowerLevel < minLowerLevel ? lowerLevel : minLowerLevel;
 			maxUpperLevel = upperLevel > maxUpperLevel ? upperLevel : maxUpperLevel;
 		}
@@ -57,11 +57,11 @@ public class StorageStateManager implements StateManager {
 	}
 
 	@Override
-	public void prepareFor(TimePeriod timePeriod) {
-		assessmentFunction.prepareFor(timePeriod);
-		currentOptimisationTimeIndex = (int) ((timePeriod.getStartTime().getStep()
-				- startingPeriod.getStartTime().getStep()) / startingPeriod.getDuration().getSteps());
-		currentOptimisationTime = timePeriod.getStartTime();
+	public void prepareFor(TimeStamp time) {
+		assessmentFunction.prepareFor(time);
+		currentOptimisationTimeIndex = (int) ((time.getStep() - startingPeriod.getStartTime().getStep())
+				/ startingPeriod.getDuration().getSteps());
+		currentOptimisationTime = time;
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class StorageStateManager implements StateManager {
 	public double getTransitionValueFor(int initialStateIndex, int finalStateIndex) {
 		double externalEnergyDeltaInMWH = device.simulateTransition(currentOptimisationTime,
 				indexToEnergy(initialStateIndex), indexToEnergy(finalStateIndex), startingPeriod.getDuration());
-		return assessmentFunction.getEnergyCosts(externalEnergyDeltaInMWH);
+		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
 
 	private double indexToEnergy(int index) {
@@ -138,4 +138,8 @@ public class StorageStateManager implements StateManager {
 		return externalEnergyDeltaInMWH;
 	}
 
+	@Override
+	public double getCurrentDeviceEnergyContentInMWH() {
+		return device.getCurrentInternalEnergyInMWH();
+	}
 }

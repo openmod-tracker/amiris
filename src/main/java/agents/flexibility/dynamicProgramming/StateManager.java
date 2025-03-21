@@ -5,6 +5,7 @@ package agents.flexibility.dynamicProgramming;
 
 import agents.flexibility.GenericDevice;
 import de.dlr.gitlab.fame.time.TimePeriod;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Manages the states allowed within a dynamic programming optimisation
  * 
@@ -13,8 +14,8 @@ public interface StateManager {
 	/** Initialize {@link StateManager} to allow for planning in current planning period */
 	void initialise(TimePeriod startingPeriod);
 
-	/** Make {@link StateManager} aware of time period currently under assessment */
-	void prepareFor(TimePeriod timePeriod);
+	/** Make {@link StateManager} aware of time currently under assessment */
+	void prepareFor(TimeStamp time);
 
 	/** Retrieve list of initial states indices at prepared time */
 	int[] getInitialStates();
@@ -39,4 +40,8 @@ public interface StateManager {
 	 * @return array of external energy deltas (charging > 0; discharging < 0) */
 	double[] getBestDispatchSchedule(int schedulingSteps);
 
+	/** Return energy level of the device in its current state
+	 * 
+	 * @return current device energy content in MWh */
+	double getCurrentDeviceEnergyContentInMWH();
 }
