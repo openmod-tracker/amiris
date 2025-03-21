@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility.dynamicProgramming;
 
+import agents.flexibility.GenericDevice;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
 /** Manages the states allowed within a dynamic programming optimisation
@@ -30,6 +31,12 @@ public interface StateManager {
 	/** Update the best final state for transition and log the associated best assessment value */
 	void updateBestFinalState(int initialStateIndex, int bestFinalStateIndex, double bestAssessmentValue);
 
-	int getNumberOfTimeSteps();
+	int getNumberOfForecastTimeSteps();
+
+	/** Return the external energy delta starting from the starting period and the current state of the {@link GenericDevice}
+	 * 
+	 * @param schedulingSteps for actual dispatch scheduling
+	 * @return array of external energy deltas (charging > 0; discharging < 0) */
+	double[] getBestDispatchSchedule(int schedulingSteps);
 
 }

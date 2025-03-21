@@ -115,8 +115,27 @@ public class StorageStateManager implements StateManager {
 	}
 
 	@Override
-	public int getNumberOfTimeSteps() {
+	public int getNumberOfForecastTimeSteps() {
 		return numberOfTimeSteps;
+	}
+
+	@Override
+	public double[] getBestDispatchSchedule(int schedulingSteps) {
+		double currentEnergyLevel = device.getCurrentInternalEnergyInMWH();
+		double[] externalEnergyDeltaInMWH = new double[schedulingSteps];
+		for (int i = 0; i < schedulingSteps; i++) {
+			TimePeriod timePeriod = startingPeriod.shiftByDuration(i);
+			int currentEnergyLevelIndex = energyToIndex(currentEnergyLevel);
+			int nextEnergyLevelIndex = bestNextState[i][currentEnergyLevelIndex];
+			double nextEnergyLevel = currentEnergyLevel
+					+ (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
+			double lowerLevel = device.getEnergyContentLowerLimitInMWH(timePeriod.getStartTime());
+			double upperLevel = device.getEnergyContentUpperLimitInMWH(timePeriod.getStartTime());
+			nextEnergyLevel = Math.max(lowerLevel, Math.min(upperLevel, nextEnergyLevel));
+			externalEnergyDeltaInMWH[i] = nextEnergyLevel - currentEnergyLevel;
+			currentEnergyLevel = nextEnergyLevel;
+		}
+		return externalEnergyDeltaInMWH;
 	}
 
 }

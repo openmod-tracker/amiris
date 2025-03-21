@@ -6,10 +6,7 @@ package agents.flexibility.dynamicProgramming;
 import java.util.function.BiFunction;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
-/** An optimiser that seeks to optimise a target using dynamic programming
- * 
- * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
-public class Optimiser {
+public class Strategist {
 	static final String ERR_NO_FEASIBLE_SOLUTION = "No feasible transition found for time period: ";
 
 	/** Optimisation target */
@@ -22,18 +19,25 @@ public class Optimiser {
 
 	private final StateManager stateManager;
 	private final Target target;
+	private final BidScheduler bidScheduler;
 
 	/** Instantiates new {@link Optimiser}
 	 * 
 	 * @param stateManager to control feasible states
 	 * @param assessmentFunction to evaluate transitions and states */
-	public Optimiser(StateManager stateManager, Target target) {
+	public Strategist(StateManager stateManager, Target target, BidScheduler bidScheduler) {
 		this.stateManager = stateManager;
 		this.target = target;
+		this.bidScheduler = bidScheduler;
+	}
+
+	public BidSchedule createSchedule(TimePeriod startingPeriod) {
+		optimise(startingPeriod);
+		return bidScheduler.createBidSchedule(stateManager.getBestDispatchSchedule(bidScheduler.getSchedulingSteps()));
 	}
 
 	/** Optimise for a defined target */
-	public void optimise(TimePeriod startingPeriod) {
+	private void optimise(TimePeriod startingPeriod) {
 		stateManager.initialise(startingPeriod);
 		double initialAssessmentValue = target == Target.MAXIMISE ? -Double.MAX_VALUE : Double.MAX_VALUE;
 		BiFunction<Double, Double, Boolean> compare = target == Target.MAXIMISE ? (v, b) -> v > b : (v, b) -> v < b;
