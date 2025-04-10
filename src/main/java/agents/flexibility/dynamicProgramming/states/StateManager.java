@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.flexibility.dynamicProgramming;
+package agents.flexibility.dynamicProgramming.states;
 
+import java.util.ArrayList;
 import agents.flexibility.GenericDevice;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -11,7 +12,6 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public interface StateManager {
-
 	/** Contains the course of the internal energy levels and external energy deltas over a dispatch */
 	public static class DispatchSchedule {
 		public final double[] externalEnergyDeltasInMWH;
@@ -27,7 +27,7 @@ public interface StateManager {
 		}
 	}
 
-	/** Initialize {@link StateManager} to allow for planning in current planning period */
+	/** Initialise {@link StateManager} to allow for planning in current planning period */
 	void initialise(TimePeriod startingPeriod);
 
 	/** Make {@link StateManager} aware of time currently under assessment */
@@ -60,4 +60,10 @@ public interface StateManager {
 	 * 
 	 * @return current device energy content in MWh */
 	double getCurrentDeviceEnergyContentInMWH();
+
+	/** Return starting time of each planning interval in the planning horizon
+	 * 
+	 * @param startingPeriod first interval of the planning horizon
+	 * @return list of starting times */
+	public ArrayList<TimeStamp> getPlanningTimes(TimePeriod startingPeriod);
 }

@@ -551,7 +551,7 @@ AgentTypes:
 
   StorageTrader:
     Attributes:
-      Refinancing: &FlexibilityTrader_G_Refinancing
+      Refinancing: &AnnualCostCalculator_G_Refinancing
         AttributeType: block
         Mandatory: false
         List: false
@@ -1633,7 +1633,7 @@ AgentTypes:
   ElectrolysisTrader:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
-      Refinancing: *FlexibilityTrader_G_Refinancing
+      Refinancing: *AnnualCostCalculator_G_Refinancing
       Device: &Electrolyzer_G_Device
         AttributeType: block
         Mandatory: true
@@ -2322,7 +2322,7 @@ AgentTypes:
   GreenHydrogenTraderMonthly:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
-      Refinancing: *FlexibilityTrader_G_Refinancing
+      Refinancing: *AnnualCostCalculator_G_Refinancing
       Device: *Electrolyzer_G_Device
       Strategy:
         AttributeType: block
@@ -2646,3 +2646,189 @@ AgentTypes:
     MetaData:
       Description: "HeatPumpTrader is a type of FlexibilityTrader that aggregates heat pumps in buildings and arranges procurement at the DayAheadMarket. Different strategies can be used to calculate the electricity demand of heat pumps. Heat pumps can be either dispatched according to heat demand or optimised according to spot market price forecasts."
       OEONearestConcept:
+  GenericFlexibilityTrader:
+    Attributes:
+      Refinancing: *AnnualCostCalculator_G_Refinancing
+      Device:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: ""
+        NestedAttributes:
+          GrossChargingPowerInMW:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Gross maximum power for charging in MW (external power)"
+          NetDischargingPowerInMW:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Net maximum power for discharging (external power); matches charging power if omitted."
+          ChargingEfficiency:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 1.
+            MetaData:
+              Description: ""
+          DischargingEfficiency:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 1.
+            MetaData:
+              Description: ""
+          EnergyContentUpperLimitInMWH:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: ""
+          EnergyContentLowerLimitInMWH:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: ""
+          SelfDischargeRatePerHour:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: ""
+          NetInflowPowerInMW:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: ""
+          InitialEnergyContentInMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: ""
+      OptimisationTarget:
+        MetaData:
+          Description: "Target type for the optimisation"       
+        AttributeType: enum
+        Mandatory: true
+        List: false
+        Values:
+          MAXIMISE:
+            MetaData:
+              Description: "Maximise the value of a target function"
+          MINIMISE:
+            MetaData:
+              Description: "Minimise the value of a target function"
+      Assessment:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: ""
+        NestedAttributes:
+          Type:
+            MetaData:
+              Description: ""
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              ProfitPriceTaker:
+                MetaData:
+                  Description: "Assess profit using an electricity price forecast neglecting any price impact of bids"
+      StateManagement:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: ""
+        NestedAttributes:
+          Type:
+            MetaData:
+              Description: ""
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              Storage:
+                MetaData:
+                  Description: "Manage energy states of an electricity storage device"
+          PlanningHorizonInHours:
+            MetaData:
+              Description: ""          
+            AttributeType: double
+            Mandatory: true
+            List: false
+          EnergyResolutionInMWH:
+            MetaData:
+              Description: ""          
+            AttributeType: double
+            Mandatory: true
+            List: false
+      Bidding:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: ""
+        NestedAttributes:
+          Type:
+            MetaData:
+              Description: ""
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              EnsureDispatch:
+                MetaData:
+                  Description: "Ensure planned dispatch is fulfilled by bidding at technical price limits"
+          SchedulingHorizonInHours:
+            MetaData:
+              Description: ""
+            AttributeType: double
+            Mandatory: true
+            List: false
+    Products:
+      PriceForecastRequest:
+        MetaData:
+          Description: ""
+      Bids:
+        MetaData:
+          Description: ""      
+    Outputs:
+      OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
+      RequestedEnergyInMWH: *DamTrader_O_RequestedEnergy
+      AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
+      VariableCostsInEUR:
+        MetaData:
+          Description: ""      
+      ReceivedMoneyInEUR:
+        MetaData:
+          Description: ""
+      OfferedChargePriceInEURperMWH:
+        MetaData:
+          Description: ""
+      OfferedDischargePriceInEURperMWH:
+        MetaData:
+          Description: ""
+      AwardedChargeEnergyInMWH:
+        MetaData:
+          Description: ""
+      AwardedDischargeEnergyInMWH:
+        MetaData:
+          Description: ""
+      StoredEnergyInMWH:
+        MetaData:
+          Description: ""
+    MetaData:
+      Description: "Trader that operates a generic flexibility device, e.g., a battery storage, pumped-hydro storage, load shifting, heat pumps..."

@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.flexibility.dynamicProgramming;
+package agents.flexibility.dynamicProgramming.bidding;
 
 import agents.flexibility.BidSchedule;
-import agents.flexibility.dynamicProgramming.StateManager.DispatchSchedule;
+import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
 /** Creates {@link BidSchedule}s
@@ -20,8 +20,8 @@ public interface BidScheduler {
 	 * @return created bidding schedule */
 	BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule schedule);
 
-	/** Returns number of time steps in bidding schedule
+	/** Returns duration of schedules
 	 * 
-	 * @return number of time steps in bidding schedule */
-	int getSchedulingSteps();
+	 * @return duration of schedules */
+	double getScheduleHorizonInHours();
 }

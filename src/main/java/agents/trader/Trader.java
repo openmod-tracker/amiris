@@ -28,7 +28,7 @@ public abstract class Trader extends Agent implements DayAheadMarketTrader {
 	public static enum Products {
 		/** Forecasts of Bids sent to Forecasters */
 		BidsForecast,
-	};
+	}
 
 	/** Creates a {@link Trader}
 	 * 

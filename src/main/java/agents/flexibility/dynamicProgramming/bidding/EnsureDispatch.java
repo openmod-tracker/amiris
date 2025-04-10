@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.flexibility.storage;
+package agents.flexibility.dynamicProgramming.bidding;
 
 import agents.flexibility.BidSchedule;
-import agents.flexibility.dynamicProgramming.BidScheduler;
-import agents.flexibility.dynamicProgramming.StateManager.DispatchSchedule;
+import agents.flexibility.dynamicProgramming.Strategist;
+import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
 import agents.markets.meritOrder.Constants;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
@@ -13,14 +13,15 @@ import de.dlr.gitlab.fame.time.TimePeriod;
  * 
  * @author Christoph Schimeczek */
 public class EnsureDispatch implements BidScheduler {
-	private final int numberOfScheduleSteps;
+	private final double schedulingHorizonInHours;
 
-	public EnsureDispatch(int numberOfScheduleSteps) {
-		this.numberOfScheduleSteps = numberOfScheduleSteps;
+	public EnsureDispatch(double schedulingHorizonInHours) {
+		this.schedulingHorizonInHours = schedulingHorizonInHours;
 	}
 
 	@Override
 	public BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule dispatchSchedule) {
+		int numberOfScheduleSteps = Strategist.calcHorizonInPeriodSteps(startingTime, schedulingHorizonInHours);
 		BidSchedule bidSchedule = new BidSchedule(startingTime, numberOfScheduleSteps);
 
 		double[] biddingPricePerPeriodInEURperMWH = new double[numberOfScheduleSteps];
@@ -39,7 +40,7 @@ public class EnsureDispatch implements BidScheduler {
 	}
 
 	@Override
-	public int getSchedulingSteps() {
-		return numberOfScheduleSteps;
+	public double getScheduleHorizonInHours() {
+		return schedulingHorizonInHours;
 	}
 }

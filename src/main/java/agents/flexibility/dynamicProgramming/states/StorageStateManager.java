@@ -1,21 +1,23 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.flexibility.storage;
+package agents.flexibility.dynamicProgramming.states;
 
+import java.util.ArrayList;
 import java.util.stream.IntStream;
 import agents.flexibility.GenericDevice;
-import agents.flexibility.dynamicProgramming.AssessmentFunction;
-import agents.flexibility.dynamicProgramming.StateManager;
+import agents.flexibility.dynamicProgramming.Strategist;
+import agents.flexibility.dynamicProgramming.assessment.AssessmentFunction;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 public class StorageStateManager implements StateManager {
 	private final GenericDevice device;
 	private final AssessmentFunction assessmentFunction;
-	private final int numberOfTimeSteps;
+	private final double planningHorizonInHours;
 	private final double energyResolutionInMWH;
 
+	private int numberOfTimeSteps;
 	private int[][] bestNextState;
 	private double[][] bestValue;
 	private double lowestLevelEnergyInMWH;
@@ -24,16 +26,17 @@ public class StorageStateManager implements StateManager {
 	private int currentOptimisationTimeIndex;
 	private TimeStamp currentOptimisationTime;
 
-	public StorageStateManager(GenericDevice device, AssessmentFunction assessmentFunction, int numberOfTimeSteps,
+	public StorageStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
 			double energyResolutionInMWH) {
 		this.device = device;
 		this.assessmentFunction = assessmentFunction;
-		this.numberOfTimeSteps = numberOfTimeSteps;
+		this.planningHorizonInHours = planningHorizonInHours;
 		this.energyResolutionInMWH = energyResolutionInMWH;
 	}
 
 	@Override
 	public void initialise(TimePeriod startingPeriod) {
+		this.numberOfTimeSteps = Strategist.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
 		this.startingPeriod = startingPeriod;
 		analyseStorageEnergyLevels();
 		bestNextState = new int[numberOfTimeSteps][numberOfEnergyStates];
@@ -145,5 +148,15 @@ public class StorageStateManager implements StateManager {
 	@Override
 	public double getCurrentDeviceEnergyContentInMWH() {
 		return device.getCurrentInternalEnergyInMWH();
+	}
+
+	@Override
+	public ArrayList<TimeStamp> getPlanningTimes(TimePeriod startingPeriod) {
+		int numberOfTimeSteps = Strategist.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
+		ArrayList<TimeStamp> planningTimes = new ArrayList<>(numberOfTimeSteps);
+		for (int step = 0; step < numberOfTimeSteps; step++) {
+			planningTimes.add(startingPeriod.shiftByDuration(step).getStartTime());
+		}
+		return planningTimes;
 	}
 }

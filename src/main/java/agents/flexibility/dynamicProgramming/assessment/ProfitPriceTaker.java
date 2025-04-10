@@ -1,10 +1,14 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.flexibility.storage;
+package agents.flexibility.dynamicProgramming.assessment;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
-import agents.flexibility.dynamicProgramming.AssessmentFunction;
+import agents.flexibility.Strategist;
+import communications.message.AmountAtTime;
+import de.dlr.gitlab.fame.communication.message.Message;
+import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Assess profit of transitions using an electricity price forecast neglecting any price impact of bids
@@ -24,9 +28,7 @@ public class ProfitPriceTaker implements AssessmentFunction {
 		return -externalEnergyDeltaInMWH * currentElectricityPriceInEURperMWH;
 	}
 
-	/** Clear entries of electricity price forecasts before given time
-	 * 
-	 * @param time before which elements are cleared */
+	@Override
 	public void clearBefore(TimeStamp time) {
 		electricityPriceForecastsInEURperMWH.headMap(time).clear();
 	}
@@ -37,5 +39,26 @@ public class ProfitPriceTaker implements AssessmentFunction {
 	 * @param valueInEURperMWH electricity price forecast */
 	public void addElectricityPriceForecastFor(TimeStamp time, Double valueInEURperMWH) {
 		electricityPriceForecastsInEURperMWH.put(time, valueInEURperMWH);
+	}
+
+	@Override
+	public ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> requiredTimes) {
+		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
+		for (TimeStamp time : requiredTimes) {
+			if (!electricityPriceForecastsInEURperMWH.containsKey(time)) {
+				missingTimes.add(time);
+			}
+		}
+		return missingTimes;
+	}
+
+	@Override
+	public void storeForecast(ArrayList<Message> messages) {
+		for (Message inputMessage : messages) {
+			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
+			double priceForecast = priceForecastMessage.amount;
+			TimePeriod timePeriod = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
+			electricityPriceForecastsInEURperMWH.put(timePeriod.getStartTime(), priceForecast);
+		}
 	}
 }

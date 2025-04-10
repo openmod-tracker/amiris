@@ -5,10 +5,15 @@ package agents.flexibility.dynamicProgramming;
 
 import java.util.function.BiFunction;
 import agents.flexibility.BidSchedule;
-import agents.flexibility.dynamicProgramming.StateManager.DispatchSchedule;
+import agents.flexibility.dynamicProgramming.bidding.BidScheduler;
+import agents.flexibility.dynamicProgramming.states.StateManager;
+import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
+import de.dlr.gitlab.fame.time.Constants;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
-public class Strategist {
+public final class Strategist {
 	static final String ERR_NO_FEASIBLE_SOLUTION = "No feasible transition found for time period: ";
 
 	/** Optimisation target */
@@ -19,9 +24,12 @@ public class Strategist {
 		MINIMISE
 	}
 
+	public static final ParameterBuilder TARGET_PARAM = Make.newEnum("OptimisationTarget", Target.class);
+
 	private final StateManager stateManager;
 	private final BidScheduler bidScheduler;
-	private final Target target;	
+	private final BiFunction<Double, Double, Boolean> comparison;
+	private final double initialAssessmentValue;
 
 	/** Instantiates new {@link Optimiser}
 	 * 
@@ -30,20 +38,20 @@ public class Strategist {
 	public Strategist(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
 		this.bidScheduler = bidScheduler;
-		this.target = target;		
+		comparison = target == Target.MAXIMISE ? (v, b) -> v > b : (v, b) -> v < b;
+		initialAssessmentValue = target == Target.MAXIMISE ? -Double.MAX_VALUE : Double.MAX_VALUE;
 	}
 
 	public BidSchedule createSchedule(TimePeriod startingPeriod) {
 		optimise(startingPeriod);
-		DispatchSchedule dispatchSchedule = stateManager.getBestDispatchSchedule(bidScheduler.getSchedulingSteps());
+		int numberOfSchedulingSteps = calcHorizonInPeriodSteps(startingPeriod, bidScheduler.getScheduleHorizonInHours());
+		DispatchSchedule dispatchSchedule = stateManager.getBestDispatchSchedule(numberOfSchedulingSteps);
 		return bidScheduler.createBidSchedule(startingPeriod, dispatchSchedule);
 	}
 
 	/** Optimise for a defined target */
 	private void optimise(TimePeriod startingPeriod) {
 		stateManager.initialise(startingPeriod);
-		double initialAssessmentValue = target == Target.MAXIMISE ? -Double.MAX_VALUE : Double.MAX_VALUE;
-		BiFunction<Double, Double, Boolean> compare = target == Target.MAXIMISE ? (v, b) -> v > b : (v, b) -> v < b;
 		for (int k = 0; k < stateManager.getNumberOfForecastTimeSteps(); k++) {
 			int step = stateManager.getNumberOfForecastTimeSteps() - k - 1; // step backwards in time
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(step);
@@ -54,7 +62,7 @@ public class Strategist {
 				for (int finalStateIndex : stateManager.getFinalStates(initialStateIndex)) {
 					double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
 							+ stateManager.getBestValueNextPeriod(finalStateIndex);
-					if (compare.apply(value, bestAssessmentValue)) {
+					if (comparison.apply(value, bestAssessmentValue)) {
 						bestAssessmentValue = value;
 						bestFinalStateIndex = finalStateIndex;
 					}
@@ -65,5 +73,15 @@ public class Strategist {
 				stateManager.updateBestFinalState(initialStateIndex, bestFinalStateIndex, bestAssessmentValue);
 			}
 		}
+	}
+
+	/** Calculates how many specified time periods fit into the given time horizon
+	 * 
+	 * @param timePeriod to fit into the time horizon
+	 * @param horizonInHours time horizon in hours
+	 * @return number of time periods */
+	public static int calcHorizonInPeriodSteps(TimePeriod timePeriod, double horizonInHours) {
+		double periodsPerHour = (double) Constants.STEPS_PER_HOUR / timePeriod.getDuration().getSteps();
+		return (int) (horizonInHours * periodsPerHour);
 	}
 }
