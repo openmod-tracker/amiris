@@ -19,8 +19,7 @@ public interface AssessmentFunction {
 	/** Return estimated value or costs of the transition
 	 * 
 	 * @param externalEnergyDeltaInMWH of the transition to be assessed; positive values correspond to "charging"
-	 * @return the value or costs of the transition at the time the {@link AssessmentFunction} was
-	 *         {@link #prepareFor(TimeStamp)} */
+	 * @return the value or costs of the transition at the time the {@link AssessmentFunction} was {@link #prepareFor(TimeStamp)} */
 	double assessTransition(double externalEnergyDeltaInMWH);
 
 	/** Clear entries of electricity price forecasts before given time
