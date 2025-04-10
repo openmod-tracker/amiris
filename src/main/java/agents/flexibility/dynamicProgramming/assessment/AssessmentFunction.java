@@ -5,7 +5,6 @@ package agents.flexibility.dynamicProgramming.assessment;
 
 import java.util.ArrayList;
 import de.dlr.gitlab.fame.communication.message.Message;
-import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** A function to assess transitions
@@ -21,7 +20,7 @@ public interface AssessmentFunction {
 	 * 
 	 * @param externalEnergyDeltaInMWH of the transition to be assessed; positive values correspond to "charging"
 	 * @return the value or costs of the transition at the time the {@link AssessmentFunction} was
-	 *         {@link #prepareFor(TimePeriod)} */
+	 *         {@link #prepareFor(TimeStamp)} */
 	double assessTransition(double externalEnergyDeltaInMWH);
 
 	/** Clear entries of electricity price forecasts before given time

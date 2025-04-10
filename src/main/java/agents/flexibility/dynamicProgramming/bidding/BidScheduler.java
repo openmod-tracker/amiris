@@ -15,8 +15,7 @@ public interface BidScheduler {
 	/** Creates bidding schedule based on given dispatch schedule
 	 * 
 	 * @param startingTime first time period in the schedule
-	 * @param dispatchSchedule that serves as basis for bidding schedule
-	 * @param initialEnergyLevelsInMWH energy levels of the associated device at the beginning of each step in schedule
+	 * @param schedule dispatch schedule that serves as basis for bidding schedule
 	 * @return created bidding schedule */
 	BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule schedule);
 

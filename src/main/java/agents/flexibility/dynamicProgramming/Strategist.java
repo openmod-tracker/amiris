@@ -31,10 +31,11 @@ public final class Strategist {
 	private final BiFunction<Double, Double, Boolean> comparison;
 	private final double initialAssessmentValue;
 
-	/** Instantiates new {@link Optimiser}
+	/** Instantiates new {@link Strategist}
 	 * 
 	 * @param stateManager to control feasible states
-	 * @param assessmentFunction to evaluate transitions and states */
+	 * @param bidScheduler to create bidding schedules
+	 * @param target type of optimisation target */
 	public Strategist(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
 		this.bidScheduler = bidScheduler;

@@ -27,27 +27,50 @@ public interface StateManager {
 		}
 	}
 
-	/** Initialise {@link StateManager} to allow for planning in current planning period */
+	/** Initialise {@link StateManager} to allow for planning in current planning period
+	 * 
+	 * @param startingPeriod first time period of an upcoming planning */
 	void initialise(TimePeriod startingPeriod);
 
-	/** Make {@link StateManager} aware of time currently under assessment */
+	/** Make {@link StateManager} aware of time currently under assessment
+	 * 
+	 * @param time to be assessed */
 	void prepareFor(TimeStamp time);
 
-	/** Retrieve list of initial states indices at prepared time */
+	/** Retrieve list of initial states indices at prepared time
+	 * 
+	 * @return all states available at prepared time */
 	int[] getInitialStates();
 
-	/** Retrieve list of possible final state indices for given initial state index at prepared time */
+	/** Retrieve list of possible final state indices for given initial state index at prepared time
+	 * 
+	 * @param initialStateIndex index of state at the begin of a transition
+	 * @return all possible transition final states reachable from given initial state */
 	int[] getFinalStates(int initialStateIndex);
 
-	/** Get a transition value from the transition from an initial to a final state */
+	/** Get a transition value from the transition from an initial to a final state
+	 * 
+	 * @param initialStateIndex index of state at the begin of a transition
+	 * @param finalStateIndex index of state at the end of a transition
+	 * @return value of the transition between two states */
 	double getTransitionValueFor(int initialStateIndex, int finalStateIndex);
 
-	/** Get best assessment function value available for final state index */
+	/** Get best assessment function value available for final state index
+	 * 
+	 * @param finalStateIndex to get the best assessment value for
+	 * @return best assessment known for given final state */
 	double getBestValueNextPeriod(int finalStateIndex);
 
-	/** Update the best final state for transition and log the associated best assessment value */
+	/** Update the best final state for transition and log the associated best assessment value
+	 * 
+	 * @param initialStateIndex index of state at the begin of a transition
+	 * @param bestFinalStateIndex index of state at the end of a transition
+	 * @param bestAssessmentValue to be associated with this transition */
 	void updateBestFinalState(int initialStateIndex, int bestFinalStateIndex, double bestAssessmentValue);
 
+	/** Get number of time intervals within the foresight horizon
+	 * 
+	 * @return number of time intervals */
 	int getNumberOfForecastTimeSteps();
 
 	/** Return the {@link DispatchSchedule} from the starting period and the current state of the {@link GenericDevice}
