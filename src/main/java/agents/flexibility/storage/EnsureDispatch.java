@@ -5,6 +5,7 @@ package agents.flexibility.storage;
 
 import agents.flexibility.BidSchedule;
 import agents.flexibility.dynamicProgramming.BidScheduler;
+import agents.flexibility.dynamicProgramming.StateManager.DispatchSchedule;
 import agents.markets.meritOrder.Constants;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
@@ -19,21 +20,17 @@ public class EnsureDispatch implements BidScheduler {
 	}
 
 	@Override
-	public BidSchedule createBidSchedule(TimePeriod startingTime, double[] dispatchSchedule,
-			double initialEnergyLevelInMWH) {
-		BidSchedule schedule = new BidSchedule(startingTime, numberOfScheduleSteps);
+	public BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule dispatchSchedule) {
+		BidSchedule bidSchedule = new BidSchedule(startingTime, numberOfScheduleSteps);
 
 		double[] biddingPricePerPeriodInEURperMWH = new double[numberOfScheduleSteps];
-		double[] expectedInitialInternalEnergyPerPeriodInMWH = new double[numberOfScheduleSteps];
 		for (int i = 0; i < numberOfScheduleSteps; i++) {
-			biddingPricePerPeriodInEURperMWH[i] = getBid(dispatchSchedule[i]);
-			expectedInitialInternalEnergyPerPeriodInMWH[i] = initialEnergyLevelInMWH;
-			initialEnergyLevelInMWH += dispatchSchedule[i];
+			biddingPricePerPeriodInEURperMWH[i] = getBid(dispatchSchedule.externalEnergyDeltasInMWH[i]);
 		}
-		schedule.setRequestedEnergyPerPeriod(dispatchSchedule);
-		schedule.setBidsScheduleInEURperMWH(biddingPricePerPeriodInEURperMWH);
-		schedule.setExpectedInitialInternalEnergyScheduleInMWH(expectedInitialInternalEnergyPerPeriodInMWH);
-		return schedule;
+		bidSchedule.setRequestedEnergyPerPeriod(dispatchSchedule.externalEnergyDeltasInMWH);
+		bidSchedule.setBidsScheduleInEURperMWH(biddingPricePerPeriodInEURperMWH);
+		bidSchedule.setExpectedInitialInternalEnergyScheduleInMWH(dispatchSchedule.initialInternalEnergyInMWH);
+		return bidSchedule;
 	}
 
 	/** @return scarcity price for purchasing energy and minimum price for selling energy */

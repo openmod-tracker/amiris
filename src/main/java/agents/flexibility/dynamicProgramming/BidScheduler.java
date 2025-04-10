@@ -4,6 +4,7 @@
 package agents.flexibility.dynamicProgramming;
 
 import agents.flexibility.BidSchedule;
+import agents.flexibility.dynamicProgramming.StateManager.DispatchSchedule;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
 /** Creates {@link BidSchedule}s
@@ -15,9 +16,9 @@ public interface BidScheduler {
 	 * 
 	 * @param startingTime first time period in the schedule
 	 * @param dispatchSchedule that serves as basis for bidding schedule
-	 * @param initialEnergyLevelInMWH energy level of the associated device at the beginning of the dispatch schedule
+	 * @param initialEnergyLevelsInMWH energy levels of the associated device at the beginning of each step in schedule
 	 * @return created bidding schedule */
-	BidSchedule createBidSchedule(TimePeriod startingTime, double[] dispatchSchedule, double initialEnergyLevelInMWH);
+	BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule schedule);
 
 	/** Returns number of time steps in bidding schedule
 	 * 

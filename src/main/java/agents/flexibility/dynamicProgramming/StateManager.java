@@ -11,6 +11,22 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public interface StateManager {
+
+	/** Contains the course of the internal energy levels and external energy deltas over a dispatch */
+	public static class DispatchSchedule {
+		public final double[] externalEnergyDeltasInMWH;
+		public final double[] initialInternalEnergyInMWH;
+
+		/** Instantiate new {@link DispatchSchedule}
+		 * 
+		 * @param externalEnergyDeltasInMWH course of external energy deltas during dispatch
+		 * @param initialInternalEnergyInMWH course of expected internal energy during dispatch */
+		public DispatchSchedule(double[] externalEnergyDeltasInMWH, double[] initialInternalEnergyInMWH) {
+			this.externalEnergyDeltasInMWH = externalEnergyDeltasInMWH;
+			this.initialInternalEnergyInMWH = initialInternalEnergyInMWH;
+		}
+	}
+
 	/** Initialize {@link StateManager} to allow for planning in current planning period */
 	void initialise(TimePeriod startingPeriod);
 
@@ -34,11 +50,11 @@ public interface StateManager {
 
 	int getNumberOfForecastTimeSteps();
 
-	/** Return the external energy delta starting from the starting period and the current state of the {@link GenericDevice}
+	/** Return the {@link DispatchSchedule} from the starting period and the current state of the {@link GenericDevice}
 	 * 
-	 * @param schedulingSteps for actual dispatch scheduling
-	 * @return array of external energy deltas (charging > 0; discharging < 0) */
-	double[] getBestDispatchSchedule(int schedulingSteps);
+	 * @param schedulingSteps number of scheduling steps
+	 * @return dispatch schedule extending over the given number of scheduling steps */
+	DispatchSchedule getBestDispatchSchedule(int schedulingSteps);
 
 	/** Return energy level of the device in its current state
 	 * 

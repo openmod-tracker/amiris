@@ -40,7 +40,7 @@ public abstract class Strategist {
 		ALL,
 		/** Forecasts are only requested for missing time steps, therefore updated incrementally. */
 		INCREMENTAL,
-	};
+	}
 
 	/** Hard coded time granularity of {@link Strategist} */
 	public final static TimeSpan OPERATION_PERIOD = new TimeSpan(1, Interval.HOURS);

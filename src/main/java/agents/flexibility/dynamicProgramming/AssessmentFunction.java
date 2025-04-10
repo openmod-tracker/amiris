@@ -17,7 +17,7 @@ public interface AssessmentFunction {
 
 	/** Return estimated value or costs of the transition
 	 * 
-	 * @param externalEnergyDeltaInMWH of the transition to be assessed
+	 * @param externalEnergyDeltaInMWH of the transition to be assessed; positive values correspond to "charging"
 	 * @return the value or costs of the transition at the time the {@link AssessmentFunction} was
 	 *         {@link #prepareFor(TimePeriod)} */
 	double assessTransition(double externalEnergyDeltaInMWH);

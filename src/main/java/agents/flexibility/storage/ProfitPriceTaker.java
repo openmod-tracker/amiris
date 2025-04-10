@@ -7,10 +7,10 @@ import java.util.TreeMap;
 import agents.flexibility.dynamicProgramming.AssessmentFunction;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** A profit maximiser using an electricity price forecast insensitive to price repercussions
+/** Assess profit of transitions using an electricity price forecast neglecting any price impact of bids
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
-public class MaxProfitPriceTaker implements AssessmentFunction {
+public class ProfitPriceTaker implements AssessmentFunction {
 	private double currentElectricityPriceInEURperMWH;
 	private TreeMap<TimeStamp, Double> electricityPriceForecastsInEURperMWH = new TreeMap<>();
 
@@ -21,7 +21,7 @@ public class MaxProfitPriceTaker implements AssessmentFunction {
 
 	@Override
 	public double assessTransition(double externalEnergyDeltaInMWH) {
-		return externalEnergyDeltaInMWH * currentElectricityPriceInEURperMWH;
+		return -externalEnergyDeltaInMWH * currentElectricityPriceInEURperMWH;
 	}
 
 	/** Clear entries of electricity price forecasts before given time

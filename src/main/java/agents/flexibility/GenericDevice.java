@@ -149,7 +149,7 @@ public class GenericDevice {
 	 * @param internalEnergyDelta &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
 	 * @return external energy delta equivalent */
-	private double internalToExternalEnergy(double internalEnergyDelta, TimeStamp time) {
+	public double internalToExternalEnergy(double internalEnergyDelta, TimeStamp time) {
 		if (internalEnergyDelta > 0) {
 			return internalEnergyDelta / chargingEfficiency.getValueLinear(time);
 		} else {

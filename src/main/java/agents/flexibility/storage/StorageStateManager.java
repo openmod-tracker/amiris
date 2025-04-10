@@ -120,22 +120,26 @@ public class StorageStateManager implements StateManager {
 	}
 
 	@Override
-	public double[] getBestDispatchSchedule(int schedulingSteps) {
-		double currentEnergyLevel = device.getCurrentInternalEnergyInMWH();
+	public DispatchSchedule getBestDispatchSchedule(int schedulingSteps) {
+		double currentInternalEnergyInMWH = device.getCurrentInternalEnergyInMWH();
 		double[] externalEnergyDeltaInMWH = new double[schedulingSteps];
+		double[] internalEnergyInMWH = new double[schedulingSteps];
 		for (int i = 0; i < schedulingSteps; i++) {
+			internalEnergyInMWH[i] = currentInternalEnergyInMWH;
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(i);
-			int currentEnergyLevelIndex = energyToIndex(currentEnergyLevel);
+			int currentEnergyLevelIndex = energyToIndex(currentInternalEnergyInMWH);
 			int nextEnergyLevelIndex = bestNextState[i][currentEnergyLevelIndex];
-			double nextEnergyLevel = currentEnergyLevel
+			double nextInternalEnergyInMWH = currentInternalEnergyInMWH
 					+ (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
-			double lowerLevel = device.getEnergyContentLowerLimitInMWH(timePeriod.getStartTime());
-			double upperLevel = device.getEnergyContentUpperLimitInMWH(timePeriod.getStartTime());
-			nextEnergyLevel = Math.max(lowerLevel, Math.min(upperLevel, nextEnergyLevel));
-			externalEnergyDeltaInMWH[i] = nextEnergyLevel - currentEnergyLevel;
-			currentEnergyLevel = nextEnergyLevel;
+			double lowerLevelInMWH = device.getEnergyContentLowerLimitInMWH(timePeriod.getStartTime());
+			double upperLevelInMWH = device.getEnergyContentUpperLimitInMWH(timePeriod.getStartTime());
+			nextInternalEnergyInMWH = Math.max(lowerLevelInMWH, Math.min(upperLevelInMWH, nextInternalEnergyInMWH));
+			double internalEnergyDeltaInMWH = nextInternalEnergyInMWH - currentInternalEnergyInMWH;
+			externalEnergyDeltaInMWH[i] = device.internalToExternalEnergy(internalEnergyDeltaInMWH,
+					timePeriod.getStartTime());
+			currentInternalEnergyInMWH = nextInternalEnergyInMWH;
 		}
-		return externalEnergyDeltaInMWH;
+		return new DispatchSchedule(externalEnergyDeltaInMWH, internalEnergyInMWH);
 	}
 
 	@Override

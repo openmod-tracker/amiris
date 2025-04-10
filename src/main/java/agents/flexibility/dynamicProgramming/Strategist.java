@@ -5,6 +5,7 @@ package agents.flexibility.dynamicProgramming;
 
 import java.util.function.BiFunction;
 import agents.flexibility.BidSchedule;
+import agents.flexibility.dynamicProgramming.StateManager.DispatchSchedule;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
 public class Strategist {
@@ -19,8 +20,8 @@ public class Strategist {
 	}
 
 	private final StateManager stateManager;
-	private final Target target;
 	private final BidScheduler bidScheduler;
+	private final Target target;	
 
 	/** Instantiates new {@link Optimiser}
 	 * 
@@ -28,15 +29,14 @@ public class Strategist {
 	 * @param assessmentFunction to evaluate transitions and states */
 	public Strategist(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
-		this.target = target;
 		this.bidScheduler = bidScheduler;
+		this.target = target;		
 	}
 
 	public BidSchedule createSchedule(TimePeriod startingPeriod) {
 		optimise(startingPeriod);
-		double[] dispatchSchedule = stateManager.getBestDispatchSchedule(bidScheduler.getSchedulingSteps());
-		double currentEnergyContent = stateManager.getCurrentDeviceEnergyContentInMWH();
-		return bidScheduler.createBidSchedule(startingPeriod, dispatchSchedule, currentEnergyContent);
+		DispatchSchedule dispatchSchedule = stateManager.getBestDispatchSchedule(bidScheduler.getSchedulingSteps());
+		return bidScheduler.createBidSchedule(startingPeriod, dispatchSchedule);
 	}
 
 	/** Optimise for a defined target */
