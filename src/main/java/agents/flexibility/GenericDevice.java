@@ -7,10 +7,10 @@ import static de.dlr.gitlab.fame.time.Constants.STEPS_PER_HOUR;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import agents.storage.Device;
-import de.dlr.gitlab.fame.agent.input.GroupBuilder;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -29,8 +29,8 @@ public class GenericDevice {
 	static final double TOLERANCE = 1E-3;
 
 	private static Logger logger = LoggerFactory.getLogger(GenericDevice.class);
-	private TimeSeries chargingPowerInMW;
-	private TimeSeries dischargingPowerInMW;
+	private TimeSeries externalChargingPowerInMW;
+	private TimeSeries externalDischargingPowerInMW;
 	private TimeSeries chargingEfficiency;
 	private TimeSeries dischargingEfficiency;
 	private TimeSeries energyContentUpperLimitInMWH;
@@ -40,27 +40,28 @@ public class GenericDevice {
 	private double currentEnergyContentInMWH;
 
 	/** Input parameters of a storage {@link Device} */
-	public static final GroupBuilder parameters = Make.newTree()
-			.add(Make.newSeries("ChargingPowerInMW"), Make.newSeries("DischargingPowerInMW"),
+	public static final Tree parameters = Make.newTree()
+			.add(Make.newSeries("GrossChargingPowerInMW"), Make.newSeries("NetDischargingPowerInMW").optional(),
 					Make.newSeries("ChargingEfficiency"), Make.newSeries("DischargingEfficiency"),
 					Make.newSeries("EnergyContentUpperLimitInMWH"),
 					Make.newSeries("EnergyContentLowerLimitInMWH"), Make.newSeries("SelfDischargeRatePerHour"),
-					Make.newSeries("NetInflowPowerInMW"), Make.newDouble("InitialEnergyContentInMWH"));
+					Make.newSeries("NetInflowPowerInMW"), Make.newDouble("InitialEnergyContentInMWH"))
+			.buildTree();
 
 	/** Instantiate new {@link GenericDevice}
 	 * 
 	 * @param input parameters from file
 	 * @throws MissingDataException if any required input parameter is missing */
 	public GenericDevice(ParameterData input) throws MissingDataException {
-		chargingPowerInMW = input.getTimeSeries("ChargingPowerInMW");
-		dischargingPowerInMW = input.getTimeSeries("DischargingPowerInMW");
+		externalChargingPowerInMW = input.getTimeSeries("GrossChargingPowerInMW");
+		externalDischargingPowerInMW = input.getTimeSeriesOrDefault("NetDischargingPowerInMW", externalChargingPowerInMW);
 		chargingEfficiency = input.getTimeSeries("ChargingEfficiency");
 		dischargingEfficiency = input.getTimeSeries("DischargingEfficiency");
 		energyContentUpperLimitInMWH = input.getTimeSeries("EnergyContentUpperLimitInMWH");
 		energyContentLowerLimitInMWH = input.getTimeSeries("EnergyContentLowerLimitInMWH");
 		selfDischargeRatePerHour = input.getTimeSeries("SelfDischargeRatePerHour");
 		netInflowPowerInMW = input.getTimeSeries("NetInflowPowerInMW");
-		currentEnergyContentInMWH = input.getDoubleOrDefault("InitialEnergyContentInMWH", 0.);
+		currentEnergyContentInMWH = input.getDouble("InitialEnergyContentInMWH");
 	}
 
 	/** Returns the maximum reachable internal energy content by applying maximum charging power for the specified duration and
@@ -73,7 +74,8 @@ public class GenericDevice {
 	 * @param duration of the transition
 	 * @return maximum reachable energy content for given initial energy content in MWh */
 	public double getMaxTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
-		double netChargingEnergyInMWH = (chargingPowerInMW.getValueLinear(time) + netInflowPowerInMW.getValueLinear(time))
+		double netChargingEnergyInMWH = (externalChargingPowerInMW.getValueLinear(time)
+				* chargingEfficiency.getValueLinear(time) + netInflowPowerInMW.getValueLinear(time))
 				* calcDurationInHours(duration);
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
 				+ netChargingEnergyInMWH;
@@ -100,7 +102,8 @@ public class GenericDevice {
 	 * @return minimum allowed energy content for given initial energy content in MWh */
 	public double getMinTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
 		double netDischargingEnergyInMWH = (netInflowPowerInMW.getValueLinear(time)
-				- dischargingPowerInMW.getValueLinear(time)) * calcDurationInHours(duration);
+				- externalDischargingPowerInMW.getValueLinear(time) / dischargingEfficiency.getValueLinear(time))
+				* calcDurationInHours(duration);
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
 				+ netDischargingEnergyInMWH;
 		return Math.max(targetEnergyInMWH, getEnergyContentLowerLimitInMWH(time));
@@ -165,8 +168,8 @@ public class GenericDevice {
 	 * @param duration of the transition
 	 * @return actual external energy delta for transition considering power and capacity limits */
 	public double transition(TimeStamp time, double externalEnergyDeltaInMWH, TimeSpan duration) {
-		double internalEnergyDeltaInMWH = externalToInternalEnergy(externalEnergyDeltaInMWH, time);
-		double internalPowerInMW = ensurePowerWithinLimits(time, internalEnergyDeltaInMWH / calcDurationInHours(duration));
+		double externalPowerInMW = ensurePowerWithinLimits(time, externalEnergyDeltaInMWH / calcDurationInHours(duration));
+		double internalPowerInMW = externalToInternal(externalPowerInMW, time);
 		double netChargingEnergyInMWH = (internalPowerInMW + netInflowPowerInMW.getValueLinear(time))
 				* calcDurationInHours(duration);
 		double selfDischargeRate = calcSelfDischarge(time, duration);
@@ -174,37 +177,38 @@ public class GenericDevice {
 		double finalEnergyContentInMWH = currentEnergyContentInMWH + netChargingEnergyInMWH - selfDischargeLossInMWH;
 		finalEnergyContentInMWH = ensureEnergyWithinLimits(time, finalEnergyContentInMWH);
 		ensureNoNegativeSelfDischarge(time, selfDischargeRate);
-		internalEnergyDeltaInMWH = finalEnergyContentInMWH - currentEnergyContentInMWH
+		double internalEnergyDeltaInMWH = finalEnergyContentInMWH - currentEnergyContentInMWH
 				+ selfDischargeLossInMWH - netInflowPowerInMW.getValueLinear(time) * calcDurationInHours(duration);
 		currentEnergyContentInMWH = finalEnergyContentInMWH;
 		return internalToExternalEnergy(internalEnergyDeltaInMWH, time);
 	}
 
-	/** Return internal energy delta equivalent of given external energy delta
+	/** Return internal energy delta or power equivalent of given external energy delta or power
 	 * 
-	 * @param externalEnergyDelta &gt; 0: charging; &lt; 0: depleting
+	 * @param externalValue &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
-	 * @return corresponding internal energy delta equivalent */
-	private double externalToInternalEnergy(double externalEnergyDelta, TimeStamp time) {
-		if (externalEnergyDelta > 0) {
-			return externalEnergyDelta * chargingEfficiency.getValueLinear(time);
+	 * @return corresponding internal energy delta or power equivalent */
+	private double externalToInternal(double externalValue, TimeStamp time) {
+		if (externalValue > 0) {
+			return externalValue * chargingEfficiency.getValueLinear(time);
 		} else {
-			return externalEnergyDelta / dischargingEfficiency.getValueLinear(time);
+			return externalValue / dischargingEfficiency.getValueLinear(time);
 		}
 	}
 
-	/** Logs an error if the given internal (dis-)charging power exceeds its corresponding limit.
+	/** Logs an error if the given external (dis-)charging power exceeds its corresponding limit.
 	 * 
 	 * @param time at which the power is applied
 	 * @param powerInMW positive values represent charging
 	 * @return the applied (dis-)charging power - capped at its corresponding maximum at the given time */
 	private double ensurePowerWithinLimits(TimeStamp time, double powerInMW) {
-		if (powerInMW > chargingPowerInMW.getValueLinear(time) + TOLERANCE) {
-			logger.error(time + ERR_EXCEED_CHARGING_POWER + (powerInMW - chargingPowerInMW.getValueLinear(time)));
-			powerInMW = chargingPowerInMW.getValueLinear(time);
-		} else if (powerInMW < -dischargingPowerInMW.getValueLinear(time) - TOLERANCE) {
-			logger.error(time + ERR_EXCEED_DISCHARGING_POWER + (dischargingPowerInMW.getValueLinear(time) + powerInMW));
-			powerInMW = -dischargingPowerInMW.getValueLinear(time);
+		if (powerInMW > externalChargingPowerInMW.getValueLinear(time) + TOLERANCE) {
+			logger.error(time + ERR_EXCEED_CHARGING_POWER + (powerInMW - externalChargingPowerInMW.getValueLinear(time)));
+			powerInMW = externalChargingPowerInMW.getValueLinear(time);
+		} else if (powerInMW < -externalDischargingPowerInMW.getValueLinear(time) - TOLERANCE) {
+			logger
+					.error(time + ERR_EXCEED_DISCHARGING_POWER + (externalDischargingPowerInMW.getValueLinear(time) + powerInMW));
+			powerInMW = -externalDischargingPowerInMW.getValueLinear(time);
 		}
 		return powerInMW;
 	}
