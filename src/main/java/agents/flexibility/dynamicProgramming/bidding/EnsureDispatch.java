@@ -36,7 +36,13 @@ public class EnsureDispatch implements BidScheduler {
 
 	/** @return scarcity price for purchasing energy and minimum price for selling energy */
 	private double getBid(double purchasedEnergy) {
-		return purchasedEnergy > 0 ? Constants.SCARCITY_PRICE_IN_EUR_PER_MWH : Constants.MINIMAL_PRICE_IN_EUR_PER_MWH;
+		if (purchasedEnergy > 0) {
+			return Constants.SCARCITY_PRICE_IN_EUR_PER_MWH;
+		} else if (purchasedEnergy < 0) {
+			return Constants.MINIMAL_PRICE_IN_EUR_PER_MWH;
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
