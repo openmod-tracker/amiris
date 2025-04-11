@@ -48,7 +48,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class GenericFlexibilityTrader extends Trader {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", GenericDevice.parameters)
 			.add(Strategist.TARGET_PARAM).addAs("Assessment", AssessmentFunctionBuilder.parameters)
-			.addAs("StateManagement", StateManagerBuilder.parameters).addAs("Bidding", BidSchedulerBuilder.parameters)
+			.addAs("StateDiscretisation", StateManagerBuilder.parameters).addAs("Bidding", BidSchedulerBuilder.parameters)
 			.buildTree();
 
 	/** Products of {@link FlexibilityTrader}s */

@@ -10,14 +10,15 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 
+/** @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class StateManagerBuilder {
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("Type", Type.class),
 			Make.newInt("PlanningHorizonInHours"), Make.newDouble("EnergyResolutionInMWH")).buildTree();
 
 	/** Available {StateManager}s */
 	enum Type {
-		/** Manages energy states of an electricity storage device */
-		Storage,
+		/** Energy states of a device are represented in one dimension */
+		StateOfCharge,
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "StateManager is not implemented: ";
@@ -26,8 +27,8 @@ public class StateManagerBuilder {
 			throws MissingDataException {
 		Type type = input.getEnum("Type", Type.class);
 		switch (type) {
-			case Storage:
-				return new StorageStateManager(device, assessment, input.getDouble("PlanningHorizonInHours"),
+			case StateOfCharge:
+				return new EnergyStateManager(device, assessment, input.getDouble("PlanningHorizonInHours"),
 						input.getDouble("EnergyResolutionInMWH"));
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);

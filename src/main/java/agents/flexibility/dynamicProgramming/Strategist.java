@@ -50,7 +50,7 @@ public final class Strategist {
 		return bidScheduler.createBidSchedule(startingPeriod, dispatchSchedule);
 	}
 
-	/** Optimise for a defined target */
+	/** Optimise dispatch following an optimisation target */
 	private void optimise(TimePeriod startingPeriod) {
 		stateManager.initialise(startingPeriod);
 		for (int k = 0; k < stateManager.getNumberOfForecastTimeSteps(); k++) {

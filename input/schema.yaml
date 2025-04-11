@@ -2746,7 +2746,7 @@ AgentTypes:
               ProfitPriceTaker:
                 MetaData:
                   Description: "Assess profit using an electricity price forecast neglecting any price impact of bids"
-      StateManagement:
+      StateDiscretisation:
         AttributeType: block
         Mandatory: true
         List: false
@@ -2760,9 +2760,9 @@ AgentTypes:
             Mandatory: true
             List: false
             Values:
-              Storage:
+              StateOfCharge:
                 MetaData:
-                  Description: "Manage energy states of an electricity storage device"
+                  Description: "Represent energy states of an electricity storage device"
           PlanningHorizonInHours:
             MetaData:
               Description: ""          

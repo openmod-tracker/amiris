@@ -11,7 +11,10 @@ import agents.flexibility.dynamicProgramming.assessment.AssessmentFunction;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-public class StorageStateManager implements StateManager {
+/** States of a device are represented along one dimension, representing its energy content or state of charge
+ * 
+ * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
+public class EnergyStateManager implements StateManager {
 	private final GenericDevice device;
 	private final AssessmentFunction assessmentFunction;
 	private final double planningHorizonInHours;
@@ -26,7 +29,7 @@ public class StorageStateManager implements StateManager {
 	private int currentOptimisationTimeIndex;
 	private TimeStamp currentOptimisationTime;
 
-	public StorageStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
+	public EnergyStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
 			double energyResolutionInMWH) {
 		this.device = device;
 		this.assessmentFunction = assessmentFunction;
@@ -38,12 +41,12 @@ public class StorageStateManager implements StateManager {
 	public void initialise(TimePeriod startingPeriod) {
 		this.numberOfTimeSteps = Strategist.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
 		this.startingPeriod = startingPeriod;
-		analyseStorageEnergyLevels();
+		analyseAvailableEnergyLevels();
 		bestNextState = new int[numberOfTimeSteps][numberOfEnergyStates];
 		bestValue = new double[numberOfTimeSteps][numberOfEnergyStates];
 	}
 
-	private void analyseStorageEnergyLevels() {
+	private void analyseAvailableEnergyLevels() {
 		double minLowerLevel = Double.MAX_VALUE;
 		double maxUpperLevel = -Double.MAX_VALUE;
 		for (int i = 0; i < numberOfTimeSteps; i++) {
@@ -74,6 +77,7 @@ public class StorageStateManager implements StateManager {
 		return IntStream.range(lowestIndex, highestIndex + 1).toArray();
 	}
 
+	/** @return next lower index corresponding to given energy level */
 	private int energyToIndex(double energyAmountInMWH) {
 		double energyLevel = (int) (energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
@@ -97,6 +101,7 @@ public class StorageStateManager implements StateManager {
 		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
 
+	/** @return energy content corresponding to the given index */
 	private double indexToEnergy(int index) {
 		return index * energyResolutionInMWH - lowestLevelEnergyInMWH;
 	}
@@ -108,7 +113,7 @@ public class StorageStateManager implements StateManager {
 	}
 
 	private double getWaterValue() {
-		return 0.;
+		return 0; // TODO: implement
 	}
 
 	@Override

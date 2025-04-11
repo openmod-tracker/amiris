@@ -32,10 +32,10 @@ public interface AssessmentFunction {
 	 * 
 	 * @param planningTimes times in the upcoming planning horizon
 	 * @return list of time stamp which require additional information */
-	public ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> planningTimes);
+	ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> planningTimes);
 
 	/** Store forecasts for dispatch assessment
 	 * 
 	 * @param messages to be scraped for forecast data */
-	public void storeForecast(ArrayList<Message> messages);
+	void storeForecast(ArrayList<Message> messages);
 }
