@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -31,17 +32,13 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** A type of Trader that also operates a flexibility asset, e.g. storage device or flexible heat pump
  *
  * @author Christoph Schimeczek */
-public abstract class FlexibilityTrader extends Trader {
+public abstract class FlexibilityTrader extends Trader implements ForecastClient {
 	@Input private static final Tree parameters = Make.newTree().addAs("Refinancing", AnnualCostCalculator.parameters)
 			.buildTree();
 
 	/** Products of {@link FlexibilityTrader}s */
 	@Product
 	public static enum Products {
-		/** Requests for merit-order forecasts */
-		MeritOrderForecastRequest,
-		/** Requests for price-forecasts */
-		PriceForecastRequest,
 		/** Report annual costs (not sent to other agents, but calculated within an agent) */
 		AnnualCostReport,
 	}

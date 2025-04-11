@@ -15,6 +15,7 @@ import agents.flexibility.dynamicProgramming.assessment.AssessmentFunctionBuilde
 import agents.flexibility.dynamicProgramming.bidding.BidSchedulerBuilder;
 import agents.flexibility.dynamicProgramming.states.StateManager;
 import agents.flexibility.dynamicProgramming.states.StateManagerBuilder;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -32,7 +33,6 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
-import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.Constants.Interval;
@@ -45,18 +45,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * dynamic programming.
  * 
  * @author Felix Nitsch, Christoph Schimeczek, Johannes Kochems */
-public class GenericFlexibilityTrader extends Trader {
+public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 	@Input private static final Tree parameters = Make.newTree().addAs("Device", GenericDevice.parameters)
 			.add(Strategist.TARGET_PARAM).addAs("Assessment", AssessmentFunctionBuilder.parameters)
 			.addAs("StateDiscretisation", StateManagerBuilder.parameters).addAs("Bidding", BidSchedulerBuilder.parameters)
 			.buildTree();
-
-	/** Products of {@link FlexibilityTrader}s */
-	@Product
-	public static enum Products {
-		/** Requests for price-forecasts */
-		PriceForecastRequest,
-	}
 
 	/** Output columns of {@link FlexibilityTrader}s */
 	@Output
@@ -85,7 +78,7 @@ public class GenericFlexibilityTrader extends Trader {
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
 		strategist = new Strategist(stateManager, bidScheduler, input.getEnum("OptimisationTarget", Target.class));
 
-		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);

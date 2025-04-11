@@ -10,6 +10,7 @@ import agents.electrolysis.Electrolyzer;
 import agents.electrolysis.ElectrolyzerStrategist;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
@@ -87,7 +88,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		fuelData = new FuelData(fuelType);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityForecast).on(FlexibilityTrader.Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);

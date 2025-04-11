@@ -6,7 +6,6 @@ package agents.forecast;
 import java.util.ArrayList;
 import java.util.List;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
 import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -27,7 +26,7 @@ public class PriceForecaster extends MarketForecaster {
 	public PriceForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
-				.use(FlexibilityTrader.Products.PriceForecastRequest);
+				.use(ForecastClient.Products.PriceForecastRequest);
 	}
 
 	/** Sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader(s) based on incoming Forecast
