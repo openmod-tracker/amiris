@@ -11,11 +11,11 @@ public class CachableGenericDevice {
 	private double[] dischargingEfficiency;
 	private double[] energyContentUpperLimitInMWH;
 	private double[] energyContentLowerLimitInMWH;
-	private double[] netInflowPowerInMW;
 
 	private double[] effectiveSelfDischargeRate;
 	private double[] maxNetChargingEnergyInMWH;
 	private double[] maxNetDischargingEnergyInMWH;
+	private double[] netInflowEnergyInMWH;
 
 	private double intervalDurationInHours;
 
@@ -33,15 +33,15 @@ public class CachableGenericDevice {
 			dischargingEfficiency[timeIndex] = device.dischargingEfficiency.getValueLinear(time);
 			energyContentUpperLimitInMWH[timeIndex] = device.energyContentUpperLimitInMWH.getValueLinear(time);
 			energyContentLowerLimitInMWH[timeIndex] = device.energyContentLowerLimitInMWH.getValueLinear(time);
-			netInflowPowerInMW[timeIndex] = device.netInflowPowerInMW.getValueLinear(time);
+			double netInflowPowerInMW = device.netInflowPowerInMW.getValueLinear(time);
 			effectiveSelfDischargeRate[timeIndex] = 1.
 					- Math.pow(1 - device.selfDischargeRatePerHour.getValueLinear(time), intervalDurationInHours);
 			maxNetChargingEnergyInMWH[timeIndex] = (device.externalChargingPowerInMW.getValueLinear(time)
-					* chargingEfficiency[timeIndex]
-					+ netInflowPowerInMW[timeIndex]) * intervalDurationInHours;
-			maxNetDischargingEnergyInMWH[timeIndex] = (netInflowPowerInMW[timeIndex]
+					* chargingEfficiency[timeIndex] + netInflowPowerInMW) * intervalDurationInHours;
+			maxNetDischargingEnergyInMWH[timeIndex] = (netInflowPowerInMW
 					- device.externalDischargingPowerInMW.getValueLinear(time) / dischargingEfficiency[timeIndex])
 					* intervalDurationInHours;
+			netInflowEnergyInMWH[timeIndex] = netInflowPowerInMW * intervalDurationInHours;
 		}
 	}
 
@@ -52,10 +52,10 @@ public class CachableGenericDevice {
 			dischargingEfficiency = new double[numberOfTimeSteps];
 			energyContentUpperLimitInMWH = new double[numberOfTimeSteps];
 			energyContentLowerLimitInMWH = new double[numberOfTimeSteps];
-			netInflowPowerInMW = new double[numberOfTimeSteps];
 			effectiveSelfDischargeRate = new double[numberOfTimeSteps];
 			maxNetChargingEnergyInMWH = new double[numberOfTimeSteps];
 			maxNetDischargingEnergyInMWH = new double[numberOfTimeSteps];
+			netInflowEnergyInMWH = new double[numberOfTimeSteps];
 		}
 	}
 
@@ -86,7 +86,7 @@ public class CachableGenericDevice {
 	public double getMaxTargetEnergyContentInMWH(int timeIndex, double initialEnergyContentInMWH) {
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - effectiveSelfDischargeRate[timeIndex])
 				+ maxNetChargingEnergyInMWH[timeIndex];
-		return Math.min(targetEnergyInMWH, getEnergyContentUpperLimitInMWH(timeIndex));
+		return Math.min(targetEnergyInMWH, energyContentUpperLimitInMWH[timeIndex]);
 	}
 
 	/** Returns the minimum reachable internal energy content by applying maximum discharging power for the specified duration and
@@ -100,7 +100,7 @@ public class CachableGenericDevice {
 	public double getMinTargetEnergyContentInMWH(int timeIndex, double initialEnergyContentInMWH) {
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - effectiveSelfDischargeRate[timeIndex])
 				+ maxNetDischargingEnergyInMWH[timeIndex];
-		return Math.max(targetEnergyInMWH, getEnergyContentLowerLimitInMWH(timeIndex));
+		return Math.max(targetEnergyInMWH, energyContentLowerLimitInMWH[timeIndex]);
 	}
 
 	/** Simulates a transition at given time ignoring its current energy level, but starting from a given initial energy content.
@@ -113,8 +113,8 @@ public class CachableGenericDevice {
 	 * @return external energy difference for transition from initial to final internal energy content level at given time */
 	public double simulateTransition(int timeIndex, double initialEnergyContentInMWH, double targetEnergyContentInMWH) {
 		double selfDischargeInMWH = initialEnergyContentInMWH * effectiveSelfDischargeRate[timeIndex];
-		double internalEnergyDelta = targetEnergyContentInMWH - initialEnergyContentInMWH
-				- netInflowPowerInMW[timeIndex] * intervalDurationInHours + selfDischargeInMWH;
+		double internalEnergyDelta = targetEnergyContentInMWH - initialEnergyContentInMWH - netInflowEnergyInMWH[timeIndex]
+				+ selfDischargeInMWH;
 		return internalToExternalEnergy(internalEnergyDelta, timeIndex);
 	}
 
