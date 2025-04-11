@@ -29,14 +29,14 @@ public class GenericDevice {
 	static final double TOLERANCE = 1E-3;
 
 	private static Logger logger = LoggerFactory.getLogger(GenericDevice.class);
-	private TimeSeries externalChargingPowerInMW;
-	private TimeSeries externalDischargingPowerInMW;
-	private TimeSeries chargingEfficiency;
-	private TimeSeries dischargingEfficiency;
-	private TimeSeries energyContentUpperLimitInMWH;
-	private TimeSeries energyContentLowerLimitInMWH;
-	private TimeSeries selfDischargeRatePerHour;
-	private TimeSeries netInflowPowerInMW;
+	protected TimeSeries externalChargingPowerInMW;
+	protected TimeSeries externalDischargingPowerInMW;
+	protected TimeSeries chargingEfficiency;
+	protected TimeSeries dischargingEfficiency;
+	protected TimeSeries energyContentUpperLimitInMWH;
+	protected TimeSeries energyContentLowerLimitInMWH;
+	protected TimeSeries selfDischargeRatePerHour;
+	protected TimeSeries netInflowPowerInMW;
 	private double currentEnergyContentInMWH;
 
 	/** Input parameters of a storage {@link Device} */
@@ -64,24 +64,6 @@ public class GenericDevice {
 		currentEnergyContentInMWH = input.getDouble("InitialEnergyContentInMWH");
 	}
 
-	/** Returns the maximum reachable internal energy content by applying maximum charging power for the specified duration and
-	 * considering the initial energy content, self discharge, and inward / outward flows. The transitions is assumed to start at
-	 * the specified time - all related values are assumed to not change during the transition's duration. The energy content is
-	 * capped at the upper energy content limit that applies to the {@link GenericDevice}.
-	 * 
-	 * @param time start of transition
-	 * @param initialEnergyContentInMWH at the beginning of transition
-	 * @param duration of the transition
-	 * @return maximum reachable energy content for given initial energy content in MWh */
-	public double getMaxTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
-		double netChargingEnergyInMWH = (externalChargingPowerInMW.getValueLinear(time)
-				* chargingEfficiency.getValueLinear(time) + netInflowPowerInMW.getValueLinear(time))
-				* calcDurationInHours(duration);
-		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
-				+ netChargingEnergyInMWH;
-		return Math.min(targetEnergyInMWH, getEnergyContentUpperLimitInMWH(time));
-	}
-
 	private double calcDurationInHours(TimeSpan duration) {
 		return (double) duration.getSteps() / STEPS_PER_HOUR;
 	}
@@ -91,60 +73,9 @@ public class GenericDevice {
 		return 1. - Math.pow(1 - selfDischargeRatePerHour.getValueLinear(time), calcDurationInHours(duration));
 	}
 
-	/** Returns the minimum reachable internal energy content by applying maximum discharging power for the specified duration and
-	 * considering the initial energy content, self discharge, and inward / outward flows. The transitions is assumed to start at
-	 * the specified time - all related values are assumed to not change during the transition's duration. The energy content is
-	 * capped at the lower energy content limit that applies to the {@link GenericDevice}.
-	 * 
-	 * @param time start of transition
-	 * @param initialEnergyContentInMWH at the beginning of transition
-	 * @param duration of the transition
-	 * @return minimum allowed energy content for given initial energy content in MWh */
-	public double getMinTargetEnergyContentInMWH(TimeStamp time, double initialEnergyContentInMWH, TimeSpan duration) {
-		double netDischargingEnergyInMWH = (netInflowPowerInMW.getValueLinear(time)
-				- externalDischargingPowerInMW.getValueLinear(time) / dischargingEfficiency.getValueLinear(time))
-				* calcDurationInHours(duration);
-		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(time, duration))
-				+ netDischargingEnergyInMWH;
-		return Math.max(targetEnergyInMWH, getEnergyContentLowerLimitInMWH(time));
-	}
-
-	/** Return upper limit of energy content for given time, may be negative;
-	 * 
-	 * @param time for which to get the upper energy content limit
-	 * @return maximum internal energy content of {@link GenericDevice} in MWh */
-	public double getEnergyContentUpperLimitInMWH(TimeStamp time) {
-		return energyContentUpperLimitInMWH.getValueLinear(time);
-	}
-
-	/** Return lower limit of energy content for given time, may be negative;
-	 * 
-	 * @param time for which to get the lower energy content limit
-	 * @return minimum internal energy content of {@link GenericDevice} in MWh */
-	public double getEnergyContentLowerLimitInMWH(TimeStamp time) {
-		return energyContentLowerLimitInMWH.getValueLinear(time);
-	}
-
 	/** @return current internal energy level of this {@link GenericDevice} in MWh */
 	public double getCurrentInternalEnergyInMWH() {
 		return currentEnergyContentInMWH;
-	}
-
-	/** Simulates a transition at given time ignoring its current energy level, but starting from a given initial energy content.
-	 * Returns required external energy delta (i.e. charging if positive) to reach given target energy content. Does <b>not</b>
-	 * ensure power limits or energy limits.
-	 * 
-	 * @param time of transition
-	 * @param initialEnergyContentInMWH at the beginning of transition
-	 * @param targetEnergyContentInMWH at the end of transition
-	 * @param duration of the transition
-	 * @return external energy difference for transition from initial to final internal energy content level at given time */
-	public double simulateTransition(TimeStamp time, double initialEnergyContentInMWH, double targetEnergyContentInMWH,
-			TimeSpan duration) {
-		double selfDischargeInMWH = initialEnergyContentInMWH * calcSelfDischarge(time, duration);
-		double internalEnergyDelta = targetEnergyContentInMWH - initialEnergyContentInMWH
-				- netInflowPowerInMW.getValueLinear(time) * calcDurationInHours(duration) + selfDischargeInMWH;
-		return internalToExternalEnergy(internalEnergyDelta, time);
 	}
 
 	/** Return external energy delta equivalent of given internal energy delta

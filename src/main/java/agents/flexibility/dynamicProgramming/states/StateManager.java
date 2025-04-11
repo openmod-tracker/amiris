@@ -79,11 +79,6 @@ public interface StateManager {
 	 * @return dispatch schedule extending over the given number of scheduling steps */
 	DispatchSchedule getBestDispatchSchedule(int schedulingSteps);
 
-	/** Return energy level of the device in its current state
-	 * 
-	 * @return current device energy content in MWh */
-	double getCurrentDeviceEnergyContentInMWH();
-
 	/** Return starting time of each planning interval in the planning horizon
 	 * 
 	 * @param startingPeriod first interval of the planning horizon
