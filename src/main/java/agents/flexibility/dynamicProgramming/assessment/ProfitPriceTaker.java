@@ -50,6 +50,7 @@ public class ProfitPriceTaker implements AssessmentFunction {
 			AmountAtTime priceForecastMessage = inputMessage.getDataItemOfType(AmountAtTime.class);
 			double priceForecast = priceForecastMessage.amount;
 			TimePeriod timePeriod = new TimePeriod(priceForecastMessage.validAt, Strategist.OPERATION_PERIOD);
+			priceForecast = Double.isNaN(priceForecast) ? 0. : priceForecast;
 			electricityPriceForecastsInEURperMWH.put(timePeriod.getStartTime(), priceForecast);
 		}
 	}
