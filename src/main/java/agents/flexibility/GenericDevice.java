@@ -176,4 +176,8 @@ public class GenericDevice {
 	public double getEnergyContentUpperLimitInMWH(TimeStamp time) {
 		return energyContentUpperLimitInMWH.getValueLinear(time);
 	}
+	
+	public double getSelfDischargeRate(TimeStamp time) {
+		return selfDischargeRatePerHour.getValueLinear(time);
+	}
 }

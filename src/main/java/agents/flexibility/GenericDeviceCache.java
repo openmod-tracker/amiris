@@ -117,4 +117,12 @@ public class GenericDeviceCache {
 	public GenericDevice getGenericDevice() {
 		return device;
 	}
+
+	public double getMaxNetChargingEnergyInMWH() {
+		return maxNetChargingEnergyInMWH;
+	}
+
+	public double getMaxNetDischargingEnergyInMWH() {
+		return maxNetDischargingEnergyInMWH;
+	}
 }

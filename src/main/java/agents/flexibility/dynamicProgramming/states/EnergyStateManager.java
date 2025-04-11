@@ -29,6 +29,10 @@ public class EnergyStateManager implements StateManager {
 	private TimePeriod startingPeriod;
 	private int currentOptimisationTimeIndex;
 
+	private boolean hasSelfDischarge;
+	private double[] energyDeltasCharging;
+	private double[] energyDeltasDischarging;
+
 	public EnergyStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
 			double energyResolutionInMWH) {
 		this.device = new GenericDeviceCache(device);
@@ -50,10 +54,14 @@ public class EnergyStateManager implements StateManager {
 	private void analyseAvailableEnergyLevels() {
 		double minLowerLevel = Double.MAX_VALUE;
 		double maxUpperLevel = -Double.MAX_VALUE;
+		hasSelfDischarge = false;
 		for (int timeIndex = 0; timeIndex < numberOfTimeSteps; timeIndex++) {
 			TimeStamp time = startingPeriod.shiftByDuration(timeIndex).getStartTime();
 			double lowerLevel = device.getGenericDevice().getEnergyContentLowerLimitInMWH(time);
 			double upperLevel = device.getGenericDevice().getEnergyContentUpperLimitInMWH(time);
+			if (!hasSelfDischarge) {
+				hasSelfDischarge = device.getGenericDevice().getSelfDischargeRate(time) > 0;
+			}
 			minLowerLevel = lowerLevel < minLowerLevel ? lowerLevel : minLowerLevel;
 			maxUpperLevel = upperLevel > maxUpperLevel ? upperLevel : maxUpperLevel;
 		}
@@ -69,6 +77,20 @@ public class EnergyStateManager implements StateManager {
 		device.prepareFor(time);
 		currentOptimisationTimeIndex = (int) ((time.getStep() - startingPeriod.getStartTime().getStep())
 				/ startingPeriod.getDuration().getSteps());
+		if (!hasSelfDischarge) {
+			int maxChargingSteps = (int) Math.floor(device.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH);
+			energyDeltasCharging = new double[maxChargingSteps + 1];
+			for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
+				energyDeltasCharging[chargingSteps] = device.simulateTransition(0, chargingSteps * energyResolutionInMWH);
+			}
+
+			int maxDischargingSteps = -(int) Math.ceil(device.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH);
+			energyDeltasDischarging = new double[maxDischargingSteps + 1];
+			for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
+				energyDeltasDischarging[dischargingSteps] = device.simulateTransition(0,
+						-dischargingSteps * energyResolutionInMWH);
+			}
+		}
 	}
 
 	@Override
@@ -102,6 +124,10 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public double getTransitionValueFor(int initialStateIndex, int finalStateIndex) {
+		if (!hasSelfDischarge) {
+			int stateDelta = finalStateIndex - initialStateIndex;
+			return stateDelta >= 0 ? energyDeltasCharging[stateDelta] : energyDeltasDischarging[-stateDelta];
+		}
 		double externalEnergyDeltaInMWH = device.simulateTransition(indexToEnergy(initialStateIndex),
 				indexToEnergy(finalStateIndex));
 		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
