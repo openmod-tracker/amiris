@@ -2743,7 +2743,7 @@ AgentTypes:
             Mandatory: true
             List: false
             Values:
-              ProfitPriceTaker:
+              PROFIT_PRICE_TAKER:
                 MetaData:
                   Description: "Assess profit using an electricity price forecast neglecting any price impact of bids"
       StateDiscretisation:
@@ -2760,7 +2760,7 @@ AgentTypes:
             Mandatory: true
             List: false
             Values:
-              StateOfCharge:
+              STATE_OF_CHARGE:
                 MetaData:
                   Description: "Represent energy states of an electricity storage device"
           PlanningHorizonInHours:
@@ -2789,7 +2789,7 @@ AgentTypes:
             Mandatory: true
             List: false
             Values:
-              EnsureDispatch:
+              ENSURE_DISPATCH:
                 MetaData:
                   Description: "Ensure planned dispatch is fulfilled by bidding at technical price limits"
           SchedulingHorizonInHours:

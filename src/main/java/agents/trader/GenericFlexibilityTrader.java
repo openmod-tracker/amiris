@@ -81,7 +81,7 @@ public class GenericFlexibilityTrader extends Trader {
 
 		device = new GenericDevice(input.getGroup("Device"));
 		assessmentFunction = AssessmentFunctionBuilder.build(input.getGroup("Assessment"));
-		stateManager = StateManagerBuilder.build(device, assessmentFunction, input.getGroup("StateManagement"));
+		stateManager = StateManagerBuilder.build(device, assessmentFunction, input.getGroup("StateDiscretisation"));
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
 		strategist = new Strategist(stateManager, bidScheduler, input.getEnum("OptimisationTarget", Target.class));
 

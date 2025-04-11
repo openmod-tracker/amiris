@@ -15,7 +15,7 @@ public final class AssessmentFunctionBuilder {
 	/** Available {@link AssessmentFunction}s */
 	enum Type {
 		/** Assess profit using an electricity price forecast neglecting any price impact of bids */
-		ProfitPriceTaker,
+		PROFIT_PRICE_TAKER,
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "Assessment function is not implemented: ";
@@ -23,7 +23,7 @@ public final class AssessmentFunctionBuilder {
 	public static AssessmentFunction build(ParameterData input) throws MissingDataException {
 		Type type = input.getEnum("Type", Type.class);
 		switch (type) {
-			case ProfitPriceTaker:
+			case PROFIT_PRICE_TAKER:
 				return new ProfitPriceTaker();
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);

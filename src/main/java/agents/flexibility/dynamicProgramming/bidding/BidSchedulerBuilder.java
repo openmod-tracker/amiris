@@ -15,7 +15,7 @@ public class BidSchedulerBuilder {
 	/** Available {@link BidScheduler}s */
 	enum Type {
 		/** Ensure planned dispatch is fulfilled by bidding at technical price limits */
-		EnsureDispatch,
+		ENSURE_DISPATCH,
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "Bid Scheduler is not implemented: ";
@@ -23,7 +23,7 @@ public class BidSchedulerBuilder {
 	public static BidScheduler build(ParameterData input) throws MissingDataException {
 		Type type = input.getEnum("Type", Type.class);
 		switch (type) {
-			case EnsureDispatch:
+			case ENSURE_DISPATCH:
 				return new EnsureDispatch(input.getDouble("SchedulingHorizonInHours"));
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
