@@ -72,14 +72,20 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public int[] getInitialStates() {
-		int lowestIndex = energyToIndex(device.getEnergyContentLowerLimitInMWH(currentOptimisationTime));
-		int highestIndex = energyToIndex(device.getEnergyContentUpperLimitInMWH(currentOptimisationTime));
+		int lowestIndex = energyToCeilIndex(device.getEnergyContentLowerLimitInMWH(currentOptimisationTime));
+		int highestIndex = energyToFloorIndex(device.getEnergyContentUpperLimitInMWH(currentOptimisationTime));
 		return IntStream.range(lowestIndex, highestIndex + 1).toArray();
 	}
 
 	/** @return next lower index corresponding to given energy level */
-	private int energyToIndex(double energyAmountInMWH) {
-		double energyLevel = (int) (energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
+	private int energyToFloorIndex(double energyAmountInMWH) {
+		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
+		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
+	}
+
+	/** @return next higher index corresponding to given energy level */
+	private int energyToCeilIndex(double energyAmountInMWH) {
+		double energyLevel = Math.ceil(energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
@@ -90,7 +96,8 @@ public class EnergyStateManager implements StateManager {
 				initialEnergyContentInMWH, startingPeriod.getDuration());
 		double highestEnergyContentInMWH = device.getMaxTargetEnergyContentInMWH(currentOptimisationTime,
 				initialEnergyContentInMWH, startingPeriod.getDuration());
-		return IntStream.range(energyToIndex(lowestEnergyContentInMWH), energyToIndex(highestEnergyContentInMWH) + 1)
+		return IntStream
+				.range(energyToCeilIndex(lowestEnergyContentInMWH), energyToFloorIndex(highestEnergyContentInMWH) + 1)
 				.toArray();
 	}
 
@@ -135,7 +142,7 @@ public class EnergyStateManager implements StateManager {
 		for (int i = 0; i < schedulingSteps; i++) {
 			internalEnergyInMWH[i] = currentInternalEnergyInMWH;
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(i);
-			int currentEnergyLevelIndex = energyToIndex(currentInternalEnergyInMWH);
+			int currentEnergyLevelIndex = energyToNearestIndex(currentInternalEnergyInMWH);
 			int nextEnergyLevelIndex = bestNextState[i][currentEnergyLevelIndex];
 			double nextInternalEnergyInMWH = currentInternalEnergyInMWH
 					+ (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
@@ -148,6 +155,12 @@ public class EnergyStateManager implements StateManager {
 			currentInternalEnergyInMWH = nextInternalEnergyInMWH;
 		}
 		return new DispatchSchedule(externalEnergyDeltaInMWH, internalEnergyInMWH);
+	}
+
+	/** @return closest index corresponding to given energy level */
+	private int energyToNearestIndex(double energyAmountInMWH) {
+		double energyLevel = Math.round(energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
+		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
 	@Override
