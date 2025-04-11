@@ -33,14 +33,6 @@ public class ProfitPriceTaker implements AssessmentFunction {
 		electricityPriceForecastsInEURperMWH.headMap(time).clear();
 	}
 
-	/** Add electricity price forecast for a given time
-	 * 
-	 * @param time of electricity price forecast
-	 * @param valueInEURperMWH electricity price forecast */
-	public void addElectricityPriceForecastFor(TimeStamp time, Double valueInEURperMWH) {
-		electricityPriceForecastsInEURperMWH.put(time, valueInEURperMWH);
-	}
-
 	@Override
 	public ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> requiredTimes) {
 		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
