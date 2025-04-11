@@ -115,7 +115,7 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public double getBestValueNextPeriod(int finalStateIndex) {
-		return currentOptimisationTimeIndex < numberOfTimeSteps ? bestValue[currentOptimisationTimeIndex][finalStateIndex]
+		return currentOptimisationTimeIndex + 1 < numberOfTimeSteps ? bestValue[currentOptimisationTimeIndex + 1][finalStateIndex]
 				: getWaterValue();
 	}
 
