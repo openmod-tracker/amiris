@@ -64,13 +64,13 @@ public class GenericDevice {
 		currentEnergyContentInMWH = input.getDouble("InitialEnergyContentInMWH");
 	}
 
-	private double calcDurationInHours(TimeSpan duration) {
-		return (double) duration.getSteps() / STEPS_PER_HOUR;
-	}
-
 	/** @return effective self discharge rate for given duration, considering exponential reduction over time */
 	private double calcSelfDischarge(TimeStamp time, TimeSpan duration) {
 		return 1. - Math.pow(1 - selfDischargeRatePerHour.getValueLinear(time), calcDurationInHours(duration));
+	}
+
+	private double calcDurationInHours(TimeSpan duration) {
+		return (double) duration.getSteps() / STEPS_PER_HOUR;
 	}
 
 	/** @return current internal energy level of this {@link GenericDevice} in MWh */
@@ -167,5 +167,13 @@ public class GenericDevice {
 		if (currentEnergyContentInMWH < 0 && selfDischargeRate > 0) {
 			logger.error(ERR_NEGATIVE_SELF_DISCHARGE + time);
 		}
+	}
+
+	public double getEnergyContentLowerLimitInMWH(TimeStamp time) {
+		return energyContentLowerLimitInMWH.getValueLinear(time);
+	}
+
+	public double getEnergyContentUpperLimitInMWH(TimeStamp time) {
+		return energyContentUpperLimitInMWH.getValueLinear(time);
 	}
 }
