@@ -2,20 +2,22 @@ package agents.flexibility;
 
 import static de.dlr.gitlab.fame.time.Constants.STEPS_PER_HOUR;
 import de.dlr.gitlab.fame.time.TimePeriod;
-import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 public class CachableGenericDevice {
 
 	private GenericDevice device;
-	private double[] externalChargingPowerInMW;
-	private double[] externalDischargingPowerInMW;
 	private double[] chargingEfficiency;
 	private double[] dischargingEfficiency;
 	private double[] energyContentUpperLimitInMWH;
 	private double[] energyContentLowerLimitInMWH;
-	private double[] selfDischargeRatePerHour;
 	private double[] netInflowPowerInMW;
+
+	private double[] effectiveSelfDischargeRate;
+	private double[] maxNetChargingEnergyInMWH;
+	private double[] maxNetDischargingEnergyInMWH;
+
+	private double intervalDurationInHours;
 
 	public CachableGenericDevice(GenericDevice device) {
 		this.device = device;
@@ -24,30 +26,36 @@ public class CachableGenericDevice {
 	/** Caches all time series information of {@link GenericDevice} */
 	public void cacheTimeSeries(TimePeriod startingPeriod, int numberOfTimeSteps) {
 		initialiseArrays(numberOfTimeSteps);
-		for (int step = 0; step < numberOfTimeSteps; step++) {
-			TimeStamp time = startingPeriod.shiftByDuration(step).getStartTime();
-			externalChargingPowerInMW[step] = device.externalChargingPowerInMW.getValueLinear(time);
-			externalDischargingPowerInMW[step] = device.externalDischargingPowerInMW.getValueLinear(time);
-			chargingEfficiency[step] = device.chargingEfficiency.getValueLinear(time);
-			dischargingEfficiency[step] = device.dischargingEfficiency.getValueLinear(time);
-			energyContentUpperLimitInMWH[step] = device.energyContentUpperLimitInMWH.getValueLinear(time);
-			energyContentLowerLimitInMWH[step] = device.energyContentLowerLimitInMWH.getValueLinear(time);
-			selfDischargeRatePerHour[step] = device.selfDischargeRatePerHour.getValueLinear(time);
-			netInflowPowerInMW[step] = device.netInflowPowerInMW.getValueLinear(time);
+		intervalDurationInHours = (double) startingPeriod.getDuration().getSteps() / STEPS_PER_HOUR;
+		for (int timeIndex = 0; timeIndex < numberOfTimeSteps; timeIndex++) {
+			TimeStamp time = startingPeriod.shiftByDuration(timeIndex).getStartTime();
+			chargingEfficiency[timeIndex] = device.chargingEfficiency.getValueLinear(time);
+			dischargingEfficiency[timeIndex] = device.dischargingEfficiency.getValueLinear(time);
+			energyContentUpperLimitInMWH[timeIndex] = device.energyContentUpperLimitInMWH.getValueLinear(time);
+			energyContentLowerLimitInMWH[timeIndex] = device.energyContentLowerLimitInMWH.getValueLinear(time);
+			netInflowPowerInMW[timeIndex] = device.netInflowPowerInMW.getValueLinear(time);
+			effectiveSelfDischargeRate[timeIndex] = 1.
+					- Math.pow(1 - device.selfDischargeRatePerHour.getValueLinear(time), intervalDurationInHours);
+			maxNetChargingEnergyInMWH[timeIndex] = (device.externalChargingPowerInMW.getValueLinear(time)
+					* chargingEfficiency[timeIndex]
+					+ netInflowPowerInMW[timeIndex]) * intervalDurationInHours;
+			maxNetDischargingEnergyInMWH[timeIndex] = (netInflowPowerInMW[timeIndex]
+					- device.externalDischargingPowerInMW.getValueLinear(time) / dischargingEfficiency[timeIndex])
+					* intervalDurationInHours;
 		}
 	}
 
 	/** Initialise arrays with correct length */
 	private void initialiseArrays(int numberOfTimeSteps) {
-		if (externalChargingPowerInMW == null || externalChargingPowerInMW.length != numberOfTimeSteps) {
-			externalChargingPowerInMW = new double[numberOfTimeSteps];
-			externalDischargingPowerInMW = new double[numberOfTimeSteps];
+		if (chargingEfficiency == null || chargingEfficiency.length != numberOfTimeSteps) {
 			chargingEfficiency = new double[numberOfTimeSteps];
 			dischargingEfficiency = new double[numberOfTimeSteps];
 			energyContentUpperLimitInMWH = new double[numberOfTimeSteps];
 			energyContentLowerLimitInMWH = new double[numberOfTimeSteps];
-			selfDischargeRatePerHour = new double[numberOfTimeSteps];
 			netInflowPowerInMW = new double[numberOfTimeSteps];
+			effectiveSelfDischargeRate = new double[numberOfTimeSteps];
+			maxNetChargingEnergyInMWH = new double[numberOfTimeSteps];
+			maxNetDischargingEnergyInMWH = new double[numberOfTimeSteps];
 		}
 	}
 
@@ -74,23 +82,11 @@ public class CachableGenericDevice {
 	 * 
 	 * @param timeIndex start of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
-	 * @param duration of the transition
 	 * @return maximum reachable energy content for given initial energy content in MWh */
-	public double getMaxTargetEnergyContentInMWH(int timeIndex, double initialEnergyContentInMWH, TimeSpan duration) {
-		double netChargingEnergyInMWH = (externalChargingPowerInMW[timeIndex] * chargingEfficiency[timeIndex]
-				+ netInflowPowerInMW[timeIndex]) * calcDurationInHours(duration);
-		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(timeIndex, duration))
-				+ netChargingEnergyInMWH;
+	public double getMaxTargetEnergyContentInMWH(int timeIndex, double initialEnergyContentInMWH) {
+		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - effectiveSelfDischargeRate[timeIndex])
+				+ maxNetChargingEnergyInMWH[timeIndex];
 		return Math.min(targetEnergyInMWH, getEnergyContentUpperLimitInMWH(timeIndex));
-	}
-
-	private double calcDurationInHours(TimeSpan duration) {
-		return (double) duration.getSteps() / STEPS_PER_HOUR;
-	}
-
-	/** @return effective self discharge rate for given duration, considering exponential reduction over time */
-	private double calcSelfDischarge(int timeIndex, TimeSpan duration) {
-		return 1. - Math.pow(1 - selfDischargeRatePerHour[timeIndex], calcDurationInHours(duration));
 	}
 
 	/** Returns the minimum reachable internal energy content by applying maximum discharging power for the specified duration and
@@ -100,13 +96,10 @@ public class CachableGenericDevice {
 	 * 
 	 * @param timeIndex start of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
-	 * @param duration of the transition
 	 * @return minimum allowed energy content for given initial energy content in MWh */
-	public double getMinTargetEnergyContentInMWH(int timeIndex, double initialEnergyContentInMWH, TimeSpan duration) {
-		double netDischargingEnergyInMWH = (netInflowPowerInMW[timeIndex]
-				- externalDischargingPowerInMW[timeIndex] / dischargingEfficiency[timeIndex]);
-		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - calcSelfDischarge(timeIndex, duration))
-				+ netDischargingEnergyInMWH;
+	public double getMinTargetEnergyContentInMWH(int timeIndex, double initialEnergyContentInMWH) {
+		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - effectiveSelfDischargeRate[timeIndex])
+				+ maxNetDischargingEnergyInMWH[timeIndex];
 		return Math.max(targetEnergyInMWH, getEnergyContentLowerLimitInMWH(timeIndex));
 	}
 
@@ -117,13 +110,11 @@ public class CachableGenericDevice {
 	 * @param timeIndex of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
 	 * @param targetEnergyContentInMWH at the end of transition
-	 * @param duration of the transition
 	 * @return external energy difference for transition from initial to final internal energy content level at given time */
-	public double simulateTransition(int timeIndex, double initialEnergyContentInMWH, double targetEnergyContentInMWH,
-			TimeSpan duration) {
-		double selfDischargeInMWH = initialEnergyContentInMWH * calcSelfDischarge(timeIndex, duration);
+	public double simulateTransition(int timeIndex, double initialEnergyContentInMWH, double targetEnergyContentInMWH) {
+		double selfDischargeInMWH = initialEnergyContentInMWH * effectiveSelfDischargeRate[timeIndex];
 		double internalEnergyDelta = targetEnergyContentInMWH - initialEnergyContentInMWH
-				- netInflowPowerInMW[timeIndex] * calcDurationInHours(duration) + selfDischargeInMWH;
+				- netInflowPowerInMW[timeIndex] * intervalDurationInHours + selfDischargeInMWH;
 		return internalToExternalEnergy(internalEnergyDelta, timeIndex);
 	}
 
@@ -143,5 +134,4 @@ public class CachableGenericDevice {
 	public GenericDevice getGenericDevice() {
 		return device;
 	}
-
 }

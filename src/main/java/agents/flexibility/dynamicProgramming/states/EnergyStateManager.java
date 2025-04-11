@@ -41,6 +41,7 @@ public class EnergyStateManager implements StateManager {
 	public void initialise(TimePeriod startingPeriod) {
 		this.numberOfTimeSteps = Strategist.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
 		this.startingPeriod = startingPeriod;
+		device.cacheTimeSeries(startingPeriod, numberOfTimeSteps);
 		analyseAvailableEnergyLevels();
 		bestNextState = new int[numberOfTimeSteps][numberOfEnergyStates];
 		bestValue = new double[numberOfTimeSteps][numberOfEnergyStates];
@@ -91,9 +92,9 @@ public class EnergyStateManager implements StateManager {
 	public int[] getFinalStates(int initialStateIndex) {
 		double initialEnergyContentInMWH = initialStateIndex * energyResolutionInMWH;
 		double lowestEnergyContentInMWH = device.getMinTargetEnergyContentInMWH(currentOptimisationTimeIndex,
-				initialEnergyContentInMWH, startingPeriod.getDuration());
+				initialEnergyContentInMWH);
 		double highestEnergyContentInMWH = device.getMaxTargetEnergyContentInMWH(currentOptimisationTimeIndex,
-				initialEnergyContentInMWH, startingPeriod.getDuration());
+				initialEnergyContentInMWH);
 		return IntStream
 				.range(energyToCeilIndex(lowestEnergyContentInMWH), energyToFloorIndex(highestEnergyContentInMWH) + 1)
 				.toArray();
@@ -102,7 +103,7 @@ public class EnergyStateManager implements StateManager {
 	@Override
 	public double getTransitionValueFor(int initialStateIndex, int finalStateIndex) {
 		double externalEnergyDeltaInMWH = device.simulateTransition(currentOptimisationTimeIndex,
-				indexToEnergy(initialStateIndex), indexToEnergy(finalStateIndex), startingPeriod.getDuration());
+				indexToEnergy(initialStateIndex), indexToEnergy(finalStateIndex));
 		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
 
