@@ -31,12 +31,17 @@ public class GenericDeviceCache {
 		this.device = device;
 	}
 
-	/** Set the time period to cache properties of the connected {@link GenericDevice} for */
+	/** Extract the time granularity of time steps; call again if time granularity changes
+	 * 
+	 * @param timePeriod to extract the time step duration from */
 	public void setPeriod(TimePeriod timePeriod) {
 		intervalDurationInHours = (double) timePeriod.getDuration().getSteps() / STEPS_PER_HOUR;
 	}
 
-	/** Caches all time series information of {@link GenericDevice} at given time */
+	/** Caches all time series information of {@link GenericDevice} at given time; properties are assumed to not change during the
+	 * previously set {@link #intervalDurationInHours}
+	 * 
+	 * @param time to cache the device properties at */
 	public void prepareFor(TimeStamp time) {
 		chargingEfficiency = device.getChargingEfficiency(time);
 		dischargingEfficiency = device.getDischargingEfficiency(time);
@@ -95,7 +100,6 @@ public class GenericDeviceCache {
 	 * energy content. Returns required external energy delta (i.e. charging if positive) to reach given target energy content. Does
 	 * <b>not</b> ensure power limits or energy limits.
 	 * 
-	 * @param timeIndex of transition
 	 * @param initialEnergyContentInMWH at the beginning of transition
 	 * @param targetEnergyContentInMWH at the end of transition
 	 * @return external energy difference for transition from initial to final internal energy content level at given time */
