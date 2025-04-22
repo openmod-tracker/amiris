@@ -44,7 +44,8 @@ public class GenericDeviceCache {
 		energyContentLowerLimitInMWH = device.getEnergyContentLowerLimitInMWH(time);
 		double netInflowPowerInMW = device.getNetInflowInMW(time);
 		effectiveSelfDischargeRate = 1. - Math.pow(1 - device.getSelfDischargeRate(time), intervalDurationInHours);
-		double maxNetChargingPowerInMW = netInflowPowerInMW + device.getExternalChargingPowerInMW(time) * chargingEfficiency;
+		double maxNetChargingPowerInMW = netInflowPowerInMW
+				+ device.getExternalChargingPowerInMW(time) * chargingEfficiency;
 		maxNetChargingEnergyInMWH = maxNetChargingPowerInMW * intervalDurationInHours;
 		maxNetDischargingEnergyInMWH = (netInflowPowerInMW
 				- device.getExternalDischargingPowerInMW(time) / dischargingEfficiency) * intervalDurationInHours;
