@@ -29,14 +29,14 @@ public class GenericDevice {
 	static final double TOLERANCE = 1E-3;
 
 	private static Logger logger = LoggerFactory.getLogger(GenericDevice.class);
-	protected TimeSeries externalChargingPowerInMW;
-	protected TimeSeries externalDischargingPowerInMW;
-	protected TimeSeries chargingEfficiency;
-	protected TimeSeries dischargingEfficiency;
-	protected TimeSeries energyContentUpperLimitInMWH;
-	protected TimeSeries energyContentLowerLimitInMWH;
-	protected TimeSeries selfDischargeRatePerHour;
-	protected TimeSeries netInflowPowerInMW;
+	private TimeSeries externalChargingPowerInMW;
+	private TimeSeries externalDischargingPowerInMW;
+	private TimeSeries chargingEfficiency;
+	private TimeSeries dischargingEfficiency;
+	private TimeSeries energyContentUpperLimitInMWH;
+	private TimeSeries energyContentLowerLimitInMWH;
+	private TimeSeries selfDischargeRatePerHour;
+	private TimeSeries netInflowPowerInMW;
 	private double currentEnergyContentInMWH;
 
 	/** Input parameters of a storage {@link Device} */
@@ -104,10 +104,10 @@ public class GenericDevice {
 		double netChargingEnergyInMWH = (internalPowerInMW + netInflowPowerInMW.getValueLinear(time))
 				* calcDurationInHours(duration);
 		double selfDischargeRate = calcSelfDischarge(time, duration);
+		selfDischargeRate = ensureNoNegativeSelfDischarge(time, selfDischargeRate);
 		double selfDischargeLossInMWH = currentEnergyContentInMWH * selfDischargeRate;
 		double finalEnergyContentInMWH = currentEnergyContentInMWH + netChargingEnergyInMWH - selfDischargeLossInMWH;
 		finalEnergyContentInMWH = ensureEnergyWithinLimits(time, finalEnergyContentInMWH);
-		ensureNoNegativeSelfDischarge(time, selfDischargeRate);
 		double internalEnergyDeltaInMWH = finalEnergyContentInMWH - currentEnergyContentInMWH
 				+ selfDischargeLossInMWH - netInflowPowerInMW.getValueLinear(time) * calcDurationInHours(duration);
 		currentEnergyContentInMWH = finalEnergyContentInMWH;
@@ -162,22 +162,76 @@ public class GenericDevice {
 		return targetEnergyContentInMWH;
 	}
 
-	/** Logs an error in case self discharge is applied based on a negative energy content */
-	private void ensureNoNegativeSelfDischarge(TimeStamp time, double selfDischargeRate) {
+	/** If self discharge is applied based on a negative energy content, return 0 and log an error */
+	private double ensureNoNegativeSelfDischarge(TimeStamp time, double selfDischargeRate) {
 		if (currentEnergyContentInMWH < 0 && selfDischargeRate > 0) {
 			logger.error(ERR_NEGATIVE_SELF_DISCHARGE + time);
+			return 0;
 		}
+		return selfDischargeRate;
 	}
 
+	/** Return lower limit of energy content at given time
+	 * 
+	 * @param time at which the lower limit is to be returned
+	 * @return lower energy content limit in MWh */
 	public double getEnergyContentLowerLimitInMWH(TimeStamp time) {
 		return energyContentLowerLimitInMWH.getValueLinear(time);
 	}
 
+	/** Return upper limit of energy content at given time
+	 * 
+	 * @param time at which the upper limit is to be returned
+	 * @return upper energy content limit in MWh */
 	public double getEnergyContentUpperLimitInMWH(TimeStamp time) {
 		return energyContentUpperLimitInMWH.getValueLinear(time);
 	}
-	
+
+	/** Return hourly self discharge rate at given time
+	 * 
+	 * @param time at which the self discharge rate is to be returned
+	 * @return hourly self discharge rate */
 	public double getSelfDischargeRate(TimeStamp time) {
 		return selfDischargeRatePerHour.getValueLinear(time);
+	}
+
+	/** Return charging efficiency at given time
+	 * 
+	 * @param time at which to return charging efficiency
+	 * @return charging efficiency at given time */
+	protected double getChargingEfficiency(TimeStamp time) {
+		return chargingEfficiency.getValueLinear(time);
+	}
+
+	/** Return discharging efficiency at given time
+	 * 
+	 * @param time at which to return discharging efficiency
+	 * @return discharging efficiency at given time */
+	protected double getDischargingEfficiency(TimeStamp time) {
+		return dischargingEfficiency.getValueLinear(time);
+	}
+
+	/** Return net inflow power at given time
+	 * 
+	 * @param time at which to return the net inflow power
+	 * @return net inflow power at given time in MW */
+	protected double getNetInflowInMW(TimeStamp time) {
+		return netInflowPowerInMW.getValueLinear(time);
+	}
+
+	/** Return external charging power at given time
+	 * 
+	 * @param time at which to return the external charging power
+	 * @return external charging power at given time in MW */
+	protected double getExternalChargingPowerInMW(TimeStamp time) {
+		return externalChargingPowerInMW.getValueLinear(time);
+	}
+
+	/** Return external discharging power at given time
+	 * 
+	 * @param time at which to return the external discharging power
+	 * @return external discharging power at given time in MW */
+	protected double getExternalDischargingPowerInMW(TimeStamp time) {
+		return externalDischargingPowerInMW.getValueLinear(time);
 	}
 }
