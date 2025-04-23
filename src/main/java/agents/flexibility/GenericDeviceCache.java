@@ -7,12 +7,11 @@ import static de.dlr.gitlab.fame.time.Constants.STEPS_PER_HOUR;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Caches properties of a connected {@link GenericDevice} a certain time
+/** Caches properties of a {@link GenericDevice} at a certain time
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class GenericDeviceCache {
-	private GenericDevice device;
-
+	private final GenericDevice device;
 	private double intervalDurationInHours;
 
 	private double chargingEfficiency;
@@ -121,13 +120,6 @@ public class GenericDeviceCache {
 		} else {
 			return internalEnergyDelta * dischargingEfficiency;
 		}
-	}
-
-	/** Return the {@link GenericDevice} connected to this cache
-	 * 
-	 * @return the connected device */
-	public GenericDevice getGenericDevice() {
-		return device;
 	}
 
 	/** Return the maximum internal energy delta that can occur from charging at currently cached time

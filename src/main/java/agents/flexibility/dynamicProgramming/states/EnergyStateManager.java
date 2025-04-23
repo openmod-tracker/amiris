@@ -16,7 +16,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class EnergyStateManager implements StateManager {
-	private final GenericDeviceCache device;
+	private final GenericDevice device;
+	private final GenericDeviceCache deviceCache;
 	private final AssessmentFunction assessmentFunction;
 	private final double planningHorizonInHours;
 	private final double energyResolutionInMWH;
@@ -35,7 +36,8 @@ public class EnergyStateManager implements StateManager {
 
 	public EnergyStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
 			double energyResolutionInMWH) {
-		this.device = new GenericDeviceCache(device);
+		this.device = device;
+		this.deviceCache = new GenericDeviceCache(device);
 		this.assessmentFunction = assessmentFunction;
 		this.planningHorizonInHours = planningHorizonInHours;
 		this.energyResolutionInMWH = energyResolutionInMWH;
@@ -45,23 +47,21 @@ public class EnergyStateManager implements StateManager {
 	public void initialise(TimePeriod startingPeriod) {
 		this.numberOfTimeSteps = Strategist.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
 		this.startingPeriod = startingPeriod;
-		device.setPeriod(startingPeriod);
+		deviceCache.setPeriod(startingPeriod);
 		analyseAvailableEnergyLevels();
+		analyseSelfDischarge();
 		bestNextState = new int[numberOfTimeSteps][numberOfEnergyStates];
 		bestValue = new double[numberOfTimeSteps][numberOfEnergyStates];
 	}
 
+	/** Sets {@link #lowestLevelEnergyInMWH} and {@link #numberOfEnergyStates} for the current planning horizon */
 	private void analyseAvailableEnergyLevels() {
 		double minLowerLevel = Double.MAX_VALUE;
 		double maxUpperLevel = -Double.MAX_VALUE;
-		hasSelfDischarge = false;
 		for (int timeIndex = 0; timeIndex < numberOfTimeSteps; timeIndex++) {
-			TimeStamp time = startingPeriod.shiftByDuration(timeIndex).getStartTime();
-			double lowerLevel = device.getGenericDevice().getEnergyContentLowerLimitInMWH(time);
-			double upperLevel = device.getGenericDevice().getEnergyContentUpperLimitInMWH(time);
-			if (!hasSelfDischarge) {
-				hasSelfDischarge = device.getGenericDevice().getSelfDischargeRate(time) > 0;
-			}
+			TimeStamp time = getTimeByIndex(timeIndex);
+			double lowerLevel = device.getEnergyContentLowerLimitInMWH(time);
+			double upperLevel = device.getEnergyContentUpperLimitInMWH(time);
 			minLowerLevel = lowerLevel < minLowerLevel ? lowerLevel : minLowerLevel;
 			maxUpperLevel = upperLevel > maxUpperLevel ? upperLevel : maxUpperLevel;
 		}
@@ -71,32 +71,52 @@ public class EnergyStateManager implements StateManager {
 		numberOfEnergyStates = highestStep - lowestStep + 1;
 	}
 
-	@Override
-	public void prepareFor(TimeStamp time) {
-		assessmentFunction.prepareFor(time);
-		device.prepareFor(time);
-		currentOptimisationTimeIndex = (int) ((time.getStep() - startingPeriod.getStartTime().getStep())
-				/ startingPeriod.getDuration().getSteps());
-		if (!hasSelfDischarge) {
-			int maxChargingSteps = (int) Math.floor(device.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH);
-			energyDeltasCharging = new double[maxChargingSteps + 1];
-			for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
-				energyDeltasCharging[chargingSteps] = device.simulateTransition(0, chargingSteps * energyResolutionInMWH);
-			}
+	/** @return time corresponding to the given timeIndex based on the current setting of {@link #startingPeriod} */
+	private TimeStamp getTimeByIndex(int timeIndex) {
+		return startingPeriod.shiftByDuration(timeIndex).getStartTime();
+	}
 
-			int maxDischargingSteps = -(int) Math.ceil(device.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH);
-			energyDeltasDischarging = new double[maxDischargingSteps + 1];
-			for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
-				energyDeltasDischarging[dischargingSteps] = device.simulateTransition(0,
-						-dischargingSteps * energyResolutionInMWH);
+	/** Sets {@link #hasSelfDischarge} to true if self discharge occurs in periods of the planning horizon, false otherwise */
+	private void analyseSelfDischarge() {
+		hasSelfDischarge = false;
+		for (int timeIndex = 0; timeIndex < numberOfTimeSteps; timeIndex++) {
+			hasSelfDischarge = device.getSelfDischargeRate(getTimeByIndex(timeIndex)) > 0;
+			if (hasSelfDischarge) {
+				break;
 			}
 		}
 	}
 
 	@Override
+	public void prepareFor(TimeStamp time) {
+		assessmentFunction.prepareFor(time);
+		deviceCache.prepareFor(time);
+		currentOptimisationTimeIndex = (int) ((time.getStep() - startingPeriod.getStartTime().getStep())
+				/ startingPeriod.getDuration().getSteps());
+		if (!hasSelfDischarge) {
+			cacheEnergyDeltas();
+		}
+	}
+
+	/** Cache deltas between energy levels - only applicable without self discharge */
+	private void cacheEnergyDeltas() {
+		int maxChargingSteps = (int) Math.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH);
+		energyDeltasCharging = new double[maxChargingSteps + 1];
+		for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
+			energyDeltasCharging[chargingSteps] = deviceCache.simulateTransition(0, chargingSteps * energyResolutionInMWH);
+		}
+		int maxDischargingSteps = -(int) Math.ceil(deviceCache.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH);
+		energyDeltasDischarging = new double[maxDischargingSteps + 1];
+		for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
+			energyDeltasDischarging[dischargingSteps] = deviceCache.simulateTransition(0,
+					-dischargingSteps * energyResolutionInMWH);
+		}
+	}
+
+	@Override
 	public int[] getInitialStates() {
-		int lowestIndex = energyToCeilIndex(device.getEnergyContentLowerLimitInMWH());
-		int highestIndex = energyToFloorIndex(device.getEnergyContentUpperLimitInMWH());
+		int lowestIndex = energyToCeilIndex(deviceCache.getEnergyContentLowerLimitInMWH());
+		int highestIndex = energyToFloorIndex(deviceCache.getEnergyContentUpperLimitInMWH());
 		return IntStream.range(lowestIndex, highestIndex + 1).toArray();
 	}
 
@@ -115,8 +135,8 @@ public class EnergyStateManager implements StateManager {
 	@Override
 	public int[] getFinalStates(int initialStateIndex) {
 		double initialEnergyContentInMWH = initialStateIndex * energyResolutionInMWH;
-		double lowestEnergyContentInMWH = device.getMinTargetEnergyContentInMWH(initialEnergyContentInMWH);
-		double highestEnergyContentInMWH = device.getMaxTargetEnergyContentInMWH(initialEnergyContentInMWH);
+		double lowestEnergyContentInMWH = deviceCache.getMinTargetEnergyContentInMWH(initialEnergyContentInMWH);
+		double highestEnergyContentInMWH = deviceCache.getMaxTargetEnergyContentInMWH(initialEnergyContentInMWH);
 		return IntStream
 				.range(energyToCeilIndex(lowestEnergyContentInMWH), energyToFloorIndex(highestEnergyContentInMWH) + 1)
 				.toArray();
@@ -128,7 +148,7 @@ public class EnergyStateManager implements StateManager {
 			int stateDelta = finalStateIndex - initialStateIndex;
 			return stateDelta >= 0 ? energyDeltasCharging[stateDelta] : energyDeltasDischarging[-stateDelta];
 		}
-		double externalEnergyDeltaInMWH = device.simulateTransition(indexToEnergy(initialStateIndex),
+		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
 				indexToEnergy(finalStateIndex));
 		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
@@ -162,8 +182,7 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public DispatchSchedule getBestDispatchSchedule(int schedulingSteps) {
-		GenericDevice actualDevice = device.getGenericDevice();
-		double currentInternalEnergyInMWH = actualDevice.getCurrentInternalEnergyInMWH();
+		double currentInternalEnergyInMWH = device.getCurrentInternalEnergyInMWH();
 		double[] externalEnergyDeltaInMWH = new double[schedulingSteps];
 		double[] internalEnergyInMWH = new double[schedulingSteps];
 		for (int timeIndex = 0; timeIndex < schedulingSteps; timeIndex++) {
@@ -174,11 +193,11 @@ public class EnergyStateManager implements StateManager {
 			double nextInternalEnergyInMWH = currentInternalEnergyInMWH
 					+ (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
 			TimeStamp time = startingPeriod.shiftByDuration(timeIndex).getStartTime();
-			double lowerLevelInMWH = device.getGenericDevice().getEnergyContentLowerLimitInMWH(time);
-			double upperLevelInMWH = device.getGenericDevice().getEnergyContentUpperLimitInMWH(time);
+			double lowerLevelInMWH = device.getEnergyContentLowerLimitInMWH(time);
+			double upperLevelInMWH = device.getEnergyContentUpperLimitInMWH(time);
 			nextInternalEnergyInMWH = Math.max(lowerLevelInMWH, Math.min(upperLevelInMWH, nextInternalEnergyInMWH));
 			double internalEnergyDeltaInMWH = nextInternalEnergyInMWH - currentInternalEnergyInMWH;
-			externalEnergyDeltaInMWH[timeIndex] = actualDevice.internalToExternalEnergy(internalEnergyDeltaInMWH,
+			externalEnergyDeltaInMWH[timeIndex] = device.internalToExternalEnergy(internalEnergyDeltaInMWH,
 					timePeriod.getStartTime());
 			currentInternalEnergyInMWH = nextInternalEnergyInMWH;
 		}

@@ -234,12 +234,6 @@ public class GenericDeviceCacheTest {
 	}
 
 	@Test
-	public void getGenericDevice_returnLinkedDevice() {
-		setupGenericDeviceCache(0, 0, 0.5, 0.8, 0, 0, 0.1, 10);
-		assertEquals(mockDevice, deviceCache.getGenericDevice());
-	}
-
-	@Test
 	public void getMaxNetChargingEnergyInMWH_correctValue() {
 		setupGenericDeviceCache(100, 0, 0.9, 0, 0, 0, 0, 22);
 		cacheFor(ONE_HOUR);
