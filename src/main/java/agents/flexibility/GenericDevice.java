@@ -164,7 +164,7 @@ public class GenericDevice {
 
 	/** If self discharge is applied based on a negative energy content, return 0 and log an error */
 	private double ensureNoNegativeSelfDischarge(TimeStamp time, double selfDischargeRate) {
-		if (currentEnergyContentInMWH < 0 && selfDischargeRate > 0) {
+		if (currentEnergyContentInMWH < -TOLERANCE && selfDischargeRate > 0) {
 			logger.error(ERR_NEGATIVE_SELF_DISCHARGE + time);
 			return 0;
 		}

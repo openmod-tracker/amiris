@@ -198,19 +198,20 @@ public class EnergyStateManager implements StateManager {
 		double[] externalEnergyDeltaInMWH = new double[schedulingSteps];
 		double[] internalEnergyInMWH = new double[schedulingSteps];
 		for (int timeIndex = 0; timeIndex < schedulingSteps; timeIndex++) {
+			TimeStamp time = getTimeByIndex(timeIndex);
+			deviceCache.prepareFor(time);
+
 			internalEnergyInMWH[timeIndex] = currentInternalEnergyInMWH;
-			TimePeriod timePeriod = startingPeriod.shiftByDuration(timeIndex);
 			int currentEnergyLevelIndex = energyToNearestIndex(currentInternalEnergyInMWH);
 			int nextEnergyLevelIndex = bestNextState[timeIndex][currentEnergyLevelIndex];
 			double nextInternalEnergyInMWH = currentInternalEnergyInMWH
 					+ (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
-			TimeStamp time = startingPeriod.shiftByDuration(timeIndex).getStartTime();
-			double lowerLevelInMWH = device.getEnergyContentLowerLimitInMWH(time);
-			double upperLevelInMWH = device.getEnergyContentUpperLimitInMWH(time);
+			double lowerLevelInMWH = deviceCache.getEnergyContentLowerLimitInMWH();
+			double upperLevelInMWH = deviceCache.getEnergyContentUpperLimitInMWH();
 			nextInternalEnergyInMWH = Math.max(lowerLevelInMWH, Math.min(upperLevelInMWH, nextInternalEnergyInMWH));
-			double internalEnergyDeltaInMWH = nextInternalEnergyInMWH - currentInternalEnergyInMWH;
-			externalEnergyDeltaInMWH[timeIndex] = device.internalToExternalEnergy(internalEnergyDeltaInMWH,
-					timePeriod.getStartTime());
+
+			externalEnergyDeltaInMWH[timeIndex] = deviceCache.simulateTransition(currentInternalEnergyInMWH,
+					nextInternalEnergyInMWH);
 			currentInternalEnergyInMWH = nextInternalEnergyInMWH;
 		}
 		return new DispatchSchedule(externalEnergyDeltaInMWH, internalEnergyInMWH);
