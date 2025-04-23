@@ -4,10 +4,12 @@
 package agents.flexibility.dynamicProgramming.assessment;
 
 import java.util.ArrayList;
+import agents.flexibility.dynamicProgramming.Strategist.Target;
+import agents.flexibility.dynamicProgramming.states.StateManager;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** A function to assess transitions
+/** A function to assess transitions between discretised states of a {@link StateManager}
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public interface AssessmentFunction {
@@ -38,4 +40,9 @@ public interface AssessmentFunction {
 	 * 
 	 * @param messages to be scraped for forecast data */
 	void storeForecast(ArrayList<Message> messages);
+
+	/** Get type of target this {@link AssessmentFunction} is connected with
+	 * 
+	 * @return type of assessment target */
+	Target getTargetType();
 }

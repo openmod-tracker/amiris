@@ -2716,19 +2716,6 @@ AgentTypes:
             Default: 0.
             MetaData:
               Description: ""
-      OptimisationTarget:
-        MetaData:
-          Description: "Target type for the optimisation"       
-        AttributeType: enum
-        Mandatory: true
-        List: false
-        Values:
-          MAXIMISE:
-            MetaData:
-              Description: "Maximise the value of a target function"
-          MINIMISE:
-            MetaData:
-              Description: "Minimise the value of a target function"
       Assessment:
         AttributeType: block
         Mandatory: true

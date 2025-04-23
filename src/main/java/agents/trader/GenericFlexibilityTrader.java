@@ -9,7 +9,6 @@ import java.util.List;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.GenericDevice;
 import agents.flexibility.dynamicProgramming.Strategist;
-import agents.flexibility.dynamicProgramming.Strategist.Target;
 import agents.flexibility.dynamicProgramming.assessment.AssessmentFunction;
 import agents.flexibility.dynamicProgramming.assessment.AssessmentFunctionBuilder;
 import agents.flexibility.dynamicProgramming.bidding.BidSchedulerBuilder;
@@ -46,9 +45,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Felix Nitsch, Christoph Schimeczek, Johannes Kochems */
 public class GenericFlexibilityTrader extends Trader implements ForecastClient {
-	@Input private static final Tree parameters = Make.newTree().addAs("Device", GenericDevice.parameters)
-			.add(Strategist.TARGET_PARAM).addAs("Assessment", AssessmentFunctionBuilder.parameters)
-			.addAs("StateDiscretisation", StateManagerBuilder.parameters).addAs("Bidding", BidSchedulerBuilder.parameters)
+	@Input private static final Tree parameters = Make.newTree()
+			.addAs("Device", GenericDevice.parameters)
+			.addAs("Assessment", AssessmentFunctionBuilder.parameters)
+			.addAs("StateDiscretisation", StateManagerBuilder.parameters)
+			.addAs("Bidding", BidSchedulerBuilder.parameters)
 			.buildTree();
 
 	/** Output columns of {@link FlexibilityTrader}s */
@@ -76,7 +77,7 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 		assessmentFunction = AssessmentFunctionBuilder.build(input.getGroup("Assessment"));
 		stateManager = StateManagerBuilder.build(device, assessmentFunction, input.getGroup("StateDiscretisation"));
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
-		strategist = new Strategist(stateManager, bidScheduler, input.getEnum("OptimisationTarget", Target.class));
+		strategist = new Strategist(stateManager, bidScheduler, assessmentFunction.getTargetType());
 
 		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);

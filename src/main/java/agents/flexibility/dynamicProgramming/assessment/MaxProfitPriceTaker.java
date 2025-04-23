@@ -6,6 +6,7 @@ package agents.flexibility.dynamicProgramming.assessment;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import agents.flexibility.Strategist;
+import agents.flexibility.dynamicProgramming.Strategist.Target;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimePeriod;
@@ -14,7 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Assess profit of transitions using an electricity price forecast neglecting any price impact of bids
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
-public class ProfitPriceTaker implements AssessmentFunction {
+public class MaxProfitPriceTaker implements AssessmentFunction {
 	private double currentElectricityPriceInEURperMWH;
 	private TreeMap<TimeStamp, Double> electricityPriceForecastsInEURperMWH = new TreeMap<>();
 
@@ -53,5 +54,10 @@ public class ProfitPriceTaker implements AssessmentFunction {
 			priceForecast = Double.isNaN(priceForecast) ? 0. : priceForecast;
 			electricityPriceForecastsInEURperMWH.put(timePeriod.getStartTime(), priceForecast);
 		}
+	}
+
+	@Override
+	public Target getTargetType() {
+		return Target.MAXIMISE;
 	}
 }

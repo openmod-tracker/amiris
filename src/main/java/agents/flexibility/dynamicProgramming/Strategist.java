@@ -8,8 +8,6 @@ import agents.flexibility.BidSchedule;
 import agents.flexibility.dynamicProgramming.bidding.BidScheduler;
 import agents.flexibility.dynamicProgramming.states.StateManager;
 import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
-import de.dlr.gitlab.fame.agent.input.Make;
-import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
 import de.dlr.gitlab.fame.time.Constants;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
@@ -23,8 +21,6 @@ public final class Strategist {
 		/** Minimise the value of a target function */
 		MINIMISE
 	}
-
-	public static final ParameterBuilder TARGET_PARAM = Make.newEnum("OptimisationTarget", Target.class);
 
 	private final StateManager stateManager;
 	private final BidScheduler bidScheduler;
