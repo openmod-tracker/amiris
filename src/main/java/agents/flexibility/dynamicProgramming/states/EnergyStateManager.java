@@ -144,13 +144,25 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public double getTransitionValueFor(int initialStateIndex, int finalStateIndex) {
-		if (!hasSelfDischarge) {
-			int stateDelta = finalStateIndex - initialStateIndex;
-			return stateDelta >= 0 ? energyDeltasCharging[stateDelta] : energyDeltasDischarging[-stateDelta];
-		}
-		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
-				indexToEnergy(finalStateIndex));
+		double externalEnergyDeltaInMWH = getEnergyDeltaInMWH(initialStateIndex, finalStateIndex);
 		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
+	}
+
+	/** @return energy delta corresponding to given indices of initial and final state */
+	private double getEnergyDeltaInMWH(int initialStateIndex, int finalStateIndex) {
+		if (!hasSelfDischarge) {
+			return getCachedEnergyDeltaInMWH(initialStateIndex, finalStateIndex);
+		}
+		return getSimulatedEnergyDeltaInMWH(initialStateIndex, finalStateIndex);
+	}
+
+	private double getCachedEnergyDeltaInMWH(int initialStateIndex, int finalStateIndex) {
+		int stateDelta = finalStateIndex - initialStateIndex;
+		return stateDelta >= 0 ? energyDeltasCharging[stateDelta] : energyDeltasDischarging[-stateDelta];
+	}
+
+	private double getSimulatedEnergyDeltaInMWH(int initialStateIndex, int finalStateIndex) {
+		return deviceCache.simulateTransition(indexToEnergy(initialStateIndex), indexToEnergy(finalStateIndex));
 	}
 
 	/** @return energy content corresponding to the given index */
