@@ -34,8 +34,8 @@ import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Sells and buys energy utilizing a fleet of electric vehicles {@link Fleet} at the EnergyExchange. Contrary to the
- * {@link EVTrader}, it has no own business logic, expect predicting the optimized load via connected ML-model.
+/** Sells and buys energy utilizing a fleet of electric vehicles {@link Fleet} at the EnergyExchange. 
+ * It has no own business logic, expect predicting the optimized load via connected ML-model.
  * 
  * @author A. Achraf El Ghazi, Ulrich Frey */
 public class EvTraderExternal extends FlexibilityTrader {
