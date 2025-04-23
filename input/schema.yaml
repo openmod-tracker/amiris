@@ -2730,7 +2730,7 @@ AgentTypes:
             Mandatory: true
             List: false
             Values:
-              PROFIT_PRICE_TAKER:
+              MAX_PROFIT_PRICE_TAKER:
                 MetaData:
                   Description: "Assess profit using an electricity price forecast neglecting any price impact of bids"
       StateDiscretisation:
