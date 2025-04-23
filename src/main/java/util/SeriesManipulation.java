@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 package util;
 
 import java.util.TreeMap;
