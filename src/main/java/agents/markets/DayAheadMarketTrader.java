@@ -37,7 +37,7 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		AwardedEnergyInMWH,
 		/** Energy requested at energy exchange */
 		RequestedEnergyInMWH
-	};
+	}
 
 	/** Searches for a single {@link DayAheadMarket.Products#GateClosureInfo} message in given messages and returns its times
 	 * 

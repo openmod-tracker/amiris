@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
 import communications.message.PointInTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -48,7 +47,7 @@ public class PriceForecasterFile extends Forecaster {
 		priceForecasts = input.getTimeSeries("PriceForecastsInEURperMWH");
 
 		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
-				.use(FlexibilityTrader.Products.PriceForecastRequest);
+				.use(ForecastClient.Products.PriceForecastRequest);
 	}
 
 	/** sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */

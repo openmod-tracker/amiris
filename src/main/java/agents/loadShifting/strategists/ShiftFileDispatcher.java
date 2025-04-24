@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
 
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.loadShifting.LoadShiftingPortfolio;
 import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.sensitivities.MeritOrderSensitivity;
@@ -16,7 +16,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Creates {@link DispatchSchedule}s from file for a connected loadShiftingPortfolio {@link LoadShiftingPortfolio}
+/** Creates {@link BidSchedule}s from file for a connected loadShiftingPortfolio {@link LoadShiftingPortfolio}
  *
  * @author Johannes Kochems, Christoph Schimeczek */
 public class ShiftFileDispatcher extends LoadShiftingStrategist {
@@ -61,10 +61,10 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 	protected void updateSchedule(TimePeriod startPeriod, double currentEnergyShiftStorageLevelInMWH,
 			int currentShiftTime) {}
 
-	/** @return {@link DispatchSchedule schedule} for the connected {@link LoadShiftingPortfolio loadShiftingPortfolio} for the
-	 *         specified simulation hour **/
+	/** @return {@link BidSchedule schedule} for the connected {@link LoadShiftingPortfolio loadShiftingPortfolio} for the specified
+	 *         simulation hour **/
 	@Override
-	public DispatchSchedule createSchedule(TimePeriod timePeriod, double currentEnergyShiftStorageLevelInMWH,
+	public BidSchedule createSchedule(TimePeriod timePeriod, double currentEnergyShiftStorageLevelInMWH,
 			int currentShiftTime) {
 		for (int element = 0; element < scheduleDurationPeriods; element++) {
 			final TimeStamp planningTime = timePeriod.shiftByDuration(element).getStartTime();
@@ -151,11 +151,11 @@ public class ShiftFileDispatcher extends LoadShiftingStrategist {
 		}
 	}
 
-	/** @return {@link DispatchSchedule} for the given time period created from prepared Bid arrays */
-	private DispatchSchedule buildSchedule(TimePeriod timePeriod) {
-		final DispatchSchedule schedule = new DispatchSchedule(timePeriod, scheduleDurationPeriods);
+	/** @return {@link BidSchedule} for the given time period created from prepared Bid arrays */
+	private BidSchedule buildSchedule(TimePeriod timePeriod) {
+		final BidSchedule schedule = new BidSchedule(timePeriod, scheduleDurationPeriods);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
-		schedule.setChargingPerPeriod(demandScheduleInMWH);
+		schedule.setRequestedEnergyPerPeriod(demandScheduleInMWH);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(scheduledInitialEnergyInMWH);
 		return schedule;
 	}

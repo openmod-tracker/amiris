@@ -6,7 +6,6 @@ package agents.forecast;
 import java.util.ArrayList;
 import java.util.List;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.trader.FlexibilityTrader;
 import communications.message.PointInTime;
 import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -27,7 +26,7 @@ public class MeritOrderForecaster extends MarketForecaster {
 	public MeritOrderForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		call(this::sendMeritOrderForecast).on(Forecaster.Products.MeritOrderForecast)
-				.use(FlexibilityTrader.Products.MeritOrderForecastRequest);
+				.use(ForecastClient.Products.MeritOrderForecastRequest);
 	}
 
 	/** Sends {@link MeritOrderMessage}s to the requesting trader(s) based on incoming Forecast requests; requesting agent(s) must
