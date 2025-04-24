@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import accounting.AnnualCostCalculator;
 import agents.electrolysis.Electrolyzer;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
@@ -35,6 +36,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
+import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -50,8 +52,15 @@ import util.Util.MessagePair;
 public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler, GreenHydrogenProducer {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
+	/** Available products */
+	@Product
+	public static enum Products {
+		/** Report annual costs (not sent to other agents, but calculated within trader class) */
+		AnnualCostReport,
+	};
+
 	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
-			.addAs("Device", Electrolyzer.parameters).buildTree();
+			.addAs("Device", Electrolyzer.parameters).addAs("Refinancing", AnnualCostCalculator.parameters).buildTree();
 
 	@Output
 	enum AgentOutputs {
@@ -61,6 +70,10 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		OfferedSurplusEnergyInMWH,
 		/** Variable operation and maintenance costs in EUR */
 		VariableCostsInEUR,
+		/** Fixed operation and maintenance costs */
+		FixedCostsInEUR,
+		/** Annual share of investment cost */
+		InvestmentAnnuityInEUR,
 		/** Total received money for selling hydrogen in EUR */
 		ReceivedMoneyForHydrogenInEUR,
 	}
@@ -74,6 +87,8 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 	private double lastHydrogenProducedInMWH;
 	private TimeStamp lastClearingTime;
 
+	private final AnnualCostCalculator annualCost;
+
 	/** Creates a new {@link GreenHydrogenTrader}
 	 * 
 	 * @param data provides input from config
@@ -84,6 +99,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		fuelType = FuelsTrader.readFuelType(input);
 		fuelData = new FuelData(fuelType);
 		electrolyzer = new Electrolyzer(input.getGroup("Device"));
+		annualCost = AnnualCostCalculator.build(input, "Refinancing");
 
 		call(this::requestPpaInformation).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
@@ -104,6 +120,7 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		call(this::digestHydrogenSales).onAndUse(FuelsMarket.Products.FuelBill);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
 				.use(VariableRenewableOperatorPpa.Products.PpaInformation);
+		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 
 	/** Requests forecast of hydrogen prices from one contracted {@link FuelsMarket}
@@ -229,5 +246,14 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		double payment = ppa.yieldPotentialInMWH * ppa.priceInEURperMWH;
 		fulfilNext(contract, new AmountAtTime(ppa.validAt, payment));
 		store(AgentOutputs.VariableCostsInEUR, payment);
+	}
+
+	/** Write annual costs to output
+	 * 
+	 * @param input not used
+	 * @param contracts not used */
+	protected void reportCosts(ArrayList<Message> input, List<Contract> contracts) {
+		store(AgentOutputs.InvestmentAnnuityInEUR, annualCost.calcInvestmentAnnuityInEUR(electrolyzer.getPeakPower(now())));
+		store(AgentOutputs.FixedCostsInEUR, annualCost.calcFixedCostInEUR(electrolyzer.getPeakPower(now())));
 	}
 }
