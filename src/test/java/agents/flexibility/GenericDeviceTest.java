@@ -4,6 +4,8 @@
 package agents.flexibility;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -59,8 +61,9 @@ public class GenericDeviceTest {
 			double energyContentLowerLimitInMWH, double selfDischargeRatePerHour, double netInflowPowerInMW,
 			double currentEnergyContentInMWH) {
 		try {
-			when(parameterDataMock.getTimeSeries("ChargingPowerInMW")).thenReturn(createSeries(chargingPowerInMW));
-			when(parameterDataMock.getTimeSeries("DischargingPowerInMW")).thenReturn(createSeries(dischargingPowerInMW));
+			when(parameterDataMock.getTimeSeries("GrossChargingPowerInMW")).thenReturn(createSeries(chargingPowerInMW));
+			when(parameterDataMock.getTimeSeriesOrDefault(eq("NetDischargingPowerInMW"), any(TimeSeries.class)))
+					.thenReturn(createSeries(dischargingPowerInMW));
 			when(parameterDataMock.getTimeSeries("ChargingEfficiency")).thenReturn(createSeries(chargingEfficiency));
 			when(parameterDataMock.getTimeSeries("DischargingEfficiency")).thenReturn(createSeries(dischargingEfficiency));
 			when(parameterDataMock.getTimeSeries("EnergyContentUpperLimitInMWH"))
@@ -70,7 +73,7 @@ public class GenericDeviceTest {
 			when(parameterDataMock.getTimeSeries("SelfDischargeRatePerHour"))
 					.thenReturn(createSeries(selfDischargeRatePerHour));
 			when(parameterDataMock.getTimeSeries("NetInflowPowerInMW")).thenReturn(createSeries(netInflowPowerInMW));
-			when(parameterDataMock.getDoubleOrDefault("InitialEnergyContentInMWH", 0.)).thenReturn(currentEnergyContentInMWH);
+			when(parameterDataMock.getDouble("InitialEnergyContentInMWH")).thenReturn(currentEnergyContentInMWH);
 			return new GenericDevice(parameterDataMock);
 		} catch (MissingDataException e) {
 			throw new RuntimeException();
@@ -101,134 +104,17 @@ public class GenericDeviceTest {
 	}
 
 	@Test
-	public void getMaxTargetEnergyContentInMWH_noSelfDischargeNoInflowInitialZero_equalsNetCharging() {
-		device = createGenericDevice(100, 0, 0, 0, 500, 0, 0, 0, 0);
-		assertEquals(100, device.getMaxTargetEnergyContentInMWH(defaultTime, 0, oneHour), 1E-12);
-		assertEquals(200, device.getMaxTargetEnergyContentInMWH(defaultTime, 0, twoHours), 1E-12);
-		assertEquals(25, device.getMaxTargetEnergyContentInMWH(defaultTime, 0, quarterHour), 1E-12);
-	}
-
-	@Test
-	public void getMaxTargetEnergyContentInMWH_noSelfDischargeNoInflowInitialNonzero_addsInitial() {
-		device = createGenericDevice(100, 0, 0, 0, 500, 0, 0, 0, 0);
-		assertEquals(110, device.getMaxTargetEnergyContentInMWH(defaultTime, 10, oneHour), 1E-12);
-		assertEquals(190, device.getMaxTargetEnergyContentInMWH(defaultTime, -10, twoHours), 1E-12);
-		assertEquals(35, device.getMaxTargetEnergyContentInMWH(defaultTime, 10, quarterHour), 1E-12);
-	}
-
-	@Test
-	public void getMaxTargetEnergyContentInMWH_noSelfDischargeWithInflowInitialZero_addsInflow() {
-		device = createGenericDevice(100, 0, 0, 0, 500, 0, 0, 20, 0);
-		assertEquals(120, device.getMaxTargetEnergyContentInMWH(defaultTime, 0, oneHour), 1E-12);
-		assertEquals(240, device.getMaxTargetEnergyContentInMWH(defaultTime, 0, twoHours), 1E-12);
-		assertEquals(30, device.getMaxTargetEnergyContentInMWH(defaultTime, 0, quarterHour), 1E-12);
-	}
-
-	@Test
-	public void getMaxTargetEnergyContentInMWH_withSelfDischargeNoInflow_subtractsSelfDischarge() {
-		device = createGenericDevice(200, 0, 0, 0, 500, 0, 0.1, 0, 0);
-		assertEquals(200, device.getMaxTargetEnergyContentInMWH(defaultTime, 0, oneHour), 1E-2);
-		assertEquals(290, device.getMaxTargetEnergyContentInMWH(defaultTime, 100, oneHour), 1E-2);
-		assertEquals(440.5, device.getMaxTargetEnergyContentInMWH(defaultTime, 50, twoHours), 1E-2);
-		assertEquals(244.801, device.getMaxTargetEnergyContentInMWH(defaultTime, 200, quarterHour), 1E-2);
-	}
-
-	@Test
-	public void simulateTransition_useMaxTargetEnergy_returnsMaxPower() {
-		device = createGenericDevice(200, 0, 1, 0, 500, 0, 0.1, 0, 0);
-		double targetEnergyLevelInMWH = device.getMaxTargetEnergyContentInMWH(defaultTime, 0, twoHours);
-		assertEquals(400, device.simulateTransition(defaultTime, 0, targetEnergyLevelInMWH, twoHours), 1E-12);
-	}
-
-	@Test
-	public void getMaxTargetEnergyContentInMWH_withSelfDischargeInflowAndInitial_correctCalc() {
-		device = createGenericDevice(200, 0, 0, 0, 500, 0, 0.1, 50, 0);
-		assertEquals(232, device.getMaxTargetEnergyContentInMWH(defaultTime, -20, oneHour), 1E-2);
-		device = createGenericDevice(200, 0, 0, 0, 500, 0, 0.1, -50, 0);
-		assertEquals(372.9, device.getMaxTargetEnergyContentInMWH(defaultTime, 90, twoHours), 1E-2);
-		assertEquals(71.590, device.getMaxTargetEnergyContentInMWH(defaultTime, 35, quarterHour), 1E-2);
-	}
-
-	@Test
-	public void getMinTargetEnergyContentInMWH_noSelfDischargeNoInflowInitialZero_equalsNetCharging() {
-		device = createGenericDevice(0, 100, 0, 0, 0, -500, 0, 0, 0);
-		assertEquals(-100, device.getMinTargetEnergyContentInMWH(defaultTime, 0, oneHour), 1E-12);
-		assertEquals(-200, device.getMinTargetEnergyContentInMWH(defaultTime, 0, twoHours), 1E-12);
-		assertEquals(-25, device.getMinTargetEnergyContentInMWH(defaultTime, 0, quarterHour), 1E-12);
-	}
-
-	@Test
-	public void getMinTargetEnergyContentInMWH_noSelfDischargeNoInflowInitialNonzero_addsInitial() {
-		device = createGenericDevice(0, 100, 0, 0, 0, -500, 0, 0, 0);
-		assertEquals(100, device.getMinTargetEnergyContentInMWH(defaultTime, 200, oneHour), 1E-12);
-		assertEquals(0, device.getMinTargetEnergyContentInMWH(defaultTime, 200, twoHours), 1E-12);
-		assertEquals(-15, device.getMinTargetEnergyContentInMWH(defaultTime, 10, quarterHour), 1E-12);
-	}
-
-	@Test
-	public void getMinTargetEnergyContentInMWH_noSelfDischargeWithInflowInitialZero_addsInflow() {
-		device = createGenericDevice(0, 100, 0, 0, 0, -500, 0, -20, 0);
-		assertEquals(-120, device.getMinTargetEnergyContentInMWH(defaultTime, 0, oneHour), 1E-12);
-		assertEquals(-240, device.getMinTargetEnergyContentInMWH(defaultTime, 0, twoHours), 1E-12);
-		assertEquals(-30, device.getMinTargetEnergyContentInMWH(defaultTime, 0, quarterHour), 1E-12);
-	}
-
-	@Test
-	public void getMinTargetEnergyContentInMWH_withSelfDischargeNoInflowInitialZero_subtractsSelfDischarge() {
-		device = createGenericDevice(0, 200, 0, 0, 0, -500, 0.1, 0, 0);
-		assertEquals(-209, device.getMinTargetEnergyContentInMWH(defaultTime, -10, oneHour), 1E-2);
-		assertEquals(-367.600, device.getMinTargetEnergyContentInMWH(defaultTime, 40, twoHours), 1E-2);
-		assertEquals(47.400, device.getMinTargetEnergyContentInMWH(defaultTime, 100, quarterHour), 1E-2);
-	}
-
-	@Test
-	public void simulateTransition_useMinTargetEnergy_returnsMinPower() {
-		device = createGenericDevice(0, 200, 0, 1, 0, -500, 0.1, 0, 0);
-		double targetEnergyLevelInMWH = device.getMinTargetEnergyContentInMWH(defaultTime, 0, twoHours);
-		assertEquals(-400, device.simulateTransition(defaultTime, 0, targetEnergyLevelInMWH, twoHours), 1E-12);
-
-		targetEnergyLevelInMWH = device.getMinTargetEnergyContentInMWH(defaultTime, 0, quarterHour);
-		assertEquals(-50, device.simulateTransition(defaultTime, 0, targetEnergyLevelInMWH, quarterHour), 1E-12);
-	}
-
-	@Test
-	public void getMinTargetEnergyContentInMWH_withSelfDischargeInflowAndInitial_correctCalc() {
-		device = createGenericDevice(0, 200, 0, 0, 0, -500, 0.1, 50, 0);
-		assertEquals(-132, device.getMinTargetEnergyContentInMWH(defaultTime, 20, oneHour), 1E-2);
-		device = createGenericDevice(0, 200, 0, 0, 0, -500, 0.1, -50, 0);
-		assertEquals(-13.800, device.getMinTargetEnergyContentInMWH(defaultTime, 50, quarterHour), 1E-2);
-	}
-
-	@Test
-	public void simulateTransition_noSelfDischargeFullEfficiency_correctCalc() {
-		device = createGenericDevice(0, 0, 1, 1, 0, 0, 0, 10, 0);
-		assertEquals(40, device.simulateTransition(defaultTime, 50, 100, oneHour), 1E-12);
-		assertEquals(107.5, device.simulateTransition(defaultTime, -10, 100, quarterHour), 1E-12);
-		assertEquals(-10, device.simulateTransition(defaultTime, 90, 100, twoHours), 1E-12);
-	}
-
-	@Test
-	public void simulateTransition_noSelfDischargeImperfectEfficiency_correctCalc() {
-		device = createGenericDevice(0, 0, 0.5, 0.8, 0, 0, 0, 10, 0);
-		assertEquals(80, device.simulateTransition(defaultTime, 50, 100, oneHour), 1E-12);
-		assertEquals(215, device.simulateTransition(defaultTime, -10, 100, quarterHour), 1E-12);
-		assertEquals(-8, device.simulateTransition(defaultTime, 90, 100, twoHours), 1E-12);
-	}
-
-	@Test
-	public void simulateTransition_withSelfDischargeImperfectEfficiency_correctCalc() {
-		device = createGenericDevice(0, 0, 0.5, 0.8, 0, 0, 0.1, 10, 0);
-		assertEquals(90, device.simulateTransition(defaultTime, 50, 100, oneHour), 1E-2);
-		assertEquals(214.480, device.simulateTransition(defaultTime, -10, 100, quarterHour), 1E-2);
-		assertEquals(14.2, device.simulateTransition(defaultTime, 90, 100, twoHours), 1E-2);
-		assertEquals(-40, device.simulateTransition(defaultTime, 100, 50, oneHour), 1E-2);
-	}
-
-	@Test
 	public void transition_noSelfDischargeFullEfficiencyNoInflow_correctNewEnergyContent() {
 		device = createGenericDevice(100, 100, 1, 1, 500, -500, 0., 0, 0);
 		device.transition(defaultTime, 50, oneHour);
 		assertEquals(50, device.getCurrentInternalEnergyInMWH(), 1E-12);
+	}
+
+	@Test
+	public void transition_noSelfDischargeFullEfficiencyNoInflowQuarterHour_correctNewEnergyContent() {
+		device = createGenericDevice(100, 100, 1, 1, 500, -500, 0., 0, 0);
+		device.transition(defaultTime, 100, quarterHour);
+		assertEquals(25, device.getCurrentInternalEnergyInMWH(), 1E-12);
 	}
 
 	@Test
@@ -241,8 +127,8 @@ public class GenericDeviceTest {
 	@Test
 	public void transition_noSelfDischargeImperfectEfficiencyNoInflow_correctNewEnergyContent() {
 		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0., 0, 0);
-		device.transition(defaultTime, 200, oneHour);
-		assertEquals(100, device.getCurrentInternalEnergyInMWH(), 1E-12);
+		device.transition(defaultTime, 100, oneHour);
+		assertEquals(50, device.getCurrentInternalEnergyInMWH(), 1E-12);
 
 		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0., 0, 100);
 		device.transition(defaultTime, -80, oneHour);
@@ -279,8 +165,8 @@ public class GenericDeviceTest {
 	public void transition_chargingPowerExceeded_returnsFixedEnergyDeltas() {
 		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0, 0, 50);
 		double result = device.transition(defaultTime, 300, oneHour);
-		assertEquals(200., result, 1E-12);
-		assertEquals(150., device.getCurrentInternalEnergyInMWH(), 1E-12);
+		assertEquals(100., result, 1E-12);
+		assertEquals(100., device.getCurrentInternalEnergyInMWH(), 1E-12);
 		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_CHARGING_POWER);
 	}
 
@@ -288,16 +174,16 @@ public class GenericDeviceTest {
 	public void transition_dischargingPowerExceeded_returnsFixedEnergyDeltas() {
 		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0, 0, 250);
 		double result = device.transition(defaultTime, -120, oneHour);
-		assertEquals(-80, result, 1E-12);
-		assertEquals(150., device.getCurrentInternalEnergyInMWH(), 1E-12);
+		assertEquals(-100, result, 1E-12);
+		assertEquals(125., device.getCurrentInternalEnergyInMWH(), 1E-12);
 		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_DISCHARGING_POWER);
 	}
 
 	@Test
 	public void transition_upperEnergyLimitExceeded_returnsFixedEnergyDeltas() {
-		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0, 0, 450);
+		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0, 0, 475);
 		double result = device.transition(defaultTime, 150, oneHour);
-		assertEquals(100, result, 1E-12);
+		assertEquals(50, result, 1E-12);
 		assertEquals(500., device.getCurrentInternalEnergyInMWH(), 1E-12);
 		logChecker.assertLogsContain(GenericDevice.ERR_EXCEED_UPPER_ENERGY_LIMIT);
 	}

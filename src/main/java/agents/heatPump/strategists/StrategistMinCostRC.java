@@ -71,7 +71,7 @@ public class StrategistMinCostRC extends HeatPumpStrategist {
 			updateBidSchedule();
 			HeatPumpSchedule schedule = new HeatPumpSchedule(timePeriod, 1, temperatureResolutionInC);
 			schedule.setBidsScheduleInEURperMWH(new double[] {scheduledBidPricesInEURperMWH[0]});
-			schedule.setChargingPerPeriod(new double[] {demandScheduleInMWH[0]});
+			schedule.setRequestedEnergyPerPeriod(new double[] {demandScheduleInMWH[0]});
 			schedule.setExpectedInitialInternalEnergyScheduleInMWH(new double[] {getInternalEnergySchedule()[0]});
 			return schedule;
 		}

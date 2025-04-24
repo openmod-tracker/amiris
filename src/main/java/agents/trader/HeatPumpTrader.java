@@ -6,8 +6,8 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.heatPump.BuildingParameters;
 import agents.heatPump.HeatPump;
@@ -94,10 +94,10 @@ public class HeatPumpTrader extends FlexibilityTrader {
 		ParameterData strategyBasic = input.getGroup("StrategyBasic");
 		strategist = createStrategist(strategyBasic, building, heatPump, heatingData, strategyParams, device);
 
-		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
-		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
@@ -181,7 +181,7 @@ public class HeatPumpTrader extends FlexibilityTrader {
 				demandBid = new Bid(energyBalance, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN);
 				break;
 			default:
-				double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
+				double demandPower = schedule.getScheduledEnergyPurchaseInMWH(targetTime);
 				demandBid = new Bid(demandPower, Constants.SCARCITY_PRICE_IN_EUR_PER_MWH, Double.NaN);
 		}
 		return demandBid;
@@ -192,7 +192,7 @@ public class HeatPumpTrader extends FlexibilityTrader {
 	public double calcEnergyBalanceInPeriod(TimePeriod currentTimeSegment) {
 		double ambientTemperatureInC = strategist.getAmbientTemperatureInC(currentTimeSegment);
 		double coefficientOfPerformance = heatPump.calcCoefficientOfPerformance(ambientTemperatureInC);
-		double powerToStorage = schedule.getScheduledChargingPowerInMW(currentTimeSegment.getStartTime());
+		double powerToStorage = schedule.getScheduledEnergyPurchaseInMWH(currentTimeSegment.getStartTime());
 		double heatToStorage = powerToStorage * coefficientOfPerformance;
 		device.chargeInMW(heatToStorage);
 		return powerToStorage + strategist.getHeatLoad(currentTimeSegment) / coefficientOfPerformance;

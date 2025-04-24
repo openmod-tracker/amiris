@@ -8,12 +8,13 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Improve README #149 (@LeonardWilleke, @dlr_fn, @dlr-cjs)
 
 ### Added
-- Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
-- Add new class `GenericDevice` that represents a generic electrical flexibility #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add new package `dynamicProgramming` for controlling dynamic programming algorithms for flexibility scheduling #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add new class `GenericDevice` that represents a generic electrical flexibility #115 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add optional "Refinancing" parameters for `GreenHydrogenTrader` #149 (@dlr_jk)
 - Add JSONable interface for UrlModelService input classes #151 (@dlr_elghazi, @dlr-cjs)
-- Add new trader using external model for household marketing of PV-storages #23 (@dlr_elghazi)
-- Add new trader using external model for household marketing of electric vehicles #23 (@dlr_elghazi)
+- Add new trader using external model for household marketing of PV-storages #152 (@dlr_elghazi)
+- Add new trader using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
+- Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
 
 ### Fixed
 - ReadMe: Fixed typo in Acknowledgements (@dlr_fn)

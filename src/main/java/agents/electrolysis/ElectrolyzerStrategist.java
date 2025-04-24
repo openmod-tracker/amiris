@@ -5,7 +5,7 @@ package agents.electrolysis;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.markets.meritOrder.sensitivities.PriceNoSensitivity;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -45,7 +45,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	/** The associated electrolysis unit */
 	protected Electrolyzer electrolyzer;
 	/** The Dispatch schedule controlled / created by this Strategist */
-	protected DispatchSchedule schedule;
+	protected BidSchedule schedule;
 
 	private TreeMap<TimePeriod, Double> hydrogenPrices = new TreeMap<>();
 	private TimeSeries priceLimitOverrideInEURperMWH;
@@ -156,7 +156,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	 * 
 	 * @param targetTime to return a valid schedule for
 	 * @return the previous schedule (if still valid) or a newly created one */
-	public DispatchSchedule getValidSchedule(TimeStamp targetTime) {
+	public BidSchedule getValidSchedule(TimeStamp targetTime) {
 		if (schedule == null || !schedule.isApplicable(targetTime, actualProducedHydrogen)) {
 			clearSensitivitiesBefore(targetTime);
 			TimePeriod targetTimeSegment = new TimePeriod(targetTime, OPERATION_PERIOD);

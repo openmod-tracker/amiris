@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.heatPump;
 
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Represents a dispatch schedule for flexible heat pumps
  * 
  * @author Christoph Schimeczek, Evelyn Sperber */
-public class HeatPumpSchedule extends DispatchSchedule {
+public class HeatPumpSchedule extends BidSchedule {
 	private final double planningResultionInC;
 
 	/** Creates a {@link HeatPumpSchedule}

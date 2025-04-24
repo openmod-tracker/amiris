@@ -121,7 +121,7 @@ public abstract class HeatPumpStrategist extends Strategist {
 		updateBidSchedule();
 		HeatPumpSchedule schedule = new HeatPumpSchedule(timePeriod, scheduleDurationPeriods, temperatureResolutionInC);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
-		schedule.setChargingPerPeriod(demandScheduleInMWH);
+		schedule.setRequestedEnergyPerPeriod(demandScheduleInMWH);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(getInternalEnergySchedule());
 		return schedule;
 	}
