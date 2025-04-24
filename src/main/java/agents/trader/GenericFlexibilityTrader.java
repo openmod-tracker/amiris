@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.GenericDevice;
-import agents.flexibility.dynamicProgramming.Strategist;
+import agents.flexibility.dynamicProgramming.Optimiser;
 import agents.flexibility.dynamicProgramming.assessment.AssessmentFunction;
 import agents.flexibility.dynamicProgramming.assessment.AssessmentFunctionBuilder;
 import agents.flexibility.dynamicProgramming.bidding.BidSchedulerBuilder;
@@ -66,7 +66,7 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 	private final GenericDevice device;
 	private final AssessmentFunction assessmentFunction;
 	private final StateManager stateManager;
-	private final Strategist strategist;
+	private final Optimiser strategist;
 	private BidSchedule bidSchedule;
 
 	public GenericFlexibilityTrader(DataProvider dataProvider) throws MissingDataException {
@@ -77,7 +77,7 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 		assessmentFunction = AssessmentFunctionBuilder.build(input.getGroup("Assessment"));
 		stateManager = StateManagerBuilder.build(device, assessmentFunction, input.getGroup("StateDiscretisation"));
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
-		strategist = new Strategist(stateManager, bidScheduler, assessmentFunction.getTargetType());
+		strategist = new Optimiser(stateManager, bidScheduler, assessmentFunction.getTargetType());
 
 		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);

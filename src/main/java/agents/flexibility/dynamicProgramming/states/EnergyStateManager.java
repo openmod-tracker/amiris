@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.stream.IntStream;
 import agents.flexibility.GenericDevice;
 import agents.flexibility.GenericDeviceCache;
-import agents.flexibility.dynamicProgramming.Strategist;
+import agents.flexibility.dynamicProgramming.Optimiser;
 import agents.flexibility.dynamicProgramming.assessment.AssessmentFunction;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -45,7 +45,7 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public void initialise(TimePeriod startingPeriod) {
-		this.numberOfTimeSteps = Strategist.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
+		this.numberOfTimeSteps = Optimiser.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
 		this.startingPeriod = startingPeriod;
 		deviceCache.setPeriod(startingPeriod);
 		analyseAvailableEnergyLevels();
@@ -144,6 +144,7 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public double getTransitionValueFor(int initialStateIndex, int finalStateIndex) {
+		// TODO: cache whole transition if possible, including assessment!
 		double externalEnergyDeltaInMWH = getEnergyDeltaInMWH(initialStateIndex, finalStateIndex);
 		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
@@ -225,7 +226,7 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public ArrayList<TimeStamp> getPlanningTimes(TimePeriod startingPeriod) {
-		int numberOfTimeSteps = Strategist.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
+		int numberOfTimeSteps = Optimiser.calcHorizonInPeriodSteps(startingPeriod, planningHorizonInHours);
 		ArrayList<TimeStamp> planningTimes = new ArrayList<>(numberOfTimeSteps);
 		for (int step = 0; step < numberOfTimeSteps; step++) {
 			planningTimes.add(startingPeriod.shiftByDuration(step).getStartTime());

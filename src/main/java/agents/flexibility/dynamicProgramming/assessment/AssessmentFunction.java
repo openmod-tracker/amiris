@@ -4,7 +4,7 @@
 package agents.flexibility.dynamicProgramming.assessment;
 
 import java.util.ArrayList;
-import agents.flexibility.dynamicProgramming.Strategist.Target;
+import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import agents.flexibility.dynamicProgramming.states.StateManager;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;

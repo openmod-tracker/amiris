@@ -6,7 +6,7 @@ package agents.flexibility.dynamicProgramming.assessment;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import agents.flexibility.Strategist;
-import agents.flexibility.dynamicProgramming.Strategist.Target;
+import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimePeriod;

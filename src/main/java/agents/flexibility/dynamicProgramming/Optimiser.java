@@ -5,13 +5,20 @@ package agents.flexibility.dynamicProgramming;
 
 import java.util.function.BiFunction;
 import agents.flexibility.BidSchedule;
+import agents.flexibility.GenericDevice;
 import agents.flexibility.dynamicProgramming.bidding.BidScheduler;
 import agents.flexibility.dynamicProgramming.states.StateManager;
 import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
 import de.dlr.gitlab.fame.time.Constants;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
-public final class Strategist {
+/** {@link Optimiser} finds the best dispatch strategy for a {@link GenericDevice} using dynamic programming. The operational
+ * states are controlled by a {@link StateManager}, which also assesses the value of transitions between states. The best
+ * operation path is then obtained from the {@link StateManager} and a {@link BidScheduler} is used to obtain an associated
+ * {@link BidSchedule}.
+ * 
+ * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
+public final class Optimiser {
 	static final String ERR_NO_FEASIBLE_SOLUTION = "No feasible transition found for time period: ";
 
 	/** Optimisation target */
@@ -27,12 +34,12 @@ public final class Strategist {
 	private final BiFunction<Double, Double, Boolean> comparison;
 	private final double initialAssessmentValue;
 
-	/** Instantiates new {@link Strategist}
+	/** Instantiates new {@link Optimiser}
 	 * 
 	 * @param stateManager to control feasible states
 	 * @param bidScheduler to create bidding schedules
 	 * @param target type of optimisation target */
-	public Strategist(StateManager stateManager, BidScheduler bidScheduler, Target target) {
+	public Optimiser(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
 		this.bidScheduler = bidScheduler;
 		comparison = target == Target.MAXIMISE ? (v, b) -> v > b : (v, b) -> v < b;
