@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -81,7 +82,7 @@ public class HouseholdPvTraderExternal extends FlexibilityTrader {
 				tsGenerationProfile, storage, forecastPeriodInHours, input.getGroup("PredictionWindows"));
 		tariffStrategist = new EndUserTariff(input.getGroup("Policy"), input.getGroup("BusinessModel"));
 
-		call(this::requestPriceForecast).on(Products.MeritOrderForecastRequest)
+		call(this::requestPriceForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updatePriceForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);

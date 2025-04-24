@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import agents.evAggregator.Fleet;
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -75,7 +76,7 @@ public class EvTraderExternal extends FlexibilityTrader {
 		biddingStrategist = new EvBiddingStrategist(urlService, modelId, forecastPeriodInHours,
 				availableChargingPowerInMW, elecConsumptionInMWH, input.getGroup("PredictionWindows"));
 
-		call(this::requestPriceForecast).on(Products.MeritOrderForecastRequest)
+		call(this::requestPriceForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updatePriceForecast).on(Forecaster.Products.MeritOrderForecast)
 				.use(Forecaster.Products.MeritOrderForecast);
