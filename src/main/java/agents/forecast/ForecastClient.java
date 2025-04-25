@@ -6,7 +6,7 @@ package agents.forecast;
 import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.communication.Product;
 
-/** An {@link AgentAbility} that allows to ask {@link MarketForecaster}s for Forecasts
+/** An {@link AgentAbility} that allows to ask {@link MarketForecaster}s for forecasts
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public interface ForecastClient extends AgentAbility {
