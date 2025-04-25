@@ -35,8 +35,7 @@ lint:changelog:
     - 'echo "Base is: $CI_MERGE_REQUEST_DIFF_BASE_SHA"'
     - CHANGELOG_CHANGED=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA...HEAD CHANGELOG.md)
     - 'if [[ "CHANGELOG.md" == $CHANGELOG_CHANGED ]]; then exit 0; else echo "No changes found in CHANGELOG.md compared to target branch."; exit 1; fi'
-  only:
-    - merge_requests
+  only: [merge_requests]
 
 
 # Include reuse-test to check if all files comply with the reuse software requirements: https://reuse.software/dev/
@@ -48,9 +47,7 @@ lint:reuse:
   cache: [] # do not use cached files here, as those will be assessed by the reuse linter
   script:
     - reuse lint
-  only:
-    - merge_requests
-    - main
+  only: [merge_requests, main]
 
 # Check if javadoc building works
 lint:javadoc:
@@ -58,9 +55,7 @@ lint:javadoc:
   cache: [] # do not use cached files here, as maven will not build the project
   script:
     - "mvn '-Dmaven.javadoc.failOnWarnings=true' javadoc:javadoc"
-  only:
-    - merge_requests
-    - main
+  only: [merge_requests, main]
 
 # Ensure files follow common code style using "spotless"
 lint:spotless:
@@ -68,15 +63,12 @@ lint:spotless:
   dependencies: []
   script: ["mvn spotless:check"]
   only: [merge_requests, dev, main]
-   
+
 
 # Settings for unit tests & coverage analysis
 .unittest:
-  script:
-    - 'mvn $MAVEN_CLI_OPTS test'
-  only:
-    - merge_requests
-    - main
+  script: ['mvn $MAVEN_CLI_OPTS test']
+  only: [merge_requests, main, dev]
 
 # Execute unit tests with JDK11
 test:Coverage:jdk11:
@@ -104,26 +96,16 @@ compatibility:jdk21:
 # Package AMIRIS & build javadoc
 deploy:jdk11:
   stage: deploy
-  script:
-    - 'mvn $MAVEN_CLI_OPTS package'
-    - 'mvn javadoc:javadoc'
+  script: ['mvn $MAVEN_CLI_OPTS package', 'mvn javadoc:javadoc']
   artifacts:
-    paths:
-      - target/*.jar
-      - target/reports/apidocs
+    paths: ["target/*.jar", "target/reports/apidocs"]
     expire_in: 1 year
-  only:
-    - main
+  only: [main]
 
 # Publish javadoc to pages
 pages:
   stage: .post
-  script:
-    - mkdir .public
-    - cp -r target/reports/apidocs/* .public
-    - mv .public public
+  script: ["mkdir public", "cp -r target/reports/apidocs/* public"]
   artifacts:
-    paths:
-      - public
-  only:
-    - main
+    paths: [public]
+  only: [main]
