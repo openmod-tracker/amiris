@@ -8,7 +8,9 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 
-/** Builds {@link AssessmentFunction}s */
+/** Builds {@link AssessmentFunction}s from provided input parameters
+ * 
+ * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public final class AssessmentFunctionBuilder {
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("Type", Type.class)).buildTree();
 

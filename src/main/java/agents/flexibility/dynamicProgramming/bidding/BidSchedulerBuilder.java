@@ -8,6 +8,9 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 
+/** Builds {@link BidScheduler} from provided input parameters
+ * 
+ * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class BidSchedulerBuilder {
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newEnum("Type", Type.class), Make.newDouble("SchedulingHorizonInHours")).buildTree();
