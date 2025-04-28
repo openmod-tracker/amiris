@@ -4,7 +4,6 @@
 package agents.flexibility.dynamicProgramming.states;
 
 import java.util.ArrayList;
-import java.util.stream.IntStream;
 import agents.flexibility.GenericDevice;
 import agents.flexibility.GenericDeviceCache;
 import agents.flexibility.dynamicProgramming.Optimiser;
@@ -117,9 +116,9 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public int[] getInitialStates() {
-		int lowestIndex = energyToCeilIndex(deviceCache.getEnergyContentLowerLimitInMWH());
-		int highestIndex = energyToFloorIndex(deviceCache.getEnergyContentUpperLimitInMWH());
-		return IntStream.range(lowestIndex, highestIndex + 1).toArray();
+		final int lowestIndex = energyToCeilIndex(deviceCache.getEnergyContentLowerLimitInMWH());
+		final int highestIndex = energyToFloorIndex(deviceCache.getEnergyContentUpperLimitInMWH());
+		return buildArrayFromTo(lowestIndex, highestIndex);
 	}
 
 	/** @return next lower index corresponding to given energy level */
@@ -134,14 +133,23 @@ public class EnergyStateManager implements StateManager {
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
+	/** @return a new array of integers, starting at lowestIndex and ending at highestIndex (inclusive) */
+	private static int[] buildArrayFromTo(final int lowestIndex, final int highestIndex) {
+		final int[] result = new int[highestIndex - lowestIndex + 1];
+		int arrayIndex = 0;
+		for (int index = lowestIndex; index <= highestIndex; index++) {
+			result[arrayIndex] = index;
+			arrayIndex++;
+		}
+		return result;
+	}
+
 	@Override
 	public int[] getFinalStates(int initialStateIndex) {
-		double initialEnergyContentInMWH = initialStateIndex * energyResolutionInMWH;
-		double lowestEnergyContentInMWH = deviceCache.getMinTargetEnergyContentInMWH(initialEnergyContentInMWH);
-		double highestEnergyContentInMWH = deviceCache.getMaxTargetEnergyContentInMWH(initialEnergyContentInMWH);
-		return IntStream
-				.range(energyToCeilIndex(lowestEnergyContentInMWH), energyToFloorIndex(highestEnergyContentInMWH) + 1)
-				.toArray();
+		final double initialEnergyContentInMWH = initialStateIndex * energyResolutionInMWH;
+		final double lowestEnergyContentInMWH = deviceCache.getMinTargetEnergyContentInMWH(initialEnergyContentInMWH);
+		final double highestEnergyContentInMWH = deviceCache.getMaxTargetEnergyContentInMWH(initialEnergyContentInMWH);
+		return buildArrayFromTo(energyToCeilIndex(lowestEnergyContentInMWH), energyToFloorIndex(highestEnergyContentInMWH));
 	}
 
 	@Override
