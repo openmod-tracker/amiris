@@ -46,8 +46,6 @@ public abstract class MeritOrderSensitivity {
 		dischargingItems.sort(getComparator().reversed());
 		setCumulativeValues(chargingItems);
 		setCumulativeValues(dischargingItems);
-		chargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalChargingPowerInMW);
-		dischargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalDischargingPowerInMW);
 	}
 
 	/** clears stored sensitivity data */
@@ -139,6 +137,9 @@ public abstract class MeritOrderSensitivity {
 	 *         powers; first entry corresponds to maximum discharging power, while the last entry resembles sensitivity value at
 	 *         maximum charging power */
 	public double[] getValuesInSteps(int numberOfTransitionSteps) {
+		chargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalChargingPowerInMW);
+		dischargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalDischargingPowerInMW);
+
 		double[] values = new double[2 * numberOfTransitionSteps + 1];
 
 		double chargingPowerPerStep = externalChargingPowerInMW / numberOfTransitionSteps;
