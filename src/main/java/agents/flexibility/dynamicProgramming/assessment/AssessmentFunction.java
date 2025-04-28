@@ -17,7 +17,7 @@ public interface AssessmentFunction {
 	 * 
 	 * @param time for which transitions will be assessed */
 	void prepareFor(TimeStamp time);
-	
+
 	/** Return estimated value or costs of the transition
 	 * 
 	 * @param externalEnergyDeltaInMWH of the transition to be assessed; positive values correspond to "charging"
@@ -44,5 +44,5 @@ public interface AssessmentFunction {
 	/** Get type of target this {@link AssessmentFunction} is connected with
 	 * 
 	 * @return type of assessment target */
-	Target getTargetType();	
+	Target getTargetType();
 }
