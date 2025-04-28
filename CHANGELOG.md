@@ -7,6 +7,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Change data type of `ImportCostInEURperMWH` to time series #150 (@dlr_jk)
 - Rename `Strategist` in `dynamicProgramming` to `Optimiser` #156 (@dlr-cjs)
 - Improve README #149 (@LeonardWilleke, @dlr_fn, @dlr-cjs)
+- Reuse cache in CI pipelines of same branch #157 (@dlr-cjs)
 
 ### Added
 - Add new package `dynamicProgramming` for controlling dynamic programming algorithms for flexibility scheduling #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
