@@ -18,6 +18,8 @@ public final class AssessmentFunctionBuilder {
 	enum Type {
 		/** Maximise profit using an electricity price forecast neglecting any price impact of bids */
 		MAX_PROFIT_PRICE_TAKER,
+		/** Minimise system cost using a merit order forecast considering impact of own bids */
+		SINGLE_AGENT_MIN_SYSTEM_COST,
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "Assessment function is not implemented: ";
@@ -27,6 +29,8 @@ public final class AssessmentFunctionBuilder {
 		switch (type) {
 			case MAX_PROFIT_PRICE_TAKER:
 				return new MaxProfitPriceTaker();
+			case SINGLE_AGENT_MIN_SYSTEM_COST:
+				return new MinSystemCost();
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
 		}
