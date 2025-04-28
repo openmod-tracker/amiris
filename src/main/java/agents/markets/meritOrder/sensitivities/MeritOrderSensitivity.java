@@ -26,6 +26,11 @@ public abstract class MeritOrderSensitivity {
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
 
+	int lastChargeIndex = 0;
+	int lastDischargeIndex = 0;
+	double lastChargeEnergy = 0.;
+	double lastDischargeEnergy = 0.;
+
 	/** sets maximum charging and discharging powers in MW according to specified values
 	 * 
 	 * @param maxChargePowerInMW to be set
@@ -139,10 +144,12 @@ public abstract class MeritOrderSensitivity {
 
 	/** @return value associated with the specified energy delta when charging */
 	private double getValueCharging(double externalEnergyDeltaInMWH) {
-		var iterator = chargingItems.listIterator(0);
-		while (iterator.hasNext()) {
-			var item = iterator.next();
+		int firstIndex = externalEnergyDeltaInMWH >= lastChargeEnergy ? lastChargeIndex : 0;
+		for (int index = firstIndex; index < chargingItems.size(); index++) {
+			var item = chargingItems.get(index);
 			if (item.getCumulatedUpperPower() >= externalEnergyDeltaInMWH) {
+				lastChargeEnergy = externalEnergyDeltaInMWH;
+				lastChargeIndex = index;
 				return calcValueOfItemAtPower(item, externalEnergyDeltaInMWH);
 			}
 		}
@@ -151,10 +158,12 @@ public abstract class MeritOrderSensitivity {
 
 	/** @return value associated with the specified energy delta when discharging */
 	private double getValueDischarging(double externalEnergyDeltaInMWH) {
-		var iterator = dischargingItems.listIterator();
-		while (iterator.hasNext()) {
-			var item = iterator.next();
+		int firstIndex = externalEnergyDeltaInMWH <= lastDischargeEnergy ? lastDischargeIndex : 0;
+		for (int index = firstIndex; index < dischargingItems.size(); index++) {
+			var item = dischargingItems.get(index);
 			if (item.getCumulatedUpperPower() >= -externalEnergyDeltaInMWH) {
+				lastDischargeEnergy = externalEnergyDeltaInMWH;
+				lastDischargeIndex = index;
 				return calcValueOfItemAtPower(item, externalEnergyDeltaInMWH);
 			}
 		}
