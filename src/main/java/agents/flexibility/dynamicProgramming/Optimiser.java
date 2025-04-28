@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility.dynamicProgramming;
 
-import java.util.function.BiFunction;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.GenericDevice;
 import agents.flexibility.dynamicProgramming.bidding.BidScheduler;
@@ -31,8 +30,8 @@ public final class Optimiser {
 
 	private final StateManager stateManager;
 	private final BidScheduler bidScheduler;
-	private final BiFunction<Double, Double, Boolean> comparison;
 	private final double initialAssessmentValue;
+	private final Target target;
 
 	/** Instantiates new {@link Optimiser}
 	 * 
@@ -42,7 +41,7 @@ public final class Optimiser {
 	public Optimiser(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
 		this.bidScheduler = bidScheduler;
-		comparison = target == Target.MAXIMISE ? (v, b) -> v > b : (v, b) -> v < b;
+		this.target = target;
 		initialAssessmentValue = target == Target.MAXIMISE ? -Double.MAX_VALUE : Double.MAX_VALUE;
 	}
 
@@ -66,7 +65,7 @@ public final class Optimiser {
 				for (int finalStateIndex : stateManager.getFinalStates(initialStateIndex)) {
 					double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
 							+ stateManager.getBestValueNextPeriod(finalStateIndex);
-					if (comparison.apply(value, bestAssessmentValue)) {
+					if (compare(value, bestAssessmentValue)) {
 						bestAssessmentValue = value;
 						bestFinalStateIndex = finalStateIndex;
 					}
@@ -77,6 +76,14 @@ public final class Optimiser {
 				stateManager.updateBestFinalState(initialStateIndex, bestFinalStateIndex, bestAssessmentValue);
 			}
 		}
+	}
+
+	/** @return true if given value is better than provided bestValue, false otherwise */
+	private boolean compare(double value, double bestValue) {
+		if (target == Target.MAXIMISE) {
+			return value > bestValue;
+		}
+		return value < bestValue;
 	}
 
 	/** Calculates how many specified time periods fit into the given time horizon
