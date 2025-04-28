@@ -749,11 +749,11 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      MeritOrderForecastRequest: &FlexibilityTrader_P_MeritOrderForecastRequest
+      MeritOrderForecastRequest: &ForecastClient_P_MeritOrderForecastRequest
         MetaData:
           Description: "Requests for merit-order forecasts"
           OEONearestConcept:
-      PriceForecastRequest: &FlexibilityTrader_P_PriceForecastRequest
+      PriceForecastRequest: &ForecastClient_P_PriceForecastRequest
         MetaData:
           Description: "Requests for price-forecasts"
           OEONearestConcept:
@@ -1800,7 +1800,7 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
       AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
@@ -2260,8 +2260,8 @@ AgentTypes:
       Payout: *PowerPlantScheduler_P_Payout
       DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
       BidsForecast: *Trader_P_BidsForecast
-      MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
       GateClosureForward: *TraderWithClients_P_GateClosureForward
       ForecastRequestForward: *TraderWithClients_P_ForecastRequestForward
     Outputs:
@@ -2355,7 +2355,7 @@ AgentTypes:
       PpaInformationForecastRequest: *GreenHydrogenProducer_P_PpaInformationForecastRequest
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
       AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
@@ -2629,8 +2629,8 @@ AgentTypes:
       BusinessModel: *EndUserTariff_G_BusinessModel
     Products:
       Bids: *DamTrader_P_Bids
-      MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
     Outputs:
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
       COP:
@@ -2734,7 +2734,10 @@ AgentTypes:
             Values:
               MAX_PROFIT_PRICE_TAKER:
                 MetaData:
-                  Description: "Assess profit using an electricity price forecast neglecting any price impact of bids"
+                  Description: "Maximise profit using an electricity price forecast neglecting any price impact of bids"
+              SINGLE_AGENT_MIN_SYSTEM_COST:
+                MetaData:
+                  Description: "Minimise system cost using a merit order forecast considering impact of own bids"
       StateDiscretisation:
         AttributeType: block
         Mandatory: true
@@ -2788,12 +2791,9 @@ AgentTypes:
             Mandatory: true
             List: false
     Products:
-      PriceForecastRequest:
-        MetaData:
-          Description: ""
-      Bids:
-        MetaData:
-          Description: ""      
+      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
+      Bids: *DamTrader_P_Bids
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       RequestedEnergyInMWH: *DamTrader_O_RequestedEnergy
