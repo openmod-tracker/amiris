@@ -31,8 +31,8 @@ public class EnergyStateManager implements StateManager {
 	private int currentOptimisationTimeIndex;
 
 	private boolean hasSelfDischarge;
-	private double[] energyDeltasCharging;
-	private double[] energyDeltasDischarging;
+	private double[] transitionValuesCharging;
+	private double[] transitionValuesDischarging;
 
 	public EnergyStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
 			double energyResolutionInMWH) {
@@ -94,22 +94,23 @@ public class EnergyStateManager implements StateManager {
 		currentOptimisationTimeIndex = (int) ((time.getStep() - startingPeriod.getStartTime().getStep())
 				/ startingPeriod.getDuration().getSteps());
 		if (!hasSelfDischarge) {
-			cacheEnergyDeltas();
+			cacheTransitionValues();
 		}
 	}
 
-	/** Cache deltas between energy levels - only applicable without self discharge */
-	private void cacheEnergyDeltas() {
+	/** Cache values of transitions - only applicable without self discharge */
+	private void cacheTransitionValues() {
 		int maxChargingSteps = (int) Math.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH);
-		energyDeltasCharging = new double[maxChargingSteps + 1];
+		transitionValuesCharging = new double[maxChargingSteps + 1];
 		for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
-			energyDeltasCharging[chargingSteps] = deviceCache.simulateTransition(0, chargingSteps * energyResolutionInMWH);
+			double externalEnergyDeltaInMWH = deviceCache.simulateTransition(0, chargingSteps * energyResolutionInMWH);
+			transitionValuesCharging[chargingSteps] = assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 		}
 		int maxDischargingSteps = -(int) Math.ceil(deviceCache.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH);
-		energyDeltasDischarging = new double[maxDischargingSteps + 1];
+		transitionValuesDischarging = new double[maxDischargingSteps + 1];
 		for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
-			energyDeltasDischarging[dischargingSteps] = deviceCache.simulateTransition(0,
-					-dischargingSteps * energyResolutionInMWH);
+			double externalEnergyDeltaInMWH = deviceCache.simulateTransition(0, -dischargingSteps * energyResolutionInMWH);
+			transitionValuesDischarging[dischargingSteps] = assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 		}
 	}
 
@@ -144,26 +145,13 @@ public class EnergyStateManager implements StateManager {
 
 	@Override
 	public double getTransitionValueFor(int initialStateIndex, int finalStateIndex) {
-		// TODO: cache whole transition if possible, including assessment!
-		double externalEnergyDeltaInMWH = getEnergyDeltaInMWH(initialStateIndex, finalStateIndex);
-		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
-	}
-
-	/** @return energy delta corresponding to given indices of initial and final state */
-	private double getEnergyDeltaInMWH(int initialStateIndex, int finalStateIndex) {
 		if (!hasSelfDischarge) {
-			return getCachedEnergyDeltaInMWH(initialStateIndex, finalStateIndex);
+			int stateDelta = finalStateIndex - initialStateIndex;
+			return stateDelta >= 0 ? transitionValuesCharging[stateDelta] : transitionValuesDischarging[-stateDelta];
 		}
-		return getSimulatedEnergyDeltaInMWH(initialStateIndex, finalStateIndex);
-	}
-
-	private double getCachedEnergyDeltaInMWH(int initialStateIndex, int finalStateIndex) {
-		int stateDelta = finalStateIndex - initialStateIndex;
-		return stateDelta >= 0 ? energyDeltasCharging[stateDelta] : energyDeltasDischarging[-stateDelta];
-	}
-
-	private double getSimulatedEnergyDeltaInMWH(int initialStateIndex, int finalStateIndex) {
-		return deviceCache.simulateTransition(indexToEnergy(initialStateIndex), indexToEnergy(finalStateIndex));
+		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
+				indexToEnergy(finalStateIndex));
+		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
 
 	/** @return energy content corresponding to the given index */
