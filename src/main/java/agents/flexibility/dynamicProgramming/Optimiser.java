@@ -31,7 +31,7 @@ public final class Optimiser {
 	private final StateManager stateManager;
 	private final BidScheduler bidScheduler;
 	private final double initialAssessmentValue;
-	private final Target target;
+	private final boolean isMaximisation;
 
 	/** Instantiates new {@link Optimiser}
 	 * 
@@ -41,8 +41,8 @@ public final class Optimiser {
 	public Optimiser(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
 		this.bidScheduler = bidScheduler;
-		this.target = target;
-		initialAssessmentValue = target == Target.MAXIMISE ? -Double.MAX_VALUE : Double.MAX_VALUE;
+		isMaximisation = target == Target.MAXIMISE;
+		initialAssessmentValue = isMaximisation ? -Double.MAX_VALUE : Double.MAX_VALUE;
 	}
 
 	public BidSchedule createSchedule(TimePeriod startingPeriod) {
@@ -80,10 +80,11 @@ public final class Optimiser {
 
 	/** @return true if given value is better than provided bestValue, false otherwise */
 	private boolean compare(double value, double bestValue) {
-		if (target == Target.MAXIMISE) {
+		if (isMaximisation) {
 			return value > bestValue;
+		} else {
+			return value < bestValue;
 		}
-		return value < bestValue;
 	}
 
 	/** Calculates how many specified time periods fit into the given time horizon
