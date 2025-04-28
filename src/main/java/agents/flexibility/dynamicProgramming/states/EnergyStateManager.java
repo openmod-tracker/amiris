@@ -100,13 +100,14 @@ public class EnergyStateManager implements StateManager {
 
 	/** Cache values of transitions - only applicable without self discharge */
 	private void cacheTransitionValues() {
-		int maxChargingSteps = (int) Math.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH);
+		int maxChargingSteps = (int) Math.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH) + 1;
 		transitionValuesCharging = new double[maxChargingSteps + 1];
 		for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
 			double externalEnergyDeltaInMWH = deviceCache.simulateTransition(0, chargingSteps * energyResolutionInMWH);
 			transitionValuesCharging[chargingSteps] = assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 		}
-		int maxDischargingSteps = -(int) Math.ceil(deviceCache.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH);
+		int maxDischargingSteps = -(int) Math.ceil(deviceCache.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH)
+				+ 1;
 		transitionValuesDischarging = new double[maxDischargingSteps + 1];
 		for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
 			double externalEnergyDeltaInMWH = deviceCache.simulateTransition(0, -dischargingSteps * energyResolutionInMWH);
