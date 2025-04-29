@@ -27,7 +27,7 @@ public class MaxProfit implements AssessmentFunction {
 
 	@Override
 	public double assessTransition(double externalEnergyDeltaInMWH) {
-		return currentSensitivity.getValue(externalEnergyDeltaInMWH);
+		return -externalEnergyDeltaInMWH * currentSensitivity.getValue(externalEnergyDeltaInMWH);
 	}
 
 	@Override

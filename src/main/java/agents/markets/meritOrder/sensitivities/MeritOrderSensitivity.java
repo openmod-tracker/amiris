@@ -129,10 +129,10 @@ public abstract class MeritOrderSensitivity {
 		}
 	}
 
-	/** Return marginal cost delta for given external energy
+	/** Return value for given external energy
 	 * 
 	 * @param externalEnergyDeltaInMWH &gt;0: charging, &lt;0: discharging
-	 * @return marginal cost delta in EUR */
+	 * @return value */
 	public double getValue(double externalEnergyDeltaInMWH) {
 		if (externalEnergyDeltaInMWH > 0) {
 			return getValueCharging(externalEnergyDeltaInMWH);
