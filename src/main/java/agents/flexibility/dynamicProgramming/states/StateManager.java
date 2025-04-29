@@ -37,15 +37,30 @@ public interface StateManager {
 	 * @param time to be assessed */
 	void prepareFor(TimeStamp time);
 
-	/** Retrieve list of initial states indices at prepared time
+	/** Tells whether {@link #getInitialStates()} and {@link #getFinalStates(int)} return a complete list of available states or
+	 * just first and last index (inclusive)
 	 * 
-	 * @return all states available at prepared time */
+	 * @return true, if full state lists are returned; false, if exactly the first and last index are returned */
+	boolean useStateList();
+
+	/** Retrieve indices of initial states at prepared time; return value depends on result of {@link #useStateList()}:
+	 * <ul>
+	 * <li>if true, a complete list of available initial state indices is returned</li>
+	 * <li>if false, only the first and last (inclusive) initial state index is returned</li>
+	 * </ul>
+	 * 
+	 * @return state indices available at prepared time */
 	int[] getInitialStates();
 
-	/** Retrieve list of possible final state indices for given initial state index at prepared time
+	/** Retrieve indices of possible final state for given initial state index at prepared time; return value depends on result of
+	 * {@link #useStateList()}:
+	 * <ul>
+	 * <li>if true, a complete list of available final state indices is returned</li>
+	 * <li>if false, only the first and last (inclusive) final state index is returned</li>
+	 * </ul>
 	 * 
 	 * @param initialStateIndex index of state at the begin of a transition
-	 * @return all possible transition final states reachable from given initial state */
+	 * @return final state indices reachable from given initial state at prepared time */
 	int[] getFinalStates(int initialStateIndex);
 
 	/** Get a transition value from the transition from an initial to a final state

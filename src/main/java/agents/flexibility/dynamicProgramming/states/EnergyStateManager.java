@@ -115,10 +115,15 @@ public class EnergyStateManager implements StateManager {
 	}
 
 	@Override
+	public boolean useStateList() {
+		return false;
+	}
+	
+	@Override
 	public int[] getInitialStates() {
 		final int lowestIndex = energyToCeilIndex(deviceCache.getEnergyContentLowerLimitInMWH());
 		final int highestIndex = energyToFloorIndex(deviceCache.getEnergyContentUpperLimitInMWH());
-		return buildArrayFromTo(lowestIndex, highestIndex);
+		return new int[] {lowestIndex, highestIndex};
 	}
 
 	/** @return next lower index corresponding to given energy level */
@@ -133,23 +138,12 @@ public class EnergyStateManager implements StateManager {
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
-	/** @return a new array of integers, starting at lowestIndex and ending at highestIndex (inclusive) */
-	private static int[] buildArrayFromTo(final int lowestIndex, final int highestIndex) {
-		final int[] result = new int[highestIndex - lowestIndex + 1];
-		int arrayIndex = 0;
-		for (int index = lowestIndex; index <= highestIndex; index++) {
-			result[arrayIndex] = index;
-			arrayIndex++;
-		}
-		return result;
-	}
-
 	@Override
 	public int[] getFinalStates(int initialStateIndex) {
 		final double initialEnergyContentInMWH = initialStateIndex * energyResolutionInMWH;
 		final double lowestEnergyContentInMWH = deviceCache.getMinTargetEnergyContentInMWH(initialEnergyContentInMWH);
 		final double highestEnergyContentInMWH = deviceCache.getMaxTargetEnergyContentInMWH(initialEnergyContentInMWH);
-		return buildArrayFromTo(energyToCeilIndex(lowestEnergyContentInMWH), energyToFloorIndex(highestEnergyContentInMWH));
+		return new int[] {energyToCeilIndex(lowestEnergyContentInMWH), energyToFloorIndex(highestEnergyContentInMWH)};
 	}
 
 	@Override
