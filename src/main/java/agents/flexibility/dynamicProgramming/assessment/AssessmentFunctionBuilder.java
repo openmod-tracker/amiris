@@ -20,6 +20,8 @@ public final class AssessmentFunctionBuilder {
 		MAX_PROFIT_PRICE_TAKER,
 		/** Minimise system cost using a merit order forecast considering impact of own bids */
 		SINGLE_AGENT_MIN_SYSTEM_COST,
+		/** Maximise profits using a merit order forecast considering impact of own bids */
+		SINGLE_AGENT_MAX_PROFIT,
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "Assessment function is not implemented: ";
@@ -31,6 +33,8 @@ public final class AssessmentFunctionBuilder {
 				return new MaxProfitPriceTaker();
 			case SINGLE_AGENT_MIN_SYSTEM_COST:
 				return new MinSystemCost();
+			case SINGLE_AGENT_MAX_PROFIT:
+				return new MaxProfit();
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
 		}
