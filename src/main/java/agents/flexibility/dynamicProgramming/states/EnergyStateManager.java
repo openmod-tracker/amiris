@@ -118,7 +118,7 @@ public class EnergyStateManager implements StateManager {
 	public boolean useStateList() {
 		return false;
 	}
-	
+
 	@Override
 	public int[] getInitialStates() {
 		final int lowestIndex = energyToCeilIndex(deviceCache.getEnergyContentLowerLimitInMWH());

@@ -79,6 +79,7 @@ public final class Optimiser {
 		}
 	}
 
+	/** Optimise using lists of initial and final state indices */
 	private void optimiseWithStateList() throws OptimisationError {
 		for (int initialStateIndex : stateManager.getInitialStates()) {
 			double bestAssessmentValue = initialAssessmentValue;
@@ -107,6 +108,7 @@ public final class Optimiser {
 		}
 	}
 
+	/** Optimise using lowest and highest state index */
 	private void optimiseWithBoundaries() throws OptimisationError {
 		int[] initialBoundaries = stateManager.getInitialStates();
 		for (int initialStateIndex = initialBoundaries[0]; initialStateIndex <= initialBoundaries[1]; initialStateIndex++) {
