@@ -70,11 +70,10 @@ public interface StateManager {
 	 * @return value of the transition between two states */
 	double getTransitionValueFor(int initialStateIndex, int finalStateIndex);
 
-	/** Get best assessment function value available for final state index
+	/** Get best assessment values for all states in the next period
 	 * 
-	 * @param finalStateIndex to get the best assessment value for
-	 * @return best assessment known for given final state */
-	double getBestValueNextPeriod(int finalStateIndex);
+	 * @return best assessment known for states in the next period */
+	double[] getBestValuesNextPeriod();
 
 	/** Update the best final state for transition and log the associated best assessment value
 	 * 

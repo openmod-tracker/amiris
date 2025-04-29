@@ -168,14 +168,20 @@ public class EnergyStateManager implements StateManager {
 		return index * energyResolutionInMWH - lowestLevelEnergyInMWH;
 	}
 
-	@Override
-	public double getBestValueNextPeriod(int finalStateIndex) {
-		return currentOptimisationTimeIndex + 1 < numberOfTimeSteps
-				? bestValue[currentOptimisationTimeIndex + 1][finalStateIndex]
-				: getWaterValue();
+	public double[] getBestValuesNextPeriod() {
+		if (currentOptimisationTimeIndex + 1 < numberOfTimeSteps) {
+			return bestValue[currentOptimisationTimeIndex + 1];
+		} else {
+			double[] bestValues = new double[numberOfEnergyStates];
+			for (int index = 0; index < numberOfEnergyStates; index++) {
+				bestValues[index] = getWaterValue(index);
+			}
+			return bestValues;
+		}
 	}
 
-	private double getWaterValue() {
+	/** @return water value at given state index */
+	private double getWaterValue(int stateIndex) {
 		return 0; // TODO: implement
 	}
 

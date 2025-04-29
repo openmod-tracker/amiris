@@ -67,11 +67,12 @@ public final class Optimiser {
 			int step = stateManager.getNumberOfForecastTimeSteps() - k - 1; // step backwards in time
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(step);
 			stateManager.prepareFor(timePeriod.getStartTime());
+			double[] bestValuesNextPeriod = stateManager.getBestValuesNextPeriod();
 			try {
 				if (stateManager.useStateList()) {
-					optimiseWithStateList();
+					optimiseWithStateList(bestValuesNextPeriod);
 				} else {
-					optimiseWithBoundaries();
+					optimiseWithBoundaries(bestValuesNextPeriod);
 				}
 			} catch (OptimisationError e) {
 				throw new RuntimeException(ERR_OPTIMISATION + timePeriod, e);
@@ -80,13 +81,13 @@ public final class Optimiser {
 	}
 
 	/** Optimise using lists of initial and final state indices */
-	private void optimiseWithStateList() throws OptimisationError {
+	private void optimiseWithStateList(double[] bestValuesNextPeriod) throws OptimisationError {
 		for (int initialStateIndex : stateManager.getInitialStates()) {
 			double bestAssessmentValue = initialAssessmentValue;
 			int bestFinalStateIndex = Integer.MIN_VALUE;
 			for (int finalStateIndex : stateManager.getFinalStates(initialStateIndex)) {
 				double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
-						+ stateManager.getBestValueNextPeriod(finalStateIndex);
+						+ bestValuesNextPeriod[finalStateIndex];
 				if (compare(value, bestAssessmentValue)) {
 					bestAssessmentValue = value;
 					bestFinalStateIndex = finalStateIndex;
@@ -109,7 +110,7 @@ public final class Optimiser {
 	}
 
 	/** Optimise using lowest and highest state index */
-	private void optimiseWithBoundaries() throws OptimisationError {
+	private void optimiseWithBoundaries(double[] bestValuesNextPeriod) throws OptimisationError {
 		int[] initialBoundaries = stateManager.getInitialStates();
 		for (int initialStateIndex = initialBoundaries[0]; initialStateIndex <= initialBoundaries[1]; initialStateIndex++) {
 			double bestAssessmentValue = initialAssessmentValue;
@@ -117,7 +118,7 @@ public final class Optimiser {
 			int[] finalBoundaries = stateManager.getFinalStates(initialStateIndex);
 			for (int finalStateIndex = finalBoundaries[0]; finalStateIndex <= finalBoundaries[1]; finalStateIndex++) {
 				double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
-						+ stateManager.getBestValueNextPeriod(finalStateIndex);
+						+ bestValuesNextPeriod[finalStateIndex];
 				if (compare(value, bestAssessmentValue)) {
 					bestAssessmentValue = value;
 					bestFinalStateIndex = finalStateIndex;
