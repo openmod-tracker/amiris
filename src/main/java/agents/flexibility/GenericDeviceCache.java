@@ -79,7 +79,7 @@ public class GenericDeviceCache {
 	 * @return maximum reachable energy content for given initial energy content in MWh */
 	public double getMaxTargetEnergyContentInMWH(double initialEnergyContentInMWH) {
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - effectiveSelfDischargeRate) + maxNetChargingEnergyInMWH;
-		return Math.min(targetEnergyInMWH, energyContentUpperLimitInMWH);
+		return Math.min(energyContentUpperLimitInMWH, targetEnergyInMWH);
 	}
 
 	/** Returns the minimum reachable internal energy content by applying maximum discharging power for the specified duration and
@@ -92,7 +92,7 @@ public class GenericDeviceCache {
 	public double getMinTargetEnergyContentInMWH(double initialEnergyContentInMWH) {
 		double targetEnergyInMWH = initialEnergyContentInMWH * (1 - effectiveSelfDischargeRate)
 				+ maxNetDischargingEnergyInMWH;
-		return Math.max(targetEnergyInMWH, energyContentLowerLimitInMWH);
+		return Math.max(energyContentLowerLimitInMWH, targetEnergyInMWH);
 	}
 
 	/** Simulates a transition at the currently cached time ignoring its current energy level, but starting from a given initial
