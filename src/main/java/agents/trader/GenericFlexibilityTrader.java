@@ -81,7 +81,10 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 
 		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
+				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateForecast).onAndUse(Forecaster.Products.PriceForecast);
+		call(this::updateForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 	}

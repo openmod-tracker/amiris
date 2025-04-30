@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility.dynamicProgramming;
 
-import java.util.function.BiFunction;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.GenericDevice;
 import agents.flexibility.dynamicProgramming.bidding.BidScheduler;
@@ -19,7 +18,15 @@ import de.dlr.gitlab.fame.time.TimePeriod;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public final class Optimiser {
-	static final String ERR_NO_FEASIBLE_SOLUTION = "No feasible transition found for time period: ";
+	static final String ERR_NO_FEASIBLE_SOLUTION = "No feasible transition found.";
+	static final String ERR_OPTIMISATION = "Optimisation failed for TimePeriod: ";
+
+	@SuppressWarnings("serial")
+	private class OptimisationError extends Exception {
+		public OptimisationError(String message) {
+			super(message);
+		}
+	}
 
 	/** Optimisation target */
 	public enum Target {
@@ -31,8 +38,8 @@ public final class Optimiser {
 
 	private final StateManager stateManager;
 	private final BidScheduler bidScheduler;
-	private final BiFunction<Double, Double, Boolean> comparison;
 	private final double initialAssessmentValue;
+	private final boolean isMaximisation;
 
 	/** Instantiates new {@link Optimiser}
 	 * 
@@ -42,8 +49,8 @@ public final class Optimiser {
 	public Optimiser(StateManager stateManager, BidScheduler bidScheduler, Target target) {
 		this.stateManager = stateManager;
 		this.bidScheduler = bidScheduler;
-		comparison = target == Target.MAXIMISE ? (v, b) -> v > b : (v, b) -> v < b;
-		initialAssessmentValue = target == Target.MAXIMISE ? -Double.MAX_VALUE : Double.MAX_VALUE;
+		isMaximisation = target == Target.MAXIMISE;
+		initialAssessmentValue = isMaximisation ? -Double.MAX_VALUE : Double.MAX_VALUE;
 	}
 
 	public BidSchedule createSchedule(TimePeriod startingPeriod) {
@@ -60,22 +67,67 @@ public final class Optimiser {
 			int step = stateManager.getNumberOfForecastTimeSteps() - k - 1; // step backwards in time
 			TimePeriod timePeriod = startingPeriod.shiftByDuration(step);
 			stateManager.prepareFor(timePeriod.getStartTime());
-			for (int initialStateIndex : stateManager.getInitialStates()) {
-				double bestAssessmentValue = initialAssessmentValue;
-				int bestFinalStateIndex = Integer.MIN_VALUE;
-				for (int finalStateIndex : stateManager.getFinalStates(initialStateIndex)) {
-					double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
-							+ stateManager.getBestValueNextPeriod(finalStateIndex);
-					if (comparison.apply(value, bestAssessmentValue)) {
-						bestAssessmentValue = value;
-						bestFinalStateIndex = finalStateIndex;
-					}
+			double[] bestValuesNextPeriod = stateManager.getBestValuesNextPeriod();
+			try {
+				if (stateManager.useStateList()) {
+					optimiseWithStateList(bestValuesNextPeriod);
+				} else {
+					optimiseWithBoundaries(bestValuesNextPeriod);
 				}
-				if (bestFinalStateIndex == Integer.MIN_VALUE) {
-					throw new RuntimeException(ERR_NO_FEASIBLE_SOLUTION + timePeriod);
-				}
-				stateManager.updateBestFinalState(initialStateIndex, bestFinalStateIndex, bestAssessmentValue);
+			} catch (OptimisationError e) {
+				throw new RuntimeException(ERR_OPTIMISATION + timePeriod, e);
 			}
+		}
+	}
+
+	/** Optimise using lists of initial and final state indices */
+	private void optimiseWithStateList(double[] bestValuesNextPeriod) throws OptimisationError {
+		for (int initialStateIndex : stateManager.getInitialStates()) {
+			double bestAssessmentValue = initialAssessmentValue;
+			int bestFinalStateIndex = Integer.MIN_VALUE;
+			for (int finalStateIndex : stateManager.getFinalStates(initialStateIndex)) {
+				double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
+						+ bestValuesNextPeriod[finalStateIndex];
+				if (compare(value, bestAssessmentValue)) {
+					bestAssessmentValue = value;
+					bestFinalStateIndex = finalStateIndex;
+				}
+			}
+			if (bestFinalStateIndex == Integer.MIN_VALUE) {
+				throw new OptimisationError(ERR_NO_FEASIBLE_SOLUTION);
+			}
+			stateManager.updateBestFinalState(initialStateIndex, bestFinalStateIndex, bestAssessmentValue);
+		}
+	}
+
+	/** @return true if given value is better than provided bestValue, false otherwise */
+	private boolean compare(double value, double bestValue) {
+		if (isMaximisation) {
+			return value > bestValue;
+		} else {
+			return value < bestValue;
+		}
+	}
+
+	/** Optimise using lowest and highest state index */
+	private void optimiseWithBoundaries(double[] bestValuesNextPeriod) throws OptimisationError {
+		int[] initialBoundaries = stateManager.getInitialStates();
+		for (int initialStateIndex = initialBoundaries[0]; initialStateIndex <= initialBoundaries[1]; initialStateIndex++) {
+			double bestAssessmentValue = initialAssessmentValue;
+			int bestFinalStateIndex = Integer.MIN_VALUE;
+			int[] finalBoundaries = stateManager.getFinalStates(initialStateIndex);
+			for (int finalStateIndex = finalBoundaries[0]; finalStateIndex <= finalBoundaries[1]; finalStateIndex++) {
+				double value = stateManager.getTransitionValueFor(initialStateIndex, finalStateIndex)
+						+ bestValuesNextPeriod[finalStateIndex];
+				if (compare(value, bestAssessmentValue)) {
+					bestAssessmentValue = value;
+					bestFinalStateIndex = finalStateIndex;
+				}
+			}
+			if (bestFinalStateIndex == Integer.MIN_VALUE) {
+				throw new OptimisationError(ERR_NO_FEASIBLE_SOLUTION);
+			}
+			stateManager.updateBestFinalState(initialStateIndex, bestFinalStateIndex, bestAssessmentValue);
 		}
 	}
 

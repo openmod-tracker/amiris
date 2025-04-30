@@ -12,7 +12,7 @@ import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Assess profit of transitions using an electricity price forecast neglecting any price impact of bids
+/** Maximise profit of transitions using an electricity price forecast neglecting any price impact of bids
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class MaxProfitPriceTaker implements AssessmentFunction {
@@ -31,18 +31,12 @@ public class MaxProfitPriceTaker implements AssessmentFunction {
 
 	@Override
 	public void clearBefore(TimeStamp time) {
-		electricityPriceForecastsInEURperMWH.headMap(time).clear();
+		Util.clearMapBefore(electricityPriceForecastsInEURperMWH, time);
 	}
 
 	@Override
 	public ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> requiredTimes) {
-		ArrayList<TimeStamp> missingTimes = new ArrayList<>();
-		for (TimeStamp time : requiredTimes) {
-			if (!electricityPriceForecastsInEURperMWH.containsKey(time)) {
-				missingTimes.add(time);
-			}
-		}
-		return missingTimes;
+		return Util.findMissingKeys(electricityPriceForecastsInEURperMWH, requiredTimes);
 	}
 
 	@Override

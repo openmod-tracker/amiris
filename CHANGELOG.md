@@ -12,6 +12,8 @@ SPDX-License-Identifier: CC0-1.0 -->
 ### Added
 - Add new package `dynamicProgramming` for controlling dynamic programming algorithms for flexibility scheduling #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add new class `GenericDevice` that represents a generic electrical flexibility #115 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add AssessmentFunction `MinSystemCost` #154 (@dlr-cjs)
+- Add AssessmentFunction `MaxProfit` #154 (@dlr-cjs)
 - Add optional "Refinancing" parameters for `GreenHydrogenTrader` #149 (@dlr_jk)
 - Add JSONable interface for UrlModelService input classes #151 (@dlr_elghazi, @dlr-cjs)
 - Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
