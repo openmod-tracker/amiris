@@ -18,9 +18,9 @@ public final class AssessmentFunctionBuilder {
 	enum Type {
 		/** Maximise profit using an electricity price forecast neglecting any price impact of bids */
 		MAX_PROFIT_PRICE_TAKER,
-		/** Minimise system cost using a merit order forecast considering impact of own bids */
+		/** Minimise total system costs using a merit order forecast that takes into account the impact of own bids */
 		SINGLE_AGENT_MIN_SYSTEM_COST,
-		/** Maximise profits using a merit order forecast considering impact of own bids */
+		/** Maximise own profits using a merit order forecast that takes into account the impact of own bids */
 		SINGLE_AGENT_MAX_PROFIT,
 	}
 
