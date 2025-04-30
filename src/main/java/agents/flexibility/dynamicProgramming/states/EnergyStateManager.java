@@ -113,8 +113,6 @@ public class EnergyStateManager implements StateManager {
 		transitionValuesDischarging = new double[maxDischargingSteps + 1];
 		for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
 			transitionValuesDischarging[dischargingSteps] = calcValueFor(0, -dischargingSteps);
-			double externalEnergyDeltaInMWH = deviceCache.simulateTransition(0, -dischargingSteps * energyResolutionInMWH);
-			transitionValuesDischarging[dischargingSteps] = assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 		}
 	}
 
