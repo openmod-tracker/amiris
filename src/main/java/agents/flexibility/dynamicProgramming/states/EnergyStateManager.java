@@ -15,6 +15,9 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class EnergyStateManager implements StateManager {
+	/** Added to floating point calculation of transition steps to avoid rounding errors */
+	private static final double PRECISION_GUARD = 1E-5;
+
 	private final GenericDevice device;
 	private final GenericDeviceCache deviceCache;
 	private final AssessmentFunction assessmentFunction;
@@ -99,13 +102,14 @@ public class EnergyStateManager implements StateManager {
 
 	/** Cache values of transitions - only applicable without self discharge */
 	private void cacheTransitionValuesNoSelfDischarge() {
-		int maxChargingSteps = (int) Math.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH) + 1;
+		int maxChargingSteps = (int) Math
+				.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH + PRECISION_GUARD);
 		transitionValuesCharging = new double[maxChargingSteps + 1];
 		for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
 			transitionValuesCharging[chargingSteps] = calcValueFor(0, chargingSteps);
 		}
-		int maxDischargingSteps = -(int) Math.ceil(deviceCache.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH)
-				+ 1;
+		int maxDischargingSteps = -(int) Math
+				.ceil(deviceCache.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH - PRECISION_GUARD);
 		transitionValuesDischarging = new double[maxDischargingSteps + 1];
 		for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
 			transitionValuesDischarging[dischargingSteps] = calcValueFor(0, -dischargingSteps);
@@ -128,13 +132,13 @@ public class EnergyStateManager implements StateManager {
 
 	/** @return next lower index corresponding to given energy level */
 	private int energyToFloorIndex(double energyAmountInMWH) {
-		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
+		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH + PRECISION_GUARD) * energyResolutionInMWH;
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
 	/** @return next higher index corresponding to given energy level */
 	private int energyToCeilIndex(double energyAmountInMWH) {
-		double energyLevel = Math.ceil(energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
+		double energyLevel = Math.ceil(energyAmountInMWH / energyResolutionInMWH - PRECISION_GUARD) * energyResolutionInMWH;
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
