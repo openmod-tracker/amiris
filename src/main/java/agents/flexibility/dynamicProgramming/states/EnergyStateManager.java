@@ -93,12 +93,12 @@ public class EnergyStateManager implements StateManager {
 		currentOptimisationTimeIndex = (int) ((time.getStep() - startingPeriod.getStartTime().getStep())
 				/ startingPeriod.getDuration().getSteps());
 		if (!hasSelfDischarge) {
-			cacheTransitionValues();
+			cacheTransitionValuesNoSelfDischarge();
 		}
 	}
 
 	/** Cache values of transitions - only applicable without self discharge */
-	private void cacheTransitionValues() {
+	private void cacheTransitionValuesNoSelfDischarge() {
 		int maxChargingSteps = (int) Math.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH) + 1;
 		transitionValuesCharging = new double[maxChargingSteps + 1];
 		for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
