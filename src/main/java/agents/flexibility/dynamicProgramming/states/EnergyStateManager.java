@@ -102,13 +102,13 @@ public class EnergyStateManager implements StateManager {
 		int maxChargingSteps = (int) Math.floor(deviceCache.getMaxNetChargingEnergyInMWH() / energyResolutionInMWH) + 1;
 		transitionValuesCharging = new double[maxChargingSteps + 1];
 		for (int chargingSteps = 0; chargingSteps <= maxChargingSteps; chargingSteps++) {
-			double externalEnergyDeltaInMWH = deviceCache.simulateTransition(0, chargingSteps * energyResolutionInMWH);
-			transitionValuesCharging[chargingSteps] = assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
+			transitionValuesCharging[chargingSteps] = calcValueFor(0, chargingSteps);
 		}
 		int maxDischargingSteps = -(int) Math.ceil(deviceCache.getMaxNetDischargingEnergyInMWH() / energyResolutionInMWH)
 				+ 1;
 		transitionValuesDischarging = new double[maxDischargingSteps + 1];
 		for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
+			transitionValuesDischarging[dischargingSteps] = calcValueFor(0, -dischargingSteps);
 			double externalEnergyDeltaInMWH = deviceCache.simulateTransition(0, -dischargingSteps * energyResolutionInMWH);
 			transitionValuesDischarging[dischargingSteps] = assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 		}
@@ -152,11 +152,13 @@ public class EnergyStateManager implements StateManager {
 				: getCachedValueFor(initialStateIndex, finalStateIndex);
 	}
 
+	/** @return cached value of transition, only available without self discharge */
 	private double getCachedValueFor(int initialStateIndex, int finalStateIndex) {
 		int stateDelta = finalStateIndex - initialStateIndex;
 		return stateDelta >= 0 ? transitionValuesCharging[stateDelta] : transitionValuesDischarging[-stateDelta];
 	}
 
+	/** @return calculated value of transition */
 	private double calcValueFor(int initialStateIndex, int finalStateIndex) {
 		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
 				indexToEnergy(finalStateIndex));
@@ -168,21 +170,17 @@ public class EnergyStateManager implements StateManager {
 		return index * energyResolutionInMWH - lowestLevelEnergyInMWH;
 	}
 
+	@Override
 	public double[] getBestValuesNextPeriod() {
 		if (currentOptimisationTimeIndex + 1 < numberOfTimeSteps) {
 			return bestValue[currentOptimisationTimeIndex + 1];
 		} else {
 			double[] bestValues = new double[numberOfEnergyStates];
 			for (int index = 0; index < numberOfEnergyStates; index++) {
-				bestValues[index] = getWaterValue(index);
+				bestValues[index] = 0;
 			}
 			return bestValues;
 		}
-	}
-
-	/** @return water value at given state index */
-	private double getWaterValue(int stateIndex) {
-		return 0; // TODO: implement
 	}
 
 	@Override
