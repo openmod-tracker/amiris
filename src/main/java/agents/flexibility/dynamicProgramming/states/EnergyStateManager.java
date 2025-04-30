@@ -132,7 +132,8 @@ public class EnergyStateManager implements StateManager {
 
 	/** @return next lower index corresponding to given energy level */
 	private int energyToFloorIndex(double energyAmountInMWH) {
-		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH + PRECISION_GUARD) * energyResolutionInMWH;
+		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH + PRECISION_GUARD)
+				* energyResolutionInMWH;
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
