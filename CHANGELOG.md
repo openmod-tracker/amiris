@@ -3,6 +3,7 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 ## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - 2025-05-05
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
 - Change data type of `ImportCostInEURperMWH` to time series #150 (@dlr_jk)
 - Rename `Strategist` in `dynamicProgramming` to `Optimiser` #156 (@dlr-cjs)
