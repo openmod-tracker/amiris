@@ -210,7 +210,7 @@ AgentTypes:
               Description: "Amount of Energy from imports to be offered at energy exchange in MW"
               OEONearestConcept:
           ImportCostInEURperMWH:
-            AttributeType: double
+            AttributeType: time_series
             Mandatory: true
             List: false
             help: "Costs at which imports are offered at energy exchange in EUR/MWh"
@@ -551,7 +551,7 @@ AgentTypes:
 
   StorageTrader:
     Attributes:
-      Refinancing: &FlexibilityTrader_G_Refinancing
+      Refinancing: &AnnualCostCalculator_G_Refinancing
         AttributeType: block
         Mandatory: false
         List: false
@@ -749,11 +749,11 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      MeritOrderForecastRequest: &FlexibilityTrader_P_MeritOrderForecastRequest
+      MeritOrderForecastRequest: &ForecastClient_P_MeritOrderForecastRequest
         MetaData:
           Description: "Requests for merit-order forecasts"
           OEONearestConcept:
-      PriceForecastRequest: &FlexibilityTrader_P_PriceForecastRequest
+      PriceForecastRequest: &ForecastClient_P_PriceForecastRequest
         MetaData:
           Description: "Requests for price-forecasts"
           OEONearestConcept:
@@ -1633,7 +1633,7 @@ AgentTypes:
   ElectrolysisTrader:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
-      Refinancing: *FlexibilityTrader_G_Refinancing
+      Refinancing: *AnnualCostCalculator_G_Refinancing
       Device: &Electrolyzer_G_Device
         AttributeType: block
         Mandatory: true
@@ -1800,7 +1800,7 @@ AgentTypes:
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
       AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
@@ -1833,6 +1833,7 @@ AgentTypes:
     Attributes:
       Device: *Electrolyzer_G_Device
       FuelType: *FuelsTrader_A_FuelType
+      Refinancing: *AnnualCostCalculator_G_Refinancing
     Products:
       PpaInformationRequest: &GreenHydrogenProducer_P_PpaInformationRequest
         MetaData:
@@ -1842,6 +1843,7 @@ AgentTypes:
         MetaData:
           Description: "Request for available power and price at a future time from a renewable power plant operator contracted via a Power Purchase Agreement"
           OEONearestConcept:
+      AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
       FuelBid: *FuelsTrader_P_FuelBid
@@ -2258,8 +2260,8 @@ AgentTypes:
       Payout: *PowerPlantScheduler_P_Payout
       DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
       BidsForecast: *Trader_P_BidsForecast
-      MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
       GateClosureForward: *TraderWithClients_P_GateClosureForward
       ForecastRequestForward: *TraderWithClients_P_ForecastRequestForward
     Outputs:
@@ -2322,7 +2324,7 @@ AgentTypes:
   GreenHydrogenTraderMonthly:
     Attributes:
       FuelType: *FuelsTrader_A_FuelType
-      Refinancing: *FlexibilityTrader_G_Refinancing
+      Refinancing: *AnnualCostCalculator_G_Refinancing
       Device: *Electrolyzer_G_Device
       Strategy:
         AttributeType: block
@@ -2353,7 +2355,7 @@ AgentTypes:
       PpaInformationForecastRequest: *GreenHydrogenProducer_P_PpaInformationForecastRequest
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
       AnnualCostReport: *FlexibilityTrader_P_AnnualCostReport
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
@@ -2627,8 +2629,8 @@ AgentTypes:
       BusinessModel: *EndUserTariff_G_BusinessModel
     Products:
       Bids: *DamTrader_P_Bids
-      MeritOrderForecastRequest: *FlexibilityTrader_P_MeritOrderForecastRequest
-      PriceForecastRequest: *FlexibilityTrader_P_PriceForecastRequest
+      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
     Outputs:
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
       COP:
@@ -2646,3 +2648,181 @@ AgentTypes:
     MetaData:
       Description: "HeatPumpTrader is a type of FlexibilityTrader that aggregates heat pumps in buildings and arranges procurement at the DayAheadMarket. Different strategies can be used to calculate the electricity demand of heat pumps. Heat pumps can be either dispatched according to heat demand or optimised according to spot market price forecasts."
       OEONearestConcept:
+  GenericFlexibilityTrader:
+    Attributes:
+      Refinancing: *AnnualCostCalculator_G_Refinancing
+      Device:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "A generic device representing any kind of electrical flexibility, e.g., pumped-hydro storages with inflow, reservoir storages, heat pumps, electric vehicle fleets, or load-shifting portfolios."
+        NestedAttributes:
+          GrossChargingPowerInMW:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Gross maximum power for charging in MW drawn from the grid (external power)"
+          NetDischargingPowerInMW:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Net maximum power from discharging provided to grid (external power)"
+          ChargingEfficiency:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 1.
+            MetaData:
+              Description: "Ratio between gross discharged energy drawn from the grid to net energy charging the flexibility device."
+              OEONearestConcept: OEO_00140050
+          DischargingEfficiency:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 1.
+            MetaData:
+              Description: "Ratio between gross discharged energy from flexibility device to net energy fed to the grid."
+              OEONearestConcept: OEO_00140050
+          EnergyContentUpperLimitInMWH:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Maximum internal energy content of the flexibility device"
+          EnergyContentLowerLimitInMWH:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: "Minimum internal energy content of the flexibility device"
+          SelfDischargeRatePerHour:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: "Hourly rate of energy loss relative to state of charge at beginning of each time interval; 0 means no self discharge; value between 0 and 1"
+          NetInflowPowerInMW:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: "Net inflow energy into the flexibility device (no charging efficiency applied; positive values are inflows, negative values represent outflows"
+          InitialEnergyContentInMWH:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: "The internal state of charge in MWH at the beginnig of the simulation"
+      Assessment:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Configuration on how to assess the value of flexibility device states."
+        NestedAttributes:
+          Type:
+            MetaData:
+              Description: "The type of assessment function"
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              MAX_PROFIT_PRICE_TAKER:
+                MetaData:
+                  Description: "Maximise profit using an electricity price forecast neglecting any price impact of bids"
+              SINGLE_AGENT_MIN_SYSTEM_COST:
+                MetaData:
+                  Description: "Minimise total system costs using a merit order forecast that takes into account the impact of own bids"
+              SINGLE_AGENT_MAX_PROFIT:
+                MetaData:
+                  Description: "Maximise own profits using a merit order forecast that takes into account the impact of own bids"
+      StateDiscretisation:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Configuration on how the flexibility device states are discretized in different dimensions, e.g., time, or energy"
+        NestedAttributes:
+          Type:
+            MetaData:
+              Description: "The type of state manager to use"
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              STATE_OF_CHARGE:
+                MetaData:
+                  Description: "Represent energy states of an electricity storage device"
+          PlanningHorizonInHours:
+            MetaData:
+              Description: "Foresight time length in hours. Must be smaller or equal to that of the contracted Forecaster"
+            AttributeType: double
+            Mandatory: true
+            List: false
+          EnergyResolutionInMWH:
+            MetaData:
+              Description: "Resolution of the energy discretisation; lower values represent a higher resolution and better precision of planning, but come with (quadratically) higher calculation efforts."
+            AttributeType: double
+            Mandatory: true
+            List: false
+      Bidding:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        MetaData:
+          Description: "Configuration on how to create bids from an optimised dispatch schedule"
+        NestedAttributes:
+          Type:
+            MetaData:
+              Description: "The type of bid scheduler"
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              ENSURE_DISPATCH:
+                MetaData:
+                  Description: "Ensure planned dispatch is fulfilled by bidding at technical price limits"
+          SchedulingHorizonInHours:
+            MetaData:
+              Description: "Number time length each created schedule is viable in hours; should be significantly larger than the flexibilities energy-to-power ratio."
+            AttributeType: double
+            Mandatory: true
+            List: false
+    Products:
+      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
+      Bids: *DamTrader_P_Bids
+    Outputs:
+      OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
+      RequestedEnergyInMWH: *DamTrader_O_RequestedEnergy
+      AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
+      VariableCostsInEUR:
+        MetaData:
+          Description: "Variable operation and maintenance costs in EUR"
+      ReceivedMoneyInEUR:
+        MetaData:
+          Description: "Total received money in EUR"
+      OfferedChargePriceInEURperMWH:
+        MetaData:
+          Description: "Offered price for charging in EUR per MWh"
+      OfferedDischargePriceInEURperMWH:
+        MetaData:
+          Description: "Offered price for discharging in EUR per MWh"
+      AwardedChargeEnergyInMWH:
+        MetaData:
+          Description: "Total amount of charge energy awarded in MWh"
+      AwardedDischargeEnergyInMWH:
+        MetaData:
+          Description: "Total amount of discharge energy awarded in MWh"
+      StoredEnergyInMWH:
+        MetaData:
+          Description: "Amount of energy in stored in flexibility device in MWh after executing (dis-)charging actions in the current time step"
+    MetaData:
+      Description: "Trader that operates a generic flexibility device, e.g., a battery storage, pumped-hydro storage, load shifting, heat pumps..."

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
@@ -51,7 +51,7 @@ public class PredefinedPlantBuilder extends PlantBuildingManager {
 		boolean isFirstBuild = portfolio.getPowerPlantList().isEmpty();
 		if (isFirstBuild) {
 			addPlantsAt(targetTime, deliveryInterval);
-		} 
+		}
 		addPlantsAt(targetTime.laterBy(deliveryInterval), deliveryInterval);
 	}
 
@@ -60,7 +60,7 @@ public class PredefinedPlantBuilder extends PlantBuildingManager {
 		setupPlants(blockSizeInMW, getPlannedPowerAt(targetTime), getMinEfficiencyAt(targetTime),
 				getMaxEfficiencyAt(targetTime), targetTime.getStep(), tearDownTime.getStep(), roundingPrecision);
 	}
-	
+
 	/** Creates new {@link PowerPlant}s which are added to the portfolio, sorted from lowest to highest efficiency
 	 * 
 	 * @param blockSizeInMW nominal capacity of each (but the final) created power plant block
@@ -79,7 +79,8 @@ public class PredefinedPlantBuilder extends PlantBuildingManager {
 		double remainingPowerInMW = installedCapacityInMW;
 		for (int plantIndex = 0; plantIndex < efficiencySet.size(); plantIndex++) {
 			double powerOfPlant = Math.min(remainingPowerInMW, blockSizeInMW);
-			PowerPlant powerPlant = new PowerPlant(prototypeData, efficiencySet.get(plantIndex), powerOfPlant, "Auto_" + plantIndex);
+			PowerPlant powerPlant = new PowerPlant(prototypeData, efficiencySet.get(plantIndex), powerOfPlant,
+					"Auto_" + plantIndex);
 			powerPlant.setConstructionTimeStep(constructionTimeStep);
 			powerPlant.setTearDownTimeStep(tearDownTimeStep);
 			portfolio.addPlant(powerPlant);

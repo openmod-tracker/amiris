@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -28,7 +28,7 @@ public abstract class Trader extends Agent implements DayAheadMarketTrader {
 	public static enum Products {
 		/** Forecasts of Bids sent to Forecasters */
 		BidsForecast,
-	};
+	}
 
 	/** Creates a {@link Trader}
 	 * 

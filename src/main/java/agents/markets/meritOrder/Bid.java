@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
@@ -10,7 +10,7 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 /** A bid offering or requesting a given amount of energy for a specified price
  * 
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
-public class Bid implements Portable , Cloneable {
+public class Bid implements Portable, Cloneable {
 	private double offerPriceInEURperMWH;
 	private double energyAmountInMWH;
 	private double marginalCostInEURperMWH = Double.NaN;

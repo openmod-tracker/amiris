@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder.sensitivities;
@@ -19,10 +19,17 @@ public abstract class MeritOrderSensitivity {
 	protected double externalChargingPowerInMW;
 	/** maximum external discharging power &gt; 0 of the associated flexibility device */
 	protected double externalDischargingPowerInMW;
-	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the associated flexibility device */
+	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the
+	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();
-	/** list of changes (in terms of cumulated power and price) in the merit order for all possible discharging events of the associated flexibility device */
+	/** list of changes (in terms of cumulated power and price) in the merit order for all possible discharging events of the
+	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
+
+	int lastChargeIndex = 0;
+	int lastDischargeIndex = 0;
+	double lastChargeEnergy = 0.;
+	double lastDischargeEnergy = 0.;
 
 	/** sets maximum charging and discharging powers in MW according to specified values
 	 * 
@@ -44,8 +51,6 @@ public abstract class MeritOrderSensitivity {
 		dischargingItems.sort(getComparator().reversed());
 		setCumulativeValues(chargingItems);
 		setCumulativeValues(dischargingItems);
-		chargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalChargingPowerInMW);
-		dischargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalDischargingPowerInMW);
 	}
 
 	/** clears stored sensitivity data */
@@ -124,6 +129,55 @@ public abstract class MeritOrderSensitivity {
 		}
 	}
 
+	/** Return value for given external energy
+	 * 
+	 * @param externalEnergyDeltaInMWH &gt;0: charging, &lt;0: discharging
+	 * @return value */
+	public double getValue(double externalEnergyDeltaInMWH) {
+		if (externalEnergyDeltaInMWH > 0) {
+			return getValueCharging(externalEnergyDeltaInMWH);
+		} else if (externalEnergyDeltaInMWH < 0) {
+			return getValueDischarging(externalEnergyDeltaInMWH);
+		}
+		return 0;
+	}
+
+	/** @return value associated with the specified energy delta when charging */
+	private double getValueCharging(double externalEnergyDeltaInMWH) {
+		int firstIndex = externalEnergyDeltaInMWH >= lastChargeEnergy ? lastChargeIndex : 0;
+		for (int index = firstIndex; index < chargingItems.size(); index++) {
+			var item = chargingItems.get(index);
+			if (item.getCumulatedUpperPower() >= externalEnergyDeltaInMWH) {
+				lastChargeEnergy = externalEnergyDeltaInMWH;
+				lastChargeIndex = index;
+				return calcValueOfItemAtPower(item, externalEnergyDeltaInMWH);
+			}
+		}
+		return Double.NaN;
+	}
+
+	/** @return value associated with the specified energy delta when discharging */
+	private double getValueDischarging(double externalEnergyDeltaInMWH) {
+		int firstIndex = externalEnergyDeltaInMWH <= lastDischargeEnergy ? lastDischargeIndex : 0;
+		for (int index = firstIndex; index < dischargingItems.size(); index++) {
+			var item = dischargingItems.get(index);
+			if (item.getCumulatedUpperPower() >= -externalEnergyDeltaInMWH) {
+				lastDischargeEnergy = externalEnergyDeltaInMWH;
+				lastDischargeIndex = index;
+				return calcValueOfItemAtPower(item, externalEnergyDeltaInMWH);
+			}
+		}
+		return Double.NaN;
+	}
+
+	/** Calculates value of given sensitivity item at specified power
+	 * 
+	 * @param item that is to be evaluated
+	 * @param power to be applied
+	 * @return value of given {@link SensitivityItem} at specified power according to this Sensitivity type;<br>
+	 *         when power &gt; 0: <b>charging</b>, otherwise <b>discharging</b> */
+	protected abstract double calcValueOfItemAtPower(SensitivityItem item, double power);
+
 	/** Calculates monetary value of given item
 	 * 
 	 * @param item to assess
@@ -137,40 +191,22 @@ public abstract class MeritOrderSensitivity {
 	 *         powers; first entry corresponds to maximum discharging power, while the last entry resembles sensitivity value at
 	 *         maximum charging power */
 	public double[] getValuesInSteps(int numberOfTransitionSteps) {
+		chargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalChargingPowerInMW);
+		dischargingItems.removeIf(i -> i.getCumulatedLowerPower() > externalDischargingPowerInMW);
+
 		double[] values = new double[2 * numberOfTransitionSteps + 1];
+		values[numberOfTransitionSteps] = 0.0;
 
 		double chargingPowerPerStep = externalChargingPowerInMW / numberOfTransitionSteps;
-		int maxChargingIndex = chargingItems.size();
-		int chargingIndex = 0;
-		values[numberOfTransitionSteps] = 0.0;
 		for (int step = 1; step <= numberOfTransitionSteps; step++) {
 			double power = chargingPowerPerStep * step;
-			while (chargingIndex < maxChargingIndex && chargingItems.get(chargingIndex).getCumulatedUpperPower() < power) {
-				chargingIndex++;
-			}
-			int indexInArray = numberOfTransitionSteps + step;
-			if (chargingIndex < maxChargingIndex) {
-				values[indexInArray] = calcValueOfItemAtPower(chargingItems.get(chargingIndex), power);
-			} else {
-				values[indexInArray] = Double.NaN;
-			}
+			values[numberOfTransitionSteps + step] = getValueCharging(power);
 		}
 
-		double dischargingPowerPerStep = externalDischargingPowerInMW / numberOfTransitionSteps;
-		int dischargingIndex = 0;
-		int maxDischargingIndex = dischargingItems.size();
+		double dischargingPowerPerStep = -externalDischargingPowerInMW / numberOfTransitionSteps;
 		for (int step = 1; step <= numberOfTransitionSteps; step++) {
 			double power = dischargingPowerPerStep * step;
-			while (dischargingIndex < maxDischargingIndex
-					&& dischargingItems.get(dischargingIndex).getCumulatedUpperPower() < power) {
-				dischargingIndex++;
-			}
-			int indexInArray = numberOfTransitionSteps - step;
-			if (dischargingIndex < maxDischargingIndex) {
-				values[indexInArray] = calcValueOfItemAtPower(dischargingItems.get(dischargingIndex), -power);
-			} else {
-				values[indexInArray] = Double.NaN;
-			}
+			values[numberOfTransitionSteps - step] = getValueDischarging(power);
 		}
 		return values;
 	}
@@ -182,14 +218,6 @@ public abstract class MeritOrderSensitivity {
 	public final StepPower getStepPowers(int numberOfTransitionSteps) {
 		return new StepPower(externalChargingPowerInMW, externalDischargingPowerInMW, numberOfTransitionSteps);
 	}
-
-	/** Calculates value of given sensitivity item at specified power
-	 * 
-	 * @param item that is to be evaluated
-	 * @param power to be applied
-	 * @return value of given {@link SensitivityItem} at specified power according to this Sensitivity type;<br>
-	 *         when power &gt; 0: <b>charging</b>, otherwise <b>discharging</b> */
-	protected abstract double calcValueOfItemAtPower(SensitivityItem item, double power);
 
 	/** Stores fixed electricity price forecast value
 	 * 

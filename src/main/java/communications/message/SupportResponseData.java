@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
@@ -33,7 +33,7 @@ public class SupportResponseData extends DataItem {
 	public SupportResponseData(SupportRequestData supportRequestData, double payment, double marketPremium) {
 		this.setType = supportRequestData.setType;
 		this.accountingPeriod = supportRequestData.accountingPeriod;
-		this.clientId = supportRequestData.clientId;		
+		this.clientId = supportRequestData.clientId;
 		this.payment = payment;
 		this.marketPremium = marketPremium;
 	}

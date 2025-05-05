@@ -1,7 +1,6 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 package agents.heatPump.strategists;
 
 import agents.flexibility.Strategist;
@@ -122,7 +121,7 @@ public abstract class HeatPumpStrategist extends Strategist {
 		updateBidSchedule();
 		HeatPumpSchedule schedule = new HeatPumpSchedule(timePeriod, scheduleDurationPeriods, temperatureResolutionInC);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
-		schedule.setChargingPerPeriod(demandScheduleInMWH);
+		schedule.setRequestedEnergyPerPeriod(demandScheduleInMWH);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(getInternalEnergySchedule());
 		return schedule;
 	}

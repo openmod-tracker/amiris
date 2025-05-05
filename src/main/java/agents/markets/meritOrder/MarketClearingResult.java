@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
@@ -39,7 +39,7 @@ public class MarketClearingResult {
 		this.demandBook = demandBook;
 		this.supplyBook = supplyBook;
 	}
-	
+
 	/** Set and update books, i.e. award contained bids according to their individual results
 	 * 
 	 * @param supplyBook Supply book used to clear the market
@@ -91,9 +91,7 @@ public class MarketClearingResult {
 		return totalSystemCost;
 	}
 
-	/**
-	 * @param marketPriceInEURperMWH the marketPriceInEURperMWH to set
-	 */
+	/** @param marketPriceInEURperMWH the marketPriceInEURperMWH to set */
 	public void setMarketPriceInEURperMWH(double marketPriceInEURperMWH) {
 		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
 	}

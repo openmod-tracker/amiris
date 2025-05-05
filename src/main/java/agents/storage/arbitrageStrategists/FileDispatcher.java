@@ -1,9 +1,9 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.storage.arbitrageStrategists;
 
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.markets.meritOrder.Constants;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -17,7 +17,7 @@ import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Creates {@link DispatchSchedule}s from file for a connected storage {@link Device}
+/** Creates {@link BidSchedule}s from file for a connected storage {@link Device}
  *
  * @author Christoph Schimeczek, Johannes Kochems, Ulrich Frey, Felix Nitsch */
 public class FileDispatcher extends ArbitrageStrategist {
@@ -61,9 +61,9 @@ public class FileDispatcher extends ArbitrageStrategist {
 	@Override
 	protected void updateSchedule(TimePeriod t) {}
 
-	/** @return {@link DispatchSchedule} for the connected {@link Device} for the specified simulation hour **/
+	/** @return {@link BidSchedule} for the connected {@link Device} for the specified simulation hour **/
 	@Override
-	public DispatchSchedule createSchedule(TimePeriod timeSegment) {
+	public BidSchedule createSchedule(TimePeriod timeSegment) {
 		double currentEnergyInStorageInMWH = storage.getCurrentEnergyInStorageInMWH();
 		for (int element = 0; element < scheduleDurationPeriods; element++) {
 			final TimeStamp planningTime = timeSegment.shiftByDuration(element).getStartTime();
@@ -116,11 +116,11 @@ public class FileDispatcher extends ArbitrageStrategist {
 		}
 	}
 
-	/** @return {@link DispatchSchedule} for the given TimeSegment created from prepared Bid arrays */
-	private DispatchSchedule buildSchedule(TimePeriod timeSegment) {
-		final DispatchSchedule schedule = new DispatchSchedule(timeSegment, scheduleDurationPeriods);
+	/** @return {@link BidSchedule} for the given TimeSegment created from prepared Bid arrays */
+	private BidSchedule buildSchedule(TimePeriod timeSegment) {
+		final BidSchedule schedule = new BidSchedule(timeSegment, scheduleDurationPeriods);
 		schedule.setBidsScheduleInEURperMWH(scheduledBidPricesInEURperMWH);
-		schedule.setChargingPerPeriod(demandScheduleInMWH);
+		schedule.setRequestedEnergyPerPeriod(demandScheduleInMWH);
 		schedule.setExpectedInitialInternalEnergyScheduleInMWH(scheduledInitialInternalEnergyInMWH);
 		return schedule;
 	}

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -6,8 +6,9 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
@@ -48,7 +49,7 @@ public class StorageTrader extends FlexibilityTrader {
 
 	private final Device storage;
 	private final ArbitrageStrategist strategist;
-	private DispatchSchedule schedule;
+	private BidSchedule schedule;
 
 	/** Creates a {@link StorageTrader}
 	 * 
@@ -61,10 +62,10 @@ public class StorageTrader extends FlexibilityTrader {
 		this.strategist = ArbitrageStrategist.createStrategist(input.getGroup("Strategy"), storage);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
-		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
@@ -128,7 +129,7 @@ public class StorageTrader extends FlexibilityTrader {
 	 * @param requestedTime TimeStamp at which the demand bid should be defined
 	 * @return demand bid for requestedTime */
 	private Bid prepareHourlyDemandBids(TimeStamp requestedTime) {
-		double demandPower = schedule.getScheduledChargingPowerInMW(requestedTime);
+		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(OutputFields.OfferedChargePriceInEURperMWH, price);
@@ -140,7 +141,7 @@ public class StorageTrader extends FlexibilityTrader {
 	 * @param requestedTime TimeStamp at which the supply bid should be defined
 	 * @return supply bid for requestedTime */
 	private Bid prepareHourlySupplyBids(TimeStamp requestedTime) {
-		double supplyPower = schedule.getScheduledDischargingPowerInMW(requestedTime);
+		double supplyPower = schedule.getScheduledEnergySalesInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		Bid supplyBid = new Bid(supplyPower, price, Double.NaN);
 		store(OutputFields.OfferedDischargePriceInEURperMWH, price);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets;
@@ -37,7 +37,7 @@ public interface DayAheadMarketTrader extends AgentAbility {
 		AwardedEnergyInMWH,
 		/** Energy requested at energy exchange */
 		RequestedEnergyInMWH
-	};
+	}
 
 	/** Searches for a single {@link DayAheadMarket.Products#GateClosureInfo} message in given messages and returns its times
 	 * 
