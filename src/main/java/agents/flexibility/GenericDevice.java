@@ -41,7 +41,7 @@ public class GenericDevice {
 
 	/** Input parameters of a storage {@link Device} */
 	public static final Tree parameters = Make.newTree()
-			.add(Make.newSeries("GrossChargingPowerInMW"), Make.newSeries("NetDischargingPowerInMW").optional(),
+			.add(Make.newSeries("GrossChargingPowerInMW"), Make.newSeries("NetDischargingPowerInMW"),
 					Make.newSeries("ChargingEfficiency"), Make.newSeries("DischargingEfficiency"),
 					Make.newSeries("EnergyContentUpperLimitInMWH"),
 					Make.newSeries("EnergyContentLowerLimitInMWH"), Make.newSeries("SelfDischargeRatePerHour"),
@@ -54,7 +54,7 @@ public class GenericDevice {
 	 * @throws MissingDataException if any required input parameter is missing */
 	public GenericDevice(ParameterData input) throws MissingDataException {
 		externalChargingPowerInMW = input.getTimeSeries("GrossChargingPowerInMW");
-		externalDischargingPowerInMW = input.getTimeSeriesOrDefault("NetDischargingPowerInMW", externalChargingPowerInMW);
+		externalDischargingPowerInMW = input.getTimeSeries("NetDischargingPowerInMW");
 		chargingEfficiency = input.getTimeSeries("ChargingEfficiency");
 		dischargingEfficiency = input.getTimeSeries("DischargingEfficiency");
 		energyContentUpperLimitInMWH = input.getTimeSeries("EnergyContentUpperLimitInMWH");
