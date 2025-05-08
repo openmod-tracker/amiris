@@ -1,0 +1,124 @@
+package agents.forecast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import communications.message.AmountAtTime;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
+import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.time.TimeStamp;
+
+public class FlexibilityAssessor {
+	static final ParameterBuilder updateThresholdParam = Make.newDouble("RelativeUpdateThreshold");
+
+	static final double IGNORE_THRESHOLD_IN_MWH = 1E-1;
+	static final double FACTOR_LIMIT = 100;
+
+	private final double lowerUpdateLimit;
+	private final double upperUpdateLimit;
+	private final HashMap<Long, Double> installedPowerPerClient = new HashMap<>();
+	private final TreeMap<TimeStamp, HashMap<Long, Double>> multiplierHistory = new TreeMap<>();
+	private final TreeMap<TimeStamp, HashMap<Long, Double>> multipliersAverageForecast = new TreeMap<>();
+	private final TreeMap<TimeStamp, HashMap<Long, Double>> awards = new TreeMap<>();
+	private final TreeMap<TimeStamp, Boolean> updatesRequiredAt = new TreeMap<>();
+	private final TreeMap<TimeStamp, Double> awardTotals = new TreeMap<>();
+	private int numberOfPreviousSummands = 0;
+	private HashMap<Long, Double> sumOfMultipliers = new HashMap<>();
+
+	public FlexibilityAssessor(ParameterData input) throws MissingDataException {
+		double updateThresholdFactor = 1 - input.getDouble("RelativeUpdateThreshold");
+		lowerUpdateLimit = Math.max(0, updateThresholdFactor);
+		upperUpdateLimit = 1 / updateThresholdFactor;
+	}
+
+	public void registerClient(long clientId, double installedPowerInMW) {
+		installedPowerPerClient.put(clientId, installedPowerInMW);
+		sumOfMultipliers.put(clientId, 0.);
+	}
+
+	public void saveAward(long clientId, AmountAtTime award) {
+		awards.putIfAbsent(award.validAt, new HashMap<Long, Double>());
+		awards.get(award.validAt).put(clientId, award.amount);
+		updatesRequiredAt.put(award.validAt, true);
+	}
+
+	public void processAwards() {
+		for (TimeStamp time : updatesRequiredAt.keySet()) {
+			var allAwards = awards.get(time);
+			double sum = 0;
+			for (double value : allAwards.values()) {
+				sum += value;
+			}
+			awardTotals.put(time, sum);
+			var multiplierPerClient = multiplierHistory.getOrDefault(time, new HashMap<>());
+			for (var entry : awards.get(time).entrySet()) {
+				double factor = Math.abs(sum) < IGNORE_THRESHOLD_IN_MWH ? Double.NaN : entry.getValue() / sum;
+				multiplierPerClient.put(entry.getKey(), Math.max(-FACTOR_LIMIT, Math.min(FACTOR_LIMIT, factor)));
+			}
+			multiplierHistory.put(time, multiplierPerClient);
+		}
+		updatesRequiredAt.clear();
+	}
+
+	public double getMultiplier(long clientId) {
+		double[] result = calcMultiplierComponents(clientId, multiplierHistory);
+		return result[1] > 0 ? result[0] / result[1] : getInitialEstimate(clientId);
+	}
+
+	private double[] calcMultiplierComponents(long clientId, SortedMap<TimeStamp, HashMap<Long, Double>> allMultipliers) {
+		double sum = sumOfMultipliers.getOrDefault(clientId, 0.);
+		int numberOfValidMultipliers = numberOfPreviousSummands;
+		for (var multiplierPerClient : multiplierHistory.values()) {
+			double multiplier = multiplierPerClient.get(clientId);
+			if (!Double.isNaN(multiplier)) {
+				sum += multiplier;
+				numberOfValidMultipliers++;
+			}
+		}
+		return new double[] {sum, numberOfValidMultipliers};
+	}
+
+	private double getInitialEstimate(Long clientId) {
+		double installedCapacityTotal = 0;
+		for (double value : installedPowerPerClient.values()) {
+			installedCapacityTotal += value;
+		}
+		return installedCapacityTotal > 0 ? installedPowerPerClient.get(clientId) / installedCapacityTotal : 1;
+	}
+
+	public HashSet<TimeStamp> getRequiredUpdateTimes(long clientId, List<TimeStamp> requestedTimes,
+			double latestMultiplier) {
+		HashSet<TimeStamp> updateTimes = new HashSet<>();
+		if (!multipliersAverageForecast.isEmpty()) {
+			for (var entry : multipliersAverageForecast.entrySet()) {
+				var multiplierPerClient = entry.getValue();
+				double multiplier = multiplierPerClient.getOrDefault(clientId, 1.);
+				double factor = latestMultiplier / multiplier;
+				if (factor < lowerUpdateLimit || factor > upperUpdateLimit) {
+					updateTimes.add(entry.getKey());
+					multiplierPerClient.put(clientId, latestMultiplier);
+				}
+			}
+		}
+		updateTimes.addAll(requestedTimes);
+		return updateTimes;
+	}
+
+	public void clearBefore(TimeStamp time) {
+		awards.headMap(time).clear();
+		awardTotals.headMap(time).clear();
+		var multipliersToDelete = multiplierHistory.headMap(time);
+		for (long clientId : sumOfMultipliers.keySet()) {
+			double[] result = calcMultiplierComponents(clientId, multipliersToDelete);
+			sumOfMultipliers.put(clientId, result[0]);
+			numberOfPreviousSummands = (int) Math.round(result[1]);
+		}
+		multipliersToDelete.clear();
+		multipliersAverageForecast.headMap(time).clear();
+	}
+}
