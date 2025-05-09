@@ -1,18 +1,24 @@
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
+//
+// SPDX-License-Identifier: Apache-2.0
 package agents.forecast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import agents.markets.meritOrder.MarketClearingResult;
 import communications.message.Amount;
 import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
 import communications.message.ForecastRequest;
+import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
+import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -53,34 +59,28 @@ public class FlexibilityForecaster extends MarketForecaster implements Sensitivi
 		flexibilityAssessor.processAwards();
 	}
 
-	private void sendSensitivityForecasts(ArrayList<Message> input, List<Contract> contracts) {
+	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
 		HashMap<Long, Double> multiplierPerClient = new HashMap<>();
 		for (Contract contract : contracts) {
 			multiplierPerClient.put(contract.getReceiverId(), flexibilityAssessor.getMultiplier(contract.getReceiverId()));
-		}
-		for (Message message : input) {
-			double multiplier = multiplierPerClient.get(message.getSenderId());
-			ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
-			var times = flexibilityAssessor.getRequiredUpdateTimes(message.getSenderId(), clearingTimes.getTimes(),
-					multiplier);
-			for (TimeStamp time : times) {
-				var sensitivity = getSensitivity(message.getDataItemOfType(ForecastRequest.class).type, time, multiplier);
-				// TODO: send sensitivity
+			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
+			for (Message message : requests) {
+				double multiplier = multiplierPerClient.get(message.getSenderId());
+				List<TimeStamp> clearingTimes = message.getDataItemOfType(ClearingTimes.class).getTimes();
+				var updateTimes = flexibilityAssessor.getRequiredUpdateTimes(message.getSenderId(), clearingTimes, multiplier);
+				for (TimeStamp time : updateTimes) {
+					MarketClearingResult clearingResult = getResultForRequestedTime(time);
+					ForecastRequest request = message.getDataItemOfType(ForecastRequest.class);
+					Sensitivity sensitivity = getSensitivity(request.type, clearingResult, multiplier);
+					fulfilNext(contract, sensitivity);
+				}
 			}
 		}
 		flexibilityAssessor.clearBefore(now());
 	}
 
-	private Sensitivity getSensitivity(Type type, TimeStamp time, double multiplier) {
-		switch (type) {
-			case PriceSensitivity:
-				return getPriceSensitivity(time, multiplier);
-			default:
-				throw new RuntimeException(ERR_SENSITIVITY_MISSING + type);
-		}
-	}
-
-	private Sensitivity getPriceSensitivity(TimeStamp time, double multiplier) {
-
+	private Sensitivity getSensitivity(Type type, MarketClearingResult clearingResult, double multiplier) {
+		var assessor = new MeritOrderAssessor(clearingResult.getSupplyBook(), clearingResult.getDemandBook(), type);
+		return new Sensitivity(assessor, multiplier);
 	}
 }

@@ -21,6 +21,7 @@ public class SensitivityItem {
 	private final double marginal;
 	private double cumulatedLowerPower = Double.NaN;
 	private double monetaryOffset = Double.NaN;
+	private double upperMonetaryValue = Double.NaN;
 
 	/** Creates a {@link SensitivityItem}
 	 * 
@@ -75,6 +76,14 @@ public class SensitivityItem {
 	 * @param monetaryOffset total monetary value at the beginning this power block */
 	public void setMonetaryOffset(double monetaryOffset) {
 		this.monetaryOffset = monetaryOffset;
+	}
+
+	public void setUpperMonetaryValue(double upperMonetaryValue) {
+		this.upperMonetaryValue = upperMonetaryValue;
+	}
+
+	public double getUpperMonetaryValue() {
+		return upperMonetaryValue;
 	}
 
 	@Override
