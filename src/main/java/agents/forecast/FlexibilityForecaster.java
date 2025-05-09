@@ -17,6 +17,9 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
+/** Forecasts sensitivities for generic flexibility options
+ * 
+ * @author Christoph Schimeczek, Johannes Kochems */
 public class FlexibilityForecaster extends MarketForecaster implements SensitivityForecastProvider {
 	@Input private static final Tree parameters = Make.newTree().add(FlexibilityAssessor.updateThresholdParam)
 			.buildTree();
@@ -58,10 +61,11 @@ public class FlexibilityForecaster extends MarketForecaster implements Sensitivi
 		for (Message message : input) {
 			double multiplier = multiplierPerClient.get(message.getSenderId());
 			ClearingTimes clearingTimes = message.getDataItemOfType(ClearingTimes.class);
-			var times = flexibilityAssessor.getRequiredUpdateTimes(message.getSenderId(), clearingTimes.getTimes(), multiplier);
+			var times = flexibilityAssessor.getRequiredUpdateTimes(message.getSenderId(), clearingTimes.getTimes(),
+					multiplier);
 			for (TimeStamp time : times) {
 				var sensitivity = getSensitivity(message.getDataItemOfType(ForecastRequest.class).type, time, multiplier);
-				//TODO: send sensitivity
+				// TODO: send sensitivity
 			}
 		}
 		flexibilityAssessor.clearBefore(now());

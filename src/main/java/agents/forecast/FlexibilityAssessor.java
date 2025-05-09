@@ -1,6 +1,5 @@
 package agents.forecast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +12,10 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
+/** Assesses flexibility dispatch history to derive power multipliers. These multipliers determine how the dispatch of an
+ * individual flexibility option behaves compared to the overall dispatch.
+ * 
+ * @author Christoph Schimeczek, Johannes Kochems */
 public class FlexibilityAssessor {
 	static final ParameterBuilder updateThresholdParam = Make.newDouble("RelativeUpdateThreshold");
 
@@ -97,15 +100,21 @@ public class FlexibilityAssessor {
 		if (!multipliersAverageForecast.isEmpty()) {
 			for (var entry : multipliersAverageForecast.entrySet()) {
 				var multiplierPerClient = entry.getValue();
-				double multiplier = multiplierPerClient.getOrDefault(clientId, 1.);
+				if (!multiplierPerClient.containsKey(clientId)) {
+					continue;
+				}
+				double multiplier = multiplierPerClient.get(clientId);
 				double factor = latestMultiplier / multiplier;
 				if (factor < lowerUpdateLimit || factor > upperUpdateLimit) {
 					updateTimes.add(entry.getKey());
-					multiplierPerClient.put(clientId, latestMultiplier);
 				}
 			}
 		}
 		updateTimes.addAll(requestedTimes);
+		for (TimeStamp time : updateTimes) {
+			multipliersAverageForecast.putIfAbsent(time, new HashMap<>());
+			multipliersAverageForecast.get(time).put(clientId, latestMultiplier);
+		}
 		return updateTimes;
 	}
 
