@@ -6,10 +6,9 @@ package agents.flexibility.dynamicProgramming.assessment;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
-import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.SupplyOrderBook;
-import agents.markets.meritOrder.sensitivities.PriceSensitivity;
-import communications.portable.MeritOrderMessage;
+import agents.forecast.SensitivityForecastProvider.ForecastType;
+import communications.message.PointInTime;
+import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -17,43 +16,51 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class MaxProfit implements AssessmentFunction {
-	private final TreeMap<TimeStamp, PriceSensitivity> priceSensitivityForecasts = new TreeMap<>();
-	private PriceSensitivity currentSensitivity;
+	private final TreeMap<TimeStamp, Sensitivity> sensitivityForecasts = new TreeMap<>();
+	private Sensitivity currentSensitivity;
 
 	@Override
 	public void prepareFor(TimeStamp time) {
-		currentSensitivity = priceSensitivityForecasts.get(time);
+		currentSensitivity = sensitivityForecasts.get(time);
 	}
 
 	@Override
 	public double assessTransition(double externalEnergyDeltaInMWH) {
-		return -externalEnergyDeltaInMWH * currentSensitivity.getValue(externalEnergyDeltaInMWH);
+		double sign = -Math.signum(externalEnergyDeltaInMWH);
+		return sign * currentSensitivity.getValue(externalEnergyDeltaInMWH);
 	}
 
 	@Override
 	public void clearBefore(TimeStamp time) {
-		Util.clearMapBefore(priceSensitivityForecasts, time);
+		Util.clearMapBefore(sensitivityForecasts, time);
 	}
 
 	@Override
 	public ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> planningTimes) {
-		return Util.findMissingKeys(priceSensitivityForecasts, planningTimes);
+		return Util.findMissingKeys(sensitivityForecasts, planningTimes);
 	}
 
 	@Override
 	public void storeForecast(ArrayList<Message> messages) {
+		double multiplier = 0;
 		for (Message inputMessage : messages) {
-			MeritOrderMessage meritOrderMessage = inputMessage.getAllPortableItemsOfType(MeritOrderMessage.class).get(0);
-			SupplyOrderBook supplyOrderBook = meritOrderMessage.getSupplyOrderBook();
-			DemandOrderBook demandOrderBook = meritOrderMessage.getDemandOrderBook();
-			PriceSensitivity sensitivity = new PriceSensitivity();
-			sensitivity.updateSensitivities(supplyOrderBook, demandOrderBook);
-			priceSensitivityForecasts.put(meritOrderMessage.getTimeStamp(), sensitivity);
+			Sensitivity sensitivity = inputMessage.getAllPortableItemsOfType(Sensitivity.class).get(0);
+			multiplier = sensitivity.getMultiplier();
+			TimeStamp time = inputMessage.getDataItemOfType(PointInTime.class).validAt;
+			sensitivityForecasts.put(time, sensitivity);
+		}
+		for (var entry : sensitivityForecasts.entrySet()) {
+			entry.getValue().updateMultiplier(multiplier);
 		}
 	}
 
 	@Override
 	public Target getTargetType() {
 		return Target.MAXIMISE;
+	}
+
+	@Override
+	public ForecastType getSensitivityType() {
+		return ForecastType.CostSensitivity;
 	}
 }

@@ -4,20 +4,15 @@
 package agents.forecast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import agents.markets.meritOrder.MarketClearingResult;
 import communications.message.Amount;
 import communications.message.AmountAtTime;
-import communications.message.ClearingTimes;
 import communications.message.ForecastRequest;
+import communications.message.PointInTime;
 import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
-import de.dlr.gitlab.fame.agent.input.Input;
-import de.dlr.gitlab.fame.agent.input.Make;
-import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
-import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
@@ -27,8 +22,6 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class FlexibilityForecaster extends MarketForecaster implements SensitivityForecastProvider {
-	@Input private static final Tree parameters = Make.newTree().add(FlexibilityAssessor.updateThresholdParam)
-			.buildTree();
 
 	static final String ERR_SENSITIVITY_MISSING = "Type of sensitivity not implemented: ";
 
@@ -36,16 +29,17 @@ public class FlexibilityForecaster extends MarketForecaster implements Sensitivi
 
 	public FlexibilityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
-		ParameterData input = parameters.join(dataProvider);
-		flexibilityAssessor = new FlexibilityAssessor(input);
+		flexibilityAssessor = new FlexibilityAssessor();
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.Registration);
 		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.Bid);
+		//TODO: remove request
 		call(this::sendSensitivityForecasts).on(SensitivityForecastProvider.Products.SensitivityForecast)
 				.use(SensitivityForecastClient.Products.SensitivityRequest);
 	}
 
 	private void registerClients(ArrayList<Message> input, List<Contract> contracts) {
+		//TODO: register type of forecast
 		for (Message message : input) {
 			flexibilityAssessor.registerClient(message.getSenderId(), message.getDataItemOfType(Amount.class).amount);
 		}
@@ -60,26 +54,22 @@ public class FlexibilityForecaster extends MarketForecaster implements Sensitivi
 	}
 
 	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
-		HashMap<Long, Double> multiplierPerClient = new HashMap<>();
 		for (Contract contract : contracts) {
-			multiplierPerClient.put(contract.getReceiverId(), flexibilityAssessor.getMultiplier(contract.getReceiverId()));
-			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
+			long clientId = contract.getReceiverId();
+			double multiplier = flexibilityAssessor.getMultiplier(clientId);
+			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, clientId);
 			for (Message message : requests) {
-				double multiplier = multiplierPerClient.get(message.getSenderId());
-				List<TimeStamp> clearingTimes = message.getDataItemOfType(ClearingTimes.class).getTimes();
-				var updateTimes = flexibilityAssessor.getRequiredUpdateTimes(message.getSenderId(), clearingTimes, multiplier);
-				for (TimeStamp time : updateTimes) {
-					MarketClearingResult clearingResult = getResultForRequestedTime(time);
-					ForecastRequest request = message.getDataItemOfType(ForecastRequest.class);
-					Sensitivity sensitivity = getSensitivity(request.type, clearingResult, multiplier);
-					fulfilNext(contract, sensitivity);
-				}
+				TimeStamp time = message.getDataItemOfType(PointInTime.class).validAt;
+				MarketClearingResult clearingResult = getResultForRequestedTime(time);
+				ForecastRequest request = message.getDataItemOfType(ForecastRequest.class);
+				Sensitivity sensitivity = getSensitivity(request.type, clearingResult, multiplier);
+				fulfilNext(contract, sensitivity, new PointInTime(time));
 			}
 		}
 		flexibilityAssessor.clearBefore(now());
 	}
 
-	private Sensitivity getSensitivity(Type type, MarketClearingResult clearingResult, double multiplier) {
+	private Sensitivity getSensitivity(ForecastType type, MarketClearingResult clearingResult, double multiplier) {
 		var assessor = new MeritOrderAssessor(clearingResult.getSupplyBook(), clearingResult.getDemandBook(), type);
 		return new Sensitivity(assessor, multiplier);
 	}

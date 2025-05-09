@@ -5,7 +5,7 @@ package agents.forecast;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import agents.forecast.SensitivityForecastProvider.Type;
+import agents.forecast.SensitivityForecastProvider.ForecastType;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook;
 import agents.markets.meritOrder.books.OrderBookItem;
@@ -15,7 +15,7 @@ import agents.markets.meritOrder.sensitivities.SensitivityItem;
 public class MeritOrderAssessor {
 	private static final String ERR_NOT_IMPLEMENTED = "MeritOrderAssessor has no implementation for: ";
 
-	private final Type type;
+	private final ForecastType type;
 	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();
@@ -23,7 +23,7 @@ public class MeritOrderAssessor {
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
 
-	public MeritOrderAssessor(SupplyOrderBook supplyBook, DemandOrderBook demandBook, Type type) {
+	public MeritOrderAssessor(SupplyOrderBook supplyBook, DemandOrderBook demandBook, ForecastType type) {
 		this.type = type;
 		extractOrders(supplyBook);
 		extractOrders(demandBook);

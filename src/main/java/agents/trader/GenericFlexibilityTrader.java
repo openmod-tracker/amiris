@@ -14,8 +14,8 @@ import agents.flexibility.dynamicProgramming.assessment.AssessmentFunctionBuilde
 import agents.flexibility.dynamicProgramming.bidding.BidSchedulerBuilder;
 import agents.flexibility.dynamicProgramming.states.StateManager;
 import agents.flexibility.dynamicProgramming.states.StateManagerBuilder;
-import agents.forecast.ForecastClient;
-import agents.forecast.Forecaster;
+import agents.forecast.SensitivityForecastClient;
+import agents.forecast.SensitivityForecastProvider;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
@@ -23,7 +23,6 @@ import communications.message.AwardData;
 import communications.message.ClearingTimes;
 import communications.message.PointInTime;
 import communications.portable.BidsAtTime;
-import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -44,7 +43,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * dynamic programming.
  * 
  * @author Felix Nitsch, Christoph Schimeczek, Johannes Kochems */
-public class GenericFlexibilityTrader extends Trader implements ForecastClient {
+public class GenericFlexibilityTrader extends Trader implements SensitivityForecastClient {
 	@Input private static final Tree parameters = Make.newTree()
 			.addAs("Device", GenericDevice.parameters)
 			.addAs("Assessment", AssessmentFunctionBuilder.parameters)
@@ -79,21 +78,19 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
 		strategist = new Optimiser(stateManager, bidScheduler, assessmentFunction.getTargetType());
 
-		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
+		// TODO: register
+		// TODO: sendAwards
+		call(this::requestElectricityForecast).on(SensitivityForecastClient.Products.SensitivityRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
-				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateForecast).onAndUse(Forecaster.Products.PriceForecast);
-		call(this::updateForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
+		call(this::updateForecast).onAndUse(SensitivityForecastProvider.Products.SensitivityForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 	}
 
-	/** Requests a forecast from a contracted Forecaster. The type of forecast (either {@link MeritOrderMessage} or PriceForecast)
-	 * is determined by the contract.
+	/** Requests a forecast from a contracted Forecaster.
 	 * 
 	 * @param input one ClearingTimes message from connected {@link DayAheadMarket}
-	 * @param contracts single contracted Forecaster to request forecast from */
+	 * @param contracts single contracted Forecaster to request forecasts from */
 	protected void requestElectricityForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);

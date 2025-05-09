@@ -3,20 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.forecast.SensitivityForecastProvider.Type;
+import agents.forecast.SensitivityForecastProvider.ForecastType;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
 
 public class ForecastRequest extends DataItem {
-	public final Type type;
+	public final ForecastType type;
 
-	public ForecastRequest(Type type) {
+	public ForecastRequest(ForecastType type) {
 		this.type = type;
 	}
 
 	public ForecastRequest(ProtoDataItem proto) {
-		type = Type.values()[proto.getIntValues(0)];
+		type = ForecastType.values()[proto.getIntValues(0)];
 	}
 
 	@Override

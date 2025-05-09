@@ -6,10 +6,9 @@ package agents.flexibility.dynamicProgramming.assessment;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
-import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.SupplyOrderBook;
-import agents.markets.meritOrder.sensitivities.MarginalCostSensitivity;
-import communications.portable.MeritOrderMessage;
+import agents.forecast.SensitivityForecastProvider.ForecastType;
+import communications.message.PointInTime;
+import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -17,12 +16,12 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class MinSystemCost implements AssessmentFunction {
-	private final TreeMap<TimeStamp, MarginalCostSensitivity> marginalCostSensitivityForecasts = new TreeMap<>();
-	private MarginalCostSensitivity currentSensitivity;
+	private final TreeMap<TimeStamp, Sensitivity> sensitivityForecasts = new TreeMap<>();
+	private Sensitivity currentSensitivity;
 
 	@Override
 	public void prepareFor(TimeStamp time) {
-		currentSensitivity = marginalCostSensitivityForecasts.get(time);
+		currentSensitivity = sensitivityForecasts.get(time);
 	}
 
 	@Override
@@ -32,28 +31,35 @@ public class MinSystemCost implements AssessmentFunction {
 
 	@Override
 	public void clearBefore(TimeStamp time) {
-		Util.clearMapBefore(marginalCostSensitivityForecasts, time);
+		Util.clearMapBefore(sensitivityForecasts, time);
 	}
 
 	@Override
 	public ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> planningTimes) {
-		return Util.findMissingKeys(marginalCostSensitivityForecasts, planningTimes);
+		return Util.findMissingKeys(sensitivityForecasts, planningTimes);
 	}
 
 	@Override
 	public void storeForecast(ArrayList<Message> messages) {
+		double multiplier = 0;
 		for (Message inputMessage : messages) {
-			MeritOrderMessage meritOrderMessage = inputMessage.getAllPortableItemsOfType(MeritOrderMessage.class).get(0);
-			SupplyOrderBook supplyOrderBook = meritOrderMessage.getSupplyOrderBook();
-			DemandOrderBook demandOrderBook = meritOrderMessage.getDemandOrderBook();
-			MarginalCostSensitivity sensitivity = new MarginalCostSensitivity();
-			sensitivity.updateSensitivities(supplyOrderBook, demandOrderBook);
-			marginalCostSensitivityForecasts.put(meritOrderMessage.getTimeStamp(), sensitivity);
+			Sensitivity sensitivity = inputMessage.getAllPortableItemsOfType(Sensitivity.class).get(0);
+			multiplier = sensitivity.getMultiplier();
+			TimeStamp time = inputMessage.getDataItemOfType(PointInTime.class).validAt;
+			sensitivityForecasts.put(time, sensitivity);
+		}
+		for (var entry : sensitivityForecasts.entrySet()) {
+			entry.getValue().updateMultiplier(multiplier);
 		}
 	}
 
 	@Override
 	public Target getTargetType() {
 		return Target.MINIMISE;
+	}
+
+	@Override
+	public ForecastType getSensitivityType() {
+		return ForecastType.MarginalCostSensitivity;
 	}
 }

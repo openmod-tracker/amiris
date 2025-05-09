@@ -4,15 +4,9 @@
 package agents.forecast;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import communications.message.AmountAtTime;
-import de.dlr.gitlab.fame.agent.input.Make;
-import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
-import de.dlr.gitlab.fame.agent.input.ParameterData;
-import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Assesses flexibility dispatch history to derive power multipliers. These multipliers determine how the dispatch of an
@@ -20,27 +14,17 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class FlexibilityAssessor {
-	static final ParameterBuilder updateThresholdParam = Make.newDouble("RelativeUpdateThreshold");
-
 	static final double IGNORE_THRESHOLD_IN_MWH = 1E-1;
 	static final double FACTOR_LIMIT = 100;
 
-	private final double lowerUpdateLimit;
-	private final double upperUpdateLimit;
 	private final HashMap<Long, Double> installedPowerPerClient = new HashMap<>();
 	private final TreeMap<TimeStamp, HashMap<Long, Double>> multiplierHistory = new TreeMap<>();
-	private final TreeMap<TimeStamp, HashMap<Long, Double>> multipliersAverageForecast = new TreeMap<>();
+
 	private final TreeMap<TimeStamp, HashMap<Long, Double>> awards = new TreeMap<>();
 	private final TreeMap<TimeStamp, Boolean> updatesRequiredAt = new TreeMap<>();
 	private final TreeMap<TimeStamp, Double> awardTotals = new TreeMap<>();
 	private int numberOfPreviousSummands = 0;
 	private HashMap<Long, Double> sumOfMultipliers = new HashMap<>();
-
-	public FlexibilityAssessor(ParameterData input) throws MissingDataException {
-		double updateThresholdFactor = 1 - input.getDouble("RelativeUpdateThreshold");
-		lowerUpdateLimit = Math.max(0, updateThresholdFactor);
-		upperUpdateLimit = 1 / updateThresholdFactor;
-	}
 
 	public void registerClient(long clientId, double installedPowerInMW) {
 		installedPowerPerClient.put(clientId, installedPowerInMW);
@@ -97,30 +81,6 @@ public class FlexibilityAssessor {
 		return installedCapacityTotal > 0 ? installedPowerPerClient.get(clientId) / installedCapacityTotal : 1;
 	}
 
-	public HashSet<TimeStamp> getRequiredUpdateTimes(long clientId, List<TimeStamp> requestedTimes,
-			double latestMultiplier) {
-		HashSet<TimeStamp> updateTimes = new HashSet<>();
-		if (!multipliersAverageForecast.isEmpty()) {
-			for (var entry : multipliersAverageForecast.entrySet()) {
-				var multiplierPerClient = entry.getValue();
-				if (!multiplierPerClient.containsKey(clientId)) {
-					continue;
-				}
-				double multiplier = multiplierPerClient.get(clientId);
-				double factor = latestMultiplier / multiplier;
-				if (factor < lowerUpdateLimit || factor > upperUpdateLimit) {
-					updateTimes.add(entry.getKey());
-				}
-			}
-		}
-		updateTimes.addAll(requestedTimes);
-		for (TimeStamp time : updateTimes) {
-			multipliersAverageForecast.putIfAbsent(time, new HashMap<>());
-			multipliersAverageForecast.get(time).put(clientId, latestMultiplier);
-		}
-		return updateTimes;
-	}
-
 	public void clearBefore(TimeStamp time) {
 		awards.headMap(time).clear();
 		awardTotals.headMap(time).clear();
@@ -131,6 +91,5 @@ public class FlexibilityAssessor {
 			numberOfPreviousSummands = (int) Math.round(result[1]);
 		}
 		multipliersToDelete.clear();
-		multipliersAverageForecast.headMap(time).clear();
 	}
 }
