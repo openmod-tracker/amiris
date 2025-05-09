@@ -2,6 +2,10 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - tba
+### Added
+- Add `FlexilibityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
+
 ## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - 2025-05-05
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed

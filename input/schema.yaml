@@ -2762,7 +2762,7 @@ AgentTypes:
                   Description: "Represent energy states of an electricity storage device"
           PlanningHorizonInHours:
             MetaData:
-              Description: "Foresight time length in hours. Must be smaller or equal to that of the contracted Forecaster"
+              Description: "Foresight time length in hours. Must be smaller or equal to that of the contracted Forecaster."
             AttributeType: double
             Mandatory: true
             List: false
