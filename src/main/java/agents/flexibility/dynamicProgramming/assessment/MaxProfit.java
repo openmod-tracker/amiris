@@ -11,6 +11,12 @@ import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
  * @author Christoph Schimeczek */
 public class MaxProfit extends SensitivityBasedAssessment {
 	@Override
+	public double assessTransition(double externalEnergyDeltaInMWH) {
+		double sign = -Math.signum(externalEnergyDeltaInMWH);
+		return sign * currentSensitivity.getValue(externalEnergyDeltaInMWH);
+	}
+
+	@Override
 	public Target getTargetType() {
 		return Target.MAXIMISE;
 	}

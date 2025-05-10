@@ -116,6 +116,13 @@ public class EnergyStateManager implements StateManager {
 		}
 	}
 
+	/** @return calculated value of transition */
+	private double calcValueFor(int initialStateIndex, int finalStateIndex) {
+		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
+				indexToEnergy(finalStateIndex));
+		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
+	}
+
 	@Override
 	public boolean useStateList() {
 		return false;
@@ -159,13 +166,6 @@ public class EnergyStateManager implements StateManager {
 	private double getCachedValueFor(int initialStateIndex, int finalStateIndex) {
 		int stateDelta = finalStateIndex - initialStateIndex;
 		return stateDelta >= 0 ? transitionValuesCharging[stateDelta] : transitionValuesDischarging[-stateDelta];
-	}
-
-	/** @return calculated value of transition */
-	private double calcValueFor(int initialStateIndex, int finalStateIndex) {
-		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
-				indexToEnergy(finalStateIndex));
-		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
 
 	/** @return energy content corresponding to the given index */

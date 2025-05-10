@@ -6,8 +6,10 @@ package agents.forecast.sensitivity;
 import java.util.Comparator;
 import agents.markets.meritOrder.sensitivities.SensitivityItem;
 
+/** Provides full merit order assessment for cost / revenues associated with added demand / supply
+ * 
+ * @author Christoph Schimeczek */
 public class CostSensitivity extends FullAssessor {
-
 	@Override
 	protected Comparator<SensitivityItem> getComparator() {
 		return SensitivityItem.BY_PRICE;

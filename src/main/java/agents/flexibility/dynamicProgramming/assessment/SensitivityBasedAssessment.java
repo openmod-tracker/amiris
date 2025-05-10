@@ -15,7 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * @author Christoph Schimeczek */
 public abstract class SensitivityBasedAssessment implements AssessmentFunction {
 	private final TreeMap<TimeStamp, Sensitivity> sensitivityForecasts = new TreeMap<>();
-	private Sensitivity currentSensitivity;
+	protected Sensitivity currentSensitivity;
 
 	@Override
 	public void prepareFor(TimeStamp time) {
@@ -23,9 +23,7 @@ public abstract class SensitivityBasedAssessment implements AssessmentFunction {
 	}
 
 	@Override
-	public double assessTransition(double externalEnergyDeltaInMWH) {
-		return currentSensitivity.getValue(externalEnergyDeltaInMWH);
-	}
+	public abstract double assessTransition(double externalEnergyDeltaInMWH);
 
 	@Override
 	public void clearBefore(TimeStamp time) {

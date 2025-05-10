@@ -41,6 +41,8 @@ public interface MeritOrderAssessment {
 				return new CostSensitivity();
 			case MarginalCostSensitivity:
 				return new MarginalCostSensitivity();
+			case CostInsensitive:
+				return new CostInsensitive();
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
 		}

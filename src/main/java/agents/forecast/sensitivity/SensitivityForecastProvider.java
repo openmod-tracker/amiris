@@ -14,6 +14,6 @@ public interface SensitivityForecastProvider extends AgentAbility {
 	}
 
 	enum ForecastType {
-		CostSensitivity, MarginalCostSensitivity
+		CostInsensitive, CostSensitivity, MarginalCostSensitivity
 	}
 }

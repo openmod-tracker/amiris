@@ -8,6 +8,10 @@ import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
+/** A Message that contains the sensitivity of a merit order forecast depending on additional demand or supply. The type of
+ * sensitivity is unspecified here and should be known to the client.
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class Sensitivity implements Portable {
 	private double multiplier;
 	private double[] demandPowers;
@@ -23,6 +27,10 @@ public class Sensitivity implements Portable {
 	/** required for {@link Portable}s */
 	public Sensitivity() {}
 
+	/** Instantiates a new Sensitivity
+	 * 
+	 * @param assessment to extract demand and supply change sensitivities from
+	 * @param multiplier associated with the client to received this {@link Sensitivity} */
 	public Sensitivity(MeritOrderAssessment assessment, double multiplier) {
 		this.demandPowers = assessment.getDemandSensitivityPowers();
 		this.demandValues = assessment.getDemandSensitivityValues();
@@ -31,10 +39,16 @@ public class Sensitivity implements Portable {
 		this.multiplier = multiplier;
 	}
 
+	/** Returns multiplier currently set in this {@link Sensitivity}
+	 * 
+	 * @return the current multiplier */
 	public double getMultiplier() {
 		return multiplier;
 	}
 
+	/** Sets a new multiplier that is used in sensitivity calculations
+	 * 
+	 * @param multiplier to be applied in future calls to {@link #getValue(double)} */
 	public void updateMultiplier(double multiplier) {
 		this.multiplier = multiplier;
 		lastDemandIndex = 1;
@@ -72,6 +86,7 @@ public class Sensitivity implements Portable {
 		return Double.NaN;
 	}
 
+	/** @return y-value interpolated for given position x on a line determined by (x1,y1) and (x2,y2) */
 	private double interpolateValue(double x1, double y1, double x2, double y2, double x) {
 		return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
 	}
@@ -100,6 +115,7 @@ public class Sensitivity implements Portable {
 		storeDoubleArray(collector, supplyValues);
 	}
 
+	/** Stores length of given array and array values to provided collector */
 	private final void storeDoubleArray(ComponentCollector collector, double[] data) {
 		collector.storeInts(data.length);
 		collector.storeDoubles(data);
@@ -108,19 +124,18 @@ public class Sensitivity implements Portable {
 	@Override
 	public void populate(ComponentProvider provider) {
 		multiplier = provider.nextDouble();
-		demandPowers = new double[provider.nextInt()];
-		demandValues = new double[provider.nextInt()];
-		supplyPowers = new double[provider.nextInt()];
-		supplyValues = new double[provider.nextInt()];
-		fillArray(provider, demandPowers);
-		fillArray(provider, demandValues);
-		fillArray(provider, supplyPowers);
-		fillArray(provider, supplyValues);
+		demandPowers = readArray(provider, provider.nextInt());
+		demandValues = readArray(provider, provider.nextInt());
+		supplyPowers = readArray(provider, provider.nextInt());
+		supplyValues = readArray(provider, provider.nextInt());
 	}
 
-	private final void fillArray(ComponentProvider provider, double[] array) {
-		for (int i = 0; i < array.length; i++) {
+	/** @return array with given length read from given provider */
+	private final double[] readArray(ComponentProvider provider, int length) {
+		double[] array = new double[length];
+		for (int i = 0; i < length; i++) {
 			array[i] = provider.nextDouble();
 		}
+		return array;
 	}
 }

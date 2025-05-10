@@ -11,7 +11,7 @@ import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.sensitivities.SensitivityItem;
 
-/** Base functionality of full merit order assessment; actual type of sensitivity assessed depends on the child class.
+/** Base class for full merit order assessment; actual type of sensitivity assessed depends on the child class.
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public abstract class FullAssessor implements MeritOrderAssessment {
