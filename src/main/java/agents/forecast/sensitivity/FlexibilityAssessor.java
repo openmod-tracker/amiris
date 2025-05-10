@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.forecast;
+package agents.forecast.sensitivity;
 
 import java.util.HashMap;
 import java.util.SortedMap;

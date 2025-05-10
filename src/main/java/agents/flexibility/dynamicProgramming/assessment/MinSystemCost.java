@@ -6,7 +6,7 @@ package agents.flexibility.dynamicProgramming.assessment;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
-import agents.forecast.SensitivityForecastProvider.ForecastType;
+import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import communications.message.PointInTime;
 import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.communication.message.Message;

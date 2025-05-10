@@ -14,8 +14,8 @@ import agents.flexibility.dynamicProgramming.assessment.AssessmentFunctionBuilde
 import agents.flexibility.dynamicProgramming.bidding.BidSchedulerBuilder;
 import agents.flexibility.dynamicProgramming.states.StateManager;
 import agents.flexibility.dynamicProgramming.states.StateManagerBuilder;
-import agents.forecast.SensitivityForecastClient;
-import agents.forecast.SensitivityForecastProvider;
+import agents.forecast.sensitivity.SensitivityForecastClient;
+import agents.forecast.sensitivity.SensitivityForecastProvider;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;

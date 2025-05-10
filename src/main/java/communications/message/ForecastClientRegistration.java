@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.forecast.SensitivityForecastProvider.ForecastType;
+import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
 
-import agents.forecast.MeritOrderAssessor;
+import agents.forecast.sensitivity.MeritOrderAssessor;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;

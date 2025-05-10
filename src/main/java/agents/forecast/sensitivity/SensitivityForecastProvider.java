@@ -1,15 +1,19 @@
 // SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
-package agents.forecast;
+package agents.forecast.sensitivity;
 
 import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.communication.Product;
 
-public interface SensitivityForecastClient extends AgentAbility {
+/** A sensitivity forecast provider */
+public interface SensitivityForecastProvider extends AgentAbility {
 	@Product
 	enum Products {
-		Registration, Award, SensitivityRequest
+		SensitivityForecast
 	}
 
+	enum ForecastType {
+		CostSensitivity, MarginalCostSensitivity
+	}
 }
