@@ -19,8 +19,10 @@ import agents.forecast.SensitivityForecastProvider;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
+import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
+import communications.message.ForecastClientRegistration;
 import communications.message.PointInTime;
 import communications.portable.BidsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -78,13 +80,24 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
 		strategist = new Optimiser(stateManager, bidScheduler, assessmentFunction.getTargetType());
 
-		// TODO: register
-		// TODO: sendAwards
+		call(this::registerAtForecaster).on(SensitivityForecastClient.Products.Registration);
 		call(this::requestElectricityForecast).on(SensitivityForecastClient.Products.SensitivityRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateForecast).onAndUse(SensitivityForecastProvider.Products.SensitivityForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
+		call(this::sendAward).on(SensitivityForecastClient.Products.Award).use(DayAheadMarket.Products.Awards);
+	}
+
+	/** Send registration information to {@link SensitivityForecastProvider}
+	 * 
+	 * @param input none
+	 * @param contracts single contract with a {@link SensitivityForecastProvider} */
+	private void registerAtForecaster(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		double averagePowerInMW = (device.getExternalChargingPowerInMW(now())
+				+ device.getExternalDischargingPowerInMW(now())) / 2.;
+		fulfilNext(contract, new ForecastClientRegistration(assessmentFunction.getSensitivityType(), averagePowerInMW));
 	}
 
 	/** Requests a forecast from a contracted Forecaster.
@@ -184,5 +197,16 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		store(Outputs.StoredEnergyInMWH, device.getCurrentInternalEnergyInMWH());
 		store(Outputs.ReceivedMoneyInEUR, revenuesInEUR);
 		store(Outputs.VariableCostsInEUR, costsInEUR);
+	}
+
+	/** Send award total to {@link SensitivityForecastProvider}
+	 * 
+	 * @param input award information received from {@link DayAheadMarket}
+	 * @param contracts single contract with {@link SensitivityForecastProvider} */
+	private void sendAward(ArrayList<Message> input, List<Contract> contracts) {
+		AwardData awards = CommUtils.getExactlyOneEntry(input).getDataItemOfType(AwardData.class);
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		double effectiveSupplyPower = awards.supplyEnergyInMWH - awards.demandEnergyInMWH;
+		fulfilNext(contract, new AmountAtTime(awards.beginOfDeliveryInterval, effectiveSupplyPower));
 	}
 }
