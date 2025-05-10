@@ -71,7 +71,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	}
 
 	private Sensitivity getSensitivity(ForecastType type, MarketClearingResult clearingResult, double multiplier) {
-		MeritOrderAssessor assessor = MeritOrderAssessor.getAssessor(type);
+		MeritOrderAssessment assessor = MeritOrderAssessment.build(type);
 		assessor.assess(clearingResult.getSupplyBook(), clearingResult.getDemandBook());
 		return new Sensitivity(assessor, multiplier);
 	}

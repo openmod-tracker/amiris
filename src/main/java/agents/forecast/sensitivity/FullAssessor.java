@@ -5,16 +5,16 @@ package agents.forecast.sensitivity;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.OrderBook;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.sensitivities.SensitivityItem;
 
-public abstract class MeritOrderAssessor {
-	private static final String ERR_NOT_IMPLEMENTED = "MeritOrderAssessor has no implementation for: ";
-
+/** Base functionality of full merit order assessment; actual type of sensitivity assessed depends on the child class.
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
+public abstract class FullAssessor implements MeritOrderAssessment {
 	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();
@@ -22,17 +22,7 @@ public abstract class MeritOrderAssessor {
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
 
-	public static MeritOrderAssessor getAssessor(ForecastType type) {
-		switch (type) {
-			case CostSensitivity:
-				return new CostSensitivity();
-			case MarginalCostSensitivity:
-				return new MarginalCostSensitivity();
-			default:
-				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
-		}
-	}
-
+	@Override
 	public final void assess(SupplyOrderBook supplyBook, DemandOrderBook demandBook) {
 		extractOrders(supplyBook);
 		extractOrders(demandBook);
@@ -105,6 +95,7 @@ public abstract class MeritOrderAssessor {
 	 * @return monetary value of this {@link SensitivityItem} according to this Sensitivity type */
 	protected abstract double calcMonetaryValue(SensitivityItem item);
 
+	@Override
 	public double[] getDemandSensitivityPowers() {
 		double[] powers = new double[chargingItems.size() + 1];
 		powers[0] = 0;
@@ -114,6 +105,7 @@ public abstract class MeritOrderAssessor {
 		return powers;
 	}
 
+	@Override
 	public double[] getDemandSensitivityValues() {
 		double[] values = new double[chargingItems.size() + 1];
 		values[0] = 0;
@@ -123,6 +115,7 @@ public abstract class MeritOrderAssessor {
 		return values;
 	}
 
+	@Override
 	public double[] getSupplySensitivityPowers() {
 		double[] powers = new double[dischargingItems.size() + 1];
 		powers[0] = 0;
@@ -132,6 +125,7 @@ public abstract class MeritOrderAssessor {
 		return powers;
 	}
 
+	@Override
 	public double[] getSupplySensitivityValues() {
 		double[] values = new double[dischargingItems.size() + 1];
 		values[0] = 0;

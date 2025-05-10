@@ -6,7 +6,7 @@ package agents.forecast.sensitivity;
 import java.util.Comparator;
 import agents.markets.meritOrder.sensitivities.SensitivityItem;
 
-public class MarginalCostSensitivity extends MeritOrderAssessor {
+public class MarginalCostSensitivity extends FullAssessor {
 
 	@Override
 	protected Comparator<SensitivityItem> getComparator() {
