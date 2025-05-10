@@ -4,11 +4,11 @@
 package agents.forecast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import agents.markets.meritOrder.MarketClearingResult;
-import communications.message.Amount;
 import communications.message.AmountAtTime;
-import communications.message.ForecastRequest;
+import communications.message.ForecastClientRegistration;
 import communications.message.PointInTime;
 import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
@@ -22,26 +22,27 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class FlexibilityForecaster extends MarketForecaster implements SensitivityForecastProvider {
-
 	static final String ERR_SENSITIVITY_MISSING = "Type of sensitivity not implemented: ";
 
 	private final FlexibilityAssessor flexibilityAssessor;
+	private final HashMap<Long, ForecastType> registeredClients = new HashMap<>();
 
 	public FlexibilityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		flexibilityAssessor = new FlexibilityAssessor();
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.Registration);
-		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.Bid);
-		//TODO: remove request
+		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.Award);
 		call(this::sendSensitivityForecasts).on(SensitivityForecastProvider.Products.SensitivityForecast)
 				.use(SensitivityForecastClient.Products.SensitivityRequest);
 	}
 
 	private void registerClients(ArrayList<Message> input, List<Contract> contracts) {
-		//TODO: register type of forecast
 		for (Message message : input) {
-			flexibilityAssessor.registerClient(message.getSenderId(), message.getDataItemOfType(Amount.class).amount);
+			long clientId = message.getSenderId();
+			var registration = message.getDataItemOfType(ForecastClientRegistration.class);
+			flexibilityAssessor.registerInstalledPower(clientId, registration.amount);
+			registeredClients.put(clientId, registration.type);
 		}
 	}
 
@@ -61,8 +62,7 @@ public class FlexibilityForecaster extends MarketForecaster implements Sensitivi
 			for (Message message : requests) {
 				TimeStamp time = message.getDataItemOfType(PointInTime.class).validAt;
 				MarketClearingResult clearingResult = getResultForRequestedTime(time);
-				ForecastRequest request = message.getDataItemOfType(ForecastRequest.class);
-				Sensitivity sensitivity = getSensitivity(request.type, clearingResult, multiplier);
+				Sensitivity sensitivity = getSensitivity(registeredClients.get(clientId), clearingResult, multiplier);
 				fulfilNext(contract, sensitivity, new PointInTime(time));
 			}
 		}

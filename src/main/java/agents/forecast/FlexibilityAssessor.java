@@ -26,7 +26,7 @@ public class FlexibilityAssessor {
 	private int numberOfPreviousSummands = 0;
 	private HashMap<Long, Double> sumOfMultipliers = new HashMap<>();
 
-	public void registerClient(long clientId, double installedPowerInMW) {
+	public void registerInstalledPower(long clientId, double installedPowerInMW) {
 		installedPowerPerClient.put(clientId, installedPowerInMW);
 		sumOfMultipliers.put(clientId, 0.);
 	}

@@ -34,7 +34,7 @@ public class Sensitivity implements Portable {
 	public double getMultiplier() {
 		return multiplier;
 	}
-	
+
 	public void updateMultiplier(double multiplier) {
 		this.multiplier = multiplier;
 		lastDemandIndex = 1;
