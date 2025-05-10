@@ -19,16 +19,16 @@ import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Forecasts sensitivities for generic flexibility options
+/** Forecasts sensitivities of merit order for generic flexibility options
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
-public class FlexibilityForecaster extends MarketForecaster implements SensitivityForecastProvider {
+public class SensitivityForecaster extends MarketForecaster implements SensitivityForecastProvider {
 	static final String ERR_SENSITIVITY_MISSING = "Type of sensitivity not implemented: ";
 
 	private final FlexibilityAssessor flexibilityAssessor;
 	private final HashMap<Long, ForecastType> registeredClients = new HashMap<>();
 
-	public FlexibilityForecaster(DataProvider dataProvider) throws MissingDataException {
+	public SensitivityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		flexibilityAssessor = new FlexibilityAssessor();
 
@@ -71,7 +71,8 @@ public class FlexibilityForecaster extends MarketForecaster implements Sensitivi
 	}
 
 	private Sensitivity getSensitivity(ForecastType type, MarketClearingResult clearingResult, double multiplier) {
-		var assessor = new MeritOrderAssessor(clearingResult.getSupplyBook(), clearingResult.getDemandBook(), type);
+		MeritOrderAssessor assessor = MeritOrderAssessor.getAssessor(type);
+		assessor.assess(clearingResult.getSupplyBook(), clearingResult.getDemandBook());
 		return new Sensitivity(assessor, multiplier);
 	}
 }

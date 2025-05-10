@@ -12,10 +12,9 @@ import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.sensitivities.SensitivityItem;
 
-public class MeritOrderAssessor {
+public abstract class MeritOrderAssessor {
 	private static final String ERR_NOT_IMPLEMENTED = "MeritOrderAssessor has no implementation for: ";
 
-	private final ForecastType type;
 	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();
@@ -23,8 +22,18 @@ public class MeritOrderAssessor {
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
 
-	public MeritOrderAssessor(SupplyOrderBook supplyBook, DemandOrderBook demandBook, ForecastType type) {
-		this.type = type;
+	public static MeritOrderAssessor getAssessor(ForecastType type) {
+		switch (type) {
+			case CostSensitivity:
+				return new CostSensitivity();
+			case MarginalCostSensitivity:
+				return new MarginalCostSensitivity();
+			default:
+				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
+		}
+	}
+
+	public final void assess(SupplyOrderBook supplyBook, DemandOrderBook demandBook) {
 		extractOrders(supplyBook);
 		extractOrders(demandBook);
 		chargingItems.sort(getComparator());
@@ -75,16 +84,7 @@ public class MeritOrderAssessor {
 	}
 
 	/** @return {@link Comparator} for {@link SensitivityItem}s to be used by this Sensitivity type */
-	protected Comparator<SensitivityItem> getComparator() {
-		switch (type) {
-			case CostSensitivity:
-				return SensitivityItem.BY_PRICE;
-			case MarginalCostSensitivity:
-				return SensitivityItem.BY_PRICE_THEN_POWER;
-			default:
-				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
-		}
-	}
+	protected abstract Comparator<SensitivityItem> getComparator();
 
 	/** sets cumulative power and monetary value of given sorted {@link SensitivityItem}s */
 	private void setCumulativeValues(ArrayList<SensitivityItem> items) {
@@ -103,16 +103,7 @@ public class MeritOrderAssessor {
 	 * 
 	 * @param item to assess
 	 * @return monetary value of this {@link SensitivityItem} according to this Sensitivity type */
-	protected double calcMonetaryValue(SensitivityItem item) {
-		switch (type) {
-			case CostSensitivity:
-				return item.getPower() * item.getPrice();
-			case MarginalCostSensitivity:
-				return item.getPower() * item.getMarginal();
-			default:
-				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
-		}
-	}
+	protected abstract double calcMonetaryValue(SensitivityItem item);
 
 	public double[] getDemandSensitivityPowers() {
 		double[] powers = new double[chargingItems.size() + 1];
@@ -149,5 +140,4 @@ public class MeritOrderAssessor {
 		}
 		return values;
 	}
-
 }
