@@ -15,8 +15,13 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
 public class Sensitivity implements Portable {
 	static final String ERR_INTERPOLATION_TYPE = "Interpolation type not implemented: ";
 
+	/** Available types of interpolation used during value calculations */
 	public enum InterpolationType {
-		CUMULATIVE, LINEAR
+		/** Values are calculated as a cumulative sum: last value from previous interval + linearly interpolated value within the
+		 * current interval */
+		CUMULATIVE,
+		/** Values are linearly interpolated from the current interval only: ignoring values from previous intervals */
+		DIRECT
 	}
 
 	private double multiplier;
@@ -65,6 +70,9 @@ public class Sensitivity implements Portable {
 		lastSupplyEnergy = 0;
 	}
 
+	/** Set the type of interpolation to be used during value calculations
+	 * 
+	 * @param interpolationType to be used during calculations in {@link #getValue(double)} */
 	public void setInterpolationType(InterpolationType interpolationType) {
 		this.interpolationType = interpolationType;
 	}
@@ -102,7 +110,7 @@ public class Sensitivity implements Portable {
 		switch (interpolationType) {
 			case CUMULATIVE:
 				return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
-			case LINEAR:
+			case DIRECT:
 				return (y2 - y1) / (x2 - x1) * x;
 			default:
 				throw new RuntimeException(ERR_INTERPOLATION_TYPE + interpolationType);

@@ -51,6 +51,8 @@ public abstract class SensitivityBasedAssessment implements AssessmentFunction {
 		}
 	}
 
-	/** Returns the type of interpolation used by this kind of {@link AssessmentFunction} */
+	/** Returns the type of interpolation used by this kind of {@link AssessmentFunction}
+	 * 
+	 * @return the type of value interpolation used */
 	protected abstract InterpolationType getInterpolationType();
 }

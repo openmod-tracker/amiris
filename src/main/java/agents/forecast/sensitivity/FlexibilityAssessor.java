@@ -9,8 +9,8 @@ import java.util.TreeMap;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Assesses flexibility dispatch history to derive power multipliers. These multipliers determine how the dispatch of an
- * individual flexibility option behaves compared to the overall dispatch.
+/** Assesses flexibility dispatch history to derive bid multipliers. These multipliers determine how the dispatch of an individual
+ * flexibility option behaves compared to the overall dispatch.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class FlexibilityAssessor {
@@ -26,17 +26,26 @@ public class FlexibilityAssessor {
 	private int numberOfPreviousSummands = 0;
 	private HashMap<Long, Double> sumOfMultipliers = new HashMap<>();
 
+	/** Register a client's installed power to provide a first guess for its power multiplier
+	 * 
+	 * @param clientId whose installed power is to be registered
+	 * @param installedPowerInMW of the client valid at the beginning of the simulation */
 	public void registerInstalledPower(long clientId, double installedPowerInMW) {
 		installedPowerPerClient.put(clientId, installedPowerInMW);
 		sumOfMultipliers.put(clientId, 0.);
 	}
 
+	/** Store a client's net awarded energy at a given time
+	 * 
+	 * @param clientId to store the net awarded energy for
+	 * @param award telling the net awarded energy for a specific clearing time */
 	public void saveAward(long clientId, AmountAtTime award) {
 		awards.putIfAbsent(award.validAt, new HashMap<Long, Double>());
 		awards.get(award.validAt).put(clientId, award.amount);
 		updatesRequiredAt.put(award.validAt, true);
 	}
 
+	/** Process all previously stored awards and update each client's multiplier history */
 	public void processAwards() {
 		for (TimeStamp time : updatesRequiredAt.keySet()) {
 			var allAwards = awards.get(time);
@@ -55,11 +64,16 @@ public class FlexibilityAssessor {
 		updatesRequiredAt.clear();
 	}
 
+	/** Return a client's average multiplier derived from award history or installed power
+	 * 
+	 * @param clientId to obtain the multiplier for
+	 * @return an estimate of the client's bid multiplier */
 	public double getMultiplier(long clientId) {
 		double[] result = calcMultiplierComponents(clientId, multiplierHistory);
 		return result[1] > 0 ? result[0] / result[1] : getInitialEstimate(clientId);
 	}
 
+	/** @return the sum of a client's multiplier history and the number of elements in that history */
 	private double[] calcMultiplierComponents(long clientId, SortedMap<TimeStamp, HashMap<Long, Double>> allMultipliers) {
 		double sum = sumOfMultipliers.getOrDefault(clientId, 0.);
 		int numberOfValidMultipliers = numberOfPreviousSummands;
@@ -73,6 +87,7 @@ public class FlexibilityAssessor {
 		return new double[] {sum, numberOfValidMultipliers};
 	}
 
+	/** @return an estimate of a client's bid multiplier based on its installed power */
 	private double getInitialEstimate(Long clientId) {
 		double installedCapacityTotal = 0;
 		for (double value : installedPowerPerClient.values()) {
@@ -81,6 +96,9 @@ public class FlexibilityAssessor {
 		return installedCapacityTotal > 0 ? installedPowerPerClient.get(clientId) / installedCapacityTotal : 1;
 	}
 
+	/** Remove stored award data that precede the given time and compress the bid history
+	 * 
+	 * @param time elements associated with previous times are removed */
 	public void clearBefore(TimeStamp time) {
 		awards.headMap(time).clear();
 		awardTotals.headMap(time).clear();

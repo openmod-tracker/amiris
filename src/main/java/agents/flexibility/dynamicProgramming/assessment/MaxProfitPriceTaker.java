@@ -29,6 +29,6 @@ public class MaxProfitPriceTaker extends SensitivityBasedAssessment {
 
 	@Override
 	protected InterpolationType getInterpolationType() {
-		return InterpolationType.LINEAR;
+		return InterpolationType.DIRECT;
 	}
 }

@@ -70,6 +70,10 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 	private final Optimiser strategist;
 	private BidSchedule bidSchedule;
 
+	/** Instantiate a new {@link GenericFlexibilityTrader}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public GenericFlexibilityTrader(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);

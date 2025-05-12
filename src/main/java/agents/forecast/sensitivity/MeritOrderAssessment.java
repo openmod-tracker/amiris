@@ -19,16 +19,24 @@ public interface MeritOrderAssessment {
 	 * @param clearingResult aggregated curves and market clearing result to assess */
 	void assess(MarketClearingResult clearingResult);
 
-	/** Returns powers values for additional demand, between which the sensitivity value changes linearly */
+	/** Returns power steps for additional demand, between which the sensitivity value changes linearly
+	 * 
+	 * @return demand power steps in between which the value of demand changes linearly */
 	double[] getDemandSensitivityPowers();
 
-	/** Returns the value of the sensitivity valid at the additional demand power entry with corresponding index */
+	/** Returns values of the sensitivity valid at the additional demand power entry with corresponding index
+	 * 
+	 * @return values of demand change corresponding to the power step with the same index */
 	double[] getDemandSensitivityValues();
 
-	/** Returns powers values for additional supply, between which the sensitivity value changes linearly */
+	/** Returns power steps for additional supply, between which the sensitivity value changes linearly
+	 * 
+	 * @return supply power steps in between which the value of demand changes linearly */
 	double[] getSupplySensitivityPowers();
 
-	/** Returns the value of the sensitivity valid at the additional supply power entry with corresponding index */
+	/** Returns values of the sensitivity valid at the additional supply power entry with corresponding index
+	 * 
+	 * @return values of supply change corresponding to the power step with the same index */
 	double[] getSupplySensitivityValues();
 
 	/** Returns the {@link MeritOrderAssessment} suited to provide the requested type of sensitivity forecast

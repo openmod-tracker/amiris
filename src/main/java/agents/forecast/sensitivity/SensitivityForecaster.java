@@ -28,6 +28,10 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	private final FlexibilityAssessor flexibilityAssessor;
 	private final HashMap<Long, ForecastType> registeredClients = new HashMap<>();
 
+	/** Instantiate a new {@link SensitivityForecaster}
+	 * 
+	 * @param dataProvider input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public SensitivityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		flexibilityAssessor = new FlexibilityAssessor();
@@ -38,6 +42,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 				.use(SensitivityForecastClient.Products.SensitivityRequest);
 	}
 
+	/** Register clients that sent a registration message */
 	private void registerClients(ArrayList<Message> input, List<Contract> contracts) {
 		for (Message message : input) {
 			long clientId = message.getSenderId();
@@ -47,6 +52,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 		}
 	}
 
+	/** Save net awards sent by clients and update their forecast multiplier history */
 	private void updateForecastMultipliers(ArrayList<Message> input, List<Contract> contracts) {
 		for (Message message : input) {
 			AmountAtTime amount = message.getDataItemOfType(AmountAtTime.class);
@@ -55,6 +61,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 		flexibilityAssessor.processAwards();
 	}
 
+	/** Calculate new sensitivities, update multiplier averages, and send out new forecasts to clients */
 	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
 		for (Contract contract : contracts) {
 			long clientId = contract.getReceiverId();
@@ -71,6 +78,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 		saveNextForecast();
 	}
 
+	/** Create the requested type of sensitivity based on a specified market clearing result using the given multiplier */
 	private Sensitivity getSensitivity(ForecastType type, MarketClearingResult clearingResult, double multiplier) {
 		MeritOrderAssessment assessor = MeritOrderAssessment.build(type);
 		assessor.assess(clearingResult);
