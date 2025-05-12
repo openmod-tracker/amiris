@@ -5,6 +5,7 @@ package agents.flexibility.dynamicProgramming.assessment;
 
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
+import communications.portable.Sensitivity.InterpolationType;
 
 /** Maximise profits of transitions using a merit order forecast and estimating the impact of own transitions on profits
  * 
@@ -24,5 +25,10 @@ public class MaxProfit extends SensitivityBasedAssessment {
 	@Override
 	public ForecastType getSensitivityType() {
 		return ForecastType.CostSensitivity;
+	}
+
+	@Override
+	protected InterpolationType getInterpolationType() {
+		return InterpolationType.DIRECT;
 	}
 }

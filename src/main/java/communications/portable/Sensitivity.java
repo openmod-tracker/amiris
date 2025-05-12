@@ -13,6 +13,12 @@ import de.dlr.gitlab.fame.communication.transfer.Portable;
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
 public class Sensitivity implements Portable {
+	static final String ERR_INTERPOLATION_TYPE = "Interpolation type not implemented: ";
+
+	public enum InterpolationType {
+		CUMULATIVE, DIRECT
+	}
+
 	private double multiplier;
 	private double[] demandPowers;
 	private double[] demandValues;
@@ -23,6 +29,8 @@ public class Sensitivity implements Portable {
 	private int lastSupplyIndex = 1;
 	private double lastDemandEnergy = 0.;
 	private double lastSupplyEnergy = 0.;
+
+	private InterpolationType interpolationType;
 
 	/** required for {@link Portable}s */
 	public Sensitivity() {}
@@ -57,6 +65,10 @@ public class Sensitivity implements Portable {
 		lastSupplyEnergy = 0;
 	}
 
+	public void setInterpolationType(InterpolationType interpolationType) {
+		this.interpolationType = interpolationType;
+	}
+
 	/** Returns sensitivity value for given requested energy delta
 	 * 
 	 * @param requestedEnergyInMWH demand &gt; 0; supply &lt; 0
@@ -74,7 +86,6 @@ public class Sensitivity implements Portable {
 	/** @return value associated with the additional demand energy */
 	private double getValueAddedDemand(double additionalDemandInMWH) {
 		int firstIndex = additionalDemandInMWH >= lastDemandEnergy ? lastDemandIndex : 1;
-		// TODO: use binary search instead
 		for (int index = firstIndex; index < demandPowers.length; index++) {
 			if (demandPowers[index] >= additionalDemandInMWH) {
 				lastDemandEnergy = additionalDemandInMWH;
@@ -88,13 +99,19 @@ public class Sensitivity implements Portable {
 
 	/** @return y-value interpolated for given position x on a line determined by (x1,y1) and (x2,y2) */
 	private double interpolateValue(double x1, double y1, double x2, double y2, double x) {
-		return (y2 - y1) / (x2 - x1) * x;
+		switch (interpolationType) {
+			case CUMULATIVE:
+				return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
+			case DIRECT:
+				return (y2 - y1) / (x2 - x1) * x;
+			default:
+				throw new RuntimeException(ERR_INTERPOLATION_TYPE + interpolationType);
+		}
 	}
 
 	/** @return value associated with the additional supply energy */
 	private double getValueAddedSupply(double additionalSupplyInMWH) {
 		int firstIndex = additionalSupplyInMWH >= lastSupplyEnergy ? lastSupplyIndex : 1;
-		// TODO: use binary search instead
 		for (int index = firstIndex; index < supplyPowers.length; index++) {
 			if (supplyPowers[index] >= additionalSupplyInMWH) {
 				lastSupplyEnergy = additionalSupplyInMWH;

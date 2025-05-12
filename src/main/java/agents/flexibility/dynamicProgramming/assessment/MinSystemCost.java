@@ -5,6 +5,7 @@ package agents.flexibility.dynamicProgramming.assessment;
 
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
+import communications.portable.Sensitivity.InterpolationType;
 
 /** Minimise system cost of transitions using a merit order forecast and estimating the impact of own transitions on system costs
  * 
@@ -24,5 +25,10 @@ public class MinSystemCost extends SensitivityBasedAssessment {
 	@Override
 	public ForecastType getSensitivityType() {
 		return ForecastType.MarginalCostSensitivity;
+	}
+
+	@Override
+	protected InterpolationType getInterpolationType() {
+		return InterpolationType.CUMULATIVE;
 	}
 }

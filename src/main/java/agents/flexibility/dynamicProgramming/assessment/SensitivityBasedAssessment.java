@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import communications.message.PointInTime;
 import communications.portable.Sensitivity;
+import communications.portable.Sensitivity.InterpolationType;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -40,6 +41,7 @@ public abstract class SensitivityBasedAssessment implements AssessmentFunction {
 		double multiplier = 0;
 		for (Message inputMessage : messages) {
 			Sensitivity sensitivity = inputMessage.getAllPortableItemsOfType(Sensitivity.class).get(0);
+			sensitivity.setInterpolationType(getInterpolationType());
 			multiplier = sensitivity.getMultiplier();
 			TimeStamp time = inputMessage.getDataItemOfType(PointInTime.class).validAt;
 			sensitivityForecasts.put(time, sensitivity);
@@ -48,4 +50,7 @@ public abstract class SensitivityBasedAssessment implements AssessmentFunction {
 			entry.getValue().updateMultiplier(multiplier);
 		}
 	}
+
+	/** Returns the type of interpolation used by this kind of {@link AssessmentFunction} */
+	protected abstract InterpolationType getInterpolationType();
 }

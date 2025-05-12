@@ -5,6 +5,7 @@ package agents.flexibility.dynamicProgramming.assessment;
 
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
+import communications.portable.Sensitivity.InterpolationType;
 
 /** Maximise profit of transitions using an electricity price forecast neglecting any price impact of bids
  * 
@@ -24,5 +25,10 @@ public class MaxProfitPriceTaker extends SensitivityBasedAssessment {
 	@Override
 	public ForecastType getSensitivityType() {
 		return ForecastType.CostInsensitive;
+	}
+
+	@Override
+	protected InterpolationType getInterpolationType() {
+		return InterpolationType.DIRECT;
 	}
 }
