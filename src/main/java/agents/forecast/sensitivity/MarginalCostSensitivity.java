@@ -17,6 +17,6 @@ public class MarginalCostSensitivity extends FullAssessor {
 
 	@Override
 	protected double calcMonetaryValue(SensitivityItem item) {
-		return item.getPower() * item.getMarginal();
+		return item.getMonetaryOffset() + item.getPower() * item.getMarginal();
 	}
 }
