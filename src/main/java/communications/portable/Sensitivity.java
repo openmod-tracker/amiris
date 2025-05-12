@@ -88,7 +88,7 @@ public class Sensitivity implements Portable {
 
 	/** @return y-value interpolated for given position x on a line determined by (x1,y1) and (x2,y2) */
 	private double interpolateValue(double x1, double y1, double x2, double y2, double x) {
-		return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
+		return (y2 - y1) / (x2 - x1) * x;
 	}
 
 	/** @return value associated with the additional supply energy */
