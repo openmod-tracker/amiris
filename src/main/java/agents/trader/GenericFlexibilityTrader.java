@@ -80,7 +80,7 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
 		strategist = new Optimiser(stateManager, bidScheduler, assessmentFunction.getTargetType());
 
-		call(this::registerAtForecaster).on(SensitivityForecastClient.Products.Registration);
+		call(this::registerAtForecaster).on(SensitivityForecastClient.Products.ForecastRegistration);
 		call(this::requestElectricityForecast).on(SensitivityForecastClient.Products.SensitivityRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateForecast).onAndUse(SensitivityForecastProvider.Products.SensitivityForecast);

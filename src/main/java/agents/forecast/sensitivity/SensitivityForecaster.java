@@ -32,7 +32,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 		super(dataProvider);
 		flexibilityAssessor = new FlexibilityAssessor();
 
-		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.Registration);
+		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
 		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.Award);
 		call(this::sendSensitivityForecasts).on(SensitivityForecastProvider.Products.SensitivityForecast)
 				.use(SensitivityForecastClient.Products.SensitivityRequest);
@@ -68,6 +68,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 			}
 		}
 		flexibilityAssessor.clearBefore(now());
+		saveNextForecast();
 	}
 
 	private Sensitivity getSensitivity(ForecastType type, MarketClearingResult clearingResult, double multiplier) {

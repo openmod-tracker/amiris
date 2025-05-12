@@ -2796,8 +2796,15 @@ AgentTypes:
             Mandatory: true
             List: false
     Products:
-      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
-      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
+      ForecastRegistration:
+        MetaData:
+          Description: ""
+      Award:
+        MetaData:
+          Description: ""
+      SensitivityRequest:
+        MetaData:
+          Description: ""
       Bids: *DamTrader_P_Bids
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
@@ -2826,3 +2833,18 @@ AgentTypes:
           Description: "Amount of energy in stored in flexibility device in MWh after executing (dis-)charging actions in the current time step"
     MetaData:
       Description: "Trader that operates a generic flexibility device, e.g., a battery storage, pumped-hydro storage, load shifting, heat pumps..."
+  
+  SensitivityForecaster:
+    Attributes:
+      ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
+      Clearing: *DAM_G_Clearing
+    Products:
+      SensitivityForecast:
+        MetaData:
+          Description: ""
+      ForecastRequest: *MarketForecaster_P_ForecastRequest
+    Outputs:
+      AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
+      ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
+    MetaData:
+      Description: ""
