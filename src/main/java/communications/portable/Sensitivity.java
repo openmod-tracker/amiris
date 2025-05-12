@@ -16,7 +16,7 @@ public class Sensitivity implements Portable {
 	static final String ERR_INTERPOLATION_TYPE = "Interpolation type not implemented: ";
 
 	public enum InterpolationType {
-		CUMULATIVE, DIRECT
+		CUMULATIVE, LINEAR
 	}
 
 	private double multiplier;
@@ -102,7 +102,7 @@ public class Sensitivity implements Portable {
 		switch (interpolationType) {
 			case CUMULATIVE:
 				return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
-			case DIRECT:
+			case LINEAR:
 				return (y2 - y1) / (x2 - x1) * x;
 			default:
 				throw new RuntimeException(ERR_INTERPOLATION_TYPE + interpolationType);
