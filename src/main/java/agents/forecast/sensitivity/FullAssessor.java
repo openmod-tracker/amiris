@@ -99,7 +99,7 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 	public double[] getDemandSensitivityPowers() {
 		double[] powers = new double[chargingItems.size() + 1];
 		powers[0] = 0;
-		for (int i = 1; i <= powers.length; i++) {
+		for (int i = 1; i < powers.length; i++) {
 			powers[i] = chargingItems.get(i - 1).getCumulatedUpperPower();
 		}
 		return powers;
@@ -109,7 +109,7 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 	public double[] getDemandSensitivityValues() {
 		double[] values = new double[chargingItems.size() + 1];
 		values[0] = 0;
-		for (int i = 1; i <= values.length; i++) {
+		for (int i = 1; i < values.length; i++) {
 			values[i] = chargingItems.get(i - 1).getUpperMonetaryValue();
 		}
 		return values;
@@ -119,7 +119,7 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 	public double[] getSupplySensitivityPowers() {
 		double[] powers = new double[dischargingItems.size() + 1];
 		powers[0] = 0;
-		for (int i = 1; i <= powers.length; i++) {
+		for (int i = 1; i < powers.length; i++) {
 			powers[i] = dischargingItems.get(i - 1).getCumulatedUpperPower();
 		}
 		return powers;
@@ -129,7 +129,7 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 	public double[] getSupplySensitivityValues() {
 		double[] values = new double[dischargingItems.size() + 1];
 		values[0] = 0;
-		for (int i = 1; i <= values.length; i++) {
+		for (int i = 1; i < values.length; i++) {
 			values[i] = dischargingItems.get(i - 1).getUpperMonetaryValue();
 		}
 		return values;
