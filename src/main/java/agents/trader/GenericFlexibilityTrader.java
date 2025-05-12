@@ -59,7 +59,7 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		/** Total received money in EUR */
 		ReceivedMoneyInEUR,
 		OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargeEnergyInMWH,
-		AwardedDischargeEnergyInMWH, StoredEnergyInMWH, VariableCostsInEUR
+		AwardedDischargeEnergyInMWH, StoredEnergyInMWH, VariableCostsInEUR, EnergyMultiplier
 	}
 
 	private static final TimeSpan OPERATION_PERIOD = new TimeSpan(1, Interval.HOURS);
@@ -144,6 +144,7 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 			fulfilNext(contractToFulfil,
 					new BidsAtTime(targetTime, getId(), Arrays.asList(supplyBid), Arrays.asList(demandBid)));
 		}
+		store(Outputs.EnergyMultiplier, assessmentFunction.getMultiplier());
 	}
 
 	/** Clears past sensitivities and creates new schedule based on current energy storage level

@@ -55,4 +55,9 @@ public abstract class SensitivityBasedAssessment implements AssessmentFunction {
 	 * 
 	 * @return the type of value interpolation used */
 	protected abstract InterpolationType getInterpolationType();
+
+	@Override
+	public final double getMultiplier() {
+		return currentSensitivity.getMultiplier();
+	}
 }
