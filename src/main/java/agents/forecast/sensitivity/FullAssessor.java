@@ -84,12 +84,12 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 			item.setCumulatedLowerPower(cumulatedPower);
 			item.setMonetaryOffset(monetaryValueOffset);
 			cumulatedPower += item.getPower();
-			item.setUpperMonetaryValue(calcMonetaryValue(item));
-			monetaryValueOffset += item.getUpperMonetaryValue();
+			item.setUpperMonetaryValue(monetaryValueOffset + calcMonetaryValue(item));
+			monetaryValueOffset = item.getUpperMonetaryValue();
 		}
 	}
 
-	/** Calculates monetary value of given item
+	/** Calculates monetary value of given item excluding the monetary offset
 	 * 
 	 * @param item to assess
 	 * @return monetary value of this {@link SensitivityItem} according to this Sensitivity type */

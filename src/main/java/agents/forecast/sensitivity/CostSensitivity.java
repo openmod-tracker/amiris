@@ -17,6 +17,6 @@ public class CostSensitivity extends FullAssessor {
 
 	@Override
 	protected double calcMonetaryValue(SensitivityItem item) {
-		return item.getMonetaryOffset() +  item.getPower() * item.getPrice();
+		return item.getPower() * item.getPrice();
 	}
 }
