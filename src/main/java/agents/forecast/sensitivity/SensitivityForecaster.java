@@ -34,7 +34,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	 * @throws MissingDataException if any required data is not provided */
 	public SensitivityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
-		flexibilityAssessor = new FlexibilityAssessor();
+		flexibilityAssessor = new FlexibilityAssessor(100.);
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
 		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.NetAward);
@@ -55,8 +55,8 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	/** Save net awards sent by clients and update their forecast multiplier history */
 	private void updateForecastMultipliers(ArrayList<Message> input, List<Contract> contracts) {
 		for (Message message : input) {
-			AmountAtTime amount = message.getDataItemOfType(AmountAtTime.class);
-			flexibilityAssessor.saveAward(message.getSenderId(), amount);
+			AmountAtTime award = message.getDataItemOfType(AmountAtTime.class);
+			flexibilityAssessor.saveAward(message.getSenderId(), award);
 		}
 		flexibilityAssessor.processAwards();
 	}
