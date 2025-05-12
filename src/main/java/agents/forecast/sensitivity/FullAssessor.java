@@ -85,7 +85,7 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 			item.setMonetaryOffset(monetaryValueOffset);
 			cumulatedPower += item.getPower();
 			item.setUpperMonetaryValue(monetaryValueOffset + calcMonetaryValue(item));
-			monetaryValueOffset = item.getUpperMonetaryValue();
+			monetaryValueOffset = item.getCumulatedUpperValue();
 		}
 	}
 
@@ -110,7 +110,7 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 		double[] values = new double[chargingItems.size() + 1];
 		values[0] = 0;
 		for (int i = 1; i < values.length; i++) {
-			values[i] = chargingItems.get(i - 1).getUpperMonetaryValue();
+			values[i] = chargingItems.get(i - 1).getCumulatedUpperValue();
 		}
 		return values;
 	}
@@ -130,7 +130,7 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 		double[] values = new double[dischargingItems.size() + 1];
 		values[0] = 0;
 		for (int i = 1; i < values.length; i++) {
-			values[i] = dischargingItems.get(i - 1).getUpperMonetaryValue();
+			values[i] = dischargingItems.get(i - 1).getCumulatedUpperValue();
 		}
 		return values;
 	}

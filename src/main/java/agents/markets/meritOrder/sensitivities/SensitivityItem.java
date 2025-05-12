@@ -82,7 +82,7 @@ public class SensitivityItem {
 		this.upperMonetaryValue = upperMonetaryValue;
 	}
 
-	public double getUpperMonetaryValue() {
+	public double getCumulatedUpperValue() {
 		return upperMonetaryValue;
 	}
 
