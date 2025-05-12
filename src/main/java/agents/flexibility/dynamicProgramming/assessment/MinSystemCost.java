@@ -12,7 +12,8 @@ import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 public class MinSystemCost extends SensitivityBasedAssessment {
 	@Override
 	public double assessTransition(double externalEnergyDeltaInMWH) {
-		return currentSensitivity.getValue(externalEnergyDeltaInMWH);
+		double sign = Math.signum(externalEnergyDeltaInMWH);
+		return sign * currentSensitivity.getValue(externalEnergyDeltaInMWH);
 	}
 
 	@Override
