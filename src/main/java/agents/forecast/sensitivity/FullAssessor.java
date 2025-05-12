@@ -5,7 +5,7 @@ package agents.forecast.sensitivity;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import agents.markets.meritOrder.books.DemandOrderBook;
+import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.OrderBook;
 import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -23,9 +23,9 @@ public abstract class FullAssessor implements MeritOrderAssessment {
 	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
 
 	@Override
-	public final void assess(SupplyOrderBook supplyBook, DemandOrderBook demandBook) {
-		extractOrders(supplyBook);
-		extractOrders(demandBook);
+	public final void assess(MarketClearingResult clearingResult) {
+		extractOrders(clearingResult.getSupplyBook());
+		extractOrders(clearingResult.getDemandBook());
 		chargingItems.sort(getComparator());
 		dischargingItems.sort(getComparator().reversed());
 		setCumulativeValues(chargingItems);

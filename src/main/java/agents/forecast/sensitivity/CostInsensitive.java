@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.forecast.sensitivity;
 
-import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.SupplyOrderBook;
+import agents.markets.meritOrder.MarketClearingResult;
 
 /** Assessment of cost / revenues associated with added demand / supply; assumes the price does not change
  * 
@@ -14,8 +13,8 @@ public class CostInsensitive implements MeritOrderAssessment {
 	private double electricityPrice = 0;
 
 	@Override
-	public void assess(SupplyOrderBook supplyBook, DemandOrderBook demandBook) {
-		electricityPrice = supplyBook.getLastAwardedItem().getOfferPrice();
+	public void assess(MarketClearingResult clearingResult) {
+		electricityPrice = clearingResult.getMarketPriceInEURperMWH();
 	}
 
 	@Override

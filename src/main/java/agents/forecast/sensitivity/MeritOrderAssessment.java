@@ -4,20 +4,20 @@
 package agents.forecast.sensitivity;
 
 import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
+import agents.markets.meritOrder.MarketClearingResult;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 
 /** Can assess a merit order defined by {@link SupplyOrderBook} and {@link DemandOrderBook} and return its sensitivity.
  * 
- * @author Christoph Schimeczek */
+ * @author Christoph Schimeczek, Johannes Kochems */
 public interface MeritOrderAssessment {
 	static final String ERR_NOT_IMPLEMENTED = "No MeritOrderAssessment implemented for forecast type: ";
 
 	/** Assesses given supply and demand books for their sensitivity; results are stored internally.
 	 * 
-	 * @param supplyBook from the merit order to assess
-	 * @param demandBook from the merit order to assess */
-	void assess(SupplyOrderBook supplyBook, DemandOrderBook demandBook);
+	 * @param clearingResult aggregated curves and market clearing result to assess */
+	void assess(MarketClearingResult clearingResult);
 
 	/** Returns powers values for additional demand, between which the sensitivity value changes linearly */
 	double[] getDemandSensitivityPowers();

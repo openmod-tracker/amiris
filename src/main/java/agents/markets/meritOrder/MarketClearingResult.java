@@ -8,9 +8,10 @@ import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 
-/** Holds clearing price, sold energy, and updated {@link DemandOrderBook} and {@link SupplyOrderBook}
+/** Holds market clearing results, i.e., clearing price, sold energy, and aggregated curves in @link DemandOrderBook} and
+ * {@link SupplyOrderBook}
  *
- * @author Farzad Sarfarazi, Christoph Schimeczek, A. Achraf El Ghazi */
+ * @author Farzad Sarfarazi, Christoph Schimeczek, A. Achraf El Ghazi, Johannes Kochems */
 public class MarketClearingResult {
 	private double tradedEnergyInMWH;
 	private double marketPriceInEURperMWH;
