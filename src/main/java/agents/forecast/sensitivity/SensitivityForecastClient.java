@@ -9,7 +9,7 @@ import de.dlr.gitlab.fame.communication.Product;
 public interface SensitivityForecastClient extends AgentAbility {
 	@Product
 	enum Products {
-		ForecastRegistration, Award, SensitivityRequest
+		ForecastRegistration, NetAward, SensitivityRequest
 	}
 
 }

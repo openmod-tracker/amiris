@@ -2799,7 +2799,7 @@ AgentTypes:
       ForecastRegistration:
         MetaData:
           Description: ""
-      Award:
+      NetAward:
         MetaData:
           Description: ""
       SensitivityRequest:

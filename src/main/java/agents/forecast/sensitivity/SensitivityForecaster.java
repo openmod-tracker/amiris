@@ -33,7 +33,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 		flexibilityAssessor = new FlexibilityAssessor();
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
-		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.Award);
+		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.NetAward);
 		call(this::sendSensitivityForecasts).on(SensitivityForecastProvider.Products.SensitivityForecast)
 				.use(SensitivityForecastClient.Products.SensitivityRequest);
 	}

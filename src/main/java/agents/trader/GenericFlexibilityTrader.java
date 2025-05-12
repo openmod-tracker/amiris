@@ -86,7 +86,7 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		call(this::updateForecast).onAndUse(SensitivityForecastProvider.Products.SensitivityForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
-		call(this::sendAward).on(SensitivityForecastClient.Products.Award).use(DayAheadMarket.Products.Awards);
+		call(this::sendAward).on(SensitivityForecastClient.Products.NetAward).use(DayAheadMarket.Products.Awards);
 	}
 
 	/** Send registration information to {@link SensitivityForecastProvider}
