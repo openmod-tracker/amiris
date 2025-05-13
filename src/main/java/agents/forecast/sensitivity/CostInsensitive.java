@@ -8,7 +8,7 @@ import agents.markets.meritOrder.MarketClearingResult;
 /** Assessment of cost / revenues associated with added demand / supply; assumes the price does not change
  * 
  * @author Christoph Schimeczek */
-public class CostInsensitive implements MeritOrderAssessment {
+public class CostInsensitive implements MarketClearingAssessment {
 	private static final double MAX_ENERGY_IN_MWH = 1E10;
 	private double electricityPrice = 0;
 

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
 
-import agents.forecast.sensitivity.MeritOrderAssessment;
+import agents.forecast.sensitivity.MarketClearingAssessment;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
@@ -44,7 +44,7 @@ public class Sensitivity implements Portable {
 	 * 
 	 * @param assessment to extract demand and supply change sensitivities from
 	 * @param multiplier associated with the client to received this {@link Sensitivity} */
-	public Sensitivity(MeritOrderAssessment assessment, double multiplier) {
+	public Sensitivity(MarketClearingAssessment assessment, double multiplier) {
 		this.demandPowers = assessment.getDemandSensitivityPowers();
 		this.demandValues = assessment.getDemandSensitivityValues();
 		this.supplyPowers = assessment.getSupplySensitivityPowers();

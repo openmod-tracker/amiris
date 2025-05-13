@@ -14,7 +14,7 @@ import agents.markets.meritOrder.sensitivities.SensitivityItem;
 /** Base class for full merit order assessment; actual type of sensitivity assessed depends on the child class.
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
-public abstract class FullAssessor implements MeritOrderAssessment {
+public abstract class FullAssessor implements MarketClearingAssessment {
 	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();

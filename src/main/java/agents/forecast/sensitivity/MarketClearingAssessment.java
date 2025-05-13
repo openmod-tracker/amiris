@@ -5,14 +5,12 @@ package agents.forecast.sensitivity;
 
 import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.SupplyOrderBook;
 
-/** Can assess a merit order defined by {@link SupplyOrderBook} and {@link DemandOrderBook} and return its sensitivity.
+/** Can assess a market clearing result and return its sensitivity to changes in demand or supply
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
-public interface MeritOrderAssessment {
-	static final String ERR_NOT_IMPLEMENTED = "No MeritOrderAssessment implemented for forecast type: ";
+public interface MarketClearingAssessment {
+	static final String ERR_NOT_IMPLEMENTED = "No MarketClearingAssessment implemented for forecast type: ";
 
 	/** Assesses given supply and demand books for their sensitivity; results are stored internally.
 	 * 
@@ -39,11 +37,11 @@ public interface MeritOrderAssessment {
 	 * @return values of supply change corresponding to the power step with the same index */
 	double[] getSupplySensitivityValues();
 
-	/** Returns the {@link MeritOrderAssessment} suited to provide the requested type of sensitivity forecast
+	/** Returns the {@link MarketClearingAssessment} suited to provide the requested type of sensitivity forecast
 	 * 
 	 * @param type of forecast tied to a type of sensitivity
-	 * @return a new {@link MeritOrderAssessment} */
-	static MeritOrderAssessment build(ForecastType type) {
+	 * @return a new {@link MarketClearingAssessment} */
+	static MarketClearingAssessment build(ForecastType type) {
 		switch (type) {
 			case CostSensitivity:
 				return new CostSensitivity();
