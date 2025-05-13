@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import agents.forecast.MarketForecaster;
-import agents.markets.meritOrder.MarketClearingResult;
 import communications.message.AmountAtTime;
 import communications.message.ForecastClientRegistration;
 import communications.message.PointInTime;
@@ -18,15 +17,15 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
+import util.TimedDataMap;
 
-/** Forecasts sensitivities of merit order for generic flexibility options
+/** Forecasts sensitivities of market clearing results with respect to changes in demand and supply
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class SensitivityForecaster extends MarketForecaster implements SensitivityForecastProvider {
-	static final String ERR_SENSITIVITY_MISSING = "Type of sensitivity not implemented: ";
-
 	private final FlexibilityAssessor flexibilityAssessor;
-	private final HashMap<Long, ForecastType> registeredClients = new HashMap<>();
+	private final HashMap<Long, ForecastType> typePerClient = new HashMap<>();
+	private final TimedDataMap<ForecastType, MarketClearingAssessment> assessments = new TimedDataMap<>();
 
 	/** Instantiate a new {@link SensitivityForecaster}
 	 * 
@@ -48,7 +47,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 			long clientId = message.getSenderId();
 			var registration = message.getDataItemOfType(ForecastClientRegistration.class);
 			flexibilityAssessor.registerInstalledPower(clientId, registration.amount);
-			registeredClients.put(clientId, registration.type);
+			typePerClient.put(clientId, registration.type);
 		}
 	}
 
@@ -69,19 +68,25 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, clientId);
 			for (Message message : requests) {
 				TimeStamp time = message.getDataItemOfType(PointInTime.class).validAt;
-				MarketClearingResult clearingResult = getResultForRequestedTime(time);
-				Sensitivity sensitivity = getSensitivity(registeredClients.get(clientId), clearingResult, multiplier);
-				fulfilNext(contract, sensitivity, new PointInTime(time));
+				MarketClearingAssessment assessment = getAssessmentFor(typePerClient.get(clientId), time);
+				fulfilNext(contract, new Sensitivity(assessment, multiplier), new PointInTime(time));
 			}
 		}
 		flexibilityAssessor.clearBefore(now());
+		assessments.clearBefore(now());
 		saveNextForecast();
 	}
 
-	/** Create the requested type of sensitivity based on a specified market clearing result using the given multiplier */
-	private Sensitivity getSensitivity(ForecastType type, MarketClearingResult clearingResult, double multiplier) {
-		MeritOrderAssessment assessor = MeritOrderAssessment.build(type);
-		assessor.assess(clearingResult);
-		return new Sensitivity(assessor, multiplier);
+	/** @return the assessment of type associated with the given client at the specified time */
+	private MarketClearingAssessment getAssessmentFor(ForecastType type, TimeStamp time) {
+		assessments.computeIfAbsent(time, type, () -> buildAssessor(time, type));
+		return assessments.get(time, type);
+	}
+
+	/** Create a new {@link MarketClearingAssessment} for given time and {@link ForecastType} */
+	private MarketClearingAssessment buildAssessor(TimeStamp time, ForecastType type) {
+		MarketClearingAssessment assessor = MarketClearingAssessment.build(type);
+		assessor.assess(getResultForRequestedTime(time));
+		return assessor;
 	}
 }

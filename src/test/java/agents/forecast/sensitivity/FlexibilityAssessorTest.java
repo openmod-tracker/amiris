@@ -111,7 +111,7 @@ public class FlexibilityAssessorTest {
 		assertEquals((2. + 5. + 10.) / 3., assessor.getMultiplier(0L), 1E-12);
 		assertEquals((2. + 10. / 8. + 10. / 9.) / 3., assessor.getMultiplier(1L), 1E-12);
 	}
-	
+
 	@Test
 	public void getMultiplier_zeroAward_ignoredForCalculations() {
 		assessor = new FlexibilityAssessor(100.);
@@ -119,6 +119,6 @@ public class FlexibilityAssessorTest {
 		saveAwards(1L, 20, 80);
 		assessor.processAwards();
 		assertEquals(5., assessor.getMultiplier(0L), 1E-12);
-		assertEquals((1 + 10. / 8.) / 2., assessor.getMultiplier(1L), 1E-12);		
+		assertEquals((1 + 10. / 8.) / 2., assessor.getMultiplier(1L), 1E-12);
 	}
 }
