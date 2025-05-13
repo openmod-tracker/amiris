@@ -2,6 +2,10 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-13
+### Fixed
+- Fix wrong incongruent of energy levels in `EnergyStateManager` that could cause a crash #164 (@dlr-cjs)
+
 ## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - 2025-05-05
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
