@@ -67,9 +67,9 @@ public class EnergyStateManager implements StateManager {
 			minLowerLevel = lowerLevel < minLowerLevel ? lowerLevel : minLowerLevel;
 			maxUpperLevel = upperLevel > maxUpperLevel ? upperLevel : maxUpperLevel;
 		}
-		int lowestStep = (int) (minLowerLevel / energyResolutionInMWH);
+		final int lowestStep = energyToCeilIndex(minLowerLevel);
+		final int highestStep = energyToFloorIndex(maxUpperLevel);
 		lowestLevelEnergyInMWH = lowestStep * energyResolutionInMWH;
-		int highestStep = (int) (maxUpperLevel / energyResolutionInMWH);
 		numberOfEnergyStates = highestStep - lowestStep + 1;
 	}
 
@@ -77,6 +77,19 @@ public class EnergyStateManager implements StateManager {
 	private TimeStamp getTimeByIndex(int timeIndex) {
 		return startingPeriod.shiftByDuration(timeIndex).getStartTime();
 	}
+	
+	/** @return next lower index corresponding to given energy level */
+	private int energyToFloorIndex(double energyAmountInMWH) {
+		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH + PRECISION_GUARD)
+				* energyResolutionInMWH;
+		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
+	}
+
+	/** @return next higher index corresponding to given energy level */
+	private int energyToCeilIndex(double energyAmountInMWH) {
+		double energyLevel = Math.ceil(energyAmountInMWH / energyResolutionInMWH - PRECISION_GUARD) * energyResolutionInMWH;
+		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
+	}	
 
 	/** Sets {@link #hasSelfDischarge} to true if self discharge occurs in periods of the planning horizon, false otherwise */
 	private void analyseSelfDischarge() {
@@ -133,19 +146,6 @@ public class EnergyStateManager implements StateManager {
 		final int lowestIndex = energyToCeilIndex(deviceCache.getEnergyContentLowerLimitInMWH());
 		final int highestIndex = energyToFloorIndex(deviceCache.getEnergyContentUpperLimitInMWH());
 		return new int[] {lowestIndex, highestIndex};
-	}
-
-	/** @return next lower index corresponding to given energy level */
-	private int energyToFloorIndex(double energyAmountInMWH) {
-		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH + PRECISION_GUARD)
-				* energyResolutionInMWH;
-		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
-	}
-
-	/** @return next higher index corresponding to given energy level */
-	private int energyToCeilIndex(double energyAmountInMWH) {
-		double energyLevel = Math.ceil(energyAmountInMWH / energyResolutionInMWH - PRECISION_GUARD) * energyResolutionInMWH;
-		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
 	}
 
 	@Override
