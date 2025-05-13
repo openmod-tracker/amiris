@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import de.dlr.gitlab.fame.time.TimeStamp;
@@ -43,5 +45,34 @@ public class TimedDataMap<U, V> {
 		if (!data.containsKey(key)) {
 			data.put(key, mappingFunction.get());
 		}
+	}
+
+	public ArrayList<V> getValuesOf(U key) {
+		ArrayList<V> values = new ArrayList<V>();
+		for (var data : dataPerTime.values()) {
+			values.add(data.get(key));
+		}
+		return values;
+	}
+
+	public HashMap<U, V> getDataAt(TimeStamp time) {
+		ensurePresent(time);
+		return dataPerTime.get(time);
+	}
+
+	public ArrayList<V> getValuesBefore(TimeStamp time, U key) {
+		ArrayList<V> values = new ArrayList<V>();
+		for (var data : dataPerTime.headMap(time).values()) {
+			values.add(data.get(key));
+		}
+		return values;
+	}
+
+	public HashSet<U> getKeysBefore(TimeStamp time) {
+		HashSet<U> keys = new HashSet<>();
+		for (var data : dataPerTime.headMap(time).values()) {
+			keys.addAll(data.keySet());
+		}
+		return keys;
 	}
 }

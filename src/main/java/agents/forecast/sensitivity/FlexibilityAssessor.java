@@ -3,15 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.forecast.sensitivity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import communications.message.AmountAtTime;
 import de.dlr.gitlab.fame.time.TimeStamp;
+import util.TimedDataMap;
 
 /** Assesses flexibility dispatch history to derive bid multipliers. These multipliers determine how the dispatch of an individual
  * flexibility option behaves compared to the overall dispatch.
@@ -24,8 +23,8 @@ public class FlexibilityAssessor {
 	private final double factorLimit;
 
 	private final HashMap<Long, Double> installedPowerPerClient = new HashMap<>();
-	private final TreeMap<TimeStamp, HashMap<Long, Double>> multiplierHistory = new TreeMap<>();
-	private final TreeMap<TimeStamp, HashMap<Long, Double>> awards = new TreeMap<>();
+	private final TimedDataMap<Long, Double> multiplierHistory = new TimedDataMap<>();
+	private final TimedDataMap<Long, Double> awardHistory = new TimedDataMap<>();
 	private final HashSet<TimeStamp> updatesRequiredAt = new HashSet<>();
 	private final HashMap<Long, Double> sumOfMultipliers = new HashMap<>();
 	private final HashMap<Long, Integer> numberOfPreviousSummands = new HashMap<>();
@@ -51,20 +50,19 @@ public class FlexibilityAssessor {
 	 * @param clientId to store the net awarded energy for
 	 * @param award telling the net awarded energy for a specific clearing time */
 	public void saveAward(long clientId, AmountAtTime award) {
-		awards.putIfAbsent(award.validAt, new HashMap<Long, Double>());
-		awards.get(award.validAt).put(clientId, award.amount);
+		awardHistory.set(award.validAt, clientId, award.amount);
 		updatesRequiredAt.add(award.validAt);
 	}
 
 	/** Process all previously stored awards and update each client's multiplier history */
 	public void processAwards() {
 		for (TimeStamp time : updatesRequiredAt) {
-			double sum = sumValuesInMap(awards.get(time));
-			multiplierHistory.putIfAbsent(time, new HashMap<>());
-			var multiplierPerClient = multiplierHistory.get(time);
-			for (var entry : awards.get(time).entrySet()) {
+			HashMap<Long, Double> awards = awardHistory.getDataAt(time);
+			double sum = sumValuesInMap(awards);
+			for (var entry : awards.entrySet()) {
 				double factor = Math.abs(entry.getValue()) > 0 ? sum / entry.getValue() : Double.NaN;
-				multiplierPerClient.put(entry.getKey(), Math.max(-factorLimit, Math.min(factorLimit, factor)));
+				factor = Math.max(-factorLimit, Math.min(factorLimit, factor));
+				multiplierHistory.set(time, entry.getKey(), factor);
 			}
 		}
 		updatesRequiredAt.clear();
@@ -84,16 +82,15 @@ public class FlexibilityAssessor {
 	 * @param clientId to obtain the multiplier for
 	 * @return an estimate of the client's bid multiplier */
 	public double getMultiplier(long clientId) {
-		double[] result = calcMultiplierComponents(clientId, multiplierHistory);
+		double[] result = calcMultiplierComponents(clientId, multiplierHistory.getValuesOf(clientId));
 		return result[1] > 0 ? result[0] / result[1] : getInitialEstimate(clientId);
 	}
 
 	/** @return the sum of a client's multiplier history and the number of elements in that history */
-	private double[] calcMultiplierComponents(long clientId, SortedMap<TimeStamp, HashMap<Long, Double>> allMultipliers) {
+	private double[] calcMultiplierComponents(long clientId, ArrayList<Double> multipliers) {
 		double sum = sumOfMultipliers.getOrDefault(clientId, 0.);
 		int numberOfValidMultipliers = numberOfPreviousSummands.getOrDefault(clientId, 0);
-		for (var multiplierPerClient : allMultipliers.values()) {
-			double multiplier = multiplierPerClient.get(clientId);
+		for (double multiplier : multipliers) {
 			if (!Double.isNaN(multiplier)) {
 				sum += multiplier;
 				numberOfValidMultipliers++;
@@ -122,23 +119,13 @@ public class FlexibilityAssessor {
 	 * 
 	 * @param time elements associated with previous times are removed */
 	public void clearBefore(TimeStamp time) {
-		awards.headMap(time).clear();
-		var multipliersToDelete = multiplierHistory.headMap(time);
-		var uniqueClients = getKeysFromEntries(multipliersToDelete);
+		awardHistory.clearBefore(time);
+		HashSet<Long> uniqueClients = multiplierHistory.getKeysBefore(time);
 		for (long clientId : uniqueClients) {
-			double[] result = calcMultiplierComponents(clientId, multipliersToDelete);
+			double[] result = calcMultiplierComponents(clientId, multiplierHistory.getValuesBefore(time, clientId));
 			sumOfMultipliers.put(clientId, result[0]);
 			numberOfPreviousSummands.put(clientId, (int) Math.round(result[1]));
 		}
-		multipliersToDelete.clear();
-	}
-
-	/** @return list of all key present in the entries of the given map */
-	private HashSet<Long> getKeysFromEntries(Map<?, HashMap<Long, Double>> multipliers) {
-		HashSet<Long> clients = new HashSet<>();
-		for (var value : multipliers.values()) {
-			clients.addAll(value.keySet());
-		}
-		return clients;
+		multiplierHistory.clearBefore(time);
 	}
 }
