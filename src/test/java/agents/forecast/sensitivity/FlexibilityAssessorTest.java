@@ -67,13 +67,24 @@ public class FlexibilityAssessorTest {
 	}
 
 	@Test
-	public void getMultiplier_clientSentAwardsTwoRounds_returnsInverseAwardShareAverage() {
+	public void getMultiplier_clientSentAwardsOneRoundTwoTimes_returnsInverseAwardShareAverage() {
 		assessor = new FlexibilityAssessor(100.);
 		saveAwards(0L, 50, 50);
 		saveAwards(1L, 20, 80);
 		assessor.processAwards();
 		assertEquals(3.5, assessor.getMultiplier(0L), 1E-12);
 		assertEquals(1.625, assessor.getMultiplier(1L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_clientSentAwardsTwoRounds_returnsInverseAwardShareAverage() {
+		assessor = new FlexibilityAssessor(100.);
+		saveAwards(0L, 20, 30);
+		assessor.processAwards();
+		saveAwards(1L, 10, 40);
+		assessor.processAwards();
+		assertEquals((5. / 2. + 5.) / 2., assessor.getMultiplier(0L), 1E-12);
+		assertEquals((5. / 3. + 5. / 4.) / 2., assessor.getMultiplier(1L), 1E-12);
 	}
 
 	@Test
@@ -85,5 +96,19 @@ public class FlexibilityAssessorTest {
 		assessor.clearBefore(new TimeStamp(2L));
 		assertEquals(3.5, assessor.getMultiplier(0L), 1E-12);
 		assertEquals(1.625, assessor.getMultiplier(1L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_awardsCompressedPlusAnotherRound_returnsInverseAwardShareAverage() {
+		assessor = new FlexibilityAssessor(100.);
+		saveAwards(0L, 50, 50);
+		saveAwards(1L, 20, 80);
+		assessor.processAwards();
+		assessor.clearBefore(new TimeStamp(2L));
+		assessor.processAwards();
+		saveAwards(3L, 10, 90);
+		assessor.processAwards();
+		assertEquals((2. + 5. + 10.) / 3., assessor.getMultiplier(0L), 1E-12);
+		assertEquals((2. + 10. / 8. + 10. / 9.) / 3., assessor.getMultiplier(1L), 1E-12);
 	}
 }
