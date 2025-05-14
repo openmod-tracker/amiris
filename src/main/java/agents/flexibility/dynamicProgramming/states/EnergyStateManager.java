@@ -77,7 +77,7 @@ public class EnergyStateManager implements StateManager {
 	private TimeStamp getTimeByIndex(int timeIndex) {
 		return startingPeriod.shiftByDuration(timeIndex).getStartTime();
 	}
-	
+
 	/** @return next lower index corresponding to given energy level */
 	private int energyToFloorIndex(double energyAmountInMWH) {
 		double energyLevel = Math.floor(energyAmountInMWH / energyResolutionInMWH + PRECISION_GUARD)
@@ -89,7 +89,7 @@ public class EnergyStateManager implements StateManager {
 	private int energyToCeilIndex(double energyAmountInMWH) {
 		double energyLevel = Math.ceil(energyAmountInMWH / energyResolutionInMWH - PRECISION_GUARD) * energyResolutionInMWH;
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
-	}	
+	}
 
 	/** Sets {@link #hasSelfDischarge} to true if self discharge occurs in periods of the planning horizon, false otherwise */
 	private void analyseSelfDischarge() {

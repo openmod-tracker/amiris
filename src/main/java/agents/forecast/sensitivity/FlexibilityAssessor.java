@@ -28,6 +28,7 @@ public class FlexibilityAssessor {
 	private final HashSet<TimeStamp> updatesRequiredAt = new HashSet<>();
 	private final HashMap<Long, Double> sumOfMultipliers = new HashMap<>();
 	private final HashMap<Long, Integer> numberOfPreviousSummands = new HashMap<>();
+	private final HashMap<Long, Double> largestAwards = new HashMap<>();
 
 	/** Instantiate a new {@link FlexibilityAssessor}
 	 * 
@@ -43,6 +44,7 @@ public class FlexibilityAssessor {
 	public void registerInstalledPower(long clientId, double installedPowerInMW) {
 		installedPowerPerClient.put(clientId, installedPowerInMW);
 		sumOfMultipliers.put(clientId, 0.);
+		largestAwards.put(clientId, 0.);
 	}
 
 	/** Store a client's net awarded energy at a given time
@@ -51,6 +53,9 @@ public class FlexibilityAssessor {
 	 * @param award telling the net awarded energy for a specific clearing time */
 	public void saveAward(long clientId, AmountAtTime award) {
 		awardHistory.set(award.validAt, clientId, award.amount);
+		double largestPreviousAward = largestAwards.getOrDefault(clientId, 0.);
+		double largestAward = Math.abs(award.amount) > largestPreviousAward ? Math.abs(award.amount) : largestPreviousAward;
+		largestAwards.put(clientId, largestAward);
 		updatesRequiredAt.add(award.validAt);
 	}
 
@@ -60,8 +65,7 @@ public class FlexibilityAssessor {
 			HashMap<Long, Double> awards = awardHistory.getDataAt(time);
 			double sum = sumValuesInMap(awards);
 			for (var entry : awards.entrySet()) {
-				double factor = Math.abs(entry.getValue()) > 0 ? sum / entry.getValue() : Double.NaN;
-				factor = Math.max(-factorLimit, Math.min(factorLimit, factor));
+				double factor = calcFactor(entry.getKey(), entry.getValue(), sum);
 				multiplierHistory.set(time, entry.getKey(), factor);
 			}
 		}
@@ -75,6 +79,15 @@ public class FlexibilityAssessor {
 			sum += value;
 		}
 		return sum;
+	}
+
+	/** @return factor for given client based on the client's award and the sum of all awards */
+	private double calcFactor(long clientId, double award, double sum) {
+		double largestAward = largestAwards.get(clientId);
+		if (largestAward < 1E-3 || Math.abs(award) * factorLimit < largestAward) {
+			return Double.NaN;
+		}
+		return sum / award;
 	}
 
 	/** Return a client's average multiplier derived from award history or installed power

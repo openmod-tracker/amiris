@@ -33,7 +33,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	 * @throws MissingDataException if any required data is not provided */
 	public SensitivityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
-		flexibilityAssessor = new FlexibilityAssessor(100.);
+		flexibilityAssessor = new FlexibilityAssessor(1000.);
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
 		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.NetAward);
