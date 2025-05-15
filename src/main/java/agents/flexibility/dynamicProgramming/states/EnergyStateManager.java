@@ -15,7 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class EnergyStateManager implements StateManager {
-	/** Added to floating point calculation of transition steps to avoid rounding errors */
+	/** Used to avoid rounding errors in floating point calculation of transition steps */
 	private static final double PRECISION_GUARD = 1E-5;
 
 	private final GenericDevice device;

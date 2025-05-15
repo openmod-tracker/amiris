@@ -13,11 +13,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 import util.TimedDataMap;
 
 /** Assesses flexibility dispatch history to derive bid multipliers. These multipliers determine how the dispatch of an individual
- * flexibility option behaves compared to the overall dispatch.
+ * flexibility option behaves compared to the total dispatch of power plants.
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class FlexibilityAssessor {
-	static final String WARN_MISSING_REGISTRATION = "Agent with ID %s was not registered at SensitivityForecaster; it is recommended that all or no clients register.";
+	static final String WARN_MISSING_REGISTRATION = "Agent with ID %s was not registered with SensitivityForecaster; it is recommended that all clients register, or none.";
 	private static Logger logger = LoggerFactory.getLogger(FlexibilityAssessor.class);
 
 	private final double factorLimit;
@@ -128,7 +128,7 @@ public class FlexibilityAssessor {
 		return Math.max(-factorLimit, Math.min(factorLimit, multiplier));
 	}
 
-	/** Remove stored award data that precede the given time and compress the bid history
+	/** Remove any stored award data from before the given time and compress the bid history
 	 * 
 	 * @param time elements associated with previous times are removed */
 	public void clearBefore(TimeStamp time) {
