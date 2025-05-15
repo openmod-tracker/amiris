@@ -20,7 +20,7 @@ public class FlexibilityAssessor {
 	static final String WARN_MISSING_REGISTRATION = "Agent with ID %s was not registered with SensitivityForecaster; it is recommended that all clients register, or none.";
 	private static Logger logger = LoggerFactory.getLogger(FlexibilityAssessor.class);
 
-	private final double factorLimit;
+	private final double cutOffFactor;
 
 	private final HashMap<Long, Double> installedPowerPerClient = new HashMap<>();
 	private final TimedDataMap<Long, Double> multiplierHistory = new TimedDataMap<>();
@@ -32,14 +32,14 @@ public class FlexibilityAssessor {
 
 	/** Instantiate a new {@link FlexibilityAssessor}
 	 * 
-	 * @param factorLimit maximum factor that is to be logged - higher ratios will be capped at this value */
-	public FlexibilityAssessor(double factorLimit) {
-		this.factorLimit = factorLimit;
+	 * @param cutOffFactor ignore awards that have lower energy than this factor * largest previous award */
+	public FlexibilityAssessor(double cutOffFactor) {
+		this.cutOffFactor = cutOffFactor;
 	}
 
 	/** Register a client's installed power to provide a first guess for its power multiplier
 	 * 
-	 * @param clientId whose installed power is to be registered
+	 * @param clientId id of agent whose installed power is to be registered
 	 * @param installedPowerInMW of the client valid at the beginning of the simulation */
 	public void registerInstalledPower(long clientId, double installedPowerInMW) {
 		installedPowerPerClient.put(clientId, installedPowerInMW);
@@ -49,7 +49,7 @@ public class FlexibilityAssessor {
 
 	/** Store a client's net awarded energy at a given time
 	 * 
-	 * @param clientId to store the net awarded energy for
+	 * @param clientId id of agent to store the net awarded energy for
 	 * @param award telling the net awarded energy for a specific clearing time */
 	public void saveAward(long clientId, AmountAtTime award) {
 		awardHistory.set(award.validAt, clientId, award.amount);
@@ -84,7 +84,7 @@ public class FlexibilityAssessor {
 	/** @return factor for given client based on the client's award and the sum of all awards */
 	private double calcFactor(long clientId, double award, double sum) {
 		double largestAward = largestAwards.get(clientId);
-		if (largestAward < 1E-3 || Math.abs(award) * factorLimit < largestAward) {
+		if (largestAward < 1E-3 || Math.abs(award) * cutOffFactor < largestAward) {
 			return Double.NaN;
 		}
 		return sum / award;
@@ -92,7 +92,7 @@ public class FlexibilityAssessor {
 
 	/** Return a client's average multiplier derived from award history or installed power
 	 * 
-	 * @param clientId to obtain the multiplier for
+	 * @param clientId id of agent to obtain the multiplier for
 	 * @return an estimate of the client's bid multiplier */
 	public double getMultiplier(long clientId) {
 		double[] result = calcMultiplierComponents(clientId, multiplierHistory.getValuesOf(clientId));
@@ -125,7 +125,7 @@ public class FlexibilityAssessor {
 			installedCapacityTotal += value;
 		}
 		double multiplier = installedCapacityTotal / installedPowerPerClient.get(clientId);
-		return Math.max(-factorLimit, Math.min(factorLimit, multiplier));
+		return Math.max(-cutOffFactor, Math.min(cutOffFactor, multiplier));
 	}
 
 	/** Remove any stored award data from before the given time and compress the bid history

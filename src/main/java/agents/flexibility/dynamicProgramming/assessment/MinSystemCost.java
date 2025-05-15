@@ -7,7 +7,8 @@ import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import communications.portable.Sensitivity.InterpolationType;
 
-/** Minimise system cost of transitions using a merit order forecast and estimating the impact of own transitions on system costs
+/** Minimise system cost of transitions using a merit order forecast and estimating the impact of transitions on profits caused by
+ * own dispatch and dispatch of competitors.
  * 
  * @author Christoph Schimeczek */
 public class MinSystemCost extends SensitivityBasedAssessment {
