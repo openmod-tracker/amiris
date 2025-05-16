@@ -101,7 +101,8 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		double averagePowerInMW = (device.getExternalChargingPowerInMW(now())
 				+ device.getExternalDischargingPowerInMW(now())) / 2.;
-		fulfilNext(contract, new ForecastClientRegistration(assessmentFunction.getSensitivityType(), averagePowerInMW));
+		double energyInMWH = averagePowerInMW * OPERATION_PERIOD.getSteps() / new TimeSpan(1, Interval.HOURS).getSteps();
+		fulfilNext(contract, new ForecastClientRegistration(assessmentFunction.getSensitivityType(), energyInMWH));
 	}
 
 	/** Requests a forecast from a contracted Forecaster.

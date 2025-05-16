@@ -12,7 +12,11 @@ import communications.message.ForecastClientRegistration;
 import communications.message.PointInTime;
 import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
+import de.dlr.gitlab.fame.agent.input.Input;
+import de.dlr.gitlab.fame.agent.input.Make;
+import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
+import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
@@ -23,6 +27,11 @@ import util.TimedDataMap;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class SensitivityForecaster extends MarketForecaster implements SensitivityForecastProvider {
+	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("MultiplierEstimation")
+			.add(Make.newDouble("IgnoreAwardFactor").optional()
+					.help("Awards with less energy than maximum energy divided by this factor are ignored."))
+			.add(Make.newInt("InitialEstimateWeight").optional().help("Weight of the initial estimate."))).buildTree();
+
 	private final FlexibilityAssessor flexibilityAssessor;
 	private final HashMap<Long, ForecastType> typePerClient = new HashMap<>();
 	private final TimedDataMap<ForecastType, MarketClearingAssessment> assessments = new TimedDataMap<>();
@@ -33,7 +42,10 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	 * @throws MissingDataException if any required data is not provided */
 	public SensitivityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
-		flexibilityAssessor = new FlexibilityAssessor(1000.);
+		ParameterData input = parameters.join(dataProvider);
+		double cutOffFactor = input.getDoubleOrDefault("IgnoreAwardFactor", 1000.);
+		int initialEstimateWeight = input.getIntegerOrDefault("InitialEstimateWeight", 24);
+		flexibilityAssessor = new FlexibilityAssessor(cutOffFactor, initialEstimateWeight);
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
 		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.NetAward);
@@ -46,9 +58,11 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 		for (Message message : input) {
 			long clientId = message.getSenderId();
 			var registration = message.getDataItemOfType(ForecastClientRegistration.class);
-			flexibilityAssessor.registerInstalledPower(clientId, registration.amount);
+			flexibilityAssessor.registerClient(clientId, registration.amount);
 			typePerClient.put(clientId, registration.type);
 		}
+		flexibilityAssessor.processInput();
+		flexibilityAssessor.clearBefore(now());
 	}
 
 	/** Save net awards sent by clients and update their forecast multiplier history */
@@ -57,7 +71,7 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 			AmountAtTime award = message.getDataItemOfType(AmountAtTime.class);
 			flexibilityAssessor.saveAward(message.getSenderId(), award);
 		}
-		flexibilityAssessor.processAwards();
+		flexibilityAssessor.processInput();
 	}
 
 	/** Calculate new sensitivities, update multiplier averages, and send out new forecasts to clients */

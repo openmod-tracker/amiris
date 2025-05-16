@@ -72,7 +72,10 @@ public class TimedDataMap<U, V> {
 	public ArrayList<V> getValuesOf(U key) {
 		ArrayList<V> values = new ArrayList<V>();
 		for (var data : dataPerTime.values()) {
-			values.add(data.get(key));
+			V value = data.get(key);
+			if (value != null) {
+				values.add(value);
+			}
 		}
 		return values;
 	}
