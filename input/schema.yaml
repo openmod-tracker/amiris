@@ -2841,6 +2841,25 @@ AgentTypes:
     Attributes:
       ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
       Clearing: *DAM_G_Clearing
+      MultiplierEstimation:
+        MetaData:
+          Description: ""
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          IgnoreAwardFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Awards with less energy than maximum energy divided by this factor are ignored."
+          InitialEstimateWeight:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Weight of the initial estimate."
     Products:
       SensitivityForecast:
         MetaData:

@@ -27,7 +27,7 @@ import util.TimedDataMap;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class SensitivityForecaster extends MarketForecaster implements SensitivityForecastProvider {
-	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("MultiplierEstimation")
+	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("MultiplierEstimation").optional()
 			.add(Make.newDouble("IgnoreAwardFactor").optional()
 					.help("Awards with less energy than maximum energy divided by this factor are ignored."))
 			.add(Make.newInt("InitialEstimateWeight").optional().help("Weight of the initial estimate."))).buildTree();
@@ -43,8 +43,8 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	public SensitivityForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
-		double cutOffFactor = input.getDoubleOrDefault("IgnoreAwardFactor", 1000.);
-		int initialEstimateWeight = input.getIntegerOrDefault("InitialEstimateWeight", 24);
+		double cutOffFactor = input.getDoubleOrDefault("MultiplierEstimation.IgnoreAwardFactor", 1000.);
+		int initialEstimateWeight = input.getIntegerOrDefault("MultiplierEstimation.InitialEstimateWeight", 24);
 		flexibilityAssessor = new FlexibilityAssessor(cutOffFactor, initialEstimateWeight);
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
