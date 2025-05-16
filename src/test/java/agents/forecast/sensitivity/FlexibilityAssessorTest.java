@@ -40,8 +40,22 @@ public class FlexibilityAssessorTest {
 	}
 
 	@Test
-	public void getMultiplier_clientRegisteredSimilar_returnsOneOverInstallShare() {
+	public void getMultiplier_clientRegisteredSimilarNoDecay_returnsOneOverInstallShare() {
 		assessor = new FlexibilityAssessor(100., 2, -1);
+		registerClients(100, 100);
+		assertEquals(2, assessor.getMultiplier(0L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_clientRegisteredSimilarInstantDecay_returnsOneOverInstallShare() {
+		assessor = new FlexibilityAssessor(100., 2, 0);
+		registerClients(100, 100);
+		assertEquals(2, assessor.getMultiplier(0L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_clientRegisteredSimilarSomeDecay_returnsOneOverInstallShare() {
+		assessor = new FlexibilityAssessor(100., 2, 2);
 		registerClients(100, 100);
 		assertEquals(2, assessor.getMultiplier(0L), 1E-12);
 	}
@@ -66,13 +80,35 @@ public class FlexibilityAssessorTest {
 	}
 
 	@Test
-	public void getMultiplier_initialWeightOneAndOneRoundOfAwards_returnsInverseShareAverage() {
+	public void getMultiplier_initialWeightOneAndOneRoundOfAwardsNoDecay_returnsInverseShareAverage() {
 		assessor = new FlexibilityAssessor(100., 1, -1);
 		registerClients(100, 100);
 		saveAwards(0L, 20, 80);
 		assessor.processInput();
 		assertEquals((2 + 5) / 2., assessor.getMultiplier(0L), 1E-12);
 		assertEquals((2 + 1.25) / 2., assessor.getMultiplier(1L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_initialWeightOneAndOneRoundOfAwardsFullDecay_ignoresInstallShare() {
+		assessor = new FlexibilityAssessor(100., 1, 0);
+		registerClients(100, 100);
+		saveAwards(0L, 20, 80);
+		assessor.processInput();
+		assertEquals(5, assessor.getMultiplier(0L), 1E-12);
+		assertEquals(1.25, assessor.getMultiplier(1L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_initialWeightOneAndOneRoundOfAwardsSomeDecay_returnsWeightedAverage() {
+		assessor = new FlexibilityAssessor(100., 1, 1);
+		registerClients(100, 100);
+		saveAwards(0L, 20, 80);
+		assessor.processInput();
+		double decay = Math.exp(-1.);
+
+		assertEquals((2 * decay + 5) / (1 + decay), assessor.getMultiplier(0L), 1E-12);
+		assertEquals((2 * decay + 1.25) / (1 + decay), assessor.getMultiplier(1L), 1E-12);
 	}
 
 	/** Save awards at given time to clients with increasing ID starting at 0 */
@@ -84,7 +120,7 @@ public class FlexibilityAssessorTest {
 	}
 
 	@Test
-	public void getMultiplier_initialWeightTwoAndOneRoundOfAwards_returnsInverseShareAverage() {
+	public void getMultiplier_initialWeightTwoAndOneRoundOfAwardsNoDecay_returnsInverseShareAverage() {
 		assessor = new FlexibilityAssessor(100., 2, -1);
 		registerClients(100, 100);
 		saveAwards(0L, 20, 80);
@@ -104,7 +140,7 @@ public class FlexibilityAssessorTest {
 	}
 
 	@Test
-	public void getMultiplier_clientSentAwardsOneRoundTwoTimes_returnsInverseShareAverage() {
+	public void getMultiplier_clientSentAwardsOneRoundTwoTimesNoDecay_returnsInverseShareAverage() {
 		assessor = new FlexibilityAssessor(100., 3, -1);
 		registerClients(100, 100);
 		saveAwards(0L, 50, 50);
@@ -112,6 +148,31 @@ public class FlexibilityAssessorTest {
 		assessor.processInput();
 		assertEquals((2 * 3 + 2 + 5) / 5., assessor.getMultiplier(0L), 1E-12);
 		assertEquals((2 * 3 + 2 + 1.25) / 5., assessor.getMultiplier(1L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_clientSentAwardsOneRoundTwoTimesFullDecay_returnsInverseShareLast() {
+		assessor = new FlexibilityAssessor(100., 3, 0);
+		registerClients(100, 100);
+		saveAwards(0L, 50, 50);
+		saveAwards(1L, 20, 80);
+		assessor.processInput();
+		assertEquals(5, assessor.getMultiplier(0L), 1E-12);
+		assertEquals(1.25, assessor.getMultiplier(1L), 1E-12);
+	}
+
+	@Test
+	public void getMultiplier_clientSentAwardsOneRoundTwoTimesSomeDecay_returnsInverseShareLast() {
+		assessor = new FlexibilityAssessor(100., 3, 3);
+		registerClients(100, 100);
+		saveAwards(0L, 50, 50);
+		saveAwards(1L, 20, 80);
+		assessor.processInput();
+		double decay = Math.exp(-1. / 3.);
+		double initialFactor = Math.pow(decay, 2.) + Math.pow(decay, 3.) + Math.pow(decay, 4.);
+		double divisor = (1 + decay + initialFactor);
+		assertEquals((2 * initialFactor + 2 * decay + 5) / divisor, assessor.getMultiplier(0L), 1E-12);
+		assertEquals((2 * initialFactor + 2 * decay + 100. / 80.) / divisor, assessor.getMultiplier(1L), 1E-12);
 	}
 
 	@Test
