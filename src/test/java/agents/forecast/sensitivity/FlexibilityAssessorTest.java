@@ -13,13 +13,13 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_noClientRegistered_returnsOne() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		assertEquals(1.0, assessor.getMultiplier(0L), 1E-12);
 	}
 
 	@Test
 	public void getMultiplier_someClientsRegisterButNotTheRequested_returnsOne() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		registerClients(100, 200);
 		assertEquals(1.0, assessor.getMultiplier(42L), 1E-12);
 	}
@@ -34,21 +34,21 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_clientRegisteredNoPower_returnsOne() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		registerClients(0, 100);
 		assertEquals(1.0, assessor.getMultiplier(0L), 1E-12);
 	}
 
 	@Test
 	public void getMultiplier_clientRegisteredSimilar_returnsOneOverInstallShare() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		registerClients(100, 100);
 		assertEquals(2, assessor.getMultiplier(0L), 1E-12);
 	}
 
 	@Test
 	public void getMultiplier_clientRegisteredDifferent_returnsOneOverInstallShare() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		registerClients(100, 200);
 		assertEquals(3, assessor.getMultiplier(0L), 1E-12);
 		assertEquals(1.5, assessor.getMultiplier(1L), 1E-12);
@@ -56,7 +56,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_clientRegisteredMultipleTimes_returnsShareBasedOnFirstRegistration() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		assessor.registerClient(0L, 100);
 		assessor.registerClient(1L, 200);
 		assessor.registerClient(0L, 10000);
@@ -67,7 +67,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_initialWeightOneAndOneRoundOfAwards_returnsInverseShareAverage() {
-		assessor = new FlexibilityAssessor(100., 1);
+		assessor = new FlexibilityAssessor(100., 1, -1);
 		registerClients(100, 100);
 		saveAwards(0L, 20, 80);
 		assessor.processInput();
@@ -85,7 +85,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_initialWeightTwoAndOneRoundOfAwards_returnsInverseShareAverage() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		registerClients(100, 100);
 		saveAwards(0L, 20, 80);
 		assessor.processInput();
@@ -95,7 +95,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_initialWeightNegative_returnsInverseShareForWeightOne() {
-		assessor = new FlexibilityAssessor(100., -1);
+		assessor = new FlexibilityAssessor(100., -1, -1);
 		registerClients(100, 100);
 		saveAwards(0L, 20, 80);
 		assessor.processInput();
@@ -105,7 +105,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_clientSentAwardsOneRoundTwoTimes_returnsInverseShareAverage() {
-		assessor = new FlexibilityAssessor(100., 3);
+		assessor = new FlexibilityAssessor(100., 3, -1);
 		registerClients(100, 100);
 		saveAwards(0L, 50, 50);
 		saveAwards(1L, 20, 80);
@@ -116,7 +116,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_clientSentAwardsTwoRounds_returnsInverseShareAverage() {
-		assessor = new FlexibilityAssessor(100., 5);
+		assessor = new FlexibilityAssessor(100., 5, -1);
 		registerClients(10, 90);
 		saveAwards(0L, 20, 30);
 		assessor.processInput();
@@ -128,7 +128,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_awardsCompressed_returnsInverseShareAverage() {
-		assessor = new FlexibilityAssessor(100., 2);
+		assessor = new FlexibilityAssessor(100., 2, -1);
 		registerClients(100, 200);
 		saveAwards(0L, 50, 50);
 		saveAwards(1L, 20, 80);
@@ -140,7 +140,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_awardsCompressedPlusAnotherRound_returnsInverseShareAverage() {
-		assessor = new FlexibilityAssessor(100., 1);
+		assessor = new FlexibilityAssessor(100., 1, -1);
 		registerClients(100, 400);
 		saveAwards(0L, 50, 50);
 		saveAwards(1L, 20, 80);
@@ -155,7 +155,7 @@ public class FlexibilityAssessorTest {
 
 	@Test
 	public void getMultiplier_zeroAward_ignoredForCalculations() {
-		assessor = new FlexibilityAssessor(100., 1);
+		assessor = new FlexibilityAssessor(100., 1, -1);
 		registerClients(100, 200);
 		saveAwards(0L, 0, 50);
 		saveAwards(1L, 20, 80);

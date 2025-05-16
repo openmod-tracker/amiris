@@ -2860,6 +2860,12 @@ AgentTypes:
             List: false
             MetaData:
               Description: "Weight of the initial estimate."
+          DecayInterval:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Interval steps after which a factor weight has reduced to exp(-1)."
     Products:
       SensitivityForecast:
         MetaData:

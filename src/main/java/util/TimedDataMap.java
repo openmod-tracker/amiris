@@ -65,7 +65,7 @@ public class TimedDataMap<U, V> {
 		}
 	}
 
-	/** Return all values that are associated with the given key across all times
+	/** Return all values that are associated with the given key across all times in ascending order
 	 * 
 	 * @param key for which to search for values
 	 * @return all values that are associated with the given key */

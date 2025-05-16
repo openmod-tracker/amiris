@@ -30,7 +30,10 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("MultiplierEstimation").optional()
 			.add(Make.newDouble("IgnoreAwardFactor").optional()
 					.help("Awards with less energy than maximum energy divided by this factor are ignored."))
-			.add(Make.newInt("InitialEstimateWeight").optional().help("Weight of the initial estimate."))).buildTree();
+			.add(Make.newInt("InitialEstimateWeight").optional().help("Weight of the initial estimate."))
+			.add(Make.newInt("DecayInterval").optional()
+					.help("Interval steps after which a factor weight has reduced to exp(-1).")))
+			.buildTree();
 
 	private final FlexibilityAssessor flexibilityAssessor;
 	private final HashMap<Long, ForecastType> typePerClient = new HashMap<>();
@@ -45,7 +48,8 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 		ParameterData input = parameters.join(dataProvider);
 		double cutOffFactor = input.getDoubleOrDefault("MultiplierEstimation.IgnoreAwardFactor", 1000.);
 		int initialEstimateWeight = input.getIntegerOrDefault("MultiplierEstimation.InitialEstimateWeight", 24);
-		flexibilityAssessor = new FlexibilityAssessor(cutOffFactor, initialEstimateWeight);
+		int decayInterval = input.getIntegerOrDefault("MultiplierEstimation.DecayInterval", -1);
+		flexibilityAssessor = new FlexibilityAssessor(cutOffFactor, initialEstimateWeight, decayInterval);
 
 		call(this::registerClients).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
 		call(this::updateForecastMultipliers).onAndUse(SensitivityForecastClient.Products.NetAward);

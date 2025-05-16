@@ -25,20 +25,30 @@ public class FlexibilityAssessor {
 
 	private final double cutOffFactor;
 	private final int initialEstimateWeight;
+	private final double decayRate;
 
 	private final HashMap<Long, Double> maxEnergyDeltaPerClient = new HashMap<>();
 	private final TimedDataMap<Long, Double> multiplierHistory = new TimedDataMap<>();
 	private final TimedDataMap<Long, Double> awardHistory = new TimedDataMap<>();
 	private final HashSet<TimeStamp> updatesRequiredAt = new HashSet<>();
 	private final HashMap<Long, Double> sumOfMultipliers = new HashMap<>();
-	private final HashMap<Long, Integer> numberOfPreviousSummands = new HashMap<>();
+	private final HashMap<Long, Double> previousSummandsWeights = new HashMap<>();
 
 	/** Instantiate a new {@link FlexibilityAssessor}
 	 * 
-	 * @param cutOffFactor ignore awards that have lower energy than this factor * largest previous award */
-	public FlexibilityAssessor(double cutOffFactor, int initialEstimateWeight) {
+	 * @param cutOffFactor ignore awards that have lower energy than this factor * largest previous award
+	 * @param initialEstimateWeight weight of initial estimate, must be at least 1
+	 * @param decayInterval determines how slow multipliers values from previous times are discounted;
+	 *          <ul>
+	 *          <li>-1: no discounting, all previous values are considered equally</li>
+	 *          <li>0: immediate discounting, only the latest value is considered</li>
+	 *          <li>n: discounted by factor exp(-1) after n steps</li>
+	 *          </ul>
+	 */
+	public FlexibilityAssessor(double cutOffFactor, int initialEstimateWeight, int decayInterval) {
 		this.cutOffFactor = cutOffFactor;
 		this.initialEstimateWeight = getFeasibleWeight(initialEstimateWeight);
+		decayRate = calcDecayRate(decayInterval);
 	}
 
 	/** Ensure given weight is at least one, else log a warning */
@@ -47,6 +57,14 @@ public class FlexibilityAssessor {
 			logger.warn(WARN_INFEASIBLE_WEIGHT, weight);
 		}
 		return Math.max(1, weight);
+	}
+
+	/** @return decay rate derived from given decay interval */
+	private double calcDecayRate(int decayInterval) {
+		if (decayInterval < 0) {
+			return 1.;
+		}
+		return decayInterval == 0 ? 0 : Math.exp(-1. / decayInterval);
 	}
 
 	/** Update a client's maximum energy; On first registration: use this value to mimic awards before simulation time
@@ -120,20 +138,20 @@ public class FlexibilityAssessor {
 	 * @return sum of multipliers, number of summands */
 	private double[] calcMultiplierComponents(long clientId, ArrayList<Double> multipliers) {
 		double sum = sumOfMultipliers.getOrDefault(clientId, 0.);
-		int numberOfValidMultipliers = numberOfPreviousSummands.getOrDefault(clientId, 0);
+		double previousSummandsWeight = previousSummandsWeights.getOrDefault(clientId, 0.);
 		for (double multiplier : multipliers) {
 			if (!Double.isNaN(multiplier)) {
-				sum += multiplier;
-				numberOfValidMultipliers++;
+				sum = sum * decayRate + multiplier;
+				previousSummandsWeight = previousSummandsWeight * decayRate + 1.;
 			}
 		}
-		if (numberOfValidMultipliers == 0) {
+		if (previousSummandsWeight < 1.) {
 			if (!maxEnergyDeltaPerClient.isEmpty()) {
 				logger.warn(WARN_MISSING_REGISTRATION, clientId);
 			}
 			return new double[] {1.0, 1.0};
 		}
-		return new double[] {sum, numberOfValidMultipliers};
+		return new double[] {sum, previousSummandsWeight};
 	}
 
 	/** Remove any stored award data from before the given time and compress the bid history
@@ -145,7 +163,7 @@ public class FlexibilityAssessor {
 		for (long clientId : uniqueClients) {
 			double[] result = calcMultiplierComponents(clientId, multiplierHistory.getValuesBefore(time, clientId));
 			sumOfMultipliers.put(clientId, result[0]);
-			numberOfPreviousSummands.put(clientId, (int) Math.round(result[1]));
+			previousSummandsWeights.put(clientId, result[1]);
 		}
 		multiplierHistory.clearBefore(time);
 	}
