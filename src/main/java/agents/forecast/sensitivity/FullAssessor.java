@@ -87,7 +87,7 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 			item.setMonetaryOffset(monetaryValueOffset);
 			cumulatedPower += item.getPower();
 			item.setUpperMonetaryValue(monetaryValueOffset + calcMonetaryValue(item));
-			monetaryValueOffset = item.getCumulatedUpperValue();
+			monetaryValueOffset = item.getUpperMonetaryValue();
 		}
 	}
 
@@ -112,7 +112,7 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 		double[] values = new double[additionalLoadItems.size() + 1];
 		values[0] = 0;
 		for (int i = 1; i < values.length; i++) {
-			values[i] = additionalLoadItems.get(i - 1).getCumulatedUpperValue();
+			values[i] = additionalLoadItems.get(i - 1).getUpperMonetaryValue();
 		}
 		return values;
 	}
@@ -132,7 +132,7 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 		double[] values = new double[additionalSupplyItems.size() + 1];
 		values[0] = 0;
 		for (int i = 1; i < values.length; i++) {
-			values[i] = additionalSupplyItems.get(i - 1).getCumulatedUpperValue();
+			values[i] = additionalSupplyItems.get(i - 1).getUpperMonetaryValue();
 		}
 		return values;
 	}

@@ -89,6 +89,14 @@ public class FlexibilityAssessorTest {
 		assertEquals((2 + 1.25) / 2., assessor.getMultiplier(1L), 1E-12);
 	}
 
+	/** Save awards at given time to clients with increasing ID starting at 0 */
+	private void saveAwards(long timeStep, double... amounts) {
+		for (int clientId = 0; clientId < amounts.length; clientId++) {
+			var award = new AmountAtTime(new TimeStamp(timeStep), amounts[clientId]);
+			assessor.saveAward((long) clientId, award);
+		}
+	}
+
 	@Test
 	public void getMultiplier_initialWeightOneAndOneRoundOfAwardsFullDecay_ignoresInstallShare() {
 		assessor = new FlexibilityAssessor(100., 1, 0);
@@ -109,14 +117,6 @@ public class FlexibilityAssessorTest {
 
 		assertEquals((2 * decay + 5) / (1 + decay), assessor.getMultiplier(0L), 1E-12);
 		assertEquals((2 * decay + 1.25) / (1 + decay), assessor.getMultiplier(1L), 1E-12);
-	}
-
-	/** Save awards at given time to clients with increasing ID starting at 0 */
-	private void saveAwards(long timeStep, double... amounts) {
-		for (int clientId = 0; clientId < amounts.length; clientId++) {
-			var award = new AmountAtTime(new TimeStamp(timeStep), amounts[clientId]);
-			assessor.saveAward((long) clientId, award);
-		}
 	}
 
 	@Test
