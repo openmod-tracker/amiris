@@ -14,16 +14,17 @@ import agents.flexibility.dynamicProgramming.assessment.AssessmentFunctionBuilde
 import agents.flexibility.dynamicProgramming.bidding.BidSchedulerBuilder;
 import agents.flexibility.dynamicProgramming.states.StateManager;
 import agents.flexibility.dynamicProgramming.states.StateManagerBuilder;
-import agents.forecast.ForecastClient;
-import agents.forecast.Forecaster;
+import agents.forecast.sensitivity.SensitivityForecastClient;
+import agents.forecast.sensitivity.SensitivityForecastProvider;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
+import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
+import communications.message.ForecastClientRegistration;
 import communications.message.PointInTime;
 import communications.portable.BidsAtTime;
-import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -44,7 +45,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * dynamic programming.
  * 
  * @author Felix Nitsch, Christoph Schimeczek, Johannes Kochems */
-public class GenericFlexibilityTrader extends Trader implements ForecastClient {
+public class GenericFlexibilityTrader extends Trader implements SensitivityForecastClient {
 	@Input private static final Tree parameters = Make.newTree()
 			.addAs("Device", GenericDevice.parameters)
 			.addAs("Assessment", AssessmentFunctionBuilder.parameters)
@@ -58,7 +59,7 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 		/** Total received money in EUR */
 		ReceivedMoneyInEUR,
 		OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargeEnergyInMWH,
-		AwardedDischargeEnergyInMWH, StoredEnergyInMWH, VariableCostsInEUR
+		AwardedDischargeEnergyInMWH, StoredEnergyInMWH, VariableCostsInEUR, DispatchMultiplier
 	}
 
 	private static final TimeSpan OPERATION_PERIOD = new TimeSpan(1, Interval.HOURS);
@@ -69,6 +70,10 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 	private final Optimiser strategist;
 	private BidSchedule bidSchedule;
 
+	/** Instantiate a new {@link GenericFlexibilityTrader}
+	 * 
+	 * @param dataProvider provides input from config
+	 * @throws MissingDataException if any required data is not provided */
 	public GenericFlexibilityTrader(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
@@ -79,21 +84,31 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
 		strategist = new Optimiser(stateManager, bidScheduler, assessmentFunction.getTargetType());
 
-		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
+		call(this::registerAtForecaster).on(SensitivityForecastClient.Products.ForecastRegistration);
+		call(this::requestElectricityForecast).on(SensitivityForecastClient.Products.SensitivityRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
-				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateForecast).onAndUse(Forecaster.Products.PriceForecast);
-		call(this::updateForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
+		call(this::updateForecast).onAndUse(SensitivityForecastProvider.Products.SensitivityForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
+		call(this::sendAward).on(SensitivityForecastClient.Products.NetAward).use(DayAheadMarket.Products.Awards);
 	}
 
-	/** Requests a forecast from a contracted Forecaster. The type of forecast (either {@link MeritOrderMessage} or PriceForecast)
-	 * is determined by the contract.
+	/** Send registration information to {@link SensitivityForecastProvider}
+	 * 
+	 * @param input none
+	 * @param contracts single contract with a {@link SensitivityForecastProvider} */
+	private void registerAtForecaster(ArrayList<Message> input, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		double averagePowerInMW = (device.getExternalChargingPowerInMW(now())
+				+ device.getExternalDischargingPowerInMW(now())) / 2.;
+		double energyInMWH = averagePowerInMW * OPERATION_PERIOD.getSteps() / new TimeSpan(1, Interval.HOURS).getSteps();
+		fulfilNext(contract, new ForecastClientRegistration(assessmentFunction.getSensitivityType(), energyInMWH));
+	}
+
+	/** Requests a forecast from a contracted Forecaster.
 	 * 
 	 * @param input one ClearingTimes message from connected {@link DayAheadMarket}
-	 * @param contracts single contracted Forecaster to request forecast from */
+	 * @param contracts single contracted Forecaster to request forecasts from */
 	protected void requestElectricityForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
@@ -130,6 +145,7 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 			fulfilNext(contractToFulfil,
 					new BidsAtTime(targetTime, getId(), Arrays.asList(supplyBid), Arrays.asList(demandBid)));
 		}
+		store(Outputs.DispatchMultiplier, assessmentFunction.getMultiplier());
 	}
 
 	/** Clears past sensitivities and creates new schedule based on current energy storage level
@@ -187,5 +203,16 @@ public class GenericFlexibilityTrader extends Trader implements ForecastClient {
 		store(Outputs.StoredEnergyInMWH, device.getCurrentInternalEnergyInMWH());
 		store(Outputs.ReceivedMoneyInEUR, revenuesInEUR);
 		store(Outputs.VariableCostsInEUR, costsInEUR);
+	}
+
+	/** Send award total to {@link SensitivityForecastProvider}
+	 * 
+	 * @param input award information received from {@link DayAheadMarket}
+	 * @param contracts single contract with {@link SensitivityForecastProvider} */
+	private void sendAward(ArrayList<Message> input, List<Contract> contracts) {
+		AwardData awards = CommUtils.getExactlyOneEntry(input).getDataItemOfType(AwardData.class);
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		double effectiveSupplyPower = awards.supplyEnergyInMWH - awards.demandEnergyInMWH;
+		fulfilNext(contract, new AmountAtTime(awards.beginOfDeliveryInterval, effectiveSupplyPower));
 	}
 }

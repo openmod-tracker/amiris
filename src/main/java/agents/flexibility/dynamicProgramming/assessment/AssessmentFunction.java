@@ -6,6 +6,7 @@ package agents.flexibility.dynamicProgramming.assessment;
 import java.util.ArrayList;
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import agents.flexibility.dynamicProgramming.states.StateManager;
+import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -45,4 +46,16 @@ public interface AssessmentFunction {
 	 * 
 	 * @return type of assessment target */
 	Target getTargetType();
+
+	/** Get type of SensitivityForecast used by this {@link AssessmentFunction}
+	 * 
+	 * @return type of sensitivity */
+	ForecastType getSensitivityType();
+
+	/** Get the multiplier currently applied at dispatch planning
+	 * 
+	 * @return dispatch multiplication factor */
+	default double getMultiplier() {
+		return 1.0;
+	}
 }

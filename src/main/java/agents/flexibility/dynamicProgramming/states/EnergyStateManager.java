@@ -15,7 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class EnergyStateManager implements StateManager {
-	/** Added to floating point calculation of transition steps to avoid rounding errors */
+	/** Used to avoid rounding errors in floating point calculation of transition steps */
 	private static final double PRECISION_GUARD = 1E-5;
 
 	private final GenericDevice device;
@@ -129,6 +129,13 @@ public class EnergyStateManager implements StateManager {
 		}
 	}
 
+	/** @return calculated value of transition */
+	private double calcValueFor(int initialStateIndex, int finalStateIndex) {
+		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
+				indexToEnergy(finalStateIndex));
+		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
+	}
+
 	@Override
 	public boolean useStateList() {
 		return false;
@@ -159,13 +166,6 @@ public class EnergyStateManager implements StateManager {
 	private double getCachedValueFor(int initialStateIndex, int finalStateIndex) {
 		int stateDelta = finalStateIndex - initialStateIndex;
 		return stateDelta >= 0 ? transitionValuesCharging[stateDelta] : transitionValuesDischarging[-stateDelta];
-	}
-
-	/** @return calculated value of transition */
-	private double calcValueFor(int initialStateIndex, int finalStateIndex) {
-		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
-				indexToEnergy(finalStateIndex));
-		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
 
 	/** @return energy content corresponding to the given index */

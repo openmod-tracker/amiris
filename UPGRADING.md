@@ -109,7 +109,7 @@ Update your schema files and scenarios, and if necessary, adjust you scripts if 
 
 ## [2.0.0]
 ### Minimum JDK 11
-This version drops support for JDK 8, 9, and 10..
+This version drops support for JDK 8, 9, and 10.
 If you have a higher JDK already installed, no steps are required.
 Check your JDK version with `java --version` (or `java -version` on some systems). 
 If your Java version is below 11, please download and install a recent JDK from e.g. [here](https://adoptium.net/).

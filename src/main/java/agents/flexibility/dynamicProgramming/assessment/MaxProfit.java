@@ -3,57 +3,33 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility.dynamicProgramming.assessment;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
 import agents.flexibility.dynamicProgramming.Optimiser.Target;
-import agents.markets.meritOrder.books.DemandOrderBook;
-import agents.markets.meritOrder.books.SupplyOrderBook;
-import agents.markets.meritOrder.sensitivities.PriceSensitivity;
-import communications.portable.MeritOrderMessage;
-import de.dlr.gitlab.fame.communication.message.Message;
-import de.dlr.gitlab.fame.time.TimeStamp;
+import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
+import communications.portable.Sensitivity.InterpolationType;
 
-/** Maximise profits of transitions using a merit order forecast and estimating the impact of own transitions on profits
+/** Maximise profits of transitions using a merit order forecast and estimating the impact of transitions on profits caused by own
+ * dispatch and dispatch of competitors.
  * 
  * @author Christoph Schimeczek */
-public class MaxProfit implements AssessmentFunction {
-	private final TreeMap<TimeStamp, PriceSensitivity> priceSensitivityForecasts = new TreeMap<>();
-	private PriceSensitivity currentSensitivity;
-
-	@Override
-	public void prepareFor(TimeStamp time) {
-		currentSensitivity = priceSensitivityForecasts.get(time);
-	}
-
+public class MaxProfit extends SensitivityBasedAssessment {
 	@Override
 	public double assessTransition(double externalEnergyDeltaInMWH) {
-		return -externalEnergyDeltaInMWH * currentSensitivity.getValue(externalEnergyDeltaInMWH);
-	}
-
-	@Override
-	public void clearBefore(TimeStamp time) {
-		Util.clearMapBefore(priceSensitivityForecasts, time);
-	}
-
-	@Override
-	public ArrayList<TimeStamp> getMissingForecastTimes(ArrayList<TimeStamp> planningTimes) {
-		return Util.findMissingKeys(priceSensitivityForecasts, planningTimes);
-	}
-
-	@Override
-	public void storeForecast(ArrayList<Message> messages) {
-		for (Message inputMessage : messages) {
-			MeritOrderMessage meritOrderMessage = inputMessage.getAllPortableItemsOfType(MeritOrderMessage.class).get(0);
-			SupplyOrderBook supplyOrderBook = meritOrderMessage.getSupplyOrderBook();
-			DemandOrderBook demandOrderBook = meritOrderMessage.getDemandOrderBook();
-			PriceSensitivity sensitivity = new PriceSensitivity();
-			sensitivity.updateSensitivities(supplyOrderBook, demandOrderBook);
-			priceSensitivityForecasts.put(meritOrderMessage.getTimeStamp(), sensitivity);
-		}
+		double sign = -Math.signum(externalEnergyDeltaInMWH);
+		return sign * currentSensitivity.getValue(externalEnergyDeltaInMWH);
 	}
 
 	@Override
 	public Target getTargetType() {
 		return Target.MAXIMISE;
+	}
+
+	@Override
+	public ForecastType getSensitivityType() {
+		return ForecastType.CostSensitivity;
+	}
+
+	@Override
+	protected InterpolationType getInterpolationType() {
+		return InterpolationType.DIRECT;
 	}
 }

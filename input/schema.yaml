@@ -2762,7 +2762,7 @@ AgentTypes:
                   Description: "Represent energy states of an electricity storage device"
           PlanningHorizonInHours:
             MetaData:
-              Description: "Foresight time length in hours. Must be smaller or equal to that of the contracted Forecaster"
+              Description: "Foresight time length in hours. Must be smaller or equal to that of the contracted Forecaster."
             AttributeType: double
             Mandatory: true
             List: false
@@ -2796,8 +2796,15 @@ AgentTypes:
             Mandatory: true
             List: false
     Products:
-      MeritOrderForecastRequest: *ForecastClient_P_MeritOrderForecastRequest
-      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
+      ForecastRegistration: &SensitivityForecastClient_P_ForecastRegistration
+        MetaData:
+          Description: "Registration specifying the type of forecast needed and the client's installed power"
+      NetAward: &SensitivityForecastClient_P_NetAward
+        MetaData:
+          Description: "Report on the client's awarded energy at the local day-ahead market at a previous time"
+      SensitivityRequest: &SensitivityForecastClient_P_SensitivityRequest
+        MetaData:
+          Description: "Request for a sensitivity forecast, specifying a time for which the forecast is required"
       Bids: *DamTrader_P_Bids
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
@@ -2824,5 +2831,48 @@ AgentTypes:
       StoredEnergyInMWH:
         MetaData:
           Description: "Amount of energy in stored in flexibility device in MWh after executing (dis-)charging actions in the current time step"
+      DispatchMultiplier:
+        MetaData:
+          Description: "Multiplier applied to energy when planning dispatch to account for actions by other (competing) flexibility traders."
     MetaData:
       Description: "Trader that operates a generic flexibility device, e.g., a battery storage, pumped-hydro storage, load shifting, heat pumps..."
+  
+  SensitivityForecaster:
+    Attributes:
+      ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
+      Clearing: *DAM_G_Clearing
+      MultiplierEstimation:
+        MetaData:
+          Description: "Parameters used for the estimation of dispatch multipliers of sensitivity forecast clients"
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          IgnoreAwardFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Awards with less energy than maximum energy divided by this factor are ignored."
+          InitialEstimateWeight:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Weight of the initial estimate."
+          DecayInterval:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Interval steps after which a factor weight has reduced to exp(-1)."
+    Products:
+      SensitivityForecast: &SensitivityForecastProvider_P_SensitivityForecast
+        MetaData:
+          Description: "Forecast of a market clearing sensitivity; type of sensitivity depends on the registered needs of the client"
+      ForecastRequest: *MarketForecaster_P_ForecastRequest
+    Outputs:
+      AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
+      ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
+    MetaData:
+      Description: "Forecaster that provides forcasts for sensitivies of the kind demanded by its clients."

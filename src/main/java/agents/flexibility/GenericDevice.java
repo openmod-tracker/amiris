@@ -223,7 +223,7 @@ public class GenericDevice {
 	 * 
 	 * @param time at which to return the external charging power
 	 * @return external charging power at given time in MW */
-	protected double getExternalChargingPowerInMW(TimeStamp time) {
+	public double getExternalChargingPowerInMW(TimeStamp time) {
 		return externalChargingPowerInMW.getValueLinear(time);
 	}
 
@@ -231,7 +231,7 @@ public class GenericDevice {
 	 * 
 	 * @param time at which to return the external discharging power
 	 * @return external discharging power at given time in MW */
-	protected double getExternalDischargingPowerInMW(TimeStamp time) {
+	public double getExternalDischargingPowerInMW(TimeStamp time) {
 		return externalDischargingPowerInMW.getValueLinear(time);
 	}
 }
