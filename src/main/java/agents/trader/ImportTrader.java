@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader;
@@ -30,15 +30,15 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class ImportTrader extends Trader {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newGroup("Imports").list().add(Make.newSeries("AvailableEnergyForImport"),
-					Make.newDouble("ImportCostInEURperMWH")))
+					Make.newSeries("ImportCostInEURperMWH")))
 			.buildTree();
 
 	/** Represents one energy import TimeSeries with a fixed associated value of import cost */
 	private class EnergyImport {
 		public final TimeSeries tsEnergyImportInMWH;
-		public final double importCostInEURperMWH;
+		public final TimeSeries importCostInEURperMWH;
 
-		public EnergyImport(TimeSeries importSeries, double importCost) {
+		public EnergyImport(TimeSeries importSeries, TimeSeries importCost) {
 			this.tsEnergyImportInMWH = importSeries;
 			this.importCostInEURperMWH = importCost;
 		}
@@ -55,7 +55,8 @@ public class ImportTrader extends Trader {
 		ParameterData input = parameters.join(dataProvider);
 		for (ParameterData group : input.getGroupList("Imports")) {
 			imports.add(
-					new EnergyImport(group.getTimeSeries("AvailableEnergyForImport"), group.getDouble("ImportCostInEURperMWH")));
+					new EnergyImport(group.getTimeSeries("AvailableEnergyForImport"),
+							group.getTimeSeries("ImportCostInEURperMWH")));
 		}
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
@@ -90,7 +91,8 @@ public class ImportTrader extends Trader {
 		List<Bid> bids = new ArrayList<>();
 		for (EnergyImport energyImport : imports) {
 			double offeredEnergyInMWH = energyImport.tsEnergyImportInMWH.getValueLinear(requestedTime);
-			bids.add(new Bid(offeredEnergyInMWH, energyImport.importCostInEURperMWH));
+			double importCostInEURperMWH = energyImport.importCostInEURperMWH.getValueLinear(requestedTime);
+			bids.add(new Bid(offeredEnergyInMWH, importCostInEURperMWH));
 		}
 		return bids;
 	}

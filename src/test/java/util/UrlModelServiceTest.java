@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package util;
@@ -22,7 +22,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 
 public class UrlModelServiceTest {
 
-	public class Input {}
+	public class Input implements JSONable {}
 
 	public class Result {}
 
@@ -100,7 +100,7 @@ public class UrlModelServiceTest {
 		}
 	}
 
-	private <U, T> UrlModelService<U, T> injectUrlMock(Class<U> u, Class<T> t, int timeout) {
+	private <U extends JSONable, T> UrlModelService<U, T> injectUrlMock(Class<U> u, Class<T> t, int timeout) {
 		try (MockedConstruction<URL> mocked = Mockito.mockConstruction(URL.class,
 				(mock, context) -> {
 					when(mock.openConnection()).thenReturn(mockedConnection);

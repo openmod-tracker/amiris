@@ -4,11 +4,12 @@
 package agents.forecast.forecastApi;
 
 import java.util.Map;
+import util.JSONable;
 
 /** Encapsulates a forecast request to amiris-priceforecast with the main objective to handle time series predictions
  * 
  * @author Felix Nitsch */
-public class ForecastApiRequest {
+public class ForecastApiRequest implements JSONable {
 	private long forecastStartTime;
 	private int forecastWindow;
 	private Map<Long, Double> pastTargets;

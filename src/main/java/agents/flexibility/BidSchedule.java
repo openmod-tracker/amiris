@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.flexibility;
@@ -7,40 +7,44 @@ import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Represents a charge / discharge schedule for flexibility options, e.g. storage systems
+/** Represents a bidding schedule for purchasing / selling energy "stored" in a flexibility device
  * 
  * @author Christoph Schimeczek */
-public class DispatchSchedule {
+public class BidSchedule {
 	static final String ERROR_OVERRIDE = "Arrays in schedule may not be overridden.";
 	static final String ERROR_LENGTH = "Array length does not match schedule duration count in periods.";
+
 	private static final double MAX_ABSOLUTE_ENERGY_DEVIATION_IN_MWH = 1.E-3;
 
 	private final TimeStamp timeOfFirstElement;
 	private final int durationInPeriods;
 	private final TimeSpan period;
 
-	private double[] chargingPerPeriodInMW;
-	private double[] bidPerPeriodInEURperMWH;
-	/** Expected energy "stored" in the flexibility device at the beginning of a dispatch period */
+	/** Energy amount to be traded at electricity market - positive values: purchasing, negative values: selling */
+	private double[] requestedEnergyPerPeriodInMWH;
+	/** Bidding price of the buy / sell offer */
+	private double[] biddingPricePerPeriodInEURperMWH;
+	/** Energy level of the flexibility device expected at each period */
 	protected double[] expectedInitialInternalEnergyPerPeriodInMWH;
 
-	/** Creates a {@link DispatchSchedule}
+	/** Creates a {@link BidSchedule}
 	 * 
-	 * @param timeSegment defines first time at which this schedule is valid and length of each period
+	 * @param timePeriod defines first time at which this schedule is valid and length of each period
 	 * @param durationInPeriods number of time periods covered by this schedule, i.e. multiples of timeSegment durations */
-	public DispatchSchedule(TimePeriod timeSegment, int durationInPeriods) {
-		this.timeOfFirstElement = timeSegment.getStartTime();
+	public BidSchedule(TimePeriod timePeriod, int durationInPeriods) {
+		this.timeOfFirstElement = timePeriod.getStartTime();
 		this.durationInPeriods = durationInPeriods;
-		this.period = timeSegment.getDuration();
+		this.period = timePeriod.getDuration();
 	}
 
-	/** sets hourly charging schedule
+	/** Sets amount of energy requested at electricity market - positive values: purchasing, negative values: selling
 	 * 
-	 * @param chargingPerPeriodInMW charging schedule */
-	public void setChargingPerPeriod(double[] chargingPerPeriodInMW) {
-		ensureIsNull(this.chargingPerPeriodInMW);
-		ensureCorrectLength(chargingPerPeriodInMW);
-		this.chargingPerPeriodInMW = chargingPerPeriodInMW.clone();
+	 * @param requestedEnergyPerPeriodInMWH to be saved
+	 * @throws RuntimeException if this value was set previously or if its length does not match {@link #durationInPeriods} */
+	public void setRequestedEnergyPerPeriod(double[] requestedEnergyPerPeriodInMWH) {
+		ensureIsNull(this.requestedEnergyPerPeriodInMWH);
+		ensureCorrectLength(requestedEnergyPerPeriodInMWH);
+		this.requestedEnergyPerPeriodInMWH = requestedEnergyPerPeriodInMWH.clone();
 	}
 
 	/** @throws RuntimeException if given object is not null */
@@ -57,18 +61,20 @@ public class DispatchSchedule {
 		}
 	}
 
-	/** sets hourly bidding schedule
+	/** Sets bidding price at electricity market
 	 * 
-	 * @param bidPerPeriodInEURperMWH bidding schedule */
-	public void setBidsScheduleInEURperMWH(double[] bidPerPeriodInEURperMWH) {
-		ensureIsNull(this.bidPerPeriodInEURperMWH);
-		ensureCorrectLength(bidPerPeriodInEURperMWH);
-		this.bidPerPeriodInEURperMWH = bidPerPeriodInEURperMWH.clone();
+	 * @param biddingPricePerPeriodInEURperMWH bidding schedule
+	 * @throws RuntimeException if this value was set previously or if its length does not match {@link #durationInPeriods} */
+	public void setBidsScheduleInEURperMWH(double[] biddingPricePerPeriodInEURperMWH) {
+		ensureIsNull(this.biddingPricePerPeriodInEURperMWH);
+		ensureCorrectLength(biddingPricePerPeriodInEURperMWH);
+		this.biddingPricePerPeriodInEURperMWH = biddingPricePerPeriodInEURperMWH.clone();
 	}
 
-	/** sets schedule for expected initial internal energies
+	/** Sets energy level of the flexibility device expected at each period
 	 * 
-	 * @param expectedInitialInternalEnergyPerPeriodInMWH initial energy schedule */
+	 * @param expectedInitialInternalEnergyPerPeriodInMWH initial energy schedule
+	 * @throws RuntimeException if this value was set previously or if its length does not match {@link #durationInPeriods} */
 	public void setExpectedInitialInternalEnergyScheduleInMWH(double[] expectedInitialInternalEnergyPerPeriodInMWH) {
 		ensureIsNull(this.expectedInitialInternalEnergyPerPeriodInMWH);
 		ensureCorrectLength(expectedInitialInternalEnergyPerPeriodInMWH);
@@ -78,12 +84,12 @@ public class DispatchSchedule {
 	/** Returns true if this schedule is defined for the given time, and if the given energy level matches the scheduled energy one
 	 * 
 	 * @param time TimeStamp which the schedule is checked for
-	 * @param storageEnergyLevelInMWH current energy level in storage to be compared to the planned energy level at given time
+	 * @param currentEnergyLevelInMWH of connected flexibility device to be compared to the planned energy level at given time
 	 * @return true if the schedule is applicable at the specified time and matches the given energy in storage */
-	public boolean isApplicable(TimeStamp time, double storageEnergyLevelInMWH) {
+	public boolean isApplicable(TimeStamp time, double currentEnergyLevelInMWH) {
 		boolean isWithinTimeFrame = isWithinTimeFrame(time);
 		boolean matchesTimeElement = matchesBeginningOfTimeElement(time);
-		return isWithinTimeFrame && matchesTimeElement && energyLevelWithinTolerance(time, storageEnergyLevelInMWH);
+		return isWithinTimeFrame && matchesTimeElement && energyLevelWithinTolerance(time, currentEnergyLevelInMWH);
 	}
 
 	/** @return true if given {@link TimeStamp} is within the time frame of this schedule */
@@ -109,39 +115,41 @@ public class DispatchSchedule {
 		return absoluteDeviation < MAX_ABSOLUTE_ENERGY_DEVIATION_IN_MWH;
 	}
 
-	/** @return element number in this {@link DispatchSchedule} corresponding to the given {@link TimeStamp}
+	/** @return element number in this {@link BidSchedule} corresponding to the given {@link TimeStamp}
 	 * @param time for which to search the element */
 	protected int calcElementInSchedule(TimeStamp time) {
 		return (int) ((time.getStep() - timeOfFirstElement.getStep()) / period.getSteps());
 	}
 
-	/** Returns <b>charging power</b> for the given time as positive value - in case of discharging, 0 is returned
+	/** Returns energy to be purchased at the market - returns 0 if no electricity shall be purchased
 	 * 
 	 * @param time must match schedule time element, use {@link #isApplicable(TimeStamp, double)} to check for validity
-	 * @return positive charging power in MW for the specified time */
-	public double getScheduledChargingPowerInMW(TimeStamp time) {
-		double chargingPower = chargingPerPeriodInMW[calcElementInSchedule(time)];
-		return chargingPower > 0 ? chargingPower : 0;
+	 * @return positive amount of energy to be purchased in MWh at the specified time */
+	public double getScheduledEnergyPurchaseInMWH(TimeStamp time) {
+		double energyPurchaseAmountInMWH = requestedEnergyPerPeriodInMWH[calcElementInSchedule(time)];
+		return energyPurchaseAmountInMWH > 0 ? energyPurchaseAmountInMWH : 0;
 	}
 
-	/** Returns <b>discharging power</b> for the given time as positive value - in case of charging, 0 is returned
+	/** Returns energy to be sold at the market - returns 0 if no electricity shall be sold
 	 * 
 	 * @param time must match schedule time element, use {@link #isApplicable(TimeStamp, double)} to check for validity
-	 * @return positive discharging power in MW for the specified time */
-	public double getScheduledDischargingPowerInMW(TimeStamp time) {
-		double chargingPower = chargingPerPeriodInMW[calcElementInSchedule(time)];
-		return chargingPower < 0 ? -chargingPower : 0;
+	 * @return positive amount of energy to be sold in MWh at the specified time */
+	public double getScheduledEnergySalesInMWH(TimeStamp time) {
+		double energyPurchaseAmountInMWH = requestedEnergyPerPeriodInMWH[calcElementInSchedule(time)];
+		return energyPurchaseAmountInMWH < 0 ? -energyPurchaseAmountInMWH : 0;
 	}
 
-	/** Returns bidding price for charging or discharging
+	/** Returns bidding price for purchasing and selling energy
 	 * 
 	 * @param time must match schedule time element, use {@link #isApplicable(TimeStamp, double)} to check for validity
 	 * @return bidding price in EUR / MWh for the specified time */
 	public double getScheduledBidInHourInEURperMWH(TimeStamp time) {
-		return bidPerPeriodInEURperMWH[calcElementInSchedule(time)];
+		return biddingPricePerPeriodInEURperMWH[calcElementInSchedule(time)];
 	}
 
-	/** @return start time of schedule */
+	/** Returns beginning time of this {@link BidSchedule}
+	 * 
+	 * @return start time */
 	public TimeStamp getTimeOfFirstElement() {
 		return timeOfFirstElement;
 	}

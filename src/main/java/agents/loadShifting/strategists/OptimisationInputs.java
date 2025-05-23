@@ -1,12 +1,14 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.loadShifting.strategists;
 
+import util.JSONable;
+
 /** Inputs sent to external load shifting optimisation model
  *
  * @author Johannes Kochems, Christoph Schimeczek */
-public class OptimisationInputs {
+public class OptimisationInputs implements JSONable {
 	enum Solver {
 		gurobi, cplex, cbc, glpk
 	}

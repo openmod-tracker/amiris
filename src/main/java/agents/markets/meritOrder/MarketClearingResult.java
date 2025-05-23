@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.markets.meritOrder;
@@ -8,9 +8,10 @@ import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.books.OrderBook.DistributionMethod;
 
-/** Holds clearing price, sold energy, and updated {@link DemandOrderBook} and {@link SupplyOrderBook}
+/** Holds market clearing results, i.e., clearing price, sold energy, and aggregated curves in @link DemandOrderBook} and
+ * {@link SupplyOrderBook}
  *
- * @author Farzad Sarfarazi, Christoph Schimeczek, A. Achraf El Ghazi */
+ * @author Farzad Sarfarazi, Christoph Schimeczek, A. Achraf El Ghazi, Johannes Kochems */
 public class MarketClearingResult {
 	private double tradedEnergyInMWH;
 	private double marketPriceInEURperMWH;
@@ -39,7 +40,7 @@ public class MarketClearingResult {
 		this.demandBook = demandBook;
 		this.supplyBook = supplyBook;
 	}
-	
+
 	/** Set and update books, i.e. award contained bids according to their individual results
 	 * 
 	 * @param supplyBook Supply book used to clear the market
@@ -91,9 +92,7 @@ public class MarketClearingResult {
 		return totalSystemCost;
 	}
 
-	/**
-	 * @param marketPriceInEURperMWH the marketPriceInEURperMWH to set
-	 */
+	/** @param marketPriceInEURperMWH the marketPriceInEURperMWH to set */
 	public void setMarketPriceInEURperMWH(double marketPriceInEURperMWH) {
 		this.marketPriceInEURperMWH = marketPriceInEURperMWH;
 	}
