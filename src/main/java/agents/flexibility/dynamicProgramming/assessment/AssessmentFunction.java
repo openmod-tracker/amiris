@@ -52,9 +52,9 @@ public interface AssessmentFunction {
 	 * @return type of sensitivity */
 	ForecastType getSensitivityType();
 
-	/** Get the energy multiplier currently applied to dispatch planning
+	/** Get the multiplier currently applied at dispatch planning
 	 * 
-	 * @return energy multiplication factor */
+	 * @return dispatch multiplication factor */
 	default double getMultiplier() {
 		return 1.0;
 	}

@@ -2831,7 +2831,7 @@ AgentTypes:
       StoredEnergyInMWH:
         MetaData:
           Description: "Amount of energy in stored in flexibility device in MWh after executing (dis-)charging actions in the current time step"
-      EnergyMultiplier:
+      DispatchMultiplier:
         MetaData:
           Description: "Multiplier applied to energy when planning dispatch to account for actions by other (competing) flexibility traders."
     MetaData:
