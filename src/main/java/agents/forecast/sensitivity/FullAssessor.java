@@ -17,19 +17,19 @@ import agents.markets.meritOrder.sensitivities.SensitivityItem;
 public abstract class FullAssessor implements MarketClearingAssessment {
 	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the
 	 * associated flexibility device */
-	protected ArrayList<SensitivityItem> chargingItems = new ArrayList<>();
+	protected ArrayList<SensitivityItem> additionalLoadItems = new ArrayList<>();
 	/** list of changes (in terms of cumulated power and price) in the merit order for all possible discharging events of the
 	 * associated flexibility device */
-	protected ArrayList<SensitivityItem> dischargingItems = new ArrayList<>();
+	protected ArrayList<SensitivityItem> additionalSupplyItems = new ArrayList<>();
 
 	@Override
 	public final void assess(MarketClearingResult clearingResult) {
 		extractOrders(clearingResult.getSupplyBook());
 		extractOrders(clearingResult.getDemandBook());
-		chargingItems.sort(getComparator());
-		dischargingItems.sort(getComparator().reversed());
-		setCumulativeValues(chargingItems);
-		setCumulativeValues(dischargingItems);
+		additionalLoadItems.sort(getComparator());
+		additionalSupplyItems.sort(getComparator().reversed());
+		setCumulativeValues(additionalLoadItems);
+		setCumulativeValues(additionalSupplyItems);
 	}
 
 	/** Adds entries of given {@link OrderBook} (depending on its type) to either charging or discharging sensitivity
@@ -49,34 +49,36 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 		}
 	}
 
-	/** adds notAwardedPower to {@link #chargingItems} and awardedPower to {@link #dischargingItems} */
+	/** Adds not-awarded supply power to {@link #additionalLoadItems} as additional load might lead to awarding them, and awarded
+	 * supply power to {@link #additionalSupplyItems} as additional supply might lead to no-longer awarding them. */
 	private void addSupplyItem(OrderBookItem item) {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			chargingItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalLoadItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 		if (awardedPower > 0) {
-			dischargingItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalSupplyItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 	}
 
-	/** adds awardedPower to {@link #chargingItems} and notAwardedPower to {@link #dischargingItems} */
+	/** Adds awarded demand power to {@link #additionalLoadItems} as additional load might lead to no-longer awarding them, and
+	 * not-awarded demand power to {@link #additionalSupplyItems} as additional supply might lead to awarding them. */
 	private void addDemandItem(OrderBookItem item) {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			dischargingItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalSupplyItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 		if (awardedPower > 0) {
-			chargingItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalLoadItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
 		}
 	}
 
 	/** @return {@link Comparator} for {@link SensitivityItem}s to be used by this Sensitivity type */
 	protected abstract Comparator<SensitivityItem> getComparator();
 
-	/** sets cumulative power and monetary value of given sorted {@link SensitivityItem}s */
+	/** Sets cumulative power and monetary value of given sorted {@link SensitivityItem}s */
 	private void setCumulativeValues(ArrayList<SensitivityItem> items) {
 		double cumulatedPower = 0;
 		double monetaryValueOffset = 0;
@@ -97,40 +99,40 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 
 	@Override
 	public double[] getDemandSensitivityPowers() {
-		double[] powers = new double[chargingItems.size() + 1];
+		double[] powers = new double[additionalLoadItems.size() + 1];
 		powers[0] = 0;
 		for (int i = 1; i < powers.length; i++) {
-			powers[i] = chargingItems.get(i - 1).getCumulatedUpperPower();
+			powers[i] = additionalLoadItems.get(i - 1).getCumulatedUpperPower();
 		}
 		return powers;
 	}
 
 	@Override
 	public double[] getDemandSensitivityValues() {
-		double[] values = new double[chargingItems.size() + 1];
+		double[] values = new double[additionalLoadItems.size() + 1];
 		values[0] = 0;
 		for (int i = 1; i < values.length; i++) {
-			values[i] = chargingItems.get(i - 1).getCumulatedUpperValue();
+			values[i] = additionalLoadItems.get(i - 1).getCumulatedUpperValue();
 		}
 		return values;
 	}
 
 	@Override
 	public double[] getSupplySensitivityPowers() {
-		double[] powers = new double[dischargingItems.size() + 1];
+		double[] powers = new double[additionalSupplyItems.size() + 1];
 		powers[0] = 0;
 		for (int i = 1; i < powers.length; i++) {
-			powers[i] = dischargingItems.get(i - 1).getCumulatedUpperPower();
+			powers[i] = additionalSupplyItems.get(i - 1).getCumulatedUpperPower();
 		}
 		return powers;
 	}
 
 	@Override
 	public double[] getSupplySensitivityValues() {
-		double[] values = new double[dischargingItems.size() + 1];
+		double[] values = new double[additionalSupplyItems.size() + 1];
 		values[0] = 0;
 		for (int i = 1; i < values.length; i++) {
-			values[i] = dischargingItems.get(i - 1).getCumulatedUpperValue();
+			values[i] = additionalSupplyItems.get(i - 1).getCumulatedUpperValue();
 		}
 		return values;
 	}
