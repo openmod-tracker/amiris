@@ -2796,15 +2796,15 @@ AgentTypes:
             Mandatory: true
             List: false
     Products:
-      ForecastRegistration:
+      ForecastRegistration: &SensitivityForecastClient_P_ForecastRegistration
         MetaData:
-          Description: ""
-      NetAward:
+          Description: "Registration specifying the type of forecast needed and the client's installed power"
+      NetAward: &SensitivityForecastClient_P_NetAward
         MetaData:
-          Description: ""
-      SensitivityRequest:
+          Description: "Report on the client's awarded energy at the local day-ahead market at a previous time"
+      SensitivityRequest: &SensitivityForecastClient_P_SensitivityRequest
         MetaData:
-          Description: ""
+          Description: "Request for a sensitivity forecast, specifying a time for which the forecast is required"
       Bids: *DamTrader_P_Bids
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
@@ -2843,7 +2843,7 @@ AgentTypes:
       Clearing: *DAM_G_Clearing
       MultiplierEstimation:
         MetaData:
-          Description: ""
+          Description: "Parameters used for the estimation of dispatch multipliers of sensitivity forecast clients"
         AttributeType: block
         Mandatory: false
         List: false
@@ -2867,9 +2867,9 @@ AgentTypes:
             MetaData:
               Description: "Interval steps after which a factor weight has reduced to exp(-1)."
     Products:
-      SensitivityForecast:
+      SensitivityForecast: &SensitivityForecastProvider_P_SensitivityForecast
         MetaData:
-          Description: ""
+          Description: "Forecast of a market clearing sensitivity; type of sensitivity depends on the registered needs of the client"
       ForecastRequest: *MarketForecaster_P_ForecastRequest
     Outputs:
       AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
