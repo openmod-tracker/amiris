@@ -33,7 +33,7 @@ public class TimedDataMap<U, V> {
 		}
 	}
 
-	/** Remove all entries that a strictly before the given time
+	/** Remove all entries that are strictly before the given time
 	 * 
 	 * @param time before which the data is to be removed */
 	public void clearBefore(TimeStamp time) {

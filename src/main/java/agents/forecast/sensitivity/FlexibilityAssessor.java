@@ -132,8 +132,8 @@ public class FlexibilityAssessor {
 		return result[0] / result[1];
 	}
 
-	/** The sum of a client's multiplier history and the number of elements in that history; the number of elements is greater or
-	 * equal that one
+	/** Calculate the sum of a client's multiplier history and the number of elements in that history; the number of elements is greater or
+	 * equal than one
 	 * 
 	 * @return sum of multipliers, number of summands */
 	private double[] calcMultiplierComponents(long clientId, ArrayList<Double> multipliers) {

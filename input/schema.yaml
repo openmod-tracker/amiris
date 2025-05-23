@@ -2875,4 +2875,4 @@ AgentTypes:
       AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
     MetaData:
-      Description: ""
+      Description: "Forecaster that provides forcasts for sensitivies of the kind demanded by its clients."
