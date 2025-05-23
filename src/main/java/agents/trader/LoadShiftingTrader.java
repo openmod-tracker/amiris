@@ -6,8 +6,9 @@ package agents.trader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.loadShifting.LoadShiftingPortfolio;
 import agents.loadShifting.strategists.LoadShiftingStrategist;
@@ -50,7 +51,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 
 	private final LoadShiftingPortfolio portfolio;
 	private final LoadShiftingStrategist strategist;
-	private DispatchSchedule schedule;
+	private BidSchedule schedule;
 	/** An entity holding consumer tariff information */
 	private final EndUserTariff endUserTariff;
 
@@ -65,10 +66,10 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 		this.endUserTariff = new EndUserTariff(input.getGroup("Policy"), input.getGroup("BusinessModel"));
 		this.strategist = LoadShiftingStrategist.createStrategist(input.getGroup("Strategy"), endUserTariff, portfolio);
 
-		call(this::requestElectricityForecast).on(Products.MeritOrderForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
-		call(this::requestElectricityForecast).on(Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
@@ -105,7 +106,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 	}
 
 	private Bid prepareHourlyDemandBid(TimeStamp requestedTime) {
-		double demandPower = schedule.getScheduledChargingPowerInMW(requestedTime);
+		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(OutputFields.OfferedUpshiftPowerInMW, demandPower);
@@ -114,7 +115,7 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 	}
 
 	private Bid prepareHourlySupplyBid(TimeStamp requestedTime) {
-		double supplyPower = schedule.getScheduledDischargingPowerInMW(requestedTime);
+		double supplyPower = schedule.getScheduledEnergySalesInMWH(requestedTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(requestedTime);
 		double marginalShiftingCost = portfolio.getVariableShiftCostsInEURPerMWH(requestedTime);
 		Bid supplyBid = new Bid(supplyPower, price, marginalShiftingCost);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 German Aerospace Center <amiris@dlr.de>
+// SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 //
 // SPDX-License-Identifier: Apache-2.0
 package agents.trader.electrolysis;
@@ -8,8 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import agents.electrolysis.Electrolyzer;
 import agents.electrolysis.ElectrolyzerStrategist;
-import agents.flexibility.DispatchSchedule;
+import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
+import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
@@ -87,7 +88,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		fuelData = new FuelData(fuelType);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityForecast).on(FlexibilityTrader.Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
@@ -149,7 +150,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	protected void prepareBids(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contractToFulfil = CommUtils.getExactlyOneEntry(contracts);
 		for (TimeStamp targetTime : extractTimesFromGateClosureInfoMessages(input)) {
-			DispatchSchedule schedule = strategist.getValidSchedule(targetTime);
+			BidSchedule schedule = strategist.getValidSchedule(targetTime);
 			Bid bid = prepareHourlyDemandBid(targetTime, schedule);
 			store(OutputColumns.RequestedEnergyInMWH, bid.getEnergyAmountInMWH());
 			fulfilNext(contractToFulfil, new BidsAtTime(targetTime, getId(), null, Arrays.asList(bid)));
@@ -160,8 +161,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	 * 
 	 * @param requestedTime TimeStamp at which the demand bid should be defined
 	 * @return demand bid for requestedTime */
-	private Bid prepareHourlyDemandBid(TimeStamp targetTime, DispatchSchedule schedule) {
-		double demandPower = schedule.getScheduledChargingPowerInMW(targetTime);
+	private Bid prepareHourlyDemandBid(TimeStamp targetTime, BidSchedule schedule) {
+		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(Outputs.OfferedElectricityPriceInEURperMWH, price);

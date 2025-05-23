@@ -12,7 +12,6 @@ import agents.forecast.forecastApi.ForecastApiRequest;
 import agents.forecast.forecastApi.ForecastApiResponse;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.MarketClearingResult;
-import agents.trader.FlexibilityTrader;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
@@ -87,7 +86,7 @@ public class PriceForecasterApi extends MarketForecaster {
 		call(this::logClearingPrices).onAndUse(DayAheadMarket.Products.Awards);
 		call(this::registerClearingTime).onAndUse(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
-				.use(FlexibilityTrader.Products.PriceForecastRequest);
+				.use(ForecastClient.Products.PriceForecastRequest);
 	}
 
 	/** Extracts and store power prices reported from {@link DayAheadMarket}
