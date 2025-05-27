@@ -16,11 +16,11 @@ import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
 import agents.storage.Device;
 import agents.storage.arbitrageStrategists.PvBiddingStrategist;
+import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
 import communications.message.PointInTime;
 import communications.portable.BidsAtTime;
-import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -36,13 +36,12 @@ import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 import endUser.EndUserTariff;
 
-/** This agent sells and buys electricity at the EnergyExchange. It models the aggregated behaviors of a cluster of house holds
- * with PV and battery storage. The actual agent behavior is not calculated but rather predicted via requesting a pre-trained ML
+/** This agent sells and buys electricity at the EnergyExchange. It models the aggregated behaviours of a cluster of households
+ * with PV and battery storage. The actual agent behaviour is not calculated but rather predicted via requesting a pre-trained ML
  * model.
  * 
  * @author A. Achraf El Ghazi, Christoph Schimeczek, Ulrich Frey */
 public class HouseholdPvTraderExternal extends FlexibilityTrader {
-
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newDouble("InstalledGenerationPowerInMW"),
 					Make.newSeries("LoadInMW"),
@@ -58,7 +57,7 @@ public class HouseholdPvTraderExternal extends FlexibilityTrader {
 
 	@Output
 	private static enum OutputFields {
-		AwardedDemandInMWh, AwardedSupplyInMWh, MarketPriceInEURPerMWh, GridInteractionInMWh
+		AwardedDemandInMWh, AwardedSupplyInMWh, GridInteractionInMWh
 	}
 
 	private PvBiddingStrategist biddingStrategist;
@@ -82,9 +81,9 @@ public class HouseholdPvTraderExternal extends FlexibilityTrader {
 				tsGenerationProfile, storage, forecastPeriodInHours, input.getGroup("PredictionWindows"));
 		tariffStrategist = new EndUserTariff(input.getGroup("Policy"), input.getGroup("BusinessModel"));
 
-		call(this::requestPriceForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
+		call(this::requestPriceForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updatePriceForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
+		call(this::updatePriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 	}
@@ -110,11 +109,9 @@ public class HouseholdPvTraderExternal extends FlexibilityTrader {
 	 * @param contracts not used */
 	private void updatePriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		for (Message inputMessage : input) {
-			MeritOrderMessage meritOrderMessage = inputMessage.getFirstPortableItemOfType(MeritOrderMessage.class);
-			double priceForecast = meritOrderMessage.getSupplyOrderBook().getLastAwardedItem().getOfferPrice();
-			TimeStamp targetTime = meritOrderMessage.getTimeStamp();
-			biddingStrategist.storeElectricityPriceForecast(targetTime,
-					tariffStrategist.calcSalePriceInEURperMWH(priceForecast, targetTime));
+			AmountAtTime forecast = inputMessage.getDataItemOfType(AmountAtTime.class);
+			biddingStrategist.storeElectricityPriceForecast(forecast.validAt,
+					tariffStrategist.calcSalePriceInEURperMWH(forecast.amount, forecast.validAt));
 		}
 	}
 
@@ -164,7 +161,6 @@ public class HouseholdPvTraderExternal extends FlexibilityTrader {
 
 		store(OutputFields.AwardedDemandInMWh, awardData.demandEnergyInMWH);
 		store(OutputFields.AwardedSupplyInMWh, awardData.supplyEnergyInMWH);
-		store(OutputFields.MarketPriceInEURPerMWh, awardData.powerPriceInEURperMWH);
 		store(OutputFields.GridInteractionInMWh, awardData.demandEnergyInMWH - awardData.supplyEnergyInMWH);
 	}
 
