@@ -16,11 +16,11 @@ import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
 import agents.storage.arbitrageStrategists.EvBiddingStrategist;
+import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
 import communications.message.PointInTime;
 import communications.portable.BidsAtTime;
-import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -35,8 +35,8 @@ import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Sells and buys energy utilizing a fleet of electric vehicles {@link Fleet} at the EnergyExchange. It has no own business
- * logic, expect predicting the optimized load via connected ML-model.
+/** Sells and buys energy utilising a fleet of electric vehicles {@link Fleet} at the EnergyExchange. It has no own business
+ * logic, expect predicting the optimised load via connected machine-learning model.
  * 
  * @author A. Achraf El Ghazi, Ulrich Frey */
 public class EvTraderExternal extends FlexibilityTrader {
@@ -61,7 +61,7 @@ public class EvTraderExternal extends FlexibilityTrader {
 
 	private final EvBiddingStrategist biddingStrategist;
 
-	/** Creates a {@link StorageTrader}
+	/** Creates a {@link EvTraderExternal}
 	 * 
 	 * @param dataProvider provides input from config
 	 * @throws MissingDataException if any required data is not provided */
@@ -76,12 +76,11 @@ public class EvTraderExternal extends FlexibilityTrader {
 		biddingStrategist = new EvBiddingStrategist(urlService, modelId, forecastPeriodInHours,
 				availableChargingPowerInMW, elecConsumptionInMWH, input.getGroup("PredictionWindows"));
 
-		call(this::requestPriceForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
+		call(this::requestPriceForecast).on(ForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updatePriceForecast).on(Forecaster.Products.MeritOrderForecast)
-				.use(Forecaster.Products.MeritOrderForecast);
+		call(this::updatePriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
+		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 	}
 
 	/** Requests PriceForecast from contracted partner (Forecaster)
@@ -105,10 +104,8 @@ public class EvTraderExternal extends FlexibilityTrader {
 	 * @param contracts not used */
 	private void updatePriceForecast(ArrayList<Message> input, List<Contract> contracts) {
 		for (Message inputMessage : input) {
-			MeritOrderMessage meritOrderMessage = inputMessage.getFirstPortableItemOfType(MeritOrderMessage.class);
-			double priceForecast = meritOrderMessage.getSupplyOrderBook().getLastAwardedItem().getOfferPrice();
-			TimeStamp targetTime = meritOrderMessage.getTimeStamp();
-			biddingStrategist.storeElectricityPriceForecast(targetTime, priceForecast);
+			AmountAtTime forecast = inputMessage.getDataItemOfType(AmountAtTime.class);
+			biddingStrategist.storeElectricityPriceForecast(forecast.validAt, forecast.amount);
 		}
 	}
 
