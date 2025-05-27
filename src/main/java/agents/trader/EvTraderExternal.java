@@ -51,11 +51,16 @@ public class EvTraderExternal extends FlexibilityTrader {
 
 	@Output
 	private static enum OutputFields {
+		/** Maximum price in EUR per MWh willing to pay for charging electric vehicles */
 		OfferedChargePriceInEURperMWH,
+		/** Minimum Price in EUR per MWh for discharging electric vehicles */
 		OfferedDischargePriceInEURperMWH,
+		/** Amount of energy awarded in MWh to charge electric vehicles */
 		AwardedChargeEnergyInMWH,
+		/** Amount of energy awarded in MWh to discharge electric vehicles */
 		AwardedDischargeEnergyInMWH,
-		StoredEnergyInMWH
+		/** Energy in MWh currently stored in the electric vehicles */
+		StoredEnergyInMWH,
 	}
 
 	private final EvBiddingStrategist biddingStrategist;
