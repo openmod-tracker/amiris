@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import agents.evAggregator.Fleet;
 import agents.flexibility.Strategist;
 import agents.forecast.ForecastClient;
 import agents.forecast.Forecaster;
@@ -35,8 +34,8 @@ import de.dlr.gitlab.fame.service.output.Output;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Sells and buys energy utilising a fleet of electric vehicles {@link Fleet} at the EnergyExchange. It has no own business
- * logic, expect predicting the optimised load via connected machine-learning model.
+/** Sells and buys energy utilising a fleet of electric vehicles at the EnergyExchange. It has no own business logic, expect
+ * predicting the optimised load via connected machine-learning model.
  * 
  * @author A. Achraf El Ghazi, Ulrich Frey */
 public class EvTraderExternal extends FlexibilityTrader {
