@@ -42,7 +42,7 @@ public abstract class MarketForecaster extends Forecaster {
 	public static enum Products {
 		/** Send this out to every (start) agent of an {@link DayAheadMarket} bidding chain (e.g. demand and power plant agents) */
 		ForecastRequest
-	};
+	}
 
 	/** Output columns of {@link MarketForecaster} */
 	@Output
@@ -51,7 +51,7 @@ public abstract class MarketForecaster extends Forecaster {
 		AwardedEnergyForecastInMWH,
 		/** Forecasted electricity price in EUR/MWh */
 		ElectricityPriceForecastInEURperMWH
-	};
+	}
 
 	/** maximum number of future hours to provide forecasts for */
 	protected final int forecastPeriodInHours;

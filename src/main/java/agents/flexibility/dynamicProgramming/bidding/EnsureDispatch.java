@@ -4,7 +4,7 @@
 package agents.flexibility.dynamicProgramming.bidding;
 
 import agents.flexibility.BidSchedule;
-import agents.flexibility.dynamicProgramming.Strategist;
+import agents.flexibility.dynamicProgramming.Optimiser;
 import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
 import agents.markets.meritOrder.Constants;
 import de.dlr.gitlab.fame.time.TimePeriod;
@@ -21,7 +21,7 @@ public class EnsureDispatch implements BidScheduler {
 
 	@Override
 	public BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule dispatchSchedule) {
-		int numberOfScheduleSteps = Strategist.calcHorizonInPeriodSteps(startingTime, schedulingHorizonInHours);
+		int numberOfScheduleSteps = Optimiser.calcHorizonInPeriodSteps(startingTime, schedulingHorizonInHours);
 		BidSchedule bidSchedule = new BidSchedule(startingTime, numberOfScheduleSteps);
 
 		double[] biddingPricePerPeriodInEURperMWH = new double[numberOfScheduleSteps];

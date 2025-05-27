@@ -2,14 +2,28 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
-## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - tba
+## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - tba
+### Added
+- Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
+
+## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
+### Fixed
+- Fix wrong incongruent of energy levels in `EnergyStateManager` that could cause a crash #164 (@dlr-cjs)
+
+## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - 2025-05-05
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
 - Change data type of `ImportCostInEURperMWH` to time series #150 (@dlr_jk)
+- Rename `Strategist` in `dynamicProgramming` to `Optimiser` #156 (@dlr-cjs)
 - Improve README #149 (@LeonardWilleke, @dlr_fn, @dlr-cjs)
+- Reuse cache in CI pipelines of same branch #157 (@dlr-cjs)
 
 ### Added
 - Add new package `dynamicProgramming` for controlling dynamic programming algorithms for flexibility scheduling #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
-- Add new class `GenericDevice` that represents a generic electrical flexibility #115 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add `GenericDevice` that represents a generic electrical flexibility #115 (@dlr-cjs, @dlr_fn, @dlr_jk)
+- Add AssessmentFunction `MinSystemCost` #154 (@dlr-cjs)
+- Add AssessmentFunction `MaxProfit` #154 (@dlr-cjs)
+- Add Trader `GenericFlexibilityTrader` to operate `GenericDevice` #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add optional "Refinancing" parameters for `GreenHydrogenTrader` #149 (@dlr_jk)
 - Add JSONable interface for UrlModelService input classes #151 (@dlr_elghazi, @dlr-cjs)
 - Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)

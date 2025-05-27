@@ -62,7 +62,7 @@ public class GenericDeviceTest {
 			double currentEnergyContentInMWH) {
 		try {
 			when(parameterDataMock.getTimeSeries("GrossChargingPowerInMW")).thenReturn(createSeries(chargingPowerInMW));
-			when(parameterDataMock.getTimeSeriesOrDefault(eq("NetDischargingPowerInMW"), any(TimeSeries.class)))
+			when(parameterDataMock.getTimeSeries(eq("NetDischargingPowerInMW")))
 					.thenReturn(createSeries(dischargingPowerInMW));
 			when(parameterDataMock.getTimeSeries("ChargingEfficiency")).thenReturn(createSeries(chargingEfficiency));
 			when(parameterDataMock.getTimeSeries("DischargingEfficiency")).thenReturn(createSeries(dischargingEfficiency));

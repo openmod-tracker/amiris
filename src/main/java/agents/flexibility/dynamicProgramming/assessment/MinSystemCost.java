@@ -7,28 +7,29 @@ import agents.flexibility.dynamicProgramming.Optimiser.Target;
 import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import communications.portable.Sensitivity.InterpolationType;
 
-/** Maximise profit of transitions using an electricity price forecast neglecting any price impact of bids
+/** Minimise system cost of transitions using a merit order forecast and estimating the impact of transitions on profits caused by
+ * own dispatch and dispatch of competitors.
  * 
- * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
-public class MaxProfitPriceTaker extends SensitivityBasedAssessment {
+ * @author Christoph Schimeczek */
+public class MinSystemCost extends SensitivityBasedAssessment {
 	@Override
 	public double assessTransition(double externalEnergyDeltaInMWH) {
-		double sign = -Math.signum(externalEnergyDeltaInMWH);
+		double sign = Math.signum(externalEnergyDeltaInMWH);
 		return sign * currentSensitivity.getValue(externalEnergyDeltaInMWH);
 	}
 
 	@Override
 	public Target getTargetType() {
-		return Target.MAXIMISE;
+		return Target.MINIMISE;
 	}
 
 	@Override
 	public ForecastType getSensitivityType() {
-		return ForecastType.CostInsensitive;
+		return ForecastType.MarginalCostSensitivity;
 	}
 
 	@Override
 	protected InterpolationType getInterpolationType() {
-		return InterpolationType.DIRECT;
+		return InterpolationType.CUMULATIVE;
 	}
 }

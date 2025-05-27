@@ -1,7 +1,61 @@
-<!-- SPDX-FileCopyrightText: 2023 German Aerospace Center <amiris@dlr.de>
+<!-- SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: Apache-2.0 -->
 # Upgrading
+## [3.5.0] 
+This version features the `GenericFlexibilityTrader` which will replace `StorageTrader` in a future release.
+We recommend to switch to `GenericFlexibilityTrader` as it also offers more comprehensive and flexible parametrisation:
+* asymmetric charging / discharging power,
+* consideration of inflows and outflows,
+* self discharging,
+* time-dependent upper and lower capacity limits.
+
+To use this feature, replace `StorageTrader` with `GenericFlexibilityTrader` and in the yaml file replace 
+
+```yaml
+Type: StorageTrader
+Id: 7
+Attributes:
+  Device:
+    EnergyToPowerRatio: 5.0
+    SelfDischargeRatePerHour: 0.01
+    ChargingEfficiency: 0.5
+    DischargingEfficiency: 0.9
+    InitialEnergyLevelInMWH: 2000
+    InstalledPowerInMW: 10000
+  Strategy:
+    StrategistType: SINGLE_AGENT_MIN_SYSTEM_COST
+    ForecastPeriodInHours: 168
+    ScheduleDurationInHours: 24
+    SingleAgent:
+      ModelledChargingSteps: 100
+```
+
+by
+
+```yaml
+Type: GenericFlexibilityTrader
+Id: 7
+Attributes:
+  Device:
+    GrossChargingPowerInMW: 20000.  # equals former "InstalledPowerInMW" / "ChargingEfficiency"
+    NetDischargingPowerInMW: 9000.  # equals former "InstalledPowerInMW" * "DischargingEfficiency"
+    ChargingEfficiency: 0.5
+    DischargingEfficiency: 0.9
+    SelfDischargeRatePerHour: 0.01
+    NetInflowPowerInMW: 0.
+    EnergyContentUpperLimitInMWH: 50000  # equals former "InstalledPowerInMW" * "EnergyToPowerRatio"
+    InitialEnergyContentInMWH: 2000  # former "InitialEnergyLevelInMWH"
+  Assessment:
+    Type: SINGLE_AGENT_MIN_SYSTEM_COST  # former "StrategistType"
+  StateDiscretisation:
+    Type: STATE_OF_CHARGE
+    PlanningHorizonInHours: 168  # former "ForecastPeriodInHours"
+    EnergyResolutionInMWH: 100  # equals former "InstalledPowerInMW" / "ModelledChargingSteps"
+  Bidding:
+    Type: ENSURE_DISPATCH
+    SchedulingHorizonInHours: 24  # former "ScheduleDurationInHours"
+```
 
 ## [3.0.0]
 ### String Sets
@@ -55,7 +109,7 @@ Update your schema files and scenarios, and if necessary, adjust you scripts if 
 
 ## [2.0.0]
 ### Minimum JDK 11
-This version drops support for JDK 8, 9, and 10..
+This version drops support for JDK 8, 9, and 10.
 If you have a higher JDK already installed, no steps are required.
 Check your JDK version with `java --version` (or `java -version` on some systems). 
 If your Java version is below 11, please download and install a recent JDK from e.g. [here](https://adoptium.net/).

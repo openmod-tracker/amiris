@@ -10,7 +10,9 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 
-/** @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
+/** Builds {@link StateManager} from provided input parameters
+ * 
+ * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class StateManagerBuilder {
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("Type", Type.class),
 			Make.newDouble("PlanningHorizonInHours"), Make.newDouble("EnergyResolutionInMWH")).buildTree();
