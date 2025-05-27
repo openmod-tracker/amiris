@@ -5,6 +5,8 @@ SPDX-License-Identifier: CC0-1.0 -->
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - tba
 ### Added
 - Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
+- Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
+- Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
 
 ## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
 ### Fixed
@@ -26,8 +28,6 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Add Trader `GenericFlexibilityTrader` to operate `GenericDevice` #116 (@dlr-cjs, @dlr_fn, @dlr_jk)
 - Add optional "Refinancing" parameters for `GreenHydrogenTrader` #149 (@dlr_jk)
 - Add JSONable interface for UrlModelService input classes #151 (@dlr_elghazi, @dlr-cjs)
-- Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
-- Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
 - Add code formatting using spotless #117 (@dlr-cjs, @dlr_fn, @dlr_jk)
 
 ### Fixed
