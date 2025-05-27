@@ -580,7 +580,7 @@ AgentTypes:
             MetaData:
               Description: "The annual fixed costs in EUR/MW."
               OEONearestConcept:
-      Device:
+      Device: &Device_G_Device
         AttributeType: block
         Mandatory: true
         List: false
@@ -669,7 +669,6 @@ AgentTypes:
             List: false
             MetaData:
               Description: "Number of hours to the future at which the forecast is available. Must be smaller or equal to that of the MarketForecaster."
-              OEONearestConcept:
           ScheduleDurationInHours: &Strategist_A_ScheduleDuration
             AttributeType: integer
             Mandatory: true
@@ -2239,7 +2238,6 @@ AgentTypes:
             List: false
             MetaData:
               Description: "Group of parameters specifying the business model of an aggregator"
-              OEONearestConcept:
             NestedAttributes:
               ProfitMarginInEURPerMWH:
                 AttributeType: double
@@ -2247,14 +2245,12 @@ AgentTypes:
                 List: false
                 MetaData:
                   Description: "Assumed absolute margin of an aggregator providing electricity to its end users"
-                  OEONearestConcept:
               AverageMarketPriceInEURPerMWH:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
                 MetaData:
                   Description: "The average market price in EUR per MWh to be applied in case of a static tariff"
-                  OEONearestConcept:
     Products:
       Bids: *DamTrader_P_Bids
       Payout: *PowerPlantScheduler_P_Payout
@@ -2844,35 +2840,51 @@ AgentTypes:
         AttributeType: double
         Mandatory: true
         List: false
+        MetaData:
+          Description: "Peak electricity generation capacity in MW of all households managed by the trader"
       LoadInMW:
         AttributeType: time_series
         Mandatory: true
         List: false
+        MetaData:
+          Description: "Base household consumption pattern in MW without storage application of all households managed by the trader"
       GenerationProfile:
         AttributeType: time_series
         Mandatory: true
         List: false
+        MetaData:
+          Description: "Relative electricity generation profile (values between 0 and 1) of the households managed by the trader"
       ServiceUrl:
         AttributeType: string
         Mandatory: true
         List: false
+        MetaData:
+          Description: "The URL pointing to the machine-learning model's API endpoint that provides the required prediction service"
       ModelId:
         AttributeType: string
         Mandatory: false
         List: false
+        MetaData:
+          Description: "The identifier of the machine-learning model to use for prediction"
       ForecastPeriodInHours:
         AttributeType: integer
         Mandatory: true
         List: false
-      PredictionWindows:
+        MetaData:
+          Description: "Number of hours to the future at which the forecast is used. Must be smaller or equal to that of the MarketForecaster."
+      PredictionWindows: 
         AttributeType: block
         Mandatory: true
         List: false
+        MetaData:
+          Description: "Input parameters to the machine-learning-based load-prediction model"
         NestedAttributes:
           EnergyGenerationForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           EnergyGenerationBackwardWindow:
             AttributeType: integer
             Mandatory: true
@@ -2881,10 +2893,14 @@ AgentTypes:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           StoredEnergyBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ElectricityConsumptionForwardWindow:
             AttributeType: integer
             Mandatory: true
@@ -2893,101 +2909,41 @@ AgentTypes:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ElectricityPriceForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ElectricityPriceBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           GridInteractionBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
-      Device: *Physical_Energy_Storage_Device
-      Policy:
-        AttributeType: block
-        Mandatory: true
-        List: false
-        NestedAttributes:
-          EEGSurchargeInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-          VolumetricNetworkChargeInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-          ElectricityTaxInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-          OtherSurchargesInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-          DynamicTariffComponents:
-            AttributeType: block
-            List: true
-            Mandatory: false
-            NestedAttributes:
-              ComponentName:
-                AttributeType: enum
-                Mandatory: true
-                List: false
-                Values: [ 'POWER_PRICE', 'EEG_SURCHARGE', 'VOLUMETRIC_NETWORK_CHARGE', 'OTHER_COMPONENTS', 'DUMMY' ]
-              Multiplier:
-                AttributeType: time_series
-                Mandatory: true
-                List: false
-              LowerBound:
-                AttributeType: double
-                Mandatory: false
-                List: false
-              UpperBound:
-                AttributeType: double
-                Mandatory: false
-                List: false
-          VAT:
-            AttributeType: double
-            Mandatory: true
-            List: false
-          CapacityBasedNetworkChargesInEURPerMW:
-            AttributeType: time_series
-            Mandatory: true
-            List: false
-          FixedNetworkChargesInEURPerYear:
-            AttributeType: time_series
-            Mandatory: true
-            List: false
-          FeedInTariffScheme:
-            AttributeType: enum
-            Mandatory: false
-            List: false
-            vales: ['FIXED', 'TIME_VARYING', 'NONE']
-          FitInEURPerMWH:
-            AttributeType: double
-            Mandatory: false
-            List: false
-          TimeVaryingFiTMultiplier:
-            AttributeType: double
-            Mandatory: false
-            List: false
-      BusinessModel:
-        AttributeType: block
-        Mandatory: true
-        List: false
-        NestedAttributes:
-          ProfitMarginInEURPerMWH:
-            AttributeType: double
-            Mandatory: false
-            List: false
-          AverageMarketPriceInEURPerMWH:
-            AttributeType: time_series
-            Mandatory: false
-            List: false
-    Products: ['PriceForecastRequest', 'Bids' ]
+            MetaData:
+              Description: ""
+      Device: *Device_G_Device
+      Policy: *EndUserTariff_G_Policy
+      BusinessModel: *EndUserTariff_G_BusinessModel
+    Products:
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
+      Bids: *DamTrader_P_Bids
+    Outputs:
+      AwardedDemandInMWh:
+        MetaData:
+          Description: "Amount of energy awarded in MWh to be delivered to households from the grid"
+      AwardedSupplyInMWh:
+        MetaData:
+          Description: "Amount of energy awarded in MWh to be provided by households to the grid"
+    MetaData:
+      Description: "This trader sells and buys electricity generated by or required by households that have a installed generation device (e.g. photovoltaics) and an electricity storage unit."
 
   EvTraderExternal:
     Attributes:
@@ -2995,56 +2951,102 @@ AgentTypes:
         AttributeType: integer
         Mandatory: true
         List: false
+        MetaData:
+          Description: "Number of hours to the future at which the forecast is used. Must be smaller or equal to that of the MarketForecaster."
       ServiceUrl:
         AttributeType: string
         Mandatory: false
         List: false
+        MetaData:
+          Description: "The URL pointing to the machine-learning model's API endpoint that provides the required prediction service"
       ModelId:
         AttributeType: string
         Mandatory: false
         List: false
+        MetaData:
+          Description: "The identifier of the machine-learning model to use for prediction"
       AggregatedAvailableChargingPowerInMW:
         AttributeType: time_series
         Mandatory: true
         List: false
+        MetaData:
+          Description: "The electric vehicle fleet's total electric charging power in MW"
       AggregatedElectricConsumptionInMWH:
         AttributeType: time_series
         Mandatory: true
         List: false
+        MetaData:
+          Description: "The electric vehicle fleet's total electricity consumption in MWh"
       PredictionWindows:
         AttributeType: block
         Mandatory: true
         List: false
+        MetaData:
+          Description: "Input parameters to the machine-learning-based load-prediction model"
         NestedAttributes:
           ElectricityPriceForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ElectricityPriceBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ChargingPowerForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ChargingPowerBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ElectricityConsumptionForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           ElectricityConsumptionBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: ""
           LoadPredictionBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
-    Products: ['PriceForecastRequest', 'Bids' ] 
+            MetaData:
+              Description: ""
+    Products: 
+      PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
+      Bids: *DamTrader_P_Bids
+    Outputs:
+      OfferedChargePriceInEURperMWH:
+        MetaData:
+          Description: "Maximum price in EUR per MWh willing to pay for charging electric vehicles"
+      OfferedDischargePriceInEURperMWH:
+        MetaData:
+          Description: "Minimum Price in EUR per MWh for discharging electric vehicles"
+      AwardedChargeEnergyInMWH:
+        MetaData:
+          Description: "Amount of energy awarded in MWh to charge electric vehicles"
+      AwardedDischargeEnergyInMWH:
+        MetaData:
+          Description: "Amount of energy awarded in MWh to discharge electric vehicles"
+      StoredEnergyInMWH:
+        MetaData:
+          Description: "Energy in MWh currently stored in the electric vehicles"
+    MetaData:
+      Description: "A Trader that sells and buys energy utilising a fleet of electric vehicles."
   
   SensitivityForecaster:
     Attributes:
