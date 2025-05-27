@@ -2648,6 +2648,7 @@ AgentTypes:
     MetaData:
       Description: "HeatPumpTrader is a type of FlexibilityTrader that aggregates heat pumps in buildings and arranges procurement at the DayAheadMarket. Different strategies can be used to calculate the electricity demand of heat pumps. Heat pumps can be either dispatched according to heat demand or optimised according to spot market price forecasts."
       OEONearestConcept:
+      
   GenericFlexibilityTrader:
     Attributes:
       Refinancing: *AnnualCostCalculator_G_Refinancing
@@ -2821,3 +2822,211 @@ AgentTypes:
           Description: ""
     MetaData:
       Description: "Trader that operates a generic flexibility device, e.g., a battery storage, pumped-hydro storage, load shifting, heat pumps..."
+
+  HouseholdPvTraderExternal:
+    Attributes:
+      InstalledGenerationPowerInMW:
+        AttributeType: double
+        Mandatory: true
+        List: false
+      LoadInMW:
+        AttributeType: time_series
+        Mandatory: true
+        List: false
+      GenerationProfile:
+        AttributeType: time_series
+        Mandatory: true
+        List: false
+      ServiceUrl:
+        AttributeType: string
+        Mandatory: true
+        List: false
+      ModelId:
+        AttributeType: string
+        Mandatory: false
+        List: false
+      ForecastPeriodInHours:
+        AttributeType: integer
+        Mandatory: true
+        List: false
+      PredictionWindows:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        NestedAttributes:
+          EnergyGenerationForwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          EnergyGenerationBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          StoredEnergyForwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          StoredEnergyBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ElectricityConsumptionForwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ElectricityConsumptionBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ElectricityPriceForwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ElectricityPriceBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          GridInteractionBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+      Device: *Physical_Energy_Storage_Device
+      Policy:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        NestedAttributes:
+          EEGSurchargeInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+          VolumetricNetworkChargeInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+          ElectricityTaxInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+          OtherSurchargesInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+          DynamicTariffComponents:
+            AttributeType: block
+            List: true
+            Mandatory: false
+            NestedAttributes:
+              ComponentName:
+                AttributeType: enum
+                Mandatory: true
+                List: false
+                Values: [ 'POWER_PRICE', 'EEG_SURCHARGE', 'VOLUMETRIC_NETWORK_CHARGE', 'OTHER_COMPONENTS', 'DUMMY' ]
+              Multiplier:
+                AttributeType: time_series
+                Mandatory: true
+                List: false
+              LowerBound:
+                AttributeType: double
+                Mandatory: false
+                List: false
+              UpperBound:
+                AttributeType: double
+                Mandatory: false
+                List: false
+          VAT:
+            AttributeType: double
+            Mandatory: true
+            List: false
+          CapacityBasedNetworkChargesInEURPerMW:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+          FixedNetworkChargesInEURPerYear:
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+          FeedInTariffScheme:
+            AttributeType: enum
+            Mandatory: false
+            List: false
+            vales: ['FIXED', 'TIME_VARYING', 'NONE']
+          FitInEURPerMWH:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          TimeVaryingFiTMultiplier:
+            AttributeType: double
+            Mandatory: false
+            List: false
+      BusinessModel:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        NestedAttributes:
+          ProfitMarginInEURPerMWH:
+            AttributeType: double
+            Mandatory: false
+            List: false
+          AverageMarketPriceInEURPerMWH:
+            AttributeType: time_series
+            Mandatory: false
+            List: false
+    Products: ['PriceForecastRequest', 'Bids' ]
+
+  EvTraderExternal:
+    Attributes:
+      ForecastPeriodInHours:
+        AttributeType: integer
+        Mandatory: true
+        List: false
+      ServiceUrl:
+        AttributeType: string
+        Mandatory: false
+        List: false
+      ModelId:
+        AttributeType: string
+        Mandatory: false
+        List: false
+      AggregatedAvailableChargingPowerInMW:
+        AttributeType: time_series
+        Mandatory: true
+        List: false
+      AggregatedElectricConsumptionInMWH:
+        AttributeType: time_series
+        Mandatory: true
+        List: false
+      PredictionWindows:
+        AttributeType: block
+        Mandatory: true
+        List: false
+        NestedAttributes:
+          ElectricityPriceForwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ElectricityPriceBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ChargingPowerForwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ChargingPowerBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ElectricityConsumptionForwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          ElectricityConsumptionBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+          LoadPredictionBackwardWindow:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+    Products: ['PriceForecastRequest', 'Bids' ] 
