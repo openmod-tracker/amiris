@@ -16,9 +16,8 @@ public class InputVariable implements JSONable {
 
 	/** Instantiate a new {@link InputVariable}
 	 * 
-	 * @param name 
-	 * @param values
-	 */
+	 * @param name of the input variable
+	 * @param values to be associated with the name */
 	public InputVariable(String name, Map<Long, Double> values) {
 		this.name = name;
 		this.values = values;
