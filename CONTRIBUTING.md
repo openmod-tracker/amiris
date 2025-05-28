@@ -82,6 +82,7 @@ Please, check the following points before submitting a pull request:
 1. Update `CHANGELOG.md` in the main repository to reflect the code changes made. Follow the changelog [style guide](https://github.com/vweevers/common-changelog)
 1. Update the project version number in the `pom.xml` following the conventions of [semantic versioning](https://semver.org/) 2.0.0.
 1. If there is a breaking change introduced: add upgrade instructions to `UPGRADING.md`.
+1. Update `codemeta.json`: enter new authors, release date, version number, and release notes.
 
 ### Pull request
 
