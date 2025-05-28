@@ -1,7 +1,5 @@
 # Release version <X.Y.Z>
 
-# Tasks
-
 ## Always
 
 * [ ] Update release date, version, and link in `Changelog.md`
@@ -12,6 +10,6 @@
 * [ ] Merge `main` branch to `dev`
 * [ ] Create release from `main` branch - copy corresponding section of `Changelog.md` as release notes
 
-## Major Version Change
+## On Major Version Change
 
 * [ ] Ensure `Upgrading.md` is up to date and linked in `Changelog.md`
