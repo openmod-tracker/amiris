@@ -80,9 +80,8 @@ Please, check the following points before submitting a pull request:
 1. Make sure your code is based on the latest version of the *dev* branch and that there are no conflicts. If there are any conflicts, fix them first.
 1. Make sure all existing unit tests are successful. Add new unit tests that cover your code contributions and ensure that your code works as intended. If there is a bug you don't know how to fix, ask the main developers for help.
 1. Update `CHANGELOG.md` in the main repository to reflect the code changes made. Follow the changelog [style guide](https://github.com/vweevers/common-changelog)
-1. Update the project version number in the `pom.xml` following the conventions of [semantic versioning](https://semver.org/) 2.0.0.
+1. Update the project version number in the `pom.xml` following the conventions of [semantic versioning](https://semver.org/) 2.0.0. Attach "-alpha<N>" to versions on the dev-branch, where <N> is an integer increased for each feature branch.
 1. If there is a breaking change introduced: add upgrade instructions to `UPGRADING.md`.
-1. Update `codemeta.json`: enter new authors, release date, version number, and release notes.
 
 ### Pull request
 
