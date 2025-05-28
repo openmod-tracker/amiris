@@ -303,7 +303,7 @@
     "issueTracker": "https://gitlab.com/dlr-ve/esy/amiris/amiris/-/issues",
     "relatedLink": "https://forum.openmod.org/tag/amiris",
     "referencePublication": "https://doi.org/10.21105/joss.05041",
-    "version": "3.5.0",
-    "dateModified": "2025-06-02",
-    "releaseNotes": "Changed:\n- Improve README.md to be more attractive for first contact\n- Update CONTRIBUTING.md\n\nAdded:\n- Add new agent LoadShiftingTrader that markets a portfolio of loads eligible for load shifting at the day-ahead market\n- Add new agent PriceForecasterApi enabling calling external forecasting models"
+    "dateModified": "2025-05-14",
+    "version": "3.5.1",
+    "releaseNotes": "https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1"
 }
