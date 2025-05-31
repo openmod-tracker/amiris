@@ -2739,10 +2739,10 @@ AgentTypes:
                   Description: "Maximise profit using an electricity price forecast neglecting any price impact of bids"
               MIN_SYSTEM_COST:
                 MetaData:
-                  Description: "Minimise total system costs using a merit order forecast that takes into account the impact of own bids"
+                  Description: "Minimise total system costs using a merit order forecast that takes into account the impact of bids from all GenericFlexibilityTraders"
               MAX_PROFIT:
                 MetaData:
-                  Description: "Maximise own profits using a merit order forecast that takes into account the impact of own bids"
+                  Description: "Maximise own profits using a merit order forecast that takes into account the impact of bids from all GenericFlexibilityTraders"
       StateDiscretisation:
         AttributeType: block
         Mandatory: true
