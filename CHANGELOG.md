@@ -2,7 +2,11 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - tba
+### Changed
+- Rename `Type`s in group `Assessment` of `GenericFlexibility` to `MAX_PROFIT` and `MIN_SYSTEM_COST` #166 (@dlr_jk)
+
 ### Added
 - Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
 - Add metadata.json to describe project with metadata #147 (@dlr-cjs)
