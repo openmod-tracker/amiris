@@ -2884,51 +2884,55 @@ AgentTypes:
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of future PV generation values to consider during forecasting"
           EnergyGenerationBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: "Number of past PV generation values to consider during forecasting"
           StoredEnergyForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of future stored energy values to consider during forecasting"
           StoredEnergyBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past stored energy values to consider during forecasting"
           ElectricityConsumptionForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
+            MetaData:
+              Description: "Number of future electricity consumption values to consider during forecasting"
           ElectricityConsumptionBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past electricity consumption values to consider during forecasting"
           ElectricityPriceForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of future electricity price values to consider during forecasting"
           ElectricityPriceBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past electricity price values to consider during forecasting"
           GridInteractionBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past grid interaction values to consider during forecasting"
       Device: *Device_G_Device
       Policy: *EndUserTariff_G_Policy
       BusinessModel: *EndUserTariff_G_BusinessModel
@@ -2989,43 +2993,43 @@ AgentTypes:
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of future electricity price values to consider during forecasting"
           ElectricityPriceBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past electricity price values to consider during forecasting"
           ChargingPowerForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of future charging power values to consider during forecasting"
           ChargingPowerBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past charging power values to consider during forecasting"
           ElectricityConsumptionForwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of future electricity consumption values to consider during forecasting"
           ElectricityConsumptionBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past electricity consumption values to consider during forecasting"
           LoadPredictionBackwardWindow:
             AttributeType: integer
             Mandatory: true
             List: false
             MetaData:
-              Description: ""
+              Description: "Number of past load values to consider during forecasting"
     Products: 
       PriceForecastRequest: *ForecastClient_P_PriceForecastRequest
       Bids: *DamTrader_P_Bids
