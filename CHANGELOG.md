@@ -9,6 +9,8 @@ SPDX-License-Identifier: CC0-1.0 -->
 
 ### Added
 - Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
+- Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
+- Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
 - Add metadata.json to describe project with metadata #147 (@dlr-cjs)
 
 ## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
