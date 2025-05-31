@@ -80,7 +80,7 @@ Please, check the following points before submitting a pull request:
 1. Make sure your code is based on the latest version of the *dev* branch and that there are no conflicts. If there are any conflicts, fix them first.
 1. Make sure all existing unit tests are successful. Add new unit tests that cover your code contributions and ensure that your code works as intended. If there is a bug you don't know how to fix, ask the main developers for help.
 1. Update `CHANGELOG.md` in the main repository to reflect the code changes made. Follow the changelog [style guide](https://github.com/vweevers/common-changelog)
-1. Update the project version number in the `pom.xml` following the conventions of [semantic versioning](https://semver.org/) 2.0.0.
+1. Update the project version number in the `pom.xml` following the conventions of [semantic versioning](https://semver.org/) 2.0.0. Attach "-alpha<N>" to versions on the dev-branch, where <N> is an integer increased for each feature branch.
 1. If there is a breaking change introduced: add upgrade instructions to `UPGRADING.md`.
 
 ### Pull request
@@ -90,18 +90,21 @@ Please, check the following points before submitting a pull request:
 
 # List of Contributors
 
-The following people made significant contributions to AMIRIS (in calendrical order of their contribution):
+The following people made significant contributions to AMIRIS (in order of their first contribution):
 
 1. [Kristina Nienhaus](https://orcid.org/0000-0003-4180-6767)
+1. Thomas Kast
+1. [Wolfgang Weimer-Jehle](https://orcid.org/0000-0002-2945-7288)
+1. [Rudolf Weeber](https://orcid.org/0000-0003-1128-2093)
 1. [Matthias Reeg](https://orcid.org/0000-0001-8247-6499)
 1. Nils Roloff
 1. [Marc Deissenroth-Uhrig](https://orcid.org/0000-0002-9103-418X)
 1. [Martin Klein](https://orcid.org/0000-0001-7283-4707)
 1. [Christoph Schimeczek](https://orcid.org/0000-0002-0791-9365)
 1. [Ulrich Frey](https://orcid.org/0000-0002-9803-1336)
-1. [Evelyn Sperber](https://orcid.org/0000-0001-9093-5042)
 1. [Seyedfarzad Sarfarazi](https://orcid.org/0000-0003-0532-5907)
 1. [Felix Nitsch](https://orcid.org/0000-0002-9824-3371)
+1. [Evelyn Sperber](https://orcid.org/0000-0001-9093-5042)
 1. [Johannes Kochems](https://orcid.org/0000-0002-3461-3679)
 1. [A. Achraf El Ghazi](https://orcid.org/0000-0001-5064-9148)
 1. [Leonard Willeke](https://orcid.org/0009-0004-4859-2452)

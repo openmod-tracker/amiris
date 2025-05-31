@@ -19,9 +19,9 @@ public final class AssessmentFunctionBuilder {
 		/** Maximise profit using an electricity price forecast neglecting any price impact of bids */
 		MAX_PROFIT_PRICE_TAKER,
 		/** Minimise total system costs using a merit order forecast that takes into account the impact of own bids */
-		SINGLE_AGENT_MIN_SYSTEM_COST,
+		MIN_SYSTEM_COST,
 		/** Maximise own profits using a merit order forecast that takes into account the impact of own bids */
-		SINGLE_AGENT_MAX_PROFIT,
+		MAX_PROFIT,
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "Assessment function is not implemented: ";
@@ -31,9 +31,9 @@ public final class AssessmentFunctionBuilder {
 		switch (type) {
 			case MAX_PROFIT_PRICE_TAKER:
 				return new MaxProfitPriceTaker();
-			case SINGLE_AGENT_MIN_SYSTEM_COST:
+			case MIN_SYSTEM_COST:
 				return new MinSystemCost();
-			case SINGLE_AGENT_MAX_PROFIT:
+			case MAX_PROFIT:
 				return new MaxProfit();
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
