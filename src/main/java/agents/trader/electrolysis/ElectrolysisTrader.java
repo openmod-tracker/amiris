@@ -11,7 +11,7 @@ import agents.electrolysis.ElectrolyzerStrategist;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.DamForecastClient;
-import agents.forecast.Forecaster;
+import agents.forecast.DamForecastProvider;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -92,7 +92,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::requestHydrogenPriceForecast).on(FuelsTrader.Products.FuelPriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
+		call(this::updateElectricityPriceForecast).onAndUse(DamForecastProvider.Products.PriceForecast);
 		call(this::updateHydrogenPriceForecast).onAndUse(FuelsMarket.Products.FuelPriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);

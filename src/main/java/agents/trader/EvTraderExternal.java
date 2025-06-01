@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import agents.flexibility.Strategist;
 import agents.forecast.DamForecastClient;
-import agents.forecast.Forecaster;
+import agents.forecast.DamForecastProvider;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
@@ -82,7 +82,7 @@ public class EvTraderExternal extends FlexibilityTrader {
 
 		call(this::requestPriceForecast).on(DamForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updatePriceForecast).onAndUse(Forecaster.Products.PriceForecast);
+		call(this::updatePriceForecast).onAndUse(DamForecastProvider.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 	}

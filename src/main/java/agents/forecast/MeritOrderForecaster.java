@@ -21,7 +21,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class MeritOrderForecaster extends MarketForecaster {
 	/** Creates a {@link MeritOrderForecaster}
 	 * 
-	 * @param dataProvider provides input from config file
+	 * @param dataProvider provides input from file
 	 * @throws MissingDataException if any required data is not provided */
 	public MeritOrderForecaster(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);

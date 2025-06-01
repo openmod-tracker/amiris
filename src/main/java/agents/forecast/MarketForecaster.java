@@ -14,6 +14,8 @@ import agents.markets.meritOrder.MarketClearingResult;
 import agents.trader.Trader;
 import communications.message.ClearingTimes;
 import communications.portable.BidsAtTime;
+import communications.portable.MeritOrderMessage;
+import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -29,11 +31,11 @@ import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Common base class related to {@link DayAheadMarket} forecasting; issues {@link Products#ForecastRequest}s to ask for required
- * forecasts; uses forecasted bids to clear market ahead of time and thus provide forecasts
+/** Provides forecasts for {@link DayAheadMarket}; issues {@link Products#ForecastRequest}s to ask for required forecasts; uses
+ * forecasted bids to clear market ahead of time and thus provide forecasts
  * 
  * @author Christoph Schimeczek */
-public abstract class MarketForecaster extends Forecaster {
+public class MarketForecaster extends Agent implements DamForecastProvider {
 	@Input private static final Tree parameters = Make.newTree().add(Make.newInt("ForecastPeriodInHours"))
 			.addAs("Clearing", MarketClearing.parameters).buildTree();
 

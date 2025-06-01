@@ -85,7 +85,7 @@ public class PriceForecasterApi extends MarketForecaster {
 
 		call(this::logClearingPrices).onAndUse(DayAheadMarket.Products.Awards);
 		call(this::registerClearingTime).onAndUse(DayAheadMarket.Products.GateClosureInfo);
-		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
+		call(this::sendPriceForecast).on(DamForecastProvider.Products.PriceForecast)
 				.use(DamForecastClient.Products.PriceForecastRequest);
 	}
 

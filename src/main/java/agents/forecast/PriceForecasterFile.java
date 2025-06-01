@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import agents.markets.meritOrder.MarketClearingResult;
 import communications.message.AmountAtTime;
 import communications.message.PointInTime;
+import de.dlr.gitlab.fame.agent.Agent;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -25,7 +26,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** Provides static electricity price forecasts read from file
  * 
  * @author Christoph Schimeczek */
-public class PriceForecasterFile extends Forecaster {
+public class PriceForecasterFile extends Agent implements DamForecastProvider {
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newSeries("PriceForecastsInEURperMWH").help("Time series of price forecasts")).buildTree();
 
@@ -46,7 +47,7 @@ public class PriceForecasterFile extends Forecaster {
 		ParameterData input = parameters.join(dataProvider);
 		priceForecasts = input.getTimeSeries("PriceForecastsInEURperMWH");
 
-		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
+		call(this::sendPriceForecast).on(DamForecastProvider.Products.PriceForecast)
 				.use(DamForecastClient.Products.PriceForecastRequest);
 	}
 

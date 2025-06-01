@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import agents.flexibility.Strategist;
 import agents.forecast.DamForecastClient;
-import agents.forecast.Forecaster;
+import agents.forecast.DamForecastProvider;
 import agents.heatPump.BuildingParameters;
 import agents.heatPump.HeatPump;
 import agents.heatPump.HeatPumpSchedule;
@@ -96,10 +96,10 @@ public class HeatPumpTrader extends FlexibilityTrader {
 
 		call(this::requestElectricityForecast).on(DamForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
+		call(this::updateMeritOrderForecast).onAndUse(DamForecastProvider.Products.MeritOrderForecast);
 		call(this::requestElectricityForecast).on(DamForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
+		call(this::updateElectricityPriceForecast).onAndUse(DamForecastProvider.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 	}

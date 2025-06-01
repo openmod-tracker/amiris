@@ -9,7 +9,7 @@ import java.util.List;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.forecast.DamForecastClient;
-import agents.forecast.Forecaster;
+import agents.forecast.DamForecastProvider;
 import agents.loadShifting.LoadShiftingPortfolio;
 import agents.loadShifting.strategists.LoadShiftingStrategist;
 import agents.markets.DayAheadMarket;
@@ -68,10 +68,10 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 
 		call(this::requestElectricityForecast).on(DamForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
+		call(this::updateMeritOrderForecast).onAndUse(DamForecastProvider.Products.MeritOrderForecast);
 		call(this::requestElectricityForecast).on(DamForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
-		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
+		call(this::updateElectricityPriceForecast).onAndUse(DamForecastProvider.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::digestAwards).on(DayAheadMarket.Products.Awards).use(DayAheadMarket.Products.Awards);
 	}
