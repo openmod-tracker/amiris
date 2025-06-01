@@ -33,8 +33,8 @@ import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** Provides forecasts for {@link DayAheadMarket}; issues {@link Products#ForecastRequest}s to ask for required forecasts; uses
- * forecasted bids to clear market ahead of time and thus provide forecasts
+/** Provides different kind of forecasts for {@link DayAheadMarket}; issues {@link Products#ForecastRequest}s to ask for required
+ * bid forecasts; uses forecasted bids to clear market ahead of time and create own forecasts
  * 
  * @author Christoph Schimeczek */
 public class MarketForecaster extends Agent implements DamForecastProvider {

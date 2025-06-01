@@ -1014,10 +1014,10 @@ AgentTypes:
       ForecastRequest: &MarketForecaster_P_ForecastRequest
         MetaData:
           Description: "A request for a (perfect foresight) bid prognosis."
-      MeritOrderForecast: &MarketForecaster_P_MeritOrderForecast
+      MeritOrderForecast: &DamForecastProvider_P_MeritOrderForecast
         MetaData:
           Description: "Perfect foresight merit-order forecast for a specific market clearing event"
-      PriceForecast: &MarketForecaster_P_PriceForecast
+      PriceForecast: &DamForecastProvider_P_PriceForecast
         MetaData:
           Description: "Perfect foresight price electricity forecast for a specific market clearing event"
     Outputs:
@@ -1036,7 +1036,7 @@ AgentTypes:
       ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
     Products:
       ForecastRequest: *MarketForecaster_P_ForecastRequest
-      MeritOrderForecast: *MarketForecaster_P_MeritOrderForecast
+      MeritOrderForecast: *DamForecastProvider_P_MeritOrderForecast
     Outputs:
       AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
@@ -1049,7 +1049,7 @@ AgentTypes:
       ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
     Products:
       ForecastRequest: *MarketForecaster_P_ForecastRequest
-      PriceForecast: *MarketForecaster_P_PriceForecast
+      PriceForecast: *DamForecastProvider_P_PriceForecast
     Outputs:
       AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
@@ -1069,11 +1069,9 @@ AgentTypes:
     Products:
       PriceForecast:
         MetaData:
-          Description: "Price forecasts based on an external simulation input - could be correct or totally wrong."
-          OEONearestConcept:
+          Description: "Price forecasts based on an external simulation input"
     MetaData:
       Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are predetermined before the simulation begins, therefore exogenously defined, making them static in nature."
-      OEONearestConcept:
 
   PriceForecasterApi:
     Attributes:
@@ -1122,16 +1120,55 @@ AgentTypes:
       PriceForecast:
         MetaData:
           Description: "Price forecasts based on an external model."
-          OEONearestConcept:
     Outputs:
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast 
       ElectricityPriceForecastVarianceInEURperMWH:
         MetaData:
           Description: "Variance of forecasted electricity price in EUR per MWh"
-          OEONearestConcept:
     MetaData:
       Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are calculated by an external forecasting model using URLModelSerive."
-      OEONearestConcept:
+
+  SensitivityForecaster:
+    Attributes:
+      ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
+      Clearing: *DAM_G_Clearing
+      MultiplierEstimation:
+        MetaData:
+          Description: "Parameters used for the estimation of dispatch multipliers of sensitivity forecast clients"
+        AttributeType: block
+        Mandatory: false
+        List: false
+        NestedAttributes:
+          IgnoreAwardFactor:
+            AttributeType: double
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Awards with less energy than maximum energy divided by this factor are ignored."
+          InitialEstimateWeight:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Weight of the initial estimate."
+          DecayInterval:
+            AttributeType: integer
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Interval steps after which a factor weight has reduced to exp(-1)."
+    Products:
+      SensitivityForecast: &SensitivityForecastProvider_P_SensitivityForecast
+        MetaData:
+          Description: "Forecast of a market clearing sensitivity; type of sensitivity depends on the registered needs of the client"
+      ForecastRequest: *MarketForecaster_P_ForecastRequest
+      MeritOrderForecast: *DamForecastProvider_P_MeritOrderForecast
+      PriceForecast: *DamForecastProvider_P_PriceForecast
+    Outputs:
+      AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
+      ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
+    MetaData:
+      Description: "Forecaster that provides forcasts for sensitivies of the kind demanded by its clients."
 
   ConventionalPlantOperator:
     Attributes:
@@ -3058,43 +3095,3 @@ AgentTypes:
           Description: "Energy in MWh currently stored in the electric vehicles"
     MetaData:
       Description: "A Trader that sells and buys energy utilising a fleet of electric vehicles."
-  
-  SensitivityForecaster:
-    Attributes:
-      ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
-      Clearing: *DAM_G_Clearing
-      MultiplierEstimation:
-        MetaData:
-          Description: "Parameters used for the estimation of dispatch multipliers of sensitivity forecast clients"
-        AttributeType: block
-        Mandatory: false
-        List: false
-        NestedAttributes:
-          IgnoreAwardFactor:
-            AttributeType: double
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Awards with less energy than maximum energy divided by this factor are ignored."
-          InitialEstimateWeight:
-            AttributeType: integer
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Weight of the initial estimate."
-          DecayInterval:
-            AttributeType: integer
-            Mandatory: false
-            List: false
-            MetaData:
-              Description: "Interval steps after which a factor weight has reduced to exp(-1)."
-    Products:
-      SensitivityForecast: &SensitivityForecastProvider_P_SensitivityForecast
-        MetaData:
-          Description: "Forecast of a market clearing sensitivity; type of sensitivity depends on the registered needs of the client"
-      ForecastRequest: *MarketForecaster_P_ForecastRequest
-    Outputs:
-      AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
-      ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
-    MetaData:
-      Description: "Forecaster that provides forcasts for sensitivies of the kind demanded by its clients."
