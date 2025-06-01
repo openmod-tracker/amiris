@@ -57,12 +57,14 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 		ElectricityPriceForecastInEURperMWH
 	}
 
-	/** maximum number of future hours to provide forecasts for */
+	/** Maximum number of hours to the future for which to provide forecasts */
 	protected final int forecastPeriodInHours;
-	/** the algorithm used to clear the market */
+	/** The algorithm used to clear the market */
 	private final MarketClearing marketClearing;
-	/** contains all previously calculated forecasts with their associated time */
+	/** All previously calculated forecasts (that still lie in the future) with their associated time */
 	private final TreeMap<TimeStamp, MarketClearingResult> calculatedForecastContainer = new TreeMap<>();
+	/** The last time a forecast was stored */
+	private TimeStamp lastStoredForecastAt = null;
 
 	/** Creates a {@link MarketForecaster}
 	 * 
@@ -110,14 +112,14 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 		return missingTimes;
 	}
 
-	/** send out forecast request to all receivers of given contracts */
+	/** Sends out forecast request to all receivers of given contracts */
 	private void fulfilForecastRequestContracts(List<Contract> contracts, List<TimeStamp> times) {
 		for (Contract contract : contracts) {
 			fulfilNext(contract, new ClearingTimes(times.toArray(new TimeStamp[0])));
 		}
 	}
 
-	/** remove all out-dated market clearing results */
+	/** Removes all out-dated market clearing results */
 	private void removeOutdatedForecasts() {
 		Iterator<Entry<TimeStamp, MarketClearingResult>> iterator = calculatedForecastContainer.entrySet().iterator();
 		while (iterator.hasNext()) {
@@ -130,7 +132,7 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 		}
 	}
 
-	/** Use received forecasted Bids to clear market and store the clearing result(s) for later usage
+	/** Uses received forecasted Bids to clear market and store the clearing result(s) for later usage
 	 **
 	 * @param messages bid forecast(s) received
 	 * @param contracts not used */
@@ -169,9 +171,7 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 			for (Message message : requests) {
 				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
 				MarketClearingResult result = getResultForRequestedTime(requestedTime);
-				MeritOrderMessage meritOrderMessage = new MeritOrderMessage(result.getSupplyBook(), result.getDemandBook(),
-						requestedTime);
-				fulfilNext(contract, meritOrderMessage);
+				fulfilNext(contract, new MeritOrderMessage(result.getSupplyBook(), result.getDemandBook(), requestedTime));
 			}
 		}
 		saveNextForecast();
@@ -189,11 +189,14 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 		return result;
 	}
 
-	/** writes out the nearest upcoming forecast after current time */
+	/** Writes out the nearest upcoming forecast after current time, if it wasn't already done */
 	protected void saveNextForecast() {
-		MarketClearingResult marketClearingResults = calculatedForecastContainer.ceilingEntry(now()).getValue();
-		store(OutputFields.ElectricityPriceForecastInEURperMWH, marketClearingResults.getMarketPriceInEURperMWH());
-		store(OutputFields.AwardedEnergyForecastInMWH, marketClearingResults.getTradedEnergyInMWH());
+		if (now() != lastStoredForecastAt) {
+			MarketClearingResult marketClearingResults = calculatedForecastContainer.ceilingEntry(now()).getValue();
+			store(OutputFields.ElectricityPriceForecastInEURperMWH, marketClearingResults.getMarketPriceInEURperMWH());
+			store(OutputFields.AwardedEnergyForecastInMWH, marketClearingResults.getTradedEnergyInMWH());
+			lastStoredForecastAt = now();
+		}
 	}
 
 	/** Sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader(s) based on incoming Forecast
@@ -208,8 +211,7 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
 				MarketClearingResult result = getResultForRequestedTime(requestedTime);
 				double forecastedPriceInEURperMWH = result.getMarketPriceInEURperMWH();
-				AmountAtTime priceForecastMessage = new AmountAtTime(requestedTime, forecastedPriceInEURperMWH);
-				fulfilNext(contract, priceForecastMessage);
+				fulfilNext(contract, new AmountAtTime(requestedTime, forecastedPriceInEURperMWH));
 			}
 		}
 		saveNextForecast();
