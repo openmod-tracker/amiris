@@ -12,7 +12,9 @@ import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.MarketClearing;
 import agents.markets.meritOrder.MarketClearingResult;
 import agents.trader.Trader;
+import communications.message.AmountAtTime;
 import communications.message.ClearingTimes;
+import communications.message.PointInTime;
 import communications.portable.BidsAtTime;
 import communications.portable.MeritOrderMessage;
 import de.dlr.gitlab.fame.agent.Agent;
@@ -58,9 +60,9 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 	/** maximum number of future hours to provide forecasts for */
 	protected final int forecastPeriodInHours;
 	/** the algorithm used to clear the market */
-	protected final MarketClearing marketClearing;
+	private final MarketClearing marketClearing;
 	/** contains all previously calculated forecasts with their associated time */
-	protected final TreeMap<TimeStamp, MarketClearingResult> calculatedForecastContainer = new TreeMap<>();
+	private final TreeMap<TimeStamp, MarketClearingResult> calculatedForecastContainer = new TreeMap<>();
 
 	/** Creates a {@link MarketForecaster}
 	 * 
@@ -76,6 +78,12 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 		call(this::sendForecastRequests).on(Products.ForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		/** On incoming bid forecasts: clear the market ahead and store the clearing result */
 		call(this::calcMarketClearingForecasts).onAndUse(Trader.Products.BidsForecast);
+		/** On outgoing merit order forecasts: provide merit order results to clients */
+		call(this::sendMeritOrderForecast).on(DamForecastProvider.Products.MeritOrderForecast)
+				.use(DamForecastClient.Products.MeritOrderForecastRequest);
+		/** On outgoing price forecasts: provide merit order results to clients */
+		call(this::sendPriceForecast).on(DamForecastProvider.Products.PriceForecast)
+				.use(DamForecastClient.Products.PriceForecastRequest);
 	}
 
 	/** Requests bid forecast for all future hours within forecast period
@@ -150,6 +158,25 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 		return messageByTimeStamp;
 	}
 
+	/** Sends {@link MeritOrderMessage}s to the requesting trader(s) based on incoming Forecast requests; requesting agent(s) must
+	 * also have a MeritOrderForecast contract to get served
+	 * 
+	 * @param messages incoming forecast request message(s)
+	 * @param contracts of partners that desire a MeritOrderForecast */
+	private void sendMeritOrderForecast(ArrayList<Message> messages, List<Contract> contracts) {
+		for (Contract contract : contracts) {
+			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
+			for (Message message : requests) {
+				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
+				MarketClearingResult result = getResultForRequestedTime(requestedTime);
+				MeritOrderMessage meritOrderMessage = new MeritOrderMessage(result.getSupplyBook(), result.getDemandBook(),
+						requestedTime);
+				fulfilNext(contract, meritOrderMessage);
+			}
+		}
+		saveNextForecast();
+	}
+
 	/** Returns stored clearing result for the given time - or throws an Exception if no result is stored
 	 * 
 	 * @param requestedTime to fetch market clearing result for
@@ -167,5 +194,24 @@ public class MarketForecaster extends Agent implements DamForecastProvider {
 		MarketClearingResult marketClearingResults = calculatedForecastContainer.ceilingEntry(now()).getValue();
 		store(OutputFields.ElectricityPriceForecastInEURperMWH, marketClearingResults.getMarketPriceInEURperMWH());
 		store(OutputFields.AwardedEnergyForecastInMWH, marketClearingResults.getTradedEnergyInMWH());
+	}
+
+	/** Sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader(s) based on incoming Forecast
+	 * requests; requesting agent(s) must also have a PriceForecast contract to get served
+	 * 
+	 * @param messages incoming forecast request message(s)
+	 * @param contracts of partners that desire a PriceForecast */
+	private void sendPriceForecast(ArrayList<Message> messages, List<Contract> contracts) {
+		for (Contract contract : contracts) {
+			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
+			for (Message message : requests) {
+				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
+				MarketClearingResult result = getResultForRequestedTime(requestedTime);
+				double forecastedPriceInEURperMWH = result.getMarketPriceInEURperMWH();
+				AmountAtTime priceForecastMessage = new AmountAtTime(requestedTime, forecastedPriceInEURperMWH);
+				fulfilNext(contract, priceForecastMessage);
+			}
+		}
+		saveNextForecast();
 	}
 }
