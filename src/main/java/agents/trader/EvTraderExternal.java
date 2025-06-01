@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import agents.flexibility.Strategist;
-import agents.forecast.ForecastClient;
+import agents.forecast.DamForecastClient;
 import agents.forecast.Forecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
@@ -80,7 +80,7 @@ public class EvTraderExternal extends FlexibilityTrader {
 		biddingStrategist = new EvBiddingStrategist(urlService, modelId, forecastPeriodInHours,
 				availableChargingPowerInMW, elecConsumptionInMWH, input.getGroup("PredictionWindows"));
 
-		call(this::requestPriceForecast).on(ForecastClient.Products.PriceForecastRequest)
+		call(this::requestPriceForecast).on(DamForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updatePriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);

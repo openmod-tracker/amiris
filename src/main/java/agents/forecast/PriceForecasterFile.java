@@ -32,7 +32,7 @@ public class PriceForecasterFile extends Forecaster {
 	@Output
 	private static enum OutputFields {
 		ElectricityPriceForecastInEURperMWH
-	};
+	}
 
 	private final TimeSeries priceForecasts;
 	private final TreeMap<TimeStamp, Double> nextForecasts = new TreeMap<>();
@@ -47,7 +47,7 @@ public class PriceForecasterFile extends Forecaster {
 		priceForecasts = input.getTimeSeries("PriceForecastsInEURperMWH");
 
 		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
-				.use(ForecastClient.Products.PriceForecastRequest);
+				.use(DamForecastClient.Products.PriceForecastRequest);
 	}
 
 	/** sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */

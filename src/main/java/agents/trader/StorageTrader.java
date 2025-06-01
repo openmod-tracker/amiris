@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
-import agents.forecast.ForecastClient;
+import agents.forecast.DamForecastClient;
 import agents.forecast.Forecaster;
 import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
@@ -62,10 +62,10 @@ public class StorageTrader extends FlexibilityTrader {
 		this.strategist = ArbitrageStrategist.createStrategist(input.getGroup("Strategy"), storage);
 
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
-		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
+		call(this::requestElectricityForecast).on(DamForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
-		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(DamForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);

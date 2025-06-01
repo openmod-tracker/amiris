@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
-import agents.forecast.ForecastClient;
+import agents.forecast.DamForecastClient;
 import agents.forecast.Forecaster;
 import agents.loadShifting.LoadShiftingPortfolio;
 import agents.loadShifting.strategists.LoadShiftingStrategist;
@@ -66,10 +66,10 @@ public class LoadShiftingTrader extends FlexibilityTrader {
 		this.endUserTariff = new EndUserTariff(input.getGroup("Policy"), input.getGroup("BusinessModel"));
 		this.strategist = LoadShiftingStrategist.createStrategist(input.getGroup("Strategy"), endUserTariff, portfolio);
 
-		call(this::requestElectricityForecast).on(ForecastClient.Products.MeritOrderForecastRequest)
+		call(this::requestElectricityForecast).on(DamForecastClient.Products.MeritOrderForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateMeritOrderForecast).onAndUse(Forecaster.Products.MeritOrderForecast);
-		call(this::requestElectricityForecast).on(ForecastClient.Products.PriceForecastRequest)
+		call(this::requestElectricityForecast).on(DamForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updateElectricityPriceForecast).onAndUse(Forecaster.Products.PriceForecast);
 		call(this::prepareBids).on(DayAheadMarketTrader.Products.Bids).use(DayAheadMarket.Products.GateClosureInfo);

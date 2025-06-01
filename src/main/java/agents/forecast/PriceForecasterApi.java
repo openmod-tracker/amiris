@@ -86,7 +86,7 @@ public class PriceForecasterApi extends MarketForecaster {
 		call(this::logClearingPrices).onAndUse(DayAheadMarket.Products.Awards);
 		call(this::registerClearingTime).onAndUse(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sendPriceForecast).on(Forecaster.Products.PriceForecast)
-				.use(ForecastClient.Products.PriceForecastRequest);
+				.use(DamForecastClient.Products.PriceForecastRequest);
 	}
 
 	/** Extracts and store power prices reported from {@link DayAheadMarket}
