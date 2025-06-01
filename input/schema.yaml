@@ -1000,7 +1000,7 @@ AgentTypes:
       Description: "The SystemOperatorTrader is an AggregatorTrader who trades renewable energy eligible for a FIT support scheme. It trades energy of associated power plants at the EnergyExchange."
       OEONearestConcept: OEO_00040005
  
-  MeritOrderForecaster:
+  MarketForecaster:
     Attributes:
       Clearing: *DAM_G_Clearing
       ForecastPeriodInHours: &MarketForecaster_A_ForecastPeriod
@@ -1014,23 +1014,34 @@ AgentTypes:
       ForecastRequest: &MarketForecaster_P_ForecastRequest
         MetaData:
           Description: "A request for a (perfect foresight) bid prognosis."
-          OEONearestConcept:
-      MeritOrderForecast:
+      MeritOrderForecast: &MarketForecaster_P_MeritOrderForecast
         MetaData:
-          Description: "Perfect foresight merit-order forecast for a specific hour"
-          OEONearestConcept:
+          Description: "Perfect foresight merit-order forecast for a specific market clearing event"
+      PriceForecast: &MarketForecaster_P_PriceForecast
+        MetaData:
+          Description: "Perfect foresight price electricity forecast for a specific market clearing event"
     Outputs:
       AwardedEnergyForecastInMWH: &MarketForecaster_O_AwardedEnergyForecast
         MetaData:
           Description: "Forecasted total awarded energy in MWh"
-          OEONearestConcept:
       ElectricityPriceForecastInEURperMWH: &MarketForecaster_O_ElectricityPriceForecast
         MetaData:
           Description: "Forecasted electricity price in EUR per MWh"
-          OEONearestConcept:
     MetaData:
-      Description: "A type of MarketForecaster. Provides perfect foresight day-ahead merit-order forecasts to other agents. To have meaningful forecasts, all agents need to actually bid at Exchange with their intended bids given earlier to the Forecaster."
-      OEONearestConcept: 
+      Description: "Provides perfect foresight forecasts for the day-ahead market to other agents. To have meaningful forecasts, all agents need to actually bid at Exchange with their intended bids given earlier to the Forecaster."
+ 
+  MeritOrderForecaster:
+    Attributes:
+      Clearing: *DAM_G_Clearing
+      ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
+    Products:
+      ForecastRequest: *MarketForecaster_P_ForecastRequest
+      MeritOrderForecast: *MarketForecaster_P_MeritOrderForecast
+    Outputs:
+      AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
+      ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
+    MetaData:
+      Description: "Deprecated - use MarketForecaster instead. A subtype type of MarketForecaster. Provides perfect foresight day-ahead merit-order forecasts to other agents."
 
   PriceForecaster:
     Attributes:
@@ -1038,16 +1049,12 @@ AgentTypes:
       ForecastPeriodInHours: *MarketForecaster_A_ForecastPeriod
     Products:
       ForecastRequest: *MarketForecaster_P_ForecastRequest
-      PriceForecast:
-        MetaData:
-          Description: "Perfect foresight price electricity forecast for a specific hour"
-          OEONearestConcept:
+      PriceForecast: *MarketForecaster_P_PriceForecast
     Outputs:
       AwardedEnergyForecastInMWH: *MarketForecaster_O_AwardedEnergyForecast
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast
     MetaData:
-      Description: "A type of MarketForecaster. Provides perfect foresight day-ahead price forecasts to other agents. To have meaningful forecasts, all agents need to actually bid at Exchange with their intended bids given earlier to the Forecaster."
-      OEONearestConcept: 
+      Description: "Deprecated - use MarketForecaster instead. A subtype of MarketForecaster. Provides perfect foresight day-ahead price forecasts to other agents."
 
   PriceForecasterFile:
     Attributes:
