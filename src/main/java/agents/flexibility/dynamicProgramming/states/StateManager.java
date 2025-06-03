@@ -12,18 +12,22 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public interface StateManager {
-	/** Contains the course of the internal energy levels and external energy deltas over a dispatch */
+	/** Contains the course of the internal energy levels, external energy deltas, and water values over a dispatch */
 	public static class DispatchSchedule {
 		public final double[] externalEnergyDeltasInMWH;
-		public final double[] initialInternalEnergyInMWH;
+		public final double[] initialInternalEnergiesInMWH;
+		public final double[] specificValuesInEURperMWH;
 
 		/** Instantiate new {@link DispatchSchedule}
 		 * 
 		 * @param externalEnergyDeltasInMWH course of external energy deltas during dispatch
-		 * @param initialInternalEnergyInMWH course of expected internal energy during dispatch */
-		public DispatchSchedule(double[] externalEnergyDeltasInMWH, double[] initialInternalEnergyInMWH) {
+		 * @param initialInternalEnergiesInMWH course of expected internal energy during dispatch
+		 * @param specificValuesInEURperMWH estimated specific value of the dispatch decision */
+		DispatchSchedule(double[] externalEnergyDeltasInMWH, double[] initialInternalEnergiesInMWH,
+				double[] specificValuesInEURperMWH) {
 			this.externalEnergyDeltasInMWH = externalEnergyDeltasInMWH;
-			this.initialInternalEnergyInMWH = initialInternalEnergyInMWH;
+			this.initialInternalEnergiesInMWH = initialInternalEnergiesInMWH;
+			this.specificValuesInEURperMWH = specificValuesInEURperMWH;
 		}
 	}
 
@@ -97,5 +101,5 @@ public interface StateManager {
 	 * 
 	 * @param startingPeriod first interval of the planning horizon
 	 * @return list of starting times */
-	public ArrayList<TimeStamp> getPlanningTimes(TimePeriod startingPeriod);
+	ArrayList<TimeStamp> getPlanningTimes(TimePeriod startingPeriod);
 }
