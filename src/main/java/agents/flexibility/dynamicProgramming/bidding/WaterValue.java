@@ -6,43 +6,38 @@ package agents.flexibility.dynamicProgramming.bidding;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.dynamicProgramming.Optimiser;
 import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
-import agents.markets.meritOrder.Constants;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
-/** Offers energy with minimum price and requests energy with maximum price
+/** Uses specific value of transitions derived from water values to calculate bids
  * 
  * @author Christoph Schimeczek */
-public class EnsureDispatch implements BidScheduler {
+public class WaterValue implements BidScheduler {
 	private final double schedulingHorizonInHours;
 
-	public EnsureDispatch(double schedulingHorizonInHours) {
+	public WaterValue(double schedulingHorizonInHours) {
 		this.schedulingHorizonInHours = schedulingHorizonInHours;
 	}
 
 	@Override
-	public BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule dispatchSchedule) {
+	public BidSchedule createBidSchedule(TimePeriod startingTime, DispatchSchedule schedule) {
 		int numberOfScheduleSteps = Optimiser.calcHorizonInPeriodSteps(startingTime, schedulingHorizonInHours);
 		BidSchedule bidSchedule = new BidSchedule(startingTime, numberOfScheduleSteps);
 
 		double[] biddingPricePerPeriodInEURperMWH = new double[numberOfScheduleSteps];
 		for (int i = 0; i < numberOfScheduleSteps; i++) {
-			biddingPricePerPeriodInEURperMWH[i] = getBid(dispatchSchedule.externalEnergyDeltasInMWH[i]);
+
+			biddingPricePerPeriodInEURperMWH[i] = getBid(schedule.externalEnergyDeltasInMWH[i],
+					schedule.specificValuesInEURperMWH[i]);
 		}
-		bidSchedule.setRequestedEnergyPerPeriod(dispatchSchedule.externalEnergyDeltasInMWH);
+		bidSchedule.setRequestedEnergyPerPeriod(schedule.externalEnergyDeltasInMWH);
 		bidSchedule.setBidsScheduleInEURperMWH(biddingPricePerPeriodInEURperMWH);
-		bidSchedule.setExpectedInitialInternalEnergyScheduleInMWH(dispatchSchedule.initialInternalEnergiesInMWH);
+		bidSchedule.setExpectedInitialInternalEnergyScheduleInMWH(schedule.initialInternalEnergiesInMWH);
 		return bidSchedule;
 	}
 
-	/** @return scarcity price for purchasing energy and minimum price for selling energy */
-	private double getBid(double purchasedEnergy) {
-		if (purchasedEnergy > 0) {
-			return Constants.SCARCITY_PRICE_IN_EUR_PER_MWH;
-		} else if (purchasedEnergy < 0) {
-			return Constants.MINIMAL_PRICE_IN_EUR_PER_MWH;
-		} else {
-			return 0;
-		}
+	/** @return bid price: recover value losses when selling energy by placing the as minimum bid price */
+	private double getBid(double energyDeltaInMWH, double specificValueDeltaInEURperMWH) {
+		return Math.signum(energyDeltaInMWH) * specificValueDeltaInEURperMWH;
 	}
 
 	@Override

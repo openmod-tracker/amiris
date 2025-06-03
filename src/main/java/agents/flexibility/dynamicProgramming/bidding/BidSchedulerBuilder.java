@@ -19,6 +19,8 @@ public class BidSchedulerBuilder {
 	enum Type {
 		/** Ensure planned dispatch is fulfilled by bidding at technical price limits */
 		ENSURE_DISPATCH,
+		/** Use water value delta to calculate bidding price */
+		WATER_VALUE
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "Bid Scheduler is not implemented: ";
@@ -28,6 +30,8 @@ public class BidSchedulerBuilder {
 		switch (type) {
 			case ENSURE_DISPATCH:
 				return new EnsureDispatch(input.getDouble("SchedulingHorizonInHours"));
+			case WATER_VALUE:
+				return new WaterValue(input.getDouble("SchedulingHorizonInHours"));
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
 		}
