@@ -6,15 +6,15 @@ package agents.forecast;
 import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.communication.Product;
 
-/** An {@link AgentAbility} that allows to ask {@link MarketForecaster}s for forecasts
+/** An {@link AgentAbility} that allows to ask {@link DamForecastProvider}s for forecasts of the Day-Ahead Market (DAM)
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
-public interface ForecastClient extends AgentAbility {
+public interface DamForecastClient extends AgentAbility {
 	@Product
 	public static enum Products {
-		/** Requests for merit-order forecasts */
+		/** Request for a merit-order forecast */
 		MeritOrderForecastRequest,
-		/** Requests for price forecasts */
+		/** Request for a price forecast */
 		PriceForecastRequest,
 	}
 }

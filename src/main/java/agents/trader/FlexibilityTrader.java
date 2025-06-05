@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import accounting.AnnualCostCalculator;
 import agents.flexibility.Strategist;
-import agents.forecast.ForecastClient;
+import agents.forecast.DamForecastClient;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.books.DemandOrderBook;
 import agents.markets.meritOrder.books.SupplyOrderBook;
@@ -32,7 +32,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** A type of Trader that also operates a flexibility asset, e.g. storage device or flexible heat pump
  *
  * @author Christoph Schimeczek */
-public abstract class FlexibilityTrader extends Trader implements ForecastClient {
+public abstract class FlexibilityTrader extends Trader implements DamForecastClient {
 	@Input private static final Tree parameters = Make.newTree().addAs("Refinancing", AnnualCostCalculator.parameters)
 			.buildTree();
 

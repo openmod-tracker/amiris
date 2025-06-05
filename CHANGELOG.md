@@ -6,13 +6,21 @@ SPDX-License-Identifier: CC0-1.0 -->
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - tba
 ### Changed
 - Rename `Type`s in group `Assessment` of `GenericFlexibility` to `MAX_PROFIT` and `MIN_SYSTEM_COST` #166 (@dlr_jk)
+- Rename `forecast.ForecastClient` to `DamForecastClient` #121 (@dlr-cjs)
+- Enable a single `MarketForecaster` to handle forecasts for both MeritOrderRequests and PriceForecastRequests at the same time #121 (@dlr-cjs)
+- Move functionality from `MeritOrderForecaster` to `MarketForecaster` and mark the first as deprecated #121 (@dlr-cjs)
+- Move functionality from `PriceForecaster` to `MarketForecaster` and mark the first as deprecated #121 (@dlr-cjs)
 
 ### Added
 - Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
 - Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
 - Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
+- Add new Ability `DamForecastProvider` to replace class `Forecaster` #121 (@dlr-cjs)
 - Add new BidScheduler `WaterValue` using the expected change of value in a flexibility device to derive its bids #167 (@dlr-cjs)
 - Add metadata.json to describe project with metadata #147 (@dlr-cjs)
+
+### Remove
+- Remove class `Forecaster` #121 (@dlr-cjs)
 
 ## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
 ### Fixed
