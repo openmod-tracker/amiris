@@ -2829,10 +2829,10 @@ AgentTypes:
             Values:
               ENSURE_DISPATCH:
                 MetaData:
-                  Description: "Ensure planned dispatch is fulfilled by bidding at technical price limits"
-              WATER_VALUE:
+                  Description: "Ensures planned dispatch is fulfilled by bidding at technical price limits"
+              STORAGE_CONTENT_VALUE:
                 MetaData:
-                  Description: "Use expected changes of value of stored energy to derive bidding price."
+                  Description: "Uses estimated value changes of storage content to calculate bidding price"
           SchedulingHorizonInHours:
             MetaData:
               Description: "Number time length each created schedule is viable in hours; should be significantly larger than the flexibilities energy-to-power ratio."

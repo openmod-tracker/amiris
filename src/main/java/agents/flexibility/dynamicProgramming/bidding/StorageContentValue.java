@@ -8,13 +8,13 @@ import agents.flexibility.dynamicProgramming.Optimiser;
 import agents.flexibility.dynamicProgramming.states.StateManager.DispatchSchedule;
 import de.dlr.gitlab.fame.time.TimePeriod;
 
-/** Uses specific value of transitions derived from water values to calculate bids
+/** Uses specific value of transitions derived from storage content values to calculate bids
  * 
  * @author Christoph Schimeczek */
-public class WaterValue implements BidScheduler {
+public class StorageContentValue implements BidScheduler {
 	private final double schedulingHorizonInHours;
 
-	public WaterValue(double schedulingHorizonInHours) {
+	public StorageContentValue(double schedulingHorizonInHours) {
 		this.schedulingHorizonInHours = schedulingHorizonInHours;
 	}
 
@@ -25,7 +25,6 @@ public class WaterValue implements BidScheduler {
 
 		double[] biddingPricePerPeriodInEURperMWH = new double[numberOfScheduleSteps];
 		for (int i = 0; i < numberOfScheduleSteps; i++) {
-
 			biddingPricePerPeriodInEURperMWH[i] = getBid(schedule.externalEnergyDeltasInMWH[i],
 					schedule.specificValuesInEURperMWH[i]);
 		}
@@ -35,7 +34,7 @@ public class WaterValue implements BidScheduler {
 		return bidSchedule;
 	}
 
-	/** @return bid price: recover value losses when selling energy by placing the as minimum bid price */
+	/** @return bid price: consider opportunity costs when buying/selling energy to derive the minimum/maximum bid price */
 	private double getBid(double energyDeltaInMWH, double specificValueDeltaInEURperMWH) {
 		return Math.signum(energyDeltaInMWH) * specificValueDeltaInEURperMWH;
 	}
