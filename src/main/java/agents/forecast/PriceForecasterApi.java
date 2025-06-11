@@ -60,7 +60,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 	private TreeMap<Long, Double> priceForecastMeans;
 	private TreeMap<Long, Double> priceForecastVariances;
 	private TimeStamp nextClearingTimeStep = now();
-	private TimeStamp lastPreparationTime = null;
+	private TimeStamp lastReportingTime = new TimeStamp(Long.MIN_VALUE);
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newString("ServiceURL").help("URL to amiris-priceforecast api"),
@@ -75,7 +75,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 	@Output
 	private static enum OutputFields {
 		ElectricityPriceForecastVarianceInEURperMWH
-	};
+	}
 
 	/** Creates new {@link PriceForecasterApi}
 	 * 
@@ -117,7 +117,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 
 	/** Sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */
 	private void sendPriceForecast(ArrayList<Message> messages, List<Contract> contracts) {
-		boolean forecastUpdateRequired = lastPreparationTime == now() ? false : prepareForecastUpdates();
+		boolean forecastUpdateRequired = prepareForecastUpdates();
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
@@ -127,8 +127,9 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 				}
 			}
 		}
-		if (!lastPreparationTime.equals(now())) {
+		if (!lastReportingTime.equals(now())) {
 			clearStoredDataAndWriteResults();
+			lastReportingTime = now();
 		}
 	}
 
@@ -142,7 +143,6 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 		if (forecastUpdateRequired) {
 			updateForecasts();
 		}
-		lastPreparationTime = now();
 		return forecastUpdateRequired;
 	}
 
@@ -233,7 +233,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 
 	/** Sends {@link Sensitivity} to clients */
 	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
-		prepareForecastUpdates();
+		updateForecasts();
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
@@ -245,8 +245,9 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 				}
 			}
 		}
-		if (!lastPreparationTime.equals(now())) {
+		if (!lastReportingTime.equals(now())) {
 			clearStoredDataAndWriteResults();
+			lastReportingTime = now();
 		}
 	}
 }
