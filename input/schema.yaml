@@ -1119,14 +1119,17 @@ AgentTypes:
     Products:
       PriceForecast:
         MetaData:
-          Description: "Price forecasts based on an external model."
+          Description: "Price forecasts based on an external model"
+      SensitivityForecast:
+        MetaData:
+          Description: "Forecast of a market clearing sensitivity; only sensitivities from a static price and a multiplier of 1 are available."
     Outputs:
       ElectricityPriceForecastInEURperMWH: *MarketForecaster_O_ElectricityPriceForecast 
       ElectricityPriceForecastVarianceInEURperMWH:
         MetaData:
           Description: "Variance of forecasted electricity price in EUR per MWh"
     MetaData:
-      Description: "A type of Forecaster for the day-ahead electricity market. It provides electricity price forecasts to connected agents. These price forecasts are calculated by an external forecasting model using URLModelSerive."
+      Description: "A type of Forecaster for the day-ahead electricity market; it provides electricity price forecasts to connected agents. These price forecasts are calculated by an external forecasting model using URLModelSerive."
 
   SensitivityForecaster:
     Attributes:
