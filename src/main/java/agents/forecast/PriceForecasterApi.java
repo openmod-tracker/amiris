@@ -10,12 +10,17 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import agents.forecast.forecastApi.ForecastApiRequest;
 import agents.forecast.forecastApi.ForecastApiResponse;
+import agents.forecast.sensitivity.CostInsensitive;
+import agents.forecast.sensitivity.SensitivityForecastClient;
+import agents.forecast.sensitivity.SensitivityForecastProvider;
 import agents.markets.DayAheadMarket;
 import agents.markets.meritOrder.MarketClearingResult;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
+import communications.message.ForecastClientRegistration;
 import communications.message.PointInTime;
+import communications.portable.Sensitivity;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -41,7 +46,9 @@ import util.UrlModelService;
  * model is triggered.
  * 
  * @author Felix Nitsch, Christoph Schimeczek */
-public class PriceForecasterApi extends MarketForecaster {
+public class PriceForecasterApi extends MarketForecaster implements SensitivityForecastProvider {
+	static final String ERR_TYPE_DISALLOWED = "Agent '%s' requested ForecastSensitivity of type '%s' which is not supported by PriceForecasterApi.";
+
 	private final UrlModelService<ForecastApiRequest, ForecastApiResponse> urlService;
 	private final int lookBackWindowInHours;
 	private final int forecastWindowExtensionInHours;
@@ -53,6 +60,7 @@ public class PriceForecasterApi extends MarketForecaster {
 	private TreeMap<Long, Double> priceForecastMeans;
 	private TreeMap<Long, Double> priceForecastVariances;
 	private TimeStamp nextClearingTimeStep = now();
+	private TimeStamp lastPreparationTime = null;
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newString("ServiceURL").help("URL to amiris-priceforecast api"),
@@ -87,6 +95,9 @@ public class PriceForecasterApi extends MarketForecaster {
 		call(this::registerClearingTime).onAndUse(DayAheadMarket.Products.GateClosureInfo);
 		call(this::sendPriceForecast).on(DamForecastProvider.Products.PriceForecast)
 				.use(DamForecastClient.Products.PriceForecastRequest);
+		call(this::checkClientRegistration).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
+		call(this::sendSensitivityForecasts).on(SensitivityForecastProvider.Products.SensitivityForecast)
+				.use(SensitivityForecastClient.Products.SensitivityRequest);
 	}
 
 	/** Extracts and store power prices reported from {@link DayAheadMarket}
@@ -106,14 +117,7 @@ public class PriceForecasterApi extends MarketForecaster {
 
 	/** Sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */
 	private void sendPriceForecast(ArrayList<Message> messages, List<Contract> contracts) {
-		if (tsResidualLoadInMWh != null) {
-			chunkResidualLoad();
-		}
-		removeDataBefore(marketClearingPrices, now().earlierBy(new TimeSpan(lookBackWindowInHours, Interval.HOURS)));
-		boolean forecastUpdateRequired = checkForecastUpdateRequired();
-		if (forecastUpdateRequired) {
-			updateForecasts();
-		}
+		boolean forecastUpdateRequired = lastPreparationTime == now() ? false : prepareForecastUpdates();
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
@@ -123,11 +127,23 @@ public class PriceForecasterApi extends MarketForecaster {
 				}
 			}
 		}
-		removeDataBefore(priceForecastMeans, now());
-		removeDataBefore(priceForecastVariances, now());
-		store(MarketForecaster.OutputFields.ElectricityPriceForecastInEURperMWH,
-				priceForecastMeans.firstEntry().getValue());
-		store(OutputFields.ElectricityPriceForecastVarianceInEURperMWH, priceForecastVariances.firstEntry().getValue());
+		if (!lastPreparationTime.equals(now())) {
+			clearStoredDataAndWriteResults();
+		}
+	}
+
+	/** Prepare forecast updates, if required; returns true if updates were required, else false */
+	private boolean prepareForecastUpdates() {
+		if (tsResidualLoadInMWh != null) {
+			chunkResidualLoad();
+		}
+		removeDataBefore(marketClearingPrices, now().earlierBy(new TimeSpan(lookBackWindowInHours, Interval.HOURS)));
+		boolean forecastUpdateRequired = checkForecastUpdateRequired();
+		if (forecastUpdateRequired) {
+			updateForecasts();
+		}
+		lastPreparationTime = now();
+		return forecastUpdateRequired;
 	}
 
 	/** Chunks tsResidualLoadInMWh to residualLoadInMWh from lookBackWindowInHours to forecastPeriodInHours +
@@ -194,5 +210,43 @@ public class PriceForecasterApi extends MarketForecaster {
 			messages.add(new AmountAtTime(requestedTime, forecast));
 		}
 		return messages;
+	}
+
+	/** Writes out latest price forecast results and clears them for the books */
+	private void clearStoredDataAndWriteResults() {
+		removeDataBefore(priceForecastMeans, now());
+		removeDataBefore(priceForecastVariances, now());
+		store(MarketForecaster.OutputFields.ElectricityPriceForecastInEURperMWH,
+				priceForecastMeans.firstEntry().getValue());
+		store(OutputFields.ElectricityPriceForecastVarianceInEURperMWH, priceForecastVariances.firstEntry().getValue());
+	}
+
+	/** Ensure that clients registered for the correct type of sensitivity forecast */
+	private void checkClientRegistration(ArrayList<Message> messages, List<Contract> contracts) {
+		for (Message message : messages) {
+			var registration = message.getDataItemOfType(ForecastClientRegistration.class);
+			if (registration.type != ForecastType.CostInsensitive) {
+				throw new RuntimeException(String.format(ERR_TYPE_DISALLOWED, message.getSenderId(), registration.type));
+			}
+		}
+	}
+
+	/** Sends {@link Sensitivity} to clients */
+	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
+		prepareForecastUpdates();
+		for (Contract contract : contracts) {
+			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
+			for (Message message : requests) {
+				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
+				for (AmountAtTime priceForecast : calcForecastResponses(requestedTime, false)) {
+					var assessment = new CostInsensitive();
+					assessment.setPrice(priceForecast.amount);
+					fulfilNext(contract, new Sensitivity(assessment, 1), new PointInTime(requestedTime));
+				}
+			}
+		}
+		if (!lastPreparationTime.equals(now())) {
+			clearStoredDataAndWriteResults();
+		}
 	}
 }
