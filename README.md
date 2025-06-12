@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0 -->
 ## _Simulate electricity markets emerging from interactions of producers, consumers, and flexibilities_
 
 [![Pipeline status](https://gitlab.com/dlr-ve/esy/amiris/amiris/badges/main/pipeline.svg)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/commits/main)
-[![REUSE status](https://api.reuse.software/badge/gitlab.com/dlr-ve/esy/amiris/amiris/)](https://api.reuse.software/info/gitlab.com/dlr-ve/esy/amiris/amiris/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/tree/main/LICENSE.txt)
 [![JOSS paper](https://joss.theoj.org/papers/10.21105/joss.05041/status.svg)](https://joss.theoj.org/papers/10.21105/joss.05041)
 [![Zenodo](https://img.shields.io/badge/Research-Zenodo-blue)](https://zenodo.org/communities/amiris)
 [![Last Commit](https://img.shields.io/gitlab/last-commit/dlr-ve/esy/amiris/amiris)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/commits/dev)
