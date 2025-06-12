@@ -969,16 +969,16 @@ AgentTypes:
           Description: "URL connection to an external API providing forecasts"
       LookBackWindowInHours:
         AttributeType: integer
-        Mandatory: true
+        Mandatory: false
         List: false
-        help: "Number of TimeSteps for look back"
+        help: "Number of TimeSteps for look back; is set to ForecastPeriodInHours if not provided."
         MetaData:
           Description: "Number of TimeSteps the external forecasting model can look back into the past in order to create the forecasts"
       ForecastWindowExtensionInHours:
         AttributeType: integer
-        Mandatory: true
+        Mandatory: false
         List: false
-        help: "Number of TimeSteps additional to forecast horizon to be requested from API"
+        help: "Number of TimeSteps additional to forecast horizon to be requested from API; (default=0)"
         MetaData:
           Description: "Additional number of TimeSteps that are to be forecasted, in order to reduce calls of the external API model"
       ForecastErrorToleranceInEURperMWH:

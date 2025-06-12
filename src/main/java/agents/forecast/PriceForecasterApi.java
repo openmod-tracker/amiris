@@ -68,9 +68,11 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newString("ServiceURL").help("URL to amiris-priceforecast api"),
-					Make.newInt("LookBackWindowInHours").help("Number of TimeSteps for look back"),
+					Make.newInt("LookBackWindowInHours")
+							.help("Number of TimeSteps for look back, (default=ForecastPeriodInHours)").optional(),
 					Make.newInt("ForecastWindowExtensionInHours")
-							.help("Number of TimeSteps additional to forecast horizon to be requested from API"),
+							.help("Number of TimeSteps additional to forecast horizon to be requested from API, (default=0)")
+							.optional(),
 					Make.newDouble("ForecastErrorToleranceInEURperMWH").help(
 							"Max accepted deviation between forecasted and realized electricity prices; if violated price forecasts are updated; if negative, no checks are performed(default=-1)")
 							.optional(),
@@ -91,8 +93,8 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 		ParameterData input = parameters.join(dataProvider);
 		String serviceUrl = input.getString("ServiceURL");
 		urlService = new UrlModelService<ForecastApiRequest, ForecastApiResponse>(serviceUrl) {};
-		lookBackWindowInHours = input.getInteger("LookBackWindowInHours");
-		forecastWindowExtensionInHours = input.getInteger("ForecastWindowExtensionInHours");
+		lookBackWindowInHours = input.getIntegerOrDefault("LookBackWindowInHours", forecastPeriodInHours);
+		forecastWindowExtensionInHours = input.getIntegerOrDefault("ForecastWindowExtensionInHours", 0);
 		forecastErrorToleranceInEURperMWH = input.getDoubleOrDefault("ForecastErrorToleranceInEURperMWH", -1.);
 		tsResidualLoadInMWh = input.getTimeSeriesOrDefault("ResidualLoadInMWh", null);
 
