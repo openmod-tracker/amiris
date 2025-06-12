@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.TreeMap;
 import agents.forecast.forecastApi.ForecastApiRequest;
 import agents.forecast.forecastApi.ForecastApiResponse;
@@ -48,6 +50,8 @@ import util.UrlModelService;
  * @author Felix Nitsch, Christoph Schimeczek */
 public class PriceForecasterApi extends MarketForecaster implements SensitivityForecastProvider {
 	static final String ERR_TYPE_DISALLOWED = "Agent '%s' requested ForecastSensitivity of type '%s' which is not supported by PriceForecasterApi.";
+	static final String WARN_PRICES_MISSING = "Could not check forecast tolerance - reference market prices missing. Ensure market sends awards to PriceForecasterApi.";
+	private static Logger logger = LoggerFactory.getLogger(PriceForecasterApi.class);
 
 	private final UrlModelService<ForecastApiRequest, ForecastApiResponse> urlService;
 	private final int lookBackWindowInHours;
@@ -60,7 +64,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 	private TreeMap<Long, Double> priceForecastMeans;
 	private TreeMap<Long, Double> priceForecastVariances;
 	private TimeStamp nextClearingTimeStep = now();
-	private TimeStamp lastReportingTime = new TimeStamp(Long.MIN_VALUE);
+	private TimeStamp lastForecastedTime = new TimeStamp(Long.MIN_VALUE);
 
 	@Input private static final Tree parameters = Make.newTree()
 			.add(Make.newString("ServiceURL").help("URL to amiris-priceforecast api"),
@@ -68,7 +72,8 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 					Make.newInt("ForecastWindowExtensionInHours")
 							.help("Number of TimeSteps additional to forecast horizon to be requested from API"),
 					Make.newDouble("ForecastErrorToleranceInEURperMWH").help(
-							"Max accepted deviation between forecasted and realized electricity prices; if violated a new price forecast request is sent"),
+							"Max accepted deviation between forecasted and realized electricity prices; if violated price forecasts are updated; if negative, no checks are performed(default=-1)")
+							.optional(),
 					Make.newSeries("ResidualLoadInMWh").optional())
 			.buildTree();
 
@@ -88,7 +93,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 		urlService = new UrlModelService<ForecastApiRequest, ForecastApiResponse>(serviceUrl) {};
 		lookBackWindowInHours = input.getInteger("LookBackWindowInHours");
 		forecastWindowExtensionInHours = input.getInteger("ForecastWindowExtensionInHours");
-		forecastErrorToleranceInEURperMWH = input.getDouble("ForecastErrorToleranceInEURperMWH");
+		forecastErrorToleranceInEURperMWH = input.getDoubleOrDefault("ForecastErrorToleranceInEURperMWH", -1.);
 		tsResidualLoadInMWh = input.getTimeSeriesOrDefault("ResidualLoadInMWh", null);
 
 		call(this::logClearingPrices).onAndUse(DayAheadMarket.Products.Awards);
@@ -117,7 +122,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 
 	/** Sends {@link AmountAtTime} from {@link MarketClearingResult} to the requesting trader */
 	private void sendPriceForecast(ArrayList<Message> messages, List<Contract> contracts) {
-		boolean forecastUpdateRequired = prepareForecastUpdates();
+		boolean forecastUpdateRequired = lastForecastedTime.equals(now()) ? false : prepareForecastUpdates();
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
@@ -127,9 +132,9 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 				}
 			}
 		}
-		if (!lastReportingTime.equals(now())) {
+		if (!lastForecastedTime.equals(now())) {
 			clearStoredDataAndWriteResults();
-			lastReportingTime = now();
+			lastForecastedTime = now();
 		}
 	}
 
@@ -179,13 +184,27 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 		if (priceForecastMeans == null) {
 			return true;
 		}
-		var timeStep = marketClearingPrices.lastKey();
-		boolean resultNotInTolerance = Math
-				.abs(marketClearingPrices.get(timeStep) - priceForecastMeans.get(timeStep)) > forecastErrorToleranceInEURperMWH;
-		var offset = new TimeSpan(forecastPeriodInHours, Interval.HOURS);
-		long endOfForecastWindow = new TimeStamp(timeStep).laterBy(offset).getStep();
-		boolean priceMissing = !priceForecastMeans.containsKey(endOfForecastWindow);
-		return resultNotInTolerance || priceMissing;
+		return !resultIsInTolerance() || forecastIsMissing();
+	}
+
+	/** @return true if result is in tolerance, if no checks were requested, or if checks could not be done */
+	private boolean resultIsInTolerance() {
+		if (forecastErrorToleranceInEURperMWH < 0) {
+			return true;
+		}
+		if (marketClearingPrices.isEmpty()) {
+			logger.warn(WARN_PRICES_MISSING);
+			return true;
+		}
+		var entry = marketClearingPrices.lastEntry();
+		return Math.abs(entry.getValue() - priceForecastMeans.get(entry.getKey())) <= forecastErrorToleranceInEURperMWH;
+	}
+
+	/** @return true if required forecast is missing */
+	private boolean forecastIsMissing() {
+		var offset = new TimeSpan(forecastPeriodInHours - 1, Interval.HOURS);
+		long endOfForecastWindow = nextClearingTimeStep.laterBy(offset).getStep();
+		return !priceForecastMeans.containsKey(endOfForecastWindow);
 	}
 
 	/** Updates forecasts for required forecast price window considering extension */
@@ -233,7 +252,9 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 
 	/** Sends {@link Sensitivity} to clients */
 	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
-		updateForecasts();
+		if (!lastForecastedTime.equals(now())) {
+			prepareForecastUpdates();
+		}
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
@@ -245,9 +266,9 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 				}
 			}
 		}
-		if (!lastReportingTime.equals(now())) {
+		if (!lastForecastedTime.equals(now())) {
 			clearStoredDataAndWriteResults();
-			lastReportingTime = now();
+			lastForecastedTime = now();
 		}
 	}
 }

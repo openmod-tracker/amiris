@@ -980,14 +980,14 @@ AgentTypes:
         List: false
         help: "Number of TimeSteps additional to forecast horizon to be requested from API"
         MetaData:
-          Description: "In order to reduce expensive calls of the external API model, additional number of TimeSteps are requested to forecasted"
+          Description: "Additional number of TimeSteps that are to be forecasted, in order to reduce calls of the external API model"
       ForecastErrorToleranceInEURperMWH:
         AttributeType: double
-        Mandatory: true
+        Mandatory: false
         List: false
-        help: "Max accepted deviation between forecasted and realized electricity prices; if violated a new price forecast request is sent"
+        help: "Max accepted deviation between forecasted and realized electricity prices; if violated price forecasts are updated; if negative, no checks are performed; (default=-1)"
         MetaData:
-          Description: "Tolerance for deviation between forecasted and realized electricity prices. Small tolerances may result in more API calls"
+          Description: "Tolerance for deviation between forecasted and realized electricity prices; small tolerances may result in more API calls."
       ResidualLoadInMWh:
         AttributeType: time_series
         Mandatory: false
