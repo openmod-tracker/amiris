@@ -17,8 +17,10 @@ public class BidSchedulerBuilder {
 
 	/** Available {@link BidScheduler}s */
 	enum Type {
-		/** Ensure planned dispatch is fulfilled by bidding at technical price limits */
+		/** Ensures planned dispatch is fulfilled by bidding at technical price limits */
 		ENSURE_DISPATCH,
+		/** Uses estimated value changes of storage content to calculate bidding price */
+		STORAGE_CONTENT_VALUE
 	}
 
 	public static final String ERR_NOT_IMPLEMENTED = "Bid Scheduler is not implemented: ";
@@ -28,6 +30,8 @@ public class BidSchedulerBuilder {
 		switch (type) {
 			case ENSURE_DISPATCH:
 				return new EnsureDispatch(input.getDouble("SchedulingHorizonInHours"));
+			case STORAGE_CONTENT_VALUE:
+				return new StorageContentValue(input.getDouble("SchedulingHorizonInHours"));
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
 		}
