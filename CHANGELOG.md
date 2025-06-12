@@ -10,6 +10,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Enable a single `MarketForecaster` to handle forecasts for both MeritOrderRequests and PriceForecastRequests at the same time #121 (@dlr-cjs)
 - Move functionality from `MeritOrderForecaster` to `MarketForecaster` and mark the first as deprecated #121 (@dlr-cjs)
 - Move functionality from `PriceForecaster` to `MarketForecaster` and mark the first as deprecated #121 (@dlr-cjs)
+- Make `PriceForecasterApi` compatible with new interface `SensitivityForecastProvider` #168 (@dlr-cjs)
 
 ### Added
 - Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)

@@ -10,11 +10,18 @@ import agents.markets.meritOrder.MarketClearingResult;
  * @author Christoph Schimeczek */
 public class CostInsensitive implements MarketClearingAssessment {
 	private static final double MAX_ENERGY_IN_MWH = 1E10;
-	private double electricityPrice = 0;
+	private double electricityPriceInEURperMWH = 0;
+
+	/** Directly set the electricity price used for sensitivity calculations
+	 * 
+	 * @param electricityPriceInEURperMWH to be used */
+	public void setPrice(double electricityPriceInEURperMWH) {
+		this.electricityPriceInEURperMWH = electricityPriceInEURperMWH;
+	}
 
 	@Override
 	public void assess(MarketClearingResult clearingResult) {
-		electricityPrice = clearingResult.getMarketPriceInEURperMWH();
+		electricityPriceInEURperMWH = clearingResult.getMarketPriceInEURperMWH();
 	}
 
 	@Override
@@ -24,7 +31,7 @@ public class CostInsensitive implements MarketClearingAssessment {
 
 	@Override
 	public double[] getDemandSensitivityValues() {
-		return new double[] {0., electricityPrice * MAX_ENERGY_IN_MWH};
+		return new double[] {0., electricityPriceInEURperMWH * MAX_ENERGY_IN_MWH};
 	}
 
 	@Override
@@ -34,6 +41,6 @@ public class CostInsensitive implements MarketClearingAssessment {
 
 	@Override
 	public double[] getSupplySensitivityValues() {
-		return new double[] {0., electricityPrice * MAX_ENERGY_IN_MWH};
+		return new double[] {0., electricityPriceInEURperMWH * MAX_ENERGY_IN_MWH};
 	}
 }
