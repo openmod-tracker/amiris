@@ -16,6 +16,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
 - Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
 - Add new Ability `DamForecastProvider` to replace class `Forecaster` #121 (@dlr-cjs)
+- Add new BidScheduler `StorageContentValue` using the expected change of value in a flexibility device to derive its bids #167 (@dlr-cjs)
 - Add metadata.json to describe project with metadata #147 (@dlr-cjs)
 
 ### Remove
