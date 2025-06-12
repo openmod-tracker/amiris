@@ -103,6 +103,7 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 		call(this::sendPriceForecast).on(DamForecastProvider.Products.PriceForecast)
 				.use(DamForecastClient.Products.PriceForecastRequest);
 		call(this::checkClientRegistration).onAndUse(SensitivityForecastClient.Products.ForecastRegistration);
+		call(this::doNothing).onAndUse(SensitivityForecastClient.Products.NetAward);
 		call(this::sendSensitivityForecasts).on(SensitivityForecastProvider.Products.SensitivityForecast)
 				.use(SensitivityForecastClient.Products.SensitivityRequest);
 	}
@@ -251,6 +252,9 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 			}
 		}
 	}
+
+	/** Ignores input and just does nothing */
+	private void doNothing(ArrayList<Message> messages, List<Contract> contracts) {}
 
 	/** Sends {@link Sensitivity} to clients */
 	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
