@@ -258,14 +258,12 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 
 	/** Sends {@link Sensitivity} to clients */
 	private void sendSensitivityForecasts(ArrayList<Message> messages, List<Contract> contracts) {
-		if (!lastForecastedTime.equals(now())) {
-			prepareForecastUpdates();
-		}
+		boolean forecastUpdateRequired = lastForecastedTime.equals(now()) ? false : prepareForecastUpdates();
 		for (Contract contract : contracts) {
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, contract.getReceiverId());
 			for (Message message : requests) {
 				TimeStamp requestedTime = message.getDataItemOfType(PointInTime.class).validAt;
-				for (AmountAtTime priceForecast : calcForecastResponses(requestedTime, false)) {
+				for (AmountAtTime priceForecast : calcForecastResponses(requestedTime, forecastUpdateRequired)) {
 					var assessment = new CostInsensitive();
 					assessment.setPrice(priceForecast.amount);
 					fulfilNext(contract, new Sensitivity(assessment, 1), new PointInTime(requestedTime));
