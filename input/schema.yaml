@@ -2371,6 +2371,7 @@ AgentTypes:
           Description: "Amount of heat stored in MWh."
     MetaData:
       Description: "HeatPumpTrader is a type of FlexibilityTrader that aggregates heat pumps in buildings and arranges procurement at the DayAheadMarket. Different strategies can be used to calculate the electricity demand of heat pumps. Heat pumps can be either dispatched according to heat demand or optimised according to spot market price forecasts."
+
   GenericFlexibilityTrader:
     Attributes:
       Refinancing: *AnnualCostCalculator_G_Refinancing
@@ -2495,6 +2496,25 @@ AgentTypes:
             AttributeType: double
             Mandatory: true
             List: false
+          WaterValues:
+            MetaData:
+              Description: "Parameters to define the (long-term) water values of the flexibility device depending on the state of charge and time"
+            AttributeType: block
+            Mandatory: false
+            List: true
+            NestedAttributes:
+              StoredEnergyInMWH:
+                MetaData:
+                  Description: "The absolute state of charge of the flexibility device in MWh, which the associated water value timeseries applies to"
+                AttributeType: double
+                Mandatory: true
+                List: false
+              WaterValueInEUR:
+                MetaData:
+                  Description: "The absolute value in EUR of the associated absolute state of charge of the flexibility device"
+                AttributeType: time_series
+                Mandatory: true
+                List: false
       Bidding:
         AttributeType: block
         Mandatory: true

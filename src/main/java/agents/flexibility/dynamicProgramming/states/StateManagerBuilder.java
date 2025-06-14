@@ -15,7 +15,9 @@ import de.dlr.gitlab.fame.agent.input.Tree;
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class StateManagerBuilder {
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("Type", Type.class),
-			Make.newDouble("PlanningHorizonInHours"), Make.newDouble("EnergyResolutionInMWH")).buildTree();
+			Make.newDouble("PlanningHorizonInHours"), Make.newDouble("EnergyResolutionInMWH"))
+			.addAs("WaterValues", WaterValues.parameters)
+			.buildTree();
 
 	/** Available {StateManager}s */
 	enum Type {
