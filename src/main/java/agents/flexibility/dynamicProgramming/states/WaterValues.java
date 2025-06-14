@@ -29,6 +29,9 @@ public class WaterValues {
 	 * @throws MissingDataException if any required data in the inputs is missing */
 	public WaterValues(List<ParameterData> inputs) throws MissingDataException {
 		if (inputs == null || inputs.isEmpty()) {
+			energyContentsInMWH = null;
+			waterValuesInEUR = null;
+		} else {
 			TreeMap<Double, TimeSeries> sorted = new TreeMap<>();
 			for (ParameterData input : inputs) {
 				sorted.put(input.getDouble("StoredEnergyInMWH"), input.getTimeSeries("WaterValueInEUR"));
@@ -36,9 +39,6 @@ public class WaterValues {
 			energyContentsInMWH = new double[inputs.size()];
 			waterValuesInEUR = new TimeSeries[inputs.size()];
 			transformMapToArrays(sorted);
-		} else {
-			energyContentsInMWH = null;
-			waterValuesInEUR = null;
 		}
 	}
 
@@ -69,6 +69,9 @@ public class WaterValues {
 
 	/** @return interpolated water value based on one time series */
 	private double interOrExtrapolateFromOne(TimeStamp time, double energyContentInMWH) {
+		if (energyContentsInMWH[0] == 0) {
+			return 0;
+		}
 		double waterValueAtX = waterValuesInEUR[0].getValueLinear(time);
 		return waterValueAtX / energyContentsInMWH[0] * energyContentInMWH;
 	}
