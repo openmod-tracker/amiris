@@ -6,6 +6,8 @@ package agents.flexibility.dynamicProgramming.states;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -17,8 +19,13 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class WaterValues {
+	static final String PARAM_STORED_ENERGY = "StoredEnergyInMWH";
+	static final String PARAM_WATER_VALUE = "WaterValueInEUR";
 	public static final Tree parameters = Make.newTree().list().optional().add(
-			Make.newDouble("StoredEnergyInMWH"), Make.newSeries("WaterValueInEUR")).buildTree();
+			Make.newDouble(PARAM_STORED_ENERGY), Make.newSeries(PARAM_WATER_VALUE)).buildTree();
+
+	static final String WARN_NOT_USED = "Cannot interpolate water value: Choose other energy content level than ZeroIf if just one is provided.";
+	private static Logger logger = LoggerFactory.getLogger(WaterValues.class);
 
 	private final double[] energyContentsInMWH;
 	private final TimeSeries[] waterValuesInEUR;
@@ -34,11 +41,14 @@ public class WaterValues {
 		} else {
 			TreeMap<Double, TimeSeries> sorted = new TreeMap<>();
 			for (ParameterData input : inputs) {
-				sorted.put(input.getDouble("StoredEnergyInMWH"), input.getTimeSeries("WaterValueInEUR"));
+				sorted.put(input.getDouble(PARAM_STORED_ENERGY), input.getTimeSeries(PARAM_WATER_VALUE));
 			}
 			energyContentsInMWH = new double[inputs.size()];
 			waterValuesInEUR = new TimeSeries[inputs.size()];
 			transformMapToArrays(sorted);
+			if (energyContentsInMWH.length == 1 && energyContentsInMWH[0] == 0.) {
+				logger.warn(WARN_NOT_USED);
+			}
 		}
 	}
 
