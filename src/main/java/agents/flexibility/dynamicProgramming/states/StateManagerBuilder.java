@@ -15,7 +15,9 @@ import de.dlr.gitlab.fame.agent.input.Tree;
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class StateManagerBuilder {
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("Type", Type.class),
-			Make.newDouble("PlanningHorizonInHours"), Make.newDouble("EnergyResolutionInMWH")).buildTree();
+			Make.newDouble("PlanningHorizonInHours"), Make.newDouble("EnergyResolutionInMWH"))
+			.addAs("WaterValues", WaterValues.parameters)
+			.buildTree();
 
 	/** Available {StateManager}s */
 	enum Type {
@@ -31,7 +33,7 @@ public class StateManagerBuilder {
 		switch (type) {
 			case STATE_OF_CHARGE:
 				return new EnergyStateManager(device, assessment, input.getDouble("PlanningHorizonInHours"),
-						input.getDouble("EnergyResolutionInMWH"));
+						input.getDouble("EnergyResolutionInMWH"), new WaterValues(input.getOptionalGroupList("WaterValues")));
 			default:
 				throw new RuntimeException(ERR_NOT_IMPLEMENTED + type);
 		}

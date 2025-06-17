@@ -23,6 +23,7 @@ public class EnergyStateManager implements StateManager {
 	private final AssessmentFunction assessmentFunction;
 	private final double planningHorizonInHours;
 	private final double energyResolutionInMWH;
+	private final WaterValues waterValues;
 
 	private int numberOfTimeSteps;
 	private int[][] bestNextState;
@@ -35,14 +36,16 @@ public class EnergyStateManager implements StateManager {
 	private boolean hasSelfDischarge;
 	private double[] transitionValuesCharging;
 	private double[] transitionValuesDischarging;
+	private double[] cachedWaterValuesInEUR;
 
 	public EnergyStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
-			double energyResolutionInMWH) {
+			double energyResolutionInMWH, WaterValues waterValues) {
 		this.device = device;
 		this.deviceCache = new GenericDeviceCache(device);
 		this.assessmentFunction = assessmentFunction;
 		this.planningHorizonInHours = planningHorizonInHours;
 		this.energyResolutionInMWH = energyResolutionInMWH;
+		this.waterValues = waterValues;
 	}
 
 	@Override
@@ -54,6 +57,7 @@ public class EnergyStateManager implements StateManager {
 		analyseSelfDischarge();
 		bestNextState = new int[numberOfTimeSteps][numberOfEnergyStates];
 		bestValue = new double[numberOfTimeSteps][numberOfEnergyStates];
+		cacheWaterValues();
 	}
 
 	/** Sets {@link #lowestLevelEnergyInMWH} and {@link #numberOfEnergyStates} for the current planning horizon */
@@ -100,6 +104,22 @@ public class EnergyStateManager implements StateManager {
 				break;
 			}
 		}
+	}
+
+	/** Caches water values for each possible state and stores them to {@link #cachedWaterValuesInEUR} */
+	private void cacheWaterValues() {
+		cachedWaterValuesInEUR = new double[numberOfEnergyStates];
+		if (waterValues.hasData()) {
+			TimeStamp targetTime = getTimeByIndex(numberOfTimeSteps);
+			for (int index = 0; index < numberOfEnergyStates; index++) {
+				cachedWaterValuesInEUR[index] = waterValues.getValueInEUR(targetTime, indexToEnergy(index));
+			}
+		}
+	}
+
+	/** @return energy content corresponding to the given index */
+	private double indexToEnergy(int index) {
+		return index * energyResolutionInMWH - lowestLevelEnergyInMWH;
 	}
 
 	@Override
@@ -168,27 +188,13 @@ public class EnergyStateManager implements StateManager {
 		return stateDelta >= 0 ? transitionValuesCharging[stateDelta] : transitionValuesDischarging[-stateDelta];
 	}
 
-	/** @return energy content corresponding to the given index */
-	private double indexToEnergy(int index) {
-		return index * energyResolutionInMWH - lowestLevelEnergyInMWH;
-	}
-
 	@Override
 	public double[] getBestValuesNextPeriod() {
 		if (currentOptimisationTimeIndex + 1 < numberOfTimeSteps) {
 			return bestValue[currentOptimisationTimeIndex + 1];
 		} else {
-			double[] bestValues = new double[numberOfEnergyStates];
-			for (int index = 0; index < numberOfEnergyStates; index++) {
-				bestValues[index] = getWaterValue(index);
-			}
-			return bestValues;
+			return cachedWaterValuesInEUR;
 		}
-	}
-
-	/** @return water value estimate for the energy content specified by given index */
-	private double getWaterValue(int index) {
-		return 0;
 	}
 
 	@Override
@@ -242,7 +248,7 @@ public class EnergyStateManager implements StateManager {
 
 	/** @return the value of storage for given time and state index */
 	private double getValueOfStorage(int timeIndex, int stateIndex) {
-		return timeIndex < numberOfTimeSteps ? bestValue[timeIndex][stateIndex] : getWaterValue(stateIndex);
+		return timeIndex < numberOfTimeSteps ? bestValue[timeIndex][stateIndex] : cachedWaterValuesInEUR[stateIndex];
 	}
 
 	/** @return specificValue of a transition with given deltas for energy and value */
