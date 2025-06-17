@@ -24,7 +24,7 @@ public class WaterValues {
 	public static final Tree parameters = Make.newTree().list().optional().add(
 			Make.newDouble(PARAM_STORED_ENERGY), Make.newSeries(PARAM_WATER_VALUE)).buildTree();
 
-	static final String WARN_NOT_USED = "Cannot interpolate water value: Choose other energy content level than ZeroIf if just one is provided.";
+	static final String WARN_NOT_USED = "Cannot interpolate water value: Choose other energy content level than zero if just one is provided.";
 	private static Logger logger = LoggerFactory.getLogger(WaterValues.class);
 
 	private final double[] energyContentsInMWH;
@@ -52,7 +52,7 @@ public class WaterValues {
 		}
 	}
 
-	/** Moves content of given map to the class's data arrays */
+	/** Stores content of given map in the class's data arrays */
 	private void transformMapToArrays(TreeMap<Double, TimeSeries> sorted) {
 		int index = 0;
 		for (double key : sorted.navigableKeySet()) {
@@ -62,7 +62,7 @@ public class WaterValues {
 		}
 	}
 
-	/** Returns interpolated water value for specified time and energy content, or 0 if no has is available
+	/** Returns interpolated water value for specified time and energy content, or 0 if value is not available
 	 * 
 	 * @param time at which to get the water value for
 	 * @param energyContentInMWH for which to get the water value for
