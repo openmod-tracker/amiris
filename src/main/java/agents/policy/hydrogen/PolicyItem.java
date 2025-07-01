@@ -11,7 +11,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
-public abstract class PolicyItem implements Portable {	
+public abstract class PolicyItem implements Portable {
 	static final String ERR_CONSTRUCTOR = "Ensure classes has accessible default constructor: ";
 	static final String ERR_CONFIG = "Config data for Policy incomplete: ";
 

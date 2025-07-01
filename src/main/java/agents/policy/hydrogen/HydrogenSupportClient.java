@@ -18,8 +18,10 @@ import de.dlr.gitlab.fame.communication.Product;
 import de.dlr.gitlab.fame.communication.message.Message;
 
 public interface HydrogenSupportClient extends AgentAbility {
-	static final Tree parameters = Make.newTree().optional().add(Make.newEnum("SupportInstrument", SupportInstrument.class),
-			HydrogenSupportProvider.setParameter).buildTree();
+	static final Tree parameters = Make.newTree().optional()
+			.add(Make.newEnum("SupportInstrument", SupportInstrument.class),
+					HydrogenSupportProvider.setParameter)
+			.buildTree();
 
 	@Product
 	public enum Products {
