@@ -3,40 +3,31 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
-import agents.policy.PolicyItem.SupportInstrument;
-import agents.policy.SupportPolicy.EnergyCarrier;
+import agents.policy.hydrogen.PolicyItem.SupportInstrument;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
 
-/** Info needed for registration of a producer for support payments
- * 
- * @author Johannes Kochems, Christoph Schimeczek */
-public class TechnologySet extends DataItem {
+public class HydrogenPolicyRegistration extends DataItem {
 	/** the set type - or null if no set type is available */
 	public final String setType;
-	/** the energy carrier */
-	public final EnergyCarrier energyCarrier;
 	/** the support instrument for the technology set */
 	public final SupportInstrument supportInstrument;
 
 	/** Create new {@link TechnologySet}
 	 * 
 	 * @param technologySetType clients technology set
-	 * @param energyCarrier client's type of energy carrier
 	 * @param supportInstrument support instrument the client applies for */
-	public TechnologySet(String technologySetType, EnergyCarrier energyCarrier, SupportInstrument supportInstrument) {
+	public HydrogenPolicyRegistration(String technologySetType, SupportInstrument supportInstrument) {
 		this.setType = technologySetType;
-		this.energyCarrier = energyCarrier;
 		this.supportInstrument = supportInstrument;
 	}
 
 	/** Mandatory for deserialisation of {@link DataItem}s
 	 * 
 	 * @param proto protobuf representation */
-	public TechnologySet(ProtoDataItem proto) {
-		energyCarrier = EnergyCarrier.values()[proto.getIntValues(0)];
-		supportInstrument = getEnumOrNull(SupportInstrument.values(), proto.getIntValues(1));
+	public HydrogenPolicyRegistration(ProtoDataItem proto) {
+		supportInstrument = getEnumOrNull(SupportInstrument.values(), proto.getIntValues(0));
 		setType = getStringOrNull(proto.getStringValues(0));
 	}
 
@@ -56,7 +47,6 @@ public class TechnologySet extends DataItem {
 
 	@Override
 	protected void fillDataFields(Builder builder) {
-		builder.addIntValues(energyCarrier.ordinal());
 		builder.addIntValues(supportInstrument == null ? -1 : supportInstrument.ordinal());
 		builder.addStringValues(setType == null ? "" : setType);
 	}

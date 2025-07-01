@@ -20,6 +20,7 @@ import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
 import agents.plantOperator.PowerPlantScheduler;
+import agents.policy.hydrogen.HydrogenSupportClient;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import agents.trader.FlexibilityTrader;
 import agents.trader.Trader;
@@ -29,6 +30,7 @@ import communications.message.FuelBid;
 import communications.message.FuelBid.BidType;
 import communications.message.FuelCost;
 import communications.message.FuelData;
+import communications.message.HydrogenPolicyRegistration;
 import communications.portable.BidsAtTime;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
@@ -46,10 +48,12 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 /** A flexible Trader demanding electricity and producing hydrogen from it via electrolysis.
  * 
  * @author Christoph Schimeczek */
-public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader, PowerPlantScheduler {
+public class ElectrolysisTrader extends FlexibilityTrader
+		implements FuelsTrader, PowerPlantScheduler, HydrogenSupportClient {
 	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
 			.addAs("Device", Electrolyzer.parameters)
-			.addAs("Strategy", ElectrolyzerStrategist.parameters).buildTree();
+			.addAs("Strategy", ElectrolyzerStrategist.parameters)
+			.addAs("Support", HydrogenSupportClient.parameters).buildTree();
 
 	/** Available output columns */
 	@Output
@@ -74,6 +78,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	/** First TimeStamp of the last electricity price clearing interval */
 	protected TimeStamp lastClearingTime;
 
+	private HydrogenPolicyRegistration registrationData;
+
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
 	 * @param data configured input
@@ -87,6 +93,8 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		fuelType = FuelsTrader.readFuelType(input);
 		fuelData = new FuelData(fuelType);
 
+		registrationData = HydrogenSupportClient.getRegistration(input.getOptionalGroup("Support"));
+
 		call(this::prepareForecasts).on(Trader.Products.BidsForecast).use(MarketForecaster.Products.ForecastRequest);
 		call(this::requestElectricityForecast).on(DamForecastClient.Products.PriceForecastRequest)
 				.use(DayAheadMarket.Products.GateClosureInfo);
@@ -98,6 +106,7 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 		call(this::digestAwards).onAndUse(DayAheadMarket.Products.Awards);
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).onAndUse(FuelsMarket.Products.FuelBill);
+		call(this::registerSupport).on(HydrogenSupportClient.Products.SupportInfoRequest);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
@@ -217,5 +226,10 @@ public class ElectrolysisTrader extends FlexibilityTrader implements FuelsTrader
 	@Override
 	protected ElectrolyzerStrategist getStrategist() {
 		return strategist;
+	}
+
+	@Override
+	public HydrogenPolicyRegistration getRegistrationData() {
+		return registrationData;
 	}
 }

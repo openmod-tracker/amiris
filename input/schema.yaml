@@ -430,7 +430,7 @@ AgentTypes:
           Description: "Definitions for support instruments"
           OEONearestConcept: OEO_00010456
         NestedAttributes:
-          HydrogenPolicySet:
+          HydrogenPolicySet: &HydrogenSupportPolicy_A_HydrogenPolicySet
             AttributeType: string_set
             Mandatory: true
             List: false
@@ -1690,6 +1690,23 @@ AgentTypes:
                 List: false
                 MetaData:
                   Description: "Energy resolution of the algorithm: the smaller, the more steps are required to complete the algorithm."
+      Support:
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+            Description: "Hydrogen support information"
+        NestedAttributes:
+          SupportInstrument: &HydrogenSupportClient_A_SupportInstrument
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              MPFIX:
+                MetaData:
+                  Description: "A fixed market premium"
+                  OEONearestConcept: OEO_00020109
+          HydrogenPolicySet: *HydrogenSupportPolicy_A_HydrogenPolicySet
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
@@ -1698,6 +1715,12 @@ AgentTypes:
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
       FuelBid: *FuelsTrader_P_FuelBid
+      SupportInfoRequest: &HydrogenSupportClient_P_SupportInfoRequest
+        MetaData:
+          Description: "Registration for hydrogen support instrument"
+      SupportPayoutRequest: &HydrogenSupportClient_P_SupportPayoutRequest
+        MetaData:
+          Description: "Request for hydrogen support payout"
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy

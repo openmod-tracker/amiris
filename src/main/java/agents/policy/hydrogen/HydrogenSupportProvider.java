@@ -3,13 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.policy.hydrogen;
 
+import de.dlr.gitlab.fame.agent.AgentAbility;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.Product;
 
-public interface HydrogenSupportProvider {
+public interface HydrogenSupportProvider extends AgentAbility {
 	static ParameterBuilder setParameter = Make.newStringSet("HydrogenPolicySet");
 
 	@Product
