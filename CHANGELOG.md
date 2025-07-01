@@ -18,6 +18,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
 - Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
 - Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
+- Add new package `agents.policy.hydrogen` to depict support policies for hydrogen #169 (@dlr_jk, @dlr-cjs)
 - Add new Ability `DamForecastProvider` to replace class `Forecaster` #121 (@dlr-cjs)
 - Add new BidScheduler `StorageContentValue` using the expected change of value in a flexibility device to derive its bids #167 (@dlr-cjs)
 - Add option to specify water values for `GenericFlexibilityTrader` #159 (@dlr-cjs, @dlr_jk, @dlr_fn)

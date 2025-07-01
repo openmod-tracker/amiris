@@ -306,6 +306,9 @@ AgentTypes:
         AttributeType: block
         Mandatory: true
         List: true
+        MetaData:
+          Description: "Definitions for support instruments"
+          OEONearestConcept: OEO_00010456
         NestedAttributes:
           PolicySet:
             AttributeType: string_set
@@ -415,7 +418,50 @@ AgentTypes:
           Description: "Market values per energy carrier and evaluation interval"
     MetaData:
       Description: "SupportPolicy administers support payments for renewable generators. Payments are made to an AggregatorTrader who passes them to a RenewablePlantOperator. Current support policies are a feed-in tariff (FIT), a variable market premium (MPVAR), a fixed market premium (MPFIX), contracts for differences (CFD), and a capacity premium (CP)."
-      OEONearestConcept: OEO_00140150
+      OEONearestConcept: OEO_00010456
+
+  HydrogenSupportPolicy:
+    Attributes:
+      SetSupportData:
+        AttributeType: block
+        Mandatory: true
+        List: true
+        MetaData:
+          Description: "Definitions for support instruments"
+          OEONearestConcept: OEO_00010456
+        NestedAttributes:
+          HydrogenPolicySet:
+            AttributeType: string_set
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "Set for hydrogen remuneration"
+          MPFIX:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "A group for a TechnologySet holding the specific MPFIX information."
+              OEONearestConcept: OEO_00020109
+            NestedAttributes:
+              Premium:
+                AttributeType: time_series
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "A premium"
+                  OEONearestConcept: OEO_00020109
+    Products:
+      SupportInfo:
+        MetaData:
+          Description: "Info on the support scheme to be applied to a set of clients."
+      SupportPayout:
+        MetaData:
+          Description: "Actual pay-out of the support."
+    MetaData:
+      Description: "HydrogenSupportPolicy administers support payments for hydrogen. Payments are made to a HydrogenSupportClient. Current support policies are fixed market premium (MPFIX)."
+      OEONearestConcept: OEO_00010456
+
 
   DemandTrader:
     Attributes:
