@@ -27,6 +27,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 ### Remove
 - Remove class `Forecaster` #121 (@dlr-cjs)
 
+### Fixed
+- Fix shedding of PPA electricity in `GreenHydrogenTraderMonthly` !174 (@dlr-cjs, @dlr_jk)
+
 ## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
 ### Fixed
 - Fix incongruent energy levels in `EnergyStateManager` that could cause a crash #164 (@dlr-cjs)
