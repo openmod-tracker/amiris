@@ -84,5 +84,5 @@ public abstract class PolicyItem implements Portable {
 	/** @return {@link SupportInstrument} this {@link PolicyItem} is covering */
 	public abstract SupportInstrument getSupportInstrument();
 
-	protected abstract double calcInfeedSupportRate(TimeStamp validAt);
+	public abstract double calcInfeedSupportRate(TimeStamp validAt);
 }

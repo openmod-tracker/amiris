@@ -54,8 +54,7 @@ public class GreenHydrogenTraderMonthly extends ElectrolysisTrader implements Gr
 	public GreenHydrogenTraderMonthly(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 
-		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest)
-				.use(DayAheadMarket.Products.GateClosureInfo);
+		call(this::requestPpaForecast).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest).use(DayAheadMarket.Products.GateClosureInfo);
 		call(this::updatePpaForecast).onAndUse(VariableRenewableOperatorPpa.Products.PpaInformationForecast);
 		call(this::resetMonthlySchedule).on(Products.MonthlyReset);
 		call(this::assignDispatch).on(PowerPlantScheduler.Products.DispatchAssignment);

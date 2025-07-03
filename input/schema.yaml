@@ -1690,7 +1690,7 @@ AgentTypes:
                 List: false
                 MetaData:
                   Description: "Energy resolution of the algorithm: the smaller, the more steps are required to complete the algorithm."
-      Support:
+      Support: &HydrogenSupportClient_G_Support
         AttributeType: block
         Mandatory: false
         List: false
@@ -1738,6 +1738,9 @@ AgentTypes:
       ProducedHydrogenInMWH: &ElectrolysisTrader_O_ProducedHydrogen
         MetaData:
           Description: "Produced amount of hydrogen in thermal MWh"
+      ReceivedHydrogenSupportInEUR: &HydrogenSupportClient_O_ReceivedHydrogenSupportInEUR
+        MetaData:
+          Description: "Received support for hydrogen in EUR"
     MetaData:
       Description: "ElectrolysisTrader is a type of FlexibilityTrader that operates an electrolyzer unit to produce hydrogen from electricity."
   GreenHydrogenTrader:
@@ -2178,6 +2181,7 @@ AgentTypes:
           ScheduleDurationInHours: *ElectrolysisTrader_Strategy_A_ScheduleDuration
           BidToleranceInEURperMWH: *ElectrolysisTrader_Strategy_A_BidTolerance
           PriceLimitOverrideInEURperMWH: *ElectrolysisTrader_Strategy_A_PriceLimitOverride
+      Support: *HydrogenSupportClient_G_Support
     Products:
       PpaInformationRequest: *GreenHydrogenProducer_P_PpaInformationRequest
       PpaInformationForecastRequest: *GreenHydrogenProducer_P_PpaInformationForecastRequest
@@ -2193,6 +2197,8 @@ AgentTypes:
       MonthlyReset:
         MetaData:
           Description: "Request for reset of monthly schedule"
+      SupportInfoRequest: *HydrogenSupportClient_P_SupportInfoRequest
+      SupportPayoutRequest: *HydrogenSupportClient_P_SupportPayoutRequest
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
@@ -2206,6 +2212,7 @@ AgentTypes:
       ConsumedElectricityInMWH: *GreenHydrogenProducer_O_ConsumedElectricity
       ReceivedMoneyForHydrogenInEUR: *ElectrolysisTrader_O_ReceivedMoneyForHydrogen
       ReceivedMoneyForElectricityInEUR: *GreenHydrogenProducer_O_ReceivedMoneyForElectricity
+      ReceivedHydrogenSupportInEUR: *HydrogenSupportClient_O_ReceivedHydrogenSupportInEUR
     MetaData:
       Description: "GreenHydrogenTraderMonthly is a type of ElectrolysisTrader that operates an electrolyzer unit to produce hydrogen from green electricity purchased via a PPA ensuring monthly equivalence."
   HeatPumpTrader:

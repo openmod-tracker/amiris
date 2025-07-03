@@ -181,10 +181,6 @@ public class ElectrolysisTrader extends FlexibilityTrader
 	private Bid prepareHourlyDemandBid(TimeStamp targetTime, BidSchedule schedule) {
 		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
-		if (mpfix != null) {
-			double premium = mpfix.getPremium(targetTime);
-			price += premium;
-		}
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(Outputs.OfferedElectricityPriceInEURperMWH, price);
 		return demandBid;
@@ -248,6 +244,7 @@ public class ElectrolysisTrader extends FlexibilityTrader
 	@Override
 	public void saveSupportData(HydrogenSupportData hydrogenSupportData) {
 		mpfix = hydrogenSupportData.getPolicyOfType(Mpfix.class);
+		strategist.setSupportRateInEURperMWH(mpfix);
 	}
 
 	private void sendSupportPayoutRequest(ArrayList<Message> messages, List<Contract> contracts) {
