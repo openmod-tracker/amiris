@@ -21,9 +21,12 @@ import agents.markets.meritOrder.Bid;
 import agents.markets.meritOrder.Constants;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.policy.hydrogen.HydrogenSupportClient;
+import agents.policy.hydrogen.HydrogenSupportProvider;
+import agents.policy.hydrogen.Mpfix;
 import agents.storage.arbitrageStrategists.FileDispatcher;
 import agents.trader.FlexibilityTrader;
 import agents.trader.Trader;
+import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
 import communications.message.FuelBid;
@@ -32,6 +35,7 @@ import communications.message.FuelCost;
 import communications.message.FuelData;
 import communications.message.HydrogenPolicyRegistration;
 import communications.portable.BidsAtTime;
+import communications.portable.HydrogenSupportData;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -63,8 +67,8 @@ public class ElectrolysisTrader extends FlexibilityTrader
 		/** Amount of hydrogen produced */
 		ProducedHydrogenInMWH,
 		/** Total received money for selling hydrogen in EUR */
-		ReceivedMoneyForHydrogenInEUR,
-	};
+		ReceivedMoneyForHydrogenInEUR
+	}
 
 	private final String fuelType;
 	private final FuelData fuelData;
@@ -79,6 +83,7 @@ public class ElectrolysisTrader extends FlexibilityTrader
 	protected TimeStamp lastClearingTime;
 
 	private HydrogenPolicyRegistration registrationData;
+	private Mpfix mpfix;
 
 	/** Creates a new {@link ElectrolysisTrader} based on given input parameters
 	 * 
@@ -107,6 +112,9 @@ public class ElectrolysisTrader extends FlexibilityTrader
 		call(this::sellProducedHydrogen).on(FuelsTrader.Products.FuelBid);
 		call(this::digestSaleReturns).onAndUse(FuelsMarket.Products.FuelBill);
 		call(this::registerSupport).on(HydrogenSupportClient.Products.SupportInfoRequest);
+		call(this::digestSupportInfo).onAndUse(HydrogenSupportProvider.Products.SupportInfo);
+		call(this::sendSupportPayoutRequest).on(HydrogenSupportClient.Products.SupportPayoutRequest);
+		call(this::digestSupportPayout).onAndUse(HydrogenSupportProvider.Products.SupportPayout);
 	}
 
 	/** Prepares forecasts and sends them to the {@link MarketForecaster}; Calling this function will throw an Exception for
@@ -173,6 +181,10 @@ public class ElectrolysisTrader extends FlexibilityTrader
 	private Bid prepareHourlyDemandBid(TimeStamp targetTime, BidSchedule schedule) {
 		double demandPower = schedule.getScheduledEnergyPurchaseInMWH(targetTime);
 		double price = schedule.getScheduledBidInHourInEURperMWH(targetTime);
+		if (mpfix != null) {
+			double premium = mpfix.getPremium(targetTime);
+			price += premium;
+		}
 		Bid demandBid = new Bid(demandPower, price, Double.NaN);
 		store(Outputs.OfferedElectricityPriceInEURperMWH, price);
 		return demandBid;
@@ -231,5 +243,15 @@ public class ElectrolysisTrader extends FlexibilityTrader
 	@Override
 	public HydrogenPolicyRegistration getRegistrationData() {
 		return registrationData;
+	}
+
+	@Override
+	public void saveSupportData(HydrogenSupportData hydrogenSupportData) {
+		mpfix = hydrogenSupportData.getPolicyOfType(Mpfix.class);
+	}
+
+	private void sendSupportPayoutRequest(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		fulfilNext(contract, new AmountAtTime(lastClearingTime, lastProducedHydrogenInMWH));
 	}
 }

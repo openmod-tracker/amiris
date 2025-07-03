@@ -47,4 +47,9 @@ public class Mpfix extends PolicyItem {
 		return SupportInstrument.MPFIX;
 	}
 
+	@Override
+	protected double calcInfeedSupportRate(TimeStamp validAt) {
+		return getPremium(validAt);
+	}
+
 }

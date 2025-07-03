@@ -60,4 +60,8 @@ public class HydrogenSupportData implements Portable {
 			throw new RuntimeException(WRONG_TYPE + type);
 		}
 	}
+	
+	public PolicyItem getPolicyItem() {
+		return policyItem;
+	}
 }

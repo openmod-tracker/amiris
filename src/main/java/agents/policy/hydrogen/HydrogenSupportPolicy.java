@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import agents.policy.hydrogen.PolicyItem.SupportInstrument;
 import agents.trader.renewable.AggregatorTrader;
+import communications.message.AmountAtTime;
 import communications.message.HydrogenPolicyRegistration;
 import communications.message.TechnologySet;
 import communications.portable.HydrogenSupportData;
@@ -32,7 +33,7 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 					Mpfix.parameters))
 			.buildTree();
 
-	public class SetPolicyItems {
+	public class InstrumentPolicies {
 		private final EnumMap<SupportInstrument, PolicyItem> policies = new EnumMap<>(SupportInstrument.class);
 
 		public void addPolicyItem(PolicyItem policyItem) {
@@ -46,7 +47,18 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 		}
 	}
 
-	private HashMap<String, SetPolicyItems> policyItemsPerSet = new HashMap<>();
+	public class PolicyChoice {
+		public final String set;
+		public final SupportInstrument supportInstrument;
+
+		public PolicyChoice(String set, SupportInstrument supportInstrument) {
+			this.set = set;
+			this.supportInstrument = supportInstrument;
+		}
+	}
+
+	private final HashMap<String, InstrumentPolicies> policyItemsPerSet = new HashMap<>();
+	private final HashMap<Long, PolicyChoice> clientPolicyChoice = new HashMap<>();
 
 	public HydrogenSupportPolicy(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
@@ -68,7 +80,7 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 	}
 
 	private void addSetPolicyItem(String policySet, PolicyItem policyItem) {
-		SetPolicyItems setPolicyItems = policyItemsPerSet.computeIfAbsent(policySet, __ -> new SetPolicyItems());
+		InstrumentPolicies setPolicyItems = policyItemsPerSet.computeIfAbsent(policySet, __ -> new InstrumentPolicies());
 		setPolicyItems.addPolicyItem(policyItem);
 	}
 
@@ -81,13 +93,15 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 			for (Message message : CommUtils.extractMessagesFrom(messages, contract.getReceiverId())) {
 				HydrogenPolicyRegistration registration = message.getDataItemOfType(HydrogenPolicyRegistration.class);
 				PolicyItem policyItem = getPolicyData(registration);
+				clientPolicyChoice.put(contract.getReceiverId(),
+						new PolicyChoice(registration.setType, policyItem.getSupportInstrument()));
 				fulfilNext(contract, new HydrogenSupportData(registration.setType, policyItem));
 			}
 		}
 	}
 
 	private PolicyItem getPolicyData(HydrogenPolicyRegistration registration) {
-		SetPolicyItems setType = policyItemsPerSet.get(registration.setType);
+		InstrumentPolicies setType = policyItemsPerSet.get(registration.setType);
 		if (setType == null) {
 			throw new RuntimeException(ERR_SET_UNKNOWN + registration.setType);
 		}
@@ -99,6 +113,18 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 	}
 
 	private void calcSupportPayout(ArrayList<Message> messages, List<Contract> contracts) {
+		for (Contract contract : contracts) {
+			for (Message message : CommUtils.extractMessagesFrom(messages, contract.getReceiverId())) {
+				AmountAtTime amountAtTime = message.getDataItemOfType(AmountAtTime.class);
+				double payoutInEUR = calcSupportPerRequest(contract.getReceiverId(), amountAtTime);
+				fulfilNext(contract, new AmountAtTime(amountAtTime.validAt, payoutInEUR));
+			}
+		}
+	}
 
+	private double calcSupportPerRequest(long clientId, AmountAtTime amountAtTime) {
+		PolicyChoice policyChoice = clientPolicyChoice.get(clientId);
+		PolicyItem policyItem = policyItemsPerSet.get(policyChoice.set).getPolicyFor(policyChoice.supportInstrument);
+		return amountAtTime.amount * policyItem.calcInfeedSupportRate(amountAtTime.validAt);
 	}
 }

@@ -10,6 +10,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterBuilder;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
+import de.dlr.gitlab.fame.time.TimeStamp;
 
 public abstract class PolicyItem implements Portable {
 	static final String ERR_CONSTRUCTOR = "Ensure classes has accessible default constructor: ";
@@ -83,4 +84,5 @@ public abstract class PolicyItem implements Portable {
 	/** @return {@link SupportInstrument} this {@link PolicyItem} is covering */
 	public abstract SupportInstrument getSupportInstrument();
 
+	protected abstract double calcInfeedSupportRate(TimeStamp validAt);
 }
