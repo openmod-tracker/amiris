@@ -33,7 +33,7 @@ public interface HydrogenSupportClient extends AgentAbility {
 		/** Request to obtain support payments for contracted technology set(s) */
 		SupportPayoutRequest
 	}
-	
+
 	/** Available output columns */
 	@Output
 	public static enum Outputs {
@@ -66,7 +66,7 @@ public interface HydrogenSupportClient extends AgentAbility {
 	}
 
 	public abstract void saveSupportData(HydrogenSupportData hydrogenSupportData);
-	
+
 	public default void digestSupportPayout(ArrayList<Message> messages, List<Contract> __) {
 		AmountAtTime support = CommUtils.getExactlyOneEntry(messages).getDataItemOfType(AmountAtTime.class);
 		store(Outputs.ReceivedHydrogenSupportInEUR, support.amount);
