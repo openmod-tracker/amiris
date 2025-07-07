@@ -12,6 +12,9 @@ import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
+/** An abstract representation of hydrogen-related support policies
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public abstract class PolicyItem implements Portable {
 	static final String ERR_CONSTRUCTOR = "Ensure classes has accessible default constructor: ";
 	static final String ERR_CONFIG = "Config data for Policy incomplete: ";
@@ -24,6 +27,7 @@ public abstract class PolicyItem implements Portable {
 		MPFIX
 	}
 
+	/** Map of support instrument names to their corresponding class */
 	private static final EnumMap<SupportInstrument, Class<? extends PolicyItem>> policyClasses = new EnumMap<>(
 			SupportInstrument.class);
 	static {
@@ -64,6 +68,7 @@ public abstract class PolicyItem implements Portable {
 		}
 	}
 
+	/** Assigns given parameters to a given policy */
 	private static void initialisePolicyItem(PolicyItem policy, ParameterData parameters) {
 		try {
 			policy.setDataFromConfig(parameters);
@@ -84,5 +89,9 @@ public abstract class PolicyItem implements Portable {
 	/** @return {@link SupportInstrument} this {@link PolicyItem} is covering */
 	public abstract SupportInstrument getSupportInstrument();
 
+	/** Returns support rate in EUR per thermal MWh hydrogen sold
+	 * 
+	 * @param validAt timestamp at which the hydrogen infeed is reported
+	 * @return infeed support rate at a given time, or Zero if no infeed support is provided */
 	public abstract double calcInfeedSupportRate(TimeStamp validAt);
 }

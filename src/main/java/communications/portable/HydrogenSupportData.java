@@ -3,11 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.portable;
 
+import agents.policy.hydrogen.HydrogenSupportClient;
+import agents.policy.hydrogen.HydrogenSupportProvider;
 import agents.policy.hydrogen.PolicyItem;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
 import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 
+/** Information about the effective hydrogen support policy sent by a {@link HydrogenSupportProvider} to a
+ * {@link HydrogenSupportClient}
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class HydrogenSupportData implements Portable {
 	static final String WRONG_TYPE = "SupportData item does not contain PolicyInfo of type: ";
 
@@ -59,9 +65,5 @@ public class HydrogenSupportData implements Portable {
 		} else {
 			throw new RuntimeException(WRONG_TYPE + type);
 		}
-	}
-
-	public PolicyItem getPolicyItem() {
-		return policyItem;
 	}
 }

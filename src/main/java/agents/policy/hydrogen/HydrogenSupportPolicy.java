@@ -24,6 +24,10 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 
+/** An implementation of the {@link HydrogenSupportProvider}; provides hydrogen-related support payments to its
+ * {@link HydrogenSupportClient}s.
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvider {
 	static final String ERR_SET_UNKNOWN = "Hydrogen policy set not configured: ";
 	static final String ERR_INSTRUMENT_UNKNOWN = " is an unknown support instrument in hydrogen policy set: ";
@@ -33,33 +37,52 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 					Mpfix.parameters))
 			.buildTree();
 
+	/** Actual support policies valid for a specific policy set */
 	public class InstrumentPolicies {
 		private final EnumMap<SupportInstrument, PolicyItem> policies = new EnumMap<>(SupportInstrument.class);
 
+		/** Adds the given policy item
+		 * 
+		 * @param policyItem to be added, not added if null */
 		public void addPolicyItem(PolicyItem policyItem) {
 			if (policyItem != null) {
 				policies.put(policyItem.getSupportInstrument(), policyItem);
 			}
 		}
 
+		/** Returns the policy for the specified instrument
+		 * 
+		 * @param instrument to search the policy for
+		 * @return the policy associated with the given instrument, or null if the instrument is not registered */
 		public PolicyItem getPolicyFor(SupportInstrument instrument) {
 			return policies.get(instrument);
 		}
 	}
 
-	public class PolicyChoice {
+	/** The chosen support instrument of a client combined with the client's set */
+	public class InstrumentChoice {
+		/** The policy set the client is associated with */
 		public final String set;
+		/** THe support instrument the client has chosen */
 		public final SupportInstrument supportInstrument;
 
-		public PolicyChoice(String set, SupportInstrument supportInstrument) {
+		/** Instantiate a new {@link InstrumentChoice}
+		 * 
+		 * @param set of the client
+		 * @param supportInstrument chosen by the client */
+		public InstrumentChoice(String set, SupportInstrument supportInstrument) {
 			this.set = set;
 			this.supportInstrument = supportInstrument;
 		}
 	}
 
 	private final HashMap<String, InstrumentPolicies> policyItemsPerSet = new HashMap<>();
-	private final HashMap<Long, PolicyChoice> clientPolicyChoice = new HashMap<>();
+	private final HashMap<Long, InstrumentChoice> clientPolicyChoice = new HashMap<>();
 
+	/** Instantiate a new HydrogenSupportPolicy
+	 * 
+	 * @param dataProvider to extract input data from
+	 * @throws MissingDataException if any required input is missing */
 	public HydrogenSupportPolicy(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData inputData = parameters.join(dataProvider);
@@ -74,12 +97,13 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 		for (ParameterData group : groupList) {
 			String setType = HydrogenSupportProvider.readSet(group);
 			for (SupportInstrument instrument : SupportInstrument.values()) {
-				addSetPolicyItem(setType, PolicyItem.buildPolicy(instrument, group));
+				addPolicyItemToSet(setType, PolicyItem.buildPolicy(instrument, group));
 			}
 		}
 	}
 
-	private void addSetPolicyItem(String policySet, PolicyItem policyItem) {
+	/** Adds given policyItem to the specified policy set */
+	private void addPolicyItemToSet(String policySet, PolicyItem policyItem) {
 		InstrumentPolicies setPolicyItems = policyItemsPerSet.computeIfAbsent(policySet, __ -> new InstrumentPolicies());
 		setPolicyItems.addPolicyItem(policyItem);
 	}
@@ -94,12 +118,14 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 				HydrogenPolicyRegistration registration = message.getDataItemOfType(HydrogenPolicyRegistration.class);
 				PolicyItem policyItem = getPolicyData(registration);
 				clientPolicyChoice.put(contract.getReceiverId(),
-						new PolicyChoice(registration.setType, policyItem.getSupportInstrument()));
+						new InstrumentChoice(registration.setType, policyItem.getSupportInstrument()));
 				fulfilNext(contract, new HydrogenSupportData(registration.setType, policyItem));
 			}
 		}
 	}
 
+	/** @return the PolicyItem matching the given registration message
+	 * @throws RuntimeException if no matching policy is configured */
 	private PolicyItem getPolicyData(HydrogenPolicyRegistration registration) {
 		InstrumentPolicies setType = policyItemsPerSet.get(registration.setType);
 		if (setType == null) {
@@ -112,6 +138,7 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 		return policyItem;
 	}
 
+	/** Action to send support notifications for each client requesting pay-out */
 	private void calcSupportPayout(ArrayList<Message> messages, List<Contract> contracts) {
 		for (Contract contract : contracts) {
 			for (Message message : CommUtils.extractMessagesFrom(messages, contract.getReceiverId())) {
@@ -122,8 +149,9 @@ public class HydrogenSupportPolicy extends Agent implements HydrogenSupportProvi
 		}
 	}
 
+	/** @return pay-out for a given client that produced the provided amount of hydrogen and the specified time */
 	private double calcSupportPerRequest(long clientId, AmountAtTime amountAtTime) {
-		PolicyChoice policyChoice = clientPolicyChoice.get(clientId);
+		InstrumentChoice policyChoice = clientPolicyChoice.get(clientId);
 		PolicyItem policyItem = policyItemsPerSet.get(policyChoice.set).getPolicyFor(policyChoice.supportInstrument);
 		return amountAtTime.amount * policyItem.calcInfeedSupportRate(amountAtTime.validAt);
 	}

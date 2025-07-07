@@ -247,7 +247,8 @@ public class ElectrolysisTrader extends FlexibilityTrader
 		strategist.setSupportRateInEURperMWH(mpfix);
 	}
 
-	private void sendSupportPayoutRequest(ArrayList<Message> messages, List<Contract> contracts) {
+	/** Action to send a pay-out request to a single connected {@link HydrogenSupportProvider} based on the last production event */
+	private void sendSupportPayoutRequest(ArrayList<Message> __, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		fulfilNext(contract, new AmountAtTime(lastClearingTime, lastProducedHydrogenInMWH));
 	}

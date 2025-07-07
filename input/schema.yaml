@@ -427,7 +427,7 @@ AgentTypes:
         Mandatory: true
         List: true
         MetaData:
-          Description: "Definitions for support instruments"
+          Description: "Definitions of support instruments"
           OEONearestConcept: OEO_00010456
         NestedAttributes:
           HydrogenPolicySet: &HydrogenSupportPolicy_A_HydrogenPolicySet
@@ -435,13 +435,13 @@ AgentTypes:
             Mandatory: true
             List: false
             MetaData:
-              Description: "Set for hydrogen remuneration"
+              Description: "The name of a set of clients the hydrogen support instruments are applicable for"
           MPFIX:
             AttributeType: block
             Mandatory: false
             List: false
             MetaData:
-              Description: "A group for a TechnologySet holding the specific MPFIX information."
+              Description: "Holds the specific information about the support instrument MPFIX"
               OEONearestConcept: OEO_00020109
             NestedAttributes:
               Premium:
@@ -449,19 +449,18 @@ AgentTypes:
                 Mandatory: true
                 List: false
                 MetaData:
-                  Description: "A premium"
+                  Description: "Development over time of the premium rate in EUR per thermal MWH"
                   OEONearestConcept: OEO_00020109
     Products:
       SupportInfo:
         MetaData:
-          Description: "Info on the support scheme to be applied to a set of clients."
+          Description: "Info on the support scheme to be applied to a set of clients"
       SupportPayout:
         MetaData:
-          Description: "Actual pay-out of the support."
+          Description: "Actual support pay-out for a client"
     MetaData:
       Description: "HydrogenSupportPolicy administers support payments for hydrogen. Payments are made to a HydrogenSupportClient. Current support policies are fixed market premium (MPFIX)."
       OEONearestConcept: OEO_00010456
-
 
   DemandTrader:
     Attributes:
@@ -1695,9 +1694,11 @@ AgentTypes:
         Mandatory: false
         List: false
         MetaData:
-            Description: "Hydrogen support information"
+            Description: "Parameters specifying which hydrogen support policy to apply"
         NestedAttributes:
           SupportInstrument: &HydrogenSupportClient_A_SupportInstrument
+            MetaData:
+              Description: "Name of the support instrument to apply for"
             AttributeType: enum
             Mandatory: true
             List: false

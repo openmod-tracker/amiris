@@ -3,11 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package communications.message;
 
+import agents.policy.hydrogen.HydrogenSupportClient;
+import agents.policy.hydrogen.HydrogenSupportProvider;
 import agents.policy.hydrogen.PolicyItem.SupportInstrument;
 import de.dlr.gitlab.fame.communication.message.DataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem;
 import de.dlr.gitlab.fame.protobuf.Agent.ProtoDataItem.Builder;
 
+/** Registration message from a {@link HydrogenSupportClient} to a {@link HydrogenSupportProvider}
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class HydrogenPolicyRegistration extends DataItem {
 	/** the set type - or null if no set type is available */
 	public final String setType;

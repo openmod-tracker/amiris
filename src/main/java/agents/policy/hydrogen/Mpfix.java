@@ -12,6 +12,9 @@ import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
+/** A fixed market premium for hydrogen
+ * 
+ * @author Johannes Kochems, Christoph Schimeczek */
 public class Mpfix extends PolicyItem {
 	static final Tree parameters = Make.newTree().optional().add(premiumParam).buildTree();
 
@@ -33,10 +36,6 @@ public class Mpfix extends PolicyItem {
 		premium = provider.nextTimeSeries();
 	}
 
-	public double getPremium(TimeStamp time) {
-		return premium.getValueEarlierEqual(time);
-	}
-
 	@Override
 	public boolean isTypeOfMarketPremium() {
 		return true;
@@ -49,7 +48,6 @@ public class Mpfix extends PolicyItem {
 
 	@Override
 	public double calcInfeedSupportRate(TimeStamp validAt) {
-		return getPremium(validAt);
+		return premium.getValueEarlierEqual(validAt);
 	}
-
 }
