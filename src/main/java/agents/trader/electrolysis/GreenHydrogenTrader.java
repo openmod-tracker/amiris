@@ -18,6 +18,10 @@ import agents.markets.FuelsTrader;
 import agents.markets.meritOrder.Bid;
 import agents.plantOperator.PowerPlantScheduler;
 import agents.plantOperator.renewable.VariableRenewableOperatorPpa;
+import agents.policy.hydrogen.HydrogenSupportClient;
+import agents.policy.hydrogen.HydrogenSupportProvider;
+import agents.policy.hydrogen.Mpfix;
+import agents.policy.hydrogen.PolicyItem;
 import agents.trader.Trader;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
@@ -26,8 +30,10 @@ import communications.message.FuelBid;
 import communications.message.FuelBid.BidType;
 import communications.message.FuelCost;
 import communications.message.FuelData;
+import communications.message.HydrogenPolicyRegistration;
 import communications.message.PpaInformation;
 import communications.portable.BidsAtTime;
+import communications.portable.HydrogenSupportData;
 import de.dlr.gitlab.fame.agent.input.DataProvider;
 import de.dlr.gitlab.fame.agent.input.Input;
 import de.dlr.gitlab.fame.agent.input.Make;
@@ -49,7 +55,8 @@ import util.Util.MessagePair;
  * prices above their corresponding hydrogen equivalence), the electricity is sold at the day-ahead market.
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
-public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPlantScheduler, GreenHydrogenProducer {
+public class GreenHydrogenTrader extends Trader
+		implements FuelsTrader, PowerPlantScheduler, GreenHydrogenProducer, HydrogenSupportClient {
 	static final String ERR_MULTIPLE_TIMES = ": Cannot prepare Bids for multiple time steps";
 
 	/** Available products */
@@ -60,7 +67,8 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 	};
 
 	@Input private static final Tree parameters = Make.newTree().add(FuelsTrader.fuelTypeParameter)
-			.addAs("Device", Electrolyzer.parameters).addAs("Refinancing", AnnualCostCalculator.parameters).buildTree();
+			.addAs("Device", Electrolyzer.parameters).addAs("Refinancing", AnnualCostCalculator.parameters)
+			.addAs("Support", HydrogenSupportClient.parameters).buildTree();
 
 	@Output
 	enum AgentOutputs {
@@ -89,6 +97,10 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 
 	private final AnnualCostCalculator annualCost;
 
+	private HydrogenPolicyRegistration registrationData;
+	private PolicyItem policyItem;
+	private Mpfix mpfix;
+
 	/** Creates a new {@link GreenHydrogenTrader}
 	 * 
 	 * @param data provides input from config
@@ -100,6 +112,8 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		fuelData = new FuelData(fuelType);
 		electrolyzer = new Electrolyzer(input.getGroup("Device"));
 		annualCost = AnnualCostCalculator.build(input, "Refinancing");
+
+		registrationData = HydrogenSupportClient.getRegistration(input.getOptionalGroup("Support"));
 
 		call(this::requestPpaInformation).on(GreenHydrogenProducer.Products.PpaInformationForecastRequest)
 				.use(MarketForecaster.Products.ForecastRequest);
@@ -120,6 +134,10 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		call(this::digestHydrogenSales).onAndUse(FuelsMarket.Products.FuelBill);
 		call(this::payoutClient).on(PowerPlantScheduler.Products.Payout)
 				.use(VariableRenewableOperatorPpa.Products.PpaInformation);
+		call(this::registerSupport).on(HydrogenSupportClient.Products.SupportInfoRequest);
+		call(this::digestSupportInfo).onAndUse(HydrogenSupportProvider.Products.SupportInfo);
+		call(this::sendSupportPayoutRequest).on(HydrogenSupportClient.Products.SupportPayoutRequest);
+		call(this::digestSupportPayout).onAndUse(HydrogenSupportProvider.Products.SupportPayout);
 		call(this::reportCosts).on(Products.AnnualCostReport);
 	}
 
@@ -150,7 +168,9 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		for (TimeStamp time : messagePairs.keySet()) {
 			PpaInformation ppa = messagePairs.get(time).getFirstItem();
 			FuelCost fuelCost = messagePairs.get(time).getSecondItem();
-			double opportunityCostInEURperMWH = fuelCost.amount * electrolyzer.getConversionFactor();
+			double supportRateInEURperThermalMWH = getHydrogenSupportRateFor(time);
+			double opportunityCostInEURperMWH = (fuelCost.amount + supportRateInEURperThermalMWH)
+					* electrolyzer.getConversionFactor();
 			double electrolyserElectricDemandInMWH = electrolyzer.calcCappedElectricDemandInMW(ppa.yieldPotentialInMWH, time);
 			double surplusElectricityInMWH = ppa.yieldPotentialInMWH - electrolyserElectricDemandInMWH;
 			Bid supplyBidElectrolyser = new Bid(electrolyserElectricDemandInMWH, opportunityCostInEURperMWH,
@@ -159,6 +179,17 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 			allBids.put(time, new Bid[] {supplyBidElectrolyser, supplyBidSurplus});
 		}
 		return allBids;
+	}
+
+	/** Returns the hydrogen support rate in EUR per MWh if defined, else Zero
+	 * 
+	 * @param timeStamp to search for associated support rate
+	 * @return hydrogen support rate in EUR per MWh */
+	protected double getHydrogenSupportRateFor(TimeStamp timeStamp) {
+		if (policyItem != null) {
+			return policyItem.calcInfeedSupportRate(timeStamp);
+		}
+		return 0.;
 	}
 
 	/** Sends given bids to contracted partner */
@@ -210,8 +241,9 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 		lastHydrogenProducedInMWH = electrolyzer.calcProducedHydrogenOneHour(electrolyserDispatchInMWH,
 				award.beginOfDeliveryInterval);
 		store(OutputColumns.AwardedEnergyInMWH, award.supplyEnergyInMWH);
-		store(Outputs.ReceivedMoneyForElectricityInEUR, award.supplyEnergyInMWH * award.powerPriceInEURperMWH);
-		store(Outputs.ConsumedElectricityInMWH, electrolyserDispatchInMWH);
+		store(GreenHydrogenProducer.Outputs.ReceivedMoneyForElectricityInEUR,
+				award.supplyEnergyInMWH * award.powerPriceInEURperMWH);
+		store(GreenHydrogenProducer.Outputs.ConsumedElectricityInMWH, electrolyserDispatchInMWH);
 		store(AgentOutputs.ProducedHydrogenInMWH, lastHydrogenProducedInMWH);
 	}
 
@@ -255,5 +287,21 @@ public class GreenHydrogenTrader extends Trader implements FuelsTrader, PowerPla
 	protected void reportCosts(ArrayList<Message> input, List<Contract> contracts) {
 		store(AgentOutputs.InvestmentAnnuityInEUR, annualCost.calcInvestmentAnnuityInEUR(electrolyzer.getPeakPower(now())));
 		store(AgentOutputs.FixedCostsInEUR, annualCost.calcFixedCostInEUR(electrolyzer.getPeakPower(now())));
+	}
+
+	@Override
+	public HydrogenPolicyRegistration getRegistrationData() {
+		return registrationData;
+	}
+
+	@Override
+	public void saveSupportData(HydrogenSupportData hydrogenSupportData) {
+		mpfix = hydrogenSupportData.getPolicyOfType(Mpfix.class);
+		this.policyItem = mpfix;
+	}
+
+	private void sendSupportPayoutRequest(ArrayList<Message> messages, List<Contract> contracts) {
+		Contract contract = CommUtils.getExactlyOneEntry(contracts);
+		fulfilNext(contract, new AmountAtTime(lastClearingTime, lastHydrogenProducedInMWH));
 	}
 }

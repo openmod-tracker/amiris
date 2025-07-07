@@ -1748,6 +1748,7 @@ AgentTypes:
       Device: *Electrolyzer_G_Device
       FuelType: *FuelsTrader_A_FuelType
       Refinancing: *AnnualCostCalculator_G_Refinancing
+      Support: *HydrogenSupportClient_G_Support
     Products:
       PpaInformationRequest: &GreenHydrogenProducer_P_PpaInformationRequest
         MetaData:
@@ -1763,6 +1764,8 @@ AgentTypes:
       BidsForecast: *Trader_P_BidsForecast
       Payout: *PowerPlantScheduler_P_Payout
       DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
+      SupportInfoRequest: *HydrogenSupportClient_P_SupportInfoRequest
+      SupportPayoutRequest: *HydrogenSupportClient_P_SupportPayoutRequest
     Outputs:
       ConsumedElectricityInMWH: &GreenHydrogenProducer_O_ConsumedElectricity
         MetaData:
@@ -1784,6 +1787,7 @@ AgentTypes:
           Description: "Surplus electricity generation offered to the day-ahead market in MWh"
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
+      ReceivedHydrogenSupportInEUR: *HydrogenSupportClient_O_ReceivedHydrogenSupportInEUR
     MetaData:
       Description: "A green hydrogen electrolysis operator; It purchases electricity directly from renewable power plants operators."
   LoadShiftingTrader:
