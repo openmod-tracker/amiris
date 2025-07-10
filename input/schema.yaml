@@ -306,6 +306,9 @@ AgentTypes:
         AttributeType: block
         Mandatory: true
         List: true
+        MetaData:
+          Description: "Definitions for support instruments"
+          OEONearestConcept: OEO_00010456
         NestedAttributes:
           PolicySet:
             AttributeType: string_set
@@ -415,7 +418,49 @@ AgentTypes:
           Description: "Market values per energy carrier and evaluation interval"
     MetaData:
       Description: "SupportPolicy administers support payments for renewable generators. Payments are made to an AggregatorTrader who passes them to a RenewablePlantOperator. Current support policies are a feed-in tariff (FIT), a variable market premium (MPVAR), a fixed market premium (MPFIX), contracts for differences (CFD), and a capacity premium (CP)."
-      OEONearestConcept: OEO_00140150
+      OEONearestConcept: OEO_00010456
+
+  HydrogenSupportPolicy:
+    Attributes:
+      SetSupportData:
+        AttributeType: block
+        Mandatory: true
+        List: true
+        MetaData:
+          Description: "Definitions of support instruments"
+          OEONearestConcept: OEO_00010456
+        NestedAttributes:
+          HydrogenPolicySet: &HydrogenSupportPolicy_A_HydrogenPolicySet
+            AttributeType: string_set
+            Mandatory: true
+            List: false
+            MetaData:
+              Description: "The name of a set of clients the hydrogen support instruments are applicable for"
+          MPFIX:
+            AttributeType: block
+            Mandatory: false
+            List: false
+            MetaData:
+              Description: "Holds the specific information about the support instrument MPFIX"
+              OEONearestConcept: OEO_00020109
+            NestedAttributes:
+              Premium:
+                AttributeType: time_series
+                Mandatory: true
+                List: false
+                MetaData:
+                  Description: "Development over time of the premium rate in EUR per thermal MWH"
+                  OEONearestConcept: OEO_00020109
+    Products:
+      SupportInfo:
+        MetaData:
+          Description: "Info on the support scheme to be applied to a set of clients"
+      SupportPayout:
+        MetaData:
+          Description: "Actual support pay-out for a client"
+    MetaData:
+      Description: "HydrogenSupportPolicy administers support payments for hydrogen. Payments are made to a HydrogenSupportClient. Current support policies are fixed market premium (MPFIX)."
+      OEONearestConcept: OEO_00010456
 
   DemandTrader:
     Attributes:
@@ -1644,6 +1689,25 @@ AgentTypes:
                 List: false
                 MetaData:
                   Description: "Energy resolution of the algorithm: the smaller, the more steps are required to complete the algorithm."
+      Support: &HydrogenSupportClient_G_Support
+        AttributeType: block
+        Mandatory: false
+        List: false
+        MetaData:
+            Description: "Parameters specifying which hydrogen support policy to apply"
+        NestedAttributes:
+          SupportInstrument: &HydrogenSupportClient_A_SupportInstrument
+            MetaData:
+              Description: "Name of the support instrument to apply for"
+            AttributeType: enum
+            Mandatory: true
+            List: false
+            Values:
+              MPFIX:
+                MetaData:
+                  Description: "A fixed market premium"
+                  OEONearestConcept: OEO_00020109
+          HydrogenPolicySet: *HydrogenSupportPolicy_A_HydrogenPolicySet
     Products:
       Bids: *DamTrader_P_Bids
       BidsForecast: *Trader_P_BidsForecast
@@ -1652,6 +1716,12 @@ AgentTypes:
       FuelPriceForecastRequest: *FuelsTrader_P_FuelPriceForecastRequest
       FuelPriceRequest: *FuelsTrader_P_FuelPriceRequest
       FuelBid: *FuelsTrader_P_FuelBid
+      SupportInfoRequest: &HydrogenSupportClient_P_SupportInfoRequest
+        MetaData:
+          Description: "Registration for hydrogen support instrument"
+      SupportPayoutRequest: &HydrogenSupportClient_P_SupportPayoutRequest
+        MetaData:
+          Description: "Request for hydrogen support payout"
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
@@ -1669,6 +1739,9 @@ AgentTypes:
       ProducedHydrogenInMWH: &ElectrolysisTrader_O_ProducedHydrogen
         MetaData:
           Description: "Produced amount of hydrogen in thermal MWh"
+      ReceivedHydrogenSupportInEUR: &HydrogenSupportClient_O_ReceivedHydrogenSupportInEUR
+        MetaData:
+          Description: "Received support for hydrogen in EUR"
     MetaData:
       Description: "ElectrolysisTrader is a type of FlexibilityTrader that operates an electrolyzer unit to produce hydrogen from electricity."
   GreenHydrogenTrader:
@@ -1676,6 +1749,7 @@ AgentTypes:
       Device: *Electrolyzer_G_Device
       FuelType: *FuelsTrader_A_FuelType
       Refinancing: *AnnualCostCalculator_G_Refinancing
+      Support: *HydrogenSupportClient_G_Support
     Products:
       PpaInformationRequest: &GreenHydrogenProducer_P_PpaInformationRequest
         MetaData:
@@ -1691,6 +1765,8 @@ AgentTypes:
       BidsForecast: *Trader_P_BidsForecast
       Payout: *PowerPlantScheduler_P_Payout
       DispatchAssignment: *PowerPlantScheduler_P_DispatchAssignment
+      SupportInfoRequest: *HydrogenSupportClient_P_SupportInfoRequest
+      SupportPayoutRequest: *HydrogenSupportClient_P_SupportPayoutRequest
     Outputs:
       ConsumedElectricityInMWH: &GreenHydrogenProducer_O_ConsumedElectricity
         MetaData:
@@ -1712,6 +1788,7 @@ AgentTypes:
           Description: "Surplus electricity generation offered to the day-ahead market in MWh"
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
+      ReceivedHydrogenSupportInEUR: *HydrogenSupportClient_O_ReceivedHydrogenSupportInEUR
     MetaData:
       Description: "A green hydrogen electrolysis operator; It purchases electricity directly from renewable power plants operators."
   LoadShiftingTrader:
@@ -2109,6 +2186,7 @@ AgentTypes:
           ScheduleDurationInHours: *ElectrolysisTrader_Strategy_A_ScheduleDuration
           BidToleranceInEURperMWH: *ElectrolysisTrader_Strategy_A_BidTolerance
           PriceLimitOverrideInEURperMWH: *ElectrolysisTrader_Strategy_A_PriceLimitOverride
+      Support: *HydrogenSupportClient_G_Support
     Products:
       PpaInformationRequest: *GreenHydrogenProducer_P_PpaInformationRequest
       PpaInformationForecastRequest: *GreenHydrogenProducer_P_PpaInformationForecastRequest
@@ -2124,6 +2202,8 @@ AgentTypes:
       MonthlyReset:
         MetaData:
           Description: "Request for reset of monthly schedule"
+      SupportInfoRequest: *HydrogenSupportClient_P_SupportInfoRequest
+      SupportPayoutRequest: *HydrogenSupportClient_P_SupportPayoutRequest
     Outputs:
       OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
       AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
@@ -2137,6 +2217,7 @@ AgentTypes:
       ConsumedElectricityInMWH: *GreenHydrogenProducer_O_ConsumedElectricity
       ReceivedMoneyForHydrogenInEUR: *ElectrolysisTrader_O_ReceivedMoneyForHydrogen
       ReceivedMoneyForElectricityInEUR: *GreenHydrogenProducer_O_ReceivedMoneyForElectricity
+      ReceivedHydrogenSupportInEUR: *HydrogenSupportClient_O_ReceivedHydrogenSupportInEUR
     MetaData:
       Description: "GreenHydrogenTraderMonthly is a type of ElectrolysisTrader that operates an electrolyzer unit to produce hydrogen from green electricity purchased via a PPA ensuring monthly equivalence."
   HeatPumpTrader:

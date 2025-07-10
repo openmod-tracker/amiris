@@ -17,6 +17,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
 - Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
 - Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
+- Add new package `agents.policy.hydrogen` to depict support policies for hydrogen #169 (@dlr_jk, @dlr-cjs)
 - Add new Ability `DamForecastProvider` to replace class `Forecaster` #121 (@dlr-cjs)
 - Add new BidScheduler `StorageContentValue` using the expected change of value in a flexibility device to derive its bids #167 (@dlr-cjs)
 - Add option to specify water values for `GenericFlexibilityTrader` #159 (@dlr-cjs, @dlr_jk, @dlr_fn)
@@ -25,9 +26,12 @@ SPDX-License-Identifier: CC0-1.0 -->
 ### Remove
 - Remove class `Forecaster` #121 (@dlr-cjs)
 
+### Fixed
+- Fix shedding of PPA electricity in `GreenHydrogenTraderMonthly` !174 (@dlr-cjs, @dlr_jk)
+
 ## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
 ### Fixed
-- Fix wrong incongruent of energy levels in `EnergyStateManager` that could cause a crash #164 (@dlr-cjs)
+- Fix incongruent energy levels in `EnergyStateManager` that could cause a crash #164 (@dlr-cjs)
 
 ## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - 2025-05-05
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_

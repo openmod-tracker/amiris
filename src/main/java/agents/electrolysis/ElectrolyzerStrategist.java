@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.Strategist;
 import agents.markets.meritOrder.sensitivities.PriceNoSensitivity;
+import agents.policy.hydrogen.PolicyItem;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
@@ -49,6 +50,7 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 
 	private TreeMap<TimePeriod, Double> hydrogenPrices = new TreeMap<>();
 	private TimeSeries priceLimitOverrideInEURperMWH;
+	private PolicyItem policyItem;
 
 	/** Input parameters of {@link ElectrolyzerStrategist} */
 	public static final Tree parameters = Make.newTree()
@@ -128,7 +130,9 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		for (int period = 0; period < forecastSteps; period++) {
 			TimePeriod timePeriod = startTime.shiftByDuration(period);
 			double hydrogenPriceInEURperThermalMWH = getHydrogenPriceForPeriod(timePeriod);
-			hydrogenSaleOpportunityCostsPerElectricMWH[period] = hydrogenPriceInEURperThermalMWH
+			double supportRateInEURperThermalMWH = getHydrogenSupportRateForPeriod(timePeriod);
+			hydrogenSaleOpportunityCostsPerElectricMWH[period] = (hydrogenPriceInEURperThermalMWH
+					+ supportRateInEURperThermalMWH)
 					* electrolyzer.getConversionFactor();
 		}
 	}
@@ -206,6 +210,17 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 		return priceForecast != null ? priceForecast : Double.MAX_VALUE;
 	}
 
+	/** Returns the hydrogen support rate in EUR per MWh if defined, else Zero
+	 * 
+	 * @param timePeriod to search for associated support rate
+	 * @return hydrogen support rate in EUR per MWh */
+	protected double getHydrogenSupportRateForPeriod(TimePeriod timePeriod) {
+		if (policyItem != null) {
+			return policyItem.calcInfeedSupportRate(timePeriod.getStartTime());
+		}
+		return 0.;
+	}
+
 	/** @param endOfHorizon last step of planning horizon
 	 * @return Hour with highest economic potential among those with remaining production capabilities; -1 of no capability left in
 	 *         any hour */
@@ -232,5 +247,12 @@ public abstract class ElectrolyzerStrategist extends Strategist {
 	 * @return Economic potential in given hour to purchase electricity and sell hydrogen */
 	protected double getEconomicHydrogenPotential(int hour) {
 		return hydrogenSaleOpportunityCostsPerElectricMWH[hour] - electricityPriceForecasts[hour];
+	}
+
+	/** Set policy item
+	 * 
+	 * @param policyItem to be set */
+	public void setSupportRateInEURperMWH(PolicyItem policyItem) {
+		this.policyItem = policyItem;
 	}
 }
