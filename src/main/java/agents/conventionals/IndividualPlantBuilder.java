@@ -31,7 +31,8 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 							Make.newSeries("PlannedAvailability").optional(),
 							Make.newDouble("UnplannedAvailabilityFactor").optional(),
 							Make.newSeries("OpexVarInEURperMWH").optional(),
-							Make.newDouble("CyclingCostInEURperMW").optional())))
+							Make.newDouble("CyclingCostInEURperMW").optional(),
+							Make.newSeries("MustRunFactor").optional())))
 			.buildTree();
 
 	private final List<PowerPlant> powerPlants;
@@ -69,6 +70,7 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 				Double unplannedAvailabilityFactor = override.getDoubleOrDefault("UnplannedAvailabilityFactor", null);
 				TimeSeries opexVarInEURperMWH = override.getTimeSeriesOrDefault("OpexVarInEURperMWH", null);
 				Double cyclingCostInEURperMW = override.getDoubleOrDefault("CyclingCostInEURperMW", null);
+				TimeSeries mustRunFactor = override.getTimeSeriesOrDefault("MustRunFactor", null);
 				if (plannedAvailability != null) {
 					plant.setPlannedAvailability(plannedAvailability);
 				}
@@ -80,6 +82,9 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 				}
 				if (cyclingCostInEURperMW != null) {
 					plant.setCyclingCostInEURperMW(cyclingCostInEURperMW);
+				}
+				if (mustRunFactor != null) {
+					plant.setMustRunFactor(mustRunFactor);
 				}
 			} catch (MissingDataException e) {}
 			plants.add(plant);

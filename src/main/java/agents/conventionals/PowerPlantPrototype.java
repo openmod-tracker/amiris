@@ -21,7 +21,9 @@ public abstract class PowerPlantPrototype implements Portable {
 	static final Tree parameters = Make.newTree().add(
 			FuelsTrader.fuelTypeParameter, Make.newDouble("SpecificCo2EmissionsInTperMWH"),
 			Make.newSeries("PlannedAvailability"), Make.newDouble("UnplannedAvailabilityFactor"),
-			Make.newSeries("OpexVarInEURperMWH"), Make.newDouble("CyclingCostInEURperMW")).buildTree();
+			Make.newSeries("OpexVarInEURperMWH"), Make.newDouble("CyclingCostInEURperMW"),
+			Make.newSeries("MustRunFactor"))
+			.buildTree();
 
 	private String fuelType;
 	private double specificCo2EmissionsInTonsPerThermalMWH;
@@ -29,6 +31,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	private double cyclingCostInEURperMW;
 	private TimeSeries tsAvailability;
 	private TimeSeries tsVariableCosts;
+	private TimeSeries tsMustRun;
 
 	/** Technical specification template for a group conventional power plants */
 	public static class PrototypeData {
@@ -44,6 +47,8 @@ public abstract class PowerPlantPrototype implements Portable {
 		public TimeSeries tsAvailability;
 		/** Time-dependent variable costs per MWh of produced electricity */
 		public TimeSeries tsVariableCosts;
+		/** Time-dependend factor of the installed capacity that must run and may not be shut down */
+		public TimeSeries tsMustRun;
 
 		/** Creates a new {@link PrototypeData}
 		 * 
@@ -56,6 +61,7 @@ public abstract class PowerPlantPrototype implements Portable {
 			tsAvailability = data.getTimeSeries("PlannedAvailability");
 			cyclingCostInEURperMW = data.getDouble("CyclingCostInEURperMW");
 			tsVariableCosts = data.getTimeSeries("OpexVarInEURperMWH");
+			tsMustRun = data.getTimeSeries("MustRunFactor");
 		}
 	}
 
@@ -72,6 +78,7 @@ public abstract class PowerPlantPrototype implements Portable {
 		cyclingCostInEURperMW = prototypeData.cyclingCostInEURperMW;
 		tsAvailability = prototypeData.tsAvailability;
 		tsVariableCosts = prototypeData.tsVariableCosts;
+		tsMustRun = prototypeData.tsMustRun;
 	}
 
 	/** required for {@link Portable}s */
@@ -79,7 +86,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeStrings(fuelType);
 		collector.storeDoubles(specificCo2EmissionsInTonsPerThermalMWH, unplannedAvailabilityFactor, cyclingCostInEURperMW);
-		collector.storeTimeSeries(tsAvailability, tsVariableCosts);
+		collector.storeTimeSeries(tsAvailability, tsVariableCosts, tsMustRun);
 	}
 
 	/** required for {@link Portable}s */
@@ -91,6 +98,7 @@ public abstract class PowerPlantPrototype implements Portable {
 		cyclingCostInEURperMW = provider.nextDouble();
 		tsAvailability = provider.nextTimeSeries();
 		tsVariableCosts = provider.nextTimeSeries();
+		tsMustRun = provider.nextTimeSeries();
 	}
 
 	/** Returns availability of power plants at given time
@@ -139,6 +147,14 @@ public abstract class PowerPlantPrototype implements Portable {
 		return specificCo2EmissionsInTonsPerThermalMWH;
 	}
 
+	/** Returns the must-run factor at a specified time
+	 * 
+	 * @param time to return the must-run factor for
+	 * @return must-run factor at the requested time */
+	public double getMustRunFactor(TimeStamp time) {
+		return tsMustRun.getValueLinear(time);
+	}
+
 	/** Override {@link #unplannedAvailabilityFactor} with given value
 	 * 
 	 * @param unplannedAvailabilityFactor to replace template value */
@@ -165,5 +181,12 @@ public abstract class PowerPlantPrototype implements Portable {
 	 * @param tsVariableCosts to replace template value */
 	public void setTsVariableCosts(TimeSeries tsVariableCosts) {
 		this.tsVariableCosts = tsVariableCosts;
+	}
+
+	/** Override {@link #tsMustRun} with given value
+	 * 
+	 * @param tsMustRunFactor to replace the template value */
+	public void setMustRunFactor(TimeSeries tsMustRunFactor) {
+		this.tsMustRun = tsMustRunFactor;
 	}
 }

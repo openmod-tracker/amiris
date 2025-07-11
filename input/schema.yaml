@@ -1413,6 +1413,13 @@ AgentTypes:
             List: false
             MetaData:
               Description: "Additional cycling costs for conventional power plants in Euro per Megawatt, i.e. costs due to plant start up."
+          MustRunFactor: &PBM_A_MustRunFactor
+            AttributeType: time_series
+            Mandatory: true
+            List: false
+            Default: 0.
+            MetaData:
+              Description: "Share of the installed capacity that must run and may not shut down."
         MetaData:
           Description: "A prototype for similar powerplants"
       Efficiency:
@@ -1541,6 +1548,12 @@ AgentTypes:
                 List: false
                 MetaData:
                   Description: "Additional cycling costs for conventional power plants in Euro per Megawatt, i.e. costs due to plant start up."
+              MustRunFactor:
+                AttributeType: time_series
+                Mandatory: false
+                List: false
+                MetaData:
+                  Description: "Share of the installed capacity that must run and may not shut down."
     Products:
       PowerPlantPortfolio: *PBM_P_PowerPlantPortfolio
     Outputs: []
