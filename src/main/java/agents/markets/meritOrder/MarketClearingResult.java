@@ -84,10 +84,9 @@ public class MarketClearingResult {
 		for (OrderBookItem item : supplyBook.getOrderBookItems()) {
 			double awardedPower = item.getAwardedPower();
 			double marginalCost = item.getMarginalCost();
-			if (Double.isNaN(awardedPower) || Double.isNaN(marginalCost)) {
-				continue;
-			}
-			totalSystemCost += awardedPower * marginalCost;
+			if (Double.isFinite(awardedPower)) {
+				totalSystemCost += awardedPower * marginalCost;
+			}			
 		}
 		return totalSystemCost;
 	}

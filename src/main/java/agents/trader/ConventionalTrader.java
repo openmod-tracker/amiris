@@ -95,14 +95,16 @@ public class ConventionalTrader extends TraderWithClients implements PowerPlantS
 		int markUpIndex = 0;
 		for (Marginal marginal : sortedMarginals) {
 			double offeredPriceInEURperMWH;
+			double marginalCostInEURperMWH;
 			if (marginal.getMarginalCostInEURperMWH() == ConventionalPlantOperator.MUST_RUN_COST) {
 				offeredPriceInEURperMWH = Constants.MINIMAL_PRICE_IN_EUR_PER_MWH;
+				marginalCostInEURperMWH = 0;
 			} else {
 				offeredPriceInEURperMWH = marginal.getMarginalCostInEURperMWH() + markups.get(markUpIndex);
+				marginalCostInEURperMWH = marginal.getMarginalCostInEURperMWH();
 				markUpIndex++;
 			}
-			bids.add(
-					new Bid(marginal.getPowerPotentialInMW(), offeredPriceInEURperMWH, marginal.getMarginalCostInEURperMWH()));
+			bids.add(new Bid(marginal.getPowerPotentialInMW(), offeredPriceInEURperMWH, marginalCostInEURperMWH));
 		}
 		return bids;
 	}
