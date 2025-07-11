@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
 
+import java.util.NoSuchElementException;
 import agents.markets.FuelsTrader;
 import de.dlr.gitlab.fame.agent.input.Make;
 import de.dlr.gitlab.fame.agent.input.ParameterData;
@@ -22,7 +23,7 @@ public abstract class PowerPlantPrototype implements Portable {
 			FuelsTrader.fuelTypeParameter, Make.newDouble("SpecificCo2EmissionsInTperMWH"),
 			Make.newSeries("PlannedAvailability"), Make.newDouble("UnplannedAvailabilityFactor"),
 			Make.newSeries("OpexVarInEURperMWH"), Make.newDouble("CyclingCostInEURperMW"),
-			Make.newSeries("MustRunFactor"))
+			Make.newSeries("MustRunFactor").optional())
 			.buildTree();
 
 	private String fuelType;
@@ -61,7 +62,7 @@ public abstract class PowerPlantPrototype implements Portable {
 			tsAvailability = data.getTimeSeries("PlannedAvailability");
 			cyclingCostInEURperMW = data.getDouble("CyclingCostInEURperMW");
 			tsVariableCosts = data.getTimeSeries("OpexVarInEURperMWH");
-			tsMustRun = data.getTimeSeries("MustRunFactor");
+			tsMustRun = data.getTimeSeriesOrDefault("MustRunFactor", null);
 		}
 	}
 
@@ -86,7 +87,10 @@ public abstract class PowerPlantPrototype implements Portable {
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeStrings(fuelType);
 		collector.storeDoubles(specificCo2EmissionsInTonsPerThermalMWH, unplannedAvailabilityFactor, cyclingCostInEURperMW);
-		collector.storeTimeSeries(tsAvailability, tsVariableCosts, tsMustRun);
+		collector.storeTimeSeries(tsAvailability, tsVariableCosts);
+		if (tsMustRun != null) {
+			collector.storeTimeSeries(tsMustRun);
+		}
 	}
 
 	/** required for {@link Portable}s */
@@ -98,7 +102,11 @@ public abstract class PowerPlantPrototype implements Portable {
 		cyclingCostInEURperMW = provider.nextDouble();
 		tsAvailability = provider.nextTimeSeries();
 		tsVariableCosts = provider.nextTimeSeries();
-		tsMustRun = provider.nextTimeSeries();
+		try {
+			tsMustRun = provider.nextTimeSeries();
+		} catch (NoSuchElementException e) {
+			tsMustRun = null;
+		}
 	}
 
 	/** Returns availability of power plants at given time
@@ -147,12 +155,12 @@ public abstract class PowerPlantPrototype implements Portable {
 		return specificCo2EmissionsInTonsPerThermalMWH;
 	}
 
-	/** Returns the must-run factor at a specified time
+	/** Returns the must-run factor at a specified time, or Zero if it is not defined
 	 * 
 	 * @param time to return the must-run factor for
 	 * @return must-run factor at the requested time */
 	public double getMustRunFactor(TimeStamp time) {
-		return tsMustRun.getValueLinear(time);
+		return tsMustRun != null ? tsMustRun.getValueLinear(time) : 0.;
 	}
 
 	/** Override {@link #unplannedAvailabilityFactor} with given value
@@ -160,7 +168,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	 * @param unplannedAvailabilityFactor to replace template value */
 	public void setUnplannedAvailabilityFactor(double unplannedAvailabilityFactor) {
 		this.unplannedAvailabilityFactor = unplannedAvailabilityFactor;
-	};
+	}
 
 	/** Override {@link #cyclingCostInEURperMW} with given value
 	 * 

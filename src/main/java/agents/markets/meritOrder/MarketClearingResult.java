@@ -86,7 +86,7 @@ public class MarketClearingResult {
 			double marginalCost = item.getMarginalCost();
 			if (Double.isFinite(awardedPower)) {
 				totalSystemCost += awardedPower * marginalCost;
-			}			
+			}
 		}
 		return totalSystemCost;
 	}

@@ -1415,9 +1415,8 @@ AgentTypes:
               Description: "Additional cycling costs for conventional power plants in Euro per Megawatt, i.e. costs due to plant start up."
           MustRunFactor: &PBM_A_MustRunFactor
             AttributeType: time_series
-            Mandatory: true
+            Mandatory: false
             List: false
-            Default: 0.
             MetaData:
               Description: "Share of the installed capacity that must run and may not shut down."
         MetaData:
