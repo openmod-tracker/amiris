@@ -36,10 +36,13 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 
 /** Operates a portfolio of conventional power plant units of same type, e.g. nuclear or hard-coal power plant unit. */
 public class ConventionalPlantOperator extends PowerPlantOperator implements FuelsTrader {
+	public static final double MUST_RUN_COST = Double.NEGATIVE_INFINITY;
+
 	static final String ERR_MISSING_CO2_COST = "Missing at least one CO2 cost item to match corresponding fuel cost item(s).";
 	static final String ERR_MISSING_FUEL_COST = "Missing at least one fuel cost item to match corresponding CO2 cost item(s).";
 	static final String ERR_MISSING_POWER = " cannot fulfil dispatch due to missing power in MWh: ";
 	static final String ERR_PAYOUT_VANISH = "ERROR: ConventionalPlants received money but were not dispatched! Ensure Payout contracts are scheduled after DispatchAssignment contracts for ";
+
 	private static final double NUMERIC_TOLERANCE = 1E-10;
 
 	/** Products of {@link ConventionalPlantOperator} */
@@ -193,12 +196,15 @@ public class ConventionalPlantOperator extends PowerPlantOperator implements Fue
 		co2Price.put(targetTime, costPair.co2Price);
 		List<PowerPlant> powerPlants = portfolio.getPowerPlantList();
 		ArrayList<Marginal> marginals = new ArrayList<>(powerPlants.size());
+		double mustRunPowerInMW = 0;
 		for (PowerPlant plant : powerPlants) {
-			Marginal marginal = plant.calcMarginal(targetTime, costPair.fuelPrice, costPair.co2Price);
+			Marginal marginal = plant.calcMarginal(targetTime, costPair.fuelPrice, costPair.co2Price, true);
+			mustRunPowerInMW += plant.getMustRunPowerInMW(targetTime);
 			if (marginal.getPowerPotentialInMW() > 0) {
 				marginals.add(marginal);
 			}
 		}
+		marginals.add(new Marginal(mustRunPowerInMW, MUST_RUN_COST));
 		return new MarginalsAtTime(getId(), targetTime, marginals);
 	}
 

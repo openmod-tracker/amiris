@@ -63,11 +63,15 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	 * @param time the targeted time of generation
 	 * @param fuelCostInEURperThermalMWH cost fuel of the associated fuel
 	 * @param co2CostInEURperTon cost for CO2 emission certificates in Euro per ton
+	 * @param subtractMustRun if true, mustRun capacities are subtracted from the available capacity
 	 * @return Marginal */
-	public Marginal calcMarginal(TimeStamp time, double fuelCostInEURperThermalMWH,
-			double co2CostInEURperTon) {
+	public Marginal calcMarginal(TimeStamp time, double fuelCostInEURperThermalMWH, double co2CostInEURperTon,
+			boolean subtractMustRun) {
 		double marginalCostInEURperMWH = calcMarginalCost(time, fuelCostInEURperThermalMWH, co2CostInEURperTon);
 		double availablePowerInMW = getAvailablePowerInMW(time);
+		if (subtractMustRun) {
+			availablePowerInMW = Math.max(0, availablePowerInMW - getMustRunPowerInMW(time));
+		}
 		return new Marginal(availablePowerInMW, marginalCostInEURperMWH);
 	}
 
@@ -99,6 +103,14 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 		return isActive(time.getStep()) ? installedGenerationPowerInMW * getAvailability(time) : 0;
 	}
 
+	/** Returns the power that must run at the given time
+	 * 
+	 * @param time at which to get the must-run power for
+	 * @return must-run power in MW */
+	public double getMustRunPowerInMW(TimeStamp time) {
+		return getInstalledPowerInMW(time) * getMustRunFactor(time);
+	}
+
 	/** Checks if the power plant is active at given time
 	 * 
 	 * @param timeStep at which to test activeness
@@ -125,7 +137,7 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 	 * @return {@link DispatchResult result} from the dispatch */
 	public DispatchResult updateGeneration(TimeStamp time, double requestedPowerInMW, double fuelPriceInEURperMWH,
 			double co2PriceInEURperTon) {
-		Marginal marginal = calcMarginal(time, fuelPriceInEURperMWH, co2PriceInEURperTon);
+		Marginal marginal = calcMarginal(time, fuelPriceInEURperMWH, co2PriceInEURperTon, false);
 		double newLoadLevel = calcLoadLevel(marginal.getPowerPotentialInMW(), requestedPowerInMW);
 		double rampingCostInEUR = calcSpecificCostOfLoadChangeInEURperMW(currentLoadLevel, newLoadLevel)
 				* marginal.getPowerPotentialInMW();
