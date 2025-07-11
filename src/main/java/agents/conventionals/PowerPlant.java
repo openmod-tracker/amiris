@@ -10,7 +10,7 @@ import de.dlr.gitlab.fame.communication.transfer.ComponentProvider;
 import de.dlr.gitlab.fame.communication.transfer.Portable;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
-/** A conventional power plant unit
+/** A thermal power plant unit
  * 
  * @author Christoph Schimeczek */
 public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerPlant>, Portable {
