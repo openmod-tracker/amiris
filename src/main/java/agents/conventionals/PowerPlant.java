@@ -103,12 +103,12 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 		return isActive(time.getStep()) ? installedGenerationPowerInMW * getAvailability(time) : 0;
 	}
 
-	/** Returns the power that must run at the given time
+	/** Returns the power that must run at the given time - potentially restricted by the availability
 	 * 
 	 * @param time at which to get the must-run power for
 	 * @return must-run power in MW */
 	public double getMustRunPowerInMW(TimeStamp time) {
-		return getInstalledPowerInMW(time) * getMustRunFactor(time);
+		return getInstalledPowerInMW(time) * Math.min(getMustRunFactor(time), getAvailability(time));
 	}
 
 	/** Checks if the power plant is active at given time
