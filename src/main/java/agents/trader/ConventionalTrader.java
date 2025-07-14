@@ -12,6 +12,7 @@ import agents.forecast.MarketForecaster;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
+import agents.markets.meritOrder.Constants;
 import agents.plantOperator.ConventionalPlantOperator;
 import agents.plantOperator.Marginal;
 import agents.plantOperator.PowerPlantOperator;
@@ -83,22 +84,27 @@ public class ConventionalTrader extends TraderWithClients implements PowerPlantS
 		}
 	}
 
-	/** Create {@link BidData bids} from given marginals
+	/** Create {@link BidData bids} from given marginals: add markups to regular bids, place must-run bids at minimal market price
 	 * 
 	 * @param marginals Marginal costs items from power plant operators - must all be valid for the same time
 	 * @return Bids created from the marginals */
 	private List<Bid> prepareBids(ArrayList<MarginalsAtTime> marginals) {
 		ArrayList<Marginal> sortedMarginals = getSortedMarginalList(marginals);
-		ArrayList<Double> markups = Util.linearInterpolation(minMarkup, maxMarkup, sortedMarginals.size());
-
+		ArrayList<Double> markups = Util.linearInterpolation(minMarkup, maxMarkup, sortedMarginals.size() - 1);
 		List<Bid> bids = new ArrayList<>(sortedMarginals.size());
-		for (int i = 0; i < sortedMarginals.size(); i++) {
-			Marginal marginal = sortedMarginals.get(i);
-			double markup = markups.get(i);
-			double offeredPriceInEURperMWH = marginal.getMarginalCostInEURperMWH() + markup;
-			Bid bid = new Bid(marginal.getPowerPotentialInMW(), offeredPriceInEURperMWH,
-					marginal.getMarginalCostInEURperMWH());
-			bids.add(bid);
+		int markUpIndex = 0;
+		for (Marginal marginal : sortedMarginals) {
+			double offeredPriceInEURperMWH;
+			double marginalCostInEURperMWH;
+			if (marginal.getMarginalCostInEURperMWH() == ConventionalPlantOperator.MUST_RUN_COST) {
+				offeredPriceInEURperMWH = Constants.MINIMAL_PRICE_IN_EUR_PER_MWH;
+				marginalCostInEURperMWH = 0;
+			} else {
+				offeredPriceInEURperMWH = marginal.getMarginalCostInEURperMWH() + markups.get(markUpIndex);
+				marginalCostInEURperMWH = marginal.getMarginalCostInEURperMWH();
+				markUpIndex++;
+			}
+			bids.add(new Bid(marginal.getPowerPotentialInMW(), offeredPriceInEURperMWH, marginalCostInEURperMWH));
 		}
 		return bids;
 	}
