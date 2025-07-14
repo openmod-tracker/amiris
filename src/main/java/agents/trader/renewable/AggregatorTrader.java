@@ -352,7 +352,8 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	/** Return given bids in offer-price bins - bids with similar offer price are mapped to the same bin
 	 * 
 	 * @param bids ordered by offer price in ascending order
-	 * @return bids in bins by offer price; to counter numerical instability bids within a small tolerance band are assigned the same bin */
+	 * @return bids in bins by offer price; to counter numerical instability bids within a small tolerance band are assigned the
+	 *         same bin */
 	private HashMap<Integer, List<ProducerBid>> getBinnedBids(List<ProducerBid> bids) {
 		HashMap<Integer, List<ProducerBid>> binnedBids = new HashMap<>();
 		double lowestOfferPriceInBin = Double.NEGATIVE_INFINITY;
