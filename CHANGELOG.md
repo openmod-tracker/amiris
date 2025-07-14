@@ -29,6 +29,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 
 ### Fixed
 - Fix shedding of PPA electricity in `GreenHydrogenTraderMonthly` !174 (@dlr-cjs, @dlr_jk)
+- Fix energy distribution among clients of `AggregatorTrader` with same effective bidding price #176 (@dlr-cjs, @dlr_jk)
 
 ## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
 ### Fixed

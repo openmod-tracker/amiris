@@ -55,6 +55,8 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 	@Input private static final Tree parameters = Make.newTree().addAs("ForecastError", PowerForecastError.parameters)
 			.buildTree();
 
+	private static final double BIN_WIDTH = 1E-5;
+
 	static final String ERR_NO_MESSAGE_FOUND = "No client data received for client: ";
 	static final String ERR_SUPPORT_INFO = "Support info not implemented: ";
 	static final String ERR_NO_CLIENT_FOR_SET = " has no client with technology set type: ";
@@ -71,7 +73,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		ReceivedMarketRevenues,
 		/** actual electricity generation potential */
 		TrueGenerationPotentialInMWH
-	};
+	}
 
 	/** Products of this Agent */
 	@Product
@@ -82,7 +84,7 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		SupportPayoutRequest,
 		/** Yield potential of contracted technology set(s) */
 		YieldPotential
-	};
+	}
 
 	/** Helper class to store producer ID along with each Bid */
 	private class ProducerBid {
@@ -328,18 +330,45 @@ public abstract class AggregatorTrader extends TraderWithClients implements Powe
 		List<ProducerBid> submittedBids = submittedBidsByTime.remove(award.beginOfDeliveryInterval);
 		submittedBids.sort(Comparator.comparingDouble(ProducerBid::getOfferPrice));
 
+		HashMap<Integer, List<ProducerBid>> bidsBinnedByOfferPrice = getBinnedBids(submittedBids);
 		double actualProductionPotentialInMWH = 0;
-		for (ProducerBid producerBid : submittedBids) {
-			Contract matchingContract = getMatchingContract(contracts, producerBid.producerUuid);
-			double dispatchedEnergy = Math.min(energyToDispatch, producerBid.powerPotential);
-			actualProductionPotentialInMWH += producerBid.powerPotential;
-			logClientDispatchAndRevenues(dispatchedEnergy, award.powerPriceInEURperMWH, producerBid.producerUuid,
-					award.beginOfDeliveryInterval);
-			fulfilNext(matchingContract, new AmountAtTime(award.beginOfDeliveryInterval, dispatchedEnergy));
-			energyToDispatch = Math.max(0, energyToDispatch - dispatchedEnergy);
+		for (var bids : bidsBinnedByOfferPrice.values()) {
+			double productionPotentialInBinInMWH = bids.stream().mapToDouble(b -> b.powerPotential).sum();
+			actualProductionPotentialInMWH += productionPotentialInBinInMWH;
+			double assignmentShare = Math.min(1., energyToDispatch / productionPotentialInBinInMWH);
+			for (ProducerBid bid : bids) {
+				double dispatchedEnergy = assignmentShare * bid.powerPotential;
+				energyToDispatch = Math.max(0, energyToDispatch - dispatchedEnergy);
+				logClientDispatchAndRevenues(dispatchedEnergy, award.powerPriceInEURperMWH, bid.producerUuid,
+						award.beginOfDeliveryInterval);
+				Contract matchingContract = getMatchingContract(contracts, bid.producerUuid);
+				fulfilNext(matchingContract, new AmountAtTime(award.beginOfDeliveryInterval, dispatchedEnergy));
+			}
 		}
 		powerPrices.put(award.beginOfDeliveryInterval, award.powerPriceInEURperMWH);
 		store(OutputColumns.TrueGenerationPotentialInMWH, actualProductionPotentialInMWH);
+	}
+
+	/** Return given bids in offer-price bins - bids with similar offer price are mapped to the same bin
+	 * 
+	 * @param bids ordered by offer price in ascending order
+	 * @return bids in bins by offer price; to counter numerical instability bids within a small tolerance band are assigned the
+	 *         same bin */
+	private HashMap<Integer, List<ProducerBid>> getBinnedBids(List<ProducerBid> bids) {
+		HashMap<Integer, List<ProducerBid>> binnedBids = new HashMap<>();
+		double lowestOfferPriceInBin = Double.NEGATIVE_INFINITY;
+		int binIndex = -1;
+		List<ProducerBid> bidsInBin = new ArrayList<>();
+		for (ProducerBid bid : bids) {
+			if (bid.getOfferPrice() - BIN_WIDTH > lowestOfferPriceInBin) {
+				binIndex++;
+				lowestOfferPriceInBin = bid.getOfferPrice();
+				bidsInBin = new ArrayList<>();
+				binnedBids.put(binIndex, bidsInBin);
+			}
+			bidsInBin.add(bid);
+		}
+		return binnedBids;
 	}
 
 	/** Logs actual dispatch and revenue for client at given delivery time
