@@ -16,11 +16,11 @@
 1. (How one can reproduce the issue - this is very important)
 2. 
 
-## Expected result:
+## Expected result
 
 (What you should see)
 
-## Actual result: 
+## Actual result
 
 (What actually happens)
 
@@ -36,6 +36,6 @@
 
 ## Possible fixes
 
-(If you can, link to the line of code that might be responsible for the problem)
+(If you can, hint to the line of code that might be responsible for the problem)
 
 /label ~bug
