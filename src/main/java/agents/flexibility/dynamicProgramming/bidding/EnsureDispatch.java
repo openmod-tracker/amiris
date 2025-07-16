@@ -30,7 +30,7 @@ public class EnsureDispatch implements BidScheduler {
 		}
 		bidSchedule.setRequestedEnergyPerPeriod(dispatchSchedule.externalEnergyDeltasInMWH);
 		bidSchedule.setBidsScheduleInEURperMWH(biddingPricePerPeriodInEURperMWH);
-		bidSchedule.setExpectedInitialInternalEnergyScheduleInMWH(dispatchSchedule.initialInternalEnergyInMWH);
+		bidSchedule.setExpectedInitialInternalEnergyScheduleInMWH(dispatchSchedule.initialInternalEnergiesInMWH);
 		return bidSchedule;
 	}
 

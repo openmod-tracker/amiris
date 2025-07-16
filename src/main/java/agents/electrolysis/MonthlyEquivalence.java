@@ -160,7 +160,7 @@ public class MonthlyEquivalence extends ElectrolyzerStrategist {
 			} else {
 				electricDemandOfElectrolysisInMW[index] = electrolyzer.calcCappedElectricDemandInMW(ppaProduction,
 						stepTimes[index]);
-				if (electricityPriceForecasts[index] > 0) {
+				if (electricityPriceForecasts[index] >= 0) {
 					double surplus = ppaProduction - electricDemandOfElectrolysisInMW[index];
 					purchasedElectricityInMWH[index] = -surplus;
 					bidPricesInEURperMWH[index] = 0;
@@ -194,7 +194,7 @@ public class MonthlyEquivalence extends ElectrolyzerStrategist {
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
 			surplusPosition -= purchasedElectricityInMWH[index];
 			if (electricityPriceForecasts[index] < hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
-				surplusPosition += -getRemainingPowerInMW(index);
+				surplusPosition -= getRemainingPowerInMW(index);
 			}
 		}
 		return surplusPosition;
@@ -204,9 +204,12 @@ public class MonthlyEquivalence extends ElectrolyzerStrategist {
 	private void schedulePurchaseForFullLoadOperation(TimePeriod firstPeriod) {
 		for (int index = 0; index < calcNumberOfPlanningSteps(firstPeriod); index++) {
 			if (electricityPriceForecasts[index] < hydrogenSaleOpportunityCostsPerElectricMWH[index]) {
-				purchasedElectricityInMWH[index] = getRemainingPowerInMW(index);
-				bidPricesInEURperMWH[index] = hydrogenSaleOpportunityCostsPerElectricMWH[index];
-				electricDemandOfElectrolysisInMW[index] += purchasedElectricityInMWH[index];
+				double remainingPowerInMW = getRemainingPowerInMW(index);
+				if (remainingPowerInMW > 0) {
+					purchasedElectricityInMWH[index] = remainingPowerInMW;
+					bidPricesInEURperMWH[index] = hydrogenSaleOpportunityCostsPerElectricMWH[index];
+					electricDemandOfElectrolysisInMW[index] += purchasedElectricityInMWH[index];
+				}
 			}
 		}
 	}

@@ -20,8 +20,6 @@ public class TechnologySet extends DataItem {
 	/** the support instrument for the technology set */
 	public final SupportInstrument supportInstrument;
 
-	/** installed capacity at this set - assumed constant */
-
 	/** Create new {@link TechnologySet}
 	 * 
 	 * @param technologySetType clients technology set

@@ -2,9 +2,38 @@
 
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
+
+## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
+### Changed
+- Rename `forecast.ForecastClient` to `DamForecastClient` #121 (@dlr-cjs)
+- Enable a single `MarketForecaster` to handle forecasts for both MeritOrderRequests and PriceForecastRequests at the same time #121 (@dlr-cjs)
+- Move functionality from `MeritOrderForecaster` to `MarketForecaster` and mark the first as deprecated #121 (@dlr-cjs)
+- Move functionality from `PriceForecaster` to `MarketForecaster` and mark the first as deprecated #121 (@dlr-cjs)
+- Make `PriceForecasterApi` compatible with new interface `SensitivityForecastProvider` #168 (@dlr-cjs)
+- Allow `PriceForecasterApi` to update SensitivityForecasts if required #163 (@dlr-cjs, @dlr_fn)
+- Change badges shown in Readme #160 (@dlr-cjs, @dlr_fn)
+
+### Added
+- Add `SensitivityForecaster` that provides sensitivity forecasts for `GenericFlexibilityTrader` #158 (@dlr_jk, @dlr-cjs)
+- Add new class `HouseholdPvTraderExternal` using external model for household marketing of PV-storages #152 (@dlr_elghazi)
+- Add new class `EvTraderExternal` using external model for household marketing of electric vehicles #152 (@dlr_elghazi)
+- Add new package `agents.policy.hydrogen` to depict support policies for hydrogen #169 (@dlr_jk, @dlr-cjs)
+- Add new Ability `DamForecastProvider` to replace class `Forecaster` #121 (@dlr-cjs)
+- Add new BidScheduler `StorageContentValue` using the expected change of value in a flexibility device to derive its bids #167 (@dlr-cjs)
+- Add option to specify water values for `GenericFlexibilityTrader` #159 (@dlr-cjs, @dlr_jk, @dlr_fn)
+- Add option to specify must-run timeseries for conventional power plants #174 (@dlr-cjs, @dlr_jk, @dlr_fn)
+- Add metadata.json to describe project with metadata #147 (@dlr-cjs)
+
+### Remove
+- Remove class `Forecaster` #121 (@dlr-cjs)
+
+### Fixed
+- Fix shedding of PPA electricity in `GreenHydrogenTraderMonthly` !174 (@dlr-cjs, @dlr_jk)
+- Fix energy distribution among clients of `AggregatorTrader` with same effective bidding price #176 (@dlr-cjs, @dlr_jk)
+
 ## [3.5.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.1) - 2025-05-14
 ### Fixed
-- Fix wrong incongruent of energy levels in `EnergyStateManager` that could cause a crash #164 (@dlr-cjs)
+- Fix incongruent energy levels in `EnergyStateManager` that could cause a crash #164 (@dlr-cjs)
 
 ## [3.5.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.5.0) - 2025-05-05
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_

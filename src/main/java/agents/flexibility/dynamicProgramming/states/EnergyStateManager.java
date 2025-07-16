@@ -15,7 +15,7 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class EnergyStateManager implements StateManager {
-	/** Added to floating point calculation of transition steps to avoid rounding errors */
+	/** Used to avoid rounding errors in floating point calculation of transition steps */
 	private static final double PRECISION_GUARD = 1E-5;
 
 	private final GenericDevice device;
@@ -23,6 +23,7 @@ public class EnergyStateManager implements StateManager {
 	private final AssessmentFunction assessmentFunction;
 	private final double planningHorizonInHours;
 	private final double energyResolutionInMWH;
+	private final WaterValues waterValues;
 
 	private int numberOfTimeSteps;
 	private int[][] bestNextState;
@@ -35,14 +36,16 @@ public class EnergyStateManager implements StateManager {
 	private boolean hasSelfDischarge;
 	private double[] transitionValuesCharging;
 	private double[] transitionValuesDischarging;
+	private double[] cachedWaterValuesInEUR;
 
 	public EnergyStateManager(GenericDevice device, AssessmentFunction assessmentFunction, double planningHorizonInHours,
-			double energyResolutionInMWH) {
+			double energyResolutionInMWH, WaterValues waterValues) {
 		this.device = device;
 		this.deviceCache = new GenericDeviceCache(device);
 		this.assessmentFunction = assessmentFunction;
 		this.planningHorizonInHours = planningHorizonInHours;
 		this.energyResolutionInMWH = energyResolutionInMWH;
+		this.waterValues = waterValues;
 	}
 
 	@Override
@@ -54,6 +57,7 @@ public class EnergyStateManager implements StateManager {
 		analyseSelfDischarge();
 		bestNextState = new int[numberOfTimeSteps][numberOfEnergyStates];
 		bestValue = new double[numberOfTimeSteps][numberOfEnergyStates];
+		cacheWaterValues();
 	}
 
 	/** Sets {@link #lowestLevelEnergyInMWH} and {@link #numberOfEnergyStates} for the current planning horizon */
@@ -102,6 +106,22 @@ public class EnergyStateManager implements StateManager {
 		}
 	}
 
+	/** Caches water values for each possible state and stores them to {@link #cachedWaterValuesInEUR} */
+	private void cacheWaterValues() {
+		cachedWaterValuesInEUR = new double[numberOfEnergyStates];
+		if (waterValues.hasData()) {
+			TimeStamp targetTime = getTimeByIndex(numberOfTimeSteps);
+			for (int index = 0; index < numberOfEnergyStates; index++) {
+				cachedWaterValuesInEUR[index] = waterValues.getValueInEUR(targetTime, indexToEnergy(index));
+			}
+		}
+	}
+
+	/** @return energy content corresponding to the given index */
+	private double indexToEnergy(int index) {
+		return index * energyResolutionInMWH - lowestLevelEnergyInMWH;
+	}
+
 	@Override
 	public void prepareFor(TimeStamp time) {
 		assessmentFunction.prepareFor(time);
@@ -127,6 +147,13 @@ public class EnergyStateManager implements StateManager {
 		for (int dischargingSteps = 0; dischargingSteps <= maxDischargingSteps; dischargingSteps++) {
 			transitionValuesDischarging[dischargingSteps] = calcValueFor(0, -dischargingSteps);
 		}
+	}
+
+	/** @return calculated value of transition */
+	private double calcValueFor(int initialStateIndex, int finalStateIndex) {
+		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
+				indexToEnergy(finalStateIndex));
+		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
 	}
 
 	@Override
@@ -161,28 +188,12 @@ public class EnergyStateManager implements StateManager {
 		return stateDelta >= 0 ? transitionValuesCharging[stateDelta] : transitionValuesDischarging[-stateDelta];
 	}
 
-	/** @return calculated value of transition */
-	private double calcValueFor(int initialStateIndex, int finalStateIndex) {
-		double externalEnergyDeltaInMWH = deviceCache.simulateTransition(indexToEnergy(initialStateIndex),
-				indexToEnergy(finalStateIndex));
-		return assessmentFunction.assessTransition(externalEnergyDeltaInMWH);
-	}
-
-	/** @return energy content corresponding to the given index */
-	private double indexToEnergy(int index) {
-		return index * energyResolutionInMWH - lowestLevelEnergyInMWH;
-	}
-
 	@Override
 	public double[] getBestValuesNextPeriod() {
 		if (currentOptimisationTimeIndex + 1 < numberOfTimeSteps) {
 			return bestValue[currentOptimisationTimeIndex + 1];
 		} else {
-			double[] bestValues = new double[numberOfEnergyStates];
-			for (int index = 0; index < numberOfEnergyStates; index++) {
-				bestValues[index] = 0;
-			}
-			return bestValues;
+			return cachedWaterValuesInEUR;
 		}
 	}
 
@@ -201,31 +212,51 @@ public class EnergyStateManager implements StateManager {
 	public DispatchSchedule getBestDispatchSchedule(int schedulingSteps) {
 		double currentInternalEnergyInMWH = device.getCurrentInternalEnergyInMWH();
 		double[] externalEnergyDeltaInMWH = new double[schedulingSteps];
-		double[] internalEnergyInMWH = new double[schedulingSteps];
+		double[] internalEnergiesInMWH = new double[schedulingSteps];
+		double[] specificValuesInEURperMWH = new double[schedulingSteps];
 		for (int timeIndex = 0; timeIndex < schedulingSteps; timeIndex++) {
 			TimeStamp time = getTimeByIndex(timeIndex);
 			deviceCache.prepareFor(time);
 
-			internalEnergyInMWH[timeIndex] = currentInternalEnergyInMWH;
+			internalEnergiesInMWH[timeIndex] = currentInternalEnergyInMWH;
 			int currentEnergyLevelIndex = energyToNearestIndex(currentInternalEnergyInMWH);
 			int nextEnergyLevelIndex = bestNextState[timeIndex][currentEnergyLevelIndex];
-			double nextInternalEnergyInMWH = currentInternalEnergyInMWH
-					+ (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
-			double lowerLevelInMWH = deviceCache.getEnergyContentLowerLimitInMWH();
-			double upperLevelInMWH = deviceCache.getEnergyContentUpperLimitInMWH();
-			nextInternalEnergyInMWH = Math.max(lowerLevelInMWH, Math.min(upperLevelInMWH, nextInternalEnergyInMWH));
-
+			double rawEnergyDeltaInMWH = (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
+			double nextInternalEnergyInMWH = ensureLimits(currentInternalEnergyInMWH + rawEnergyDeltaInMWH);
 			externalEnergyDeltaInMWH[timeIndex] = deviceCache.simulateTransition(currentInternalEnergyInMWH,
 					nextInternalEnergyInMWH);
 			currentInternalEnergyInMWH = nextInternalEnergyInMWH;
+
+			double rawValueDeltaInEUR = getValueOfStorage(timeIndex + 1, nextEnergyLevelIndex)
+					- getValueOfStorage(timeIndex + 1, currentEnergyLevelIndex);
+			specificValuesInEURperMWH[timeIndex] = calcSpecificValue(rawEnergyDeltaInMWH, rawValueDeltaInEUR);
 		}
-		return new DispatchSchedule(externalEnergyDeltaInMWH, internalEnergyInMWH);
+		return new DispatchSchedule(externalEnergyDeltaInMWH, internalEnergiesInMWH, specificValuesInEURperMWH);
 	}
 
 	/** @return closest index corresponding to given energy level */
 	private int energyToNearestIndex(double energyAmountInMWH) {
 		double energyLevel = Math.round(energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
 		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
+	}
+
+	private double ensureLimits(double energyContentInMWH) {
+		double lowerLevelInMWH = deviceCache.getEnergyContentLowerLimitInMWH();
+		double upperLevelInMWH = deviceCache.getEnergyContentUpperLimitInMWH();
+		return Math.max(lowerLevelInMWH, Math.min(upperLevelInMWH, energyContentInMWH));
+	}
+
+	/** @return the value of storage for given time and state index */
+	private double getValueOfStorage(int timeIndex, int stateIndex) {
+		return timeIndex < numberOfTimeSteps ? bestValue[timeIndex][stateIndex] : cachedWaterValuesInEUR[stateIndex];
+	}
+
+	/** @return specificValue of a transition with given deltas for energy and value */
+	private double calcSpecificValue(double energyDeltaInMWH, double valueDeltaInEUR) {
+		if (Math.abs(energyDeltaInMWH) > PRECISION_GUARD) {
+			return valueDeltaInEUR / energyDeltaInMWH;
+		}
+		return 0;
 	}
 
 	@Override
