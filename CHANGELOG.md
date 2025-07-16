@@ -4,7 +4,10 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
 ## [4.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.0.0) - tba
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
+
 ### Changed
+- **Breaking** Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
 - Update formatting of templates #179 (@dlr-cjs)
 
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
