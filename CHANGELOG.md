@@ -3,7 +3,7 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
-## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - tba
+## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
 ### Changed
 - Rename `forecast.ForecastClient` to `DamForecastClient` #121 (@dlr-cjs)
 - Enable a single `MarketForecaster` to handle forecasts for both MeritOrderRequests and PriceForecastRequests at the same time #121 (@dlr-cjs)
@@ -21,7 +21,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Add new Ability `DamForecastProvider` to replace class `Forecaster` #121 (@dlr-cjs)
 - Add new BidScheduler `StorageContentValue` using the expected change of value in a flexibility device to derive its bids #167 (@dlr-cjs)
 - Add option to specify water values for `GenericFlexibilityTrader` #159 (@dlr-cjs, @dlr_jk, @dlr_fn)
-- Add must-run timeseries to inputs and bidding of conventional power plants #174 (@dlr-cjs, @dlr_jk, @dlr_fn)
+- Add option to specify must-run timeseries for conventional power plants #174 (@dlr-cjs, @dlr_jk, @dlr_fn)
 - Add metadata.json to describe project with metadata #147 (@dlr-cjs)
 
 ### Remove
