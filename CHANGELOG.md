@@ -3,6 +3,10 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
+## [4.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.0.0) - tba
+### Changed
+- Update formatting of templates #179 (@dlr-cjs)
+
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
 ### Changed
 - Rename `forecast.ForecastClient` to `DamForecastClient` #121 (@dlr-cjs)
