@@ -5,6 +5,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 
 ## [3.6.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.1) - 2025-07-21
 ### Fixed
+- Fix missing side effect in `MarketClearing` if `SupplyBook` is empty #182 (@jgower11, dlr-cjs)
 
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
 ### Changed
