@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package agents.conventionals;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import agents.plantOperator.DispatchResult;
 import agents.plantOperator.Marginal;
 import de.dlr.gitlab.fame.communication.transfer.ComponentCollector;
@@ -14,6 +16,11 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerPlant>, Portable {
+	static final String WARN_NEGATIVE_LOAD = "Load level of power plant '%s' is below Zero: '%s' and was reset to Zero.";
+	static final String WARN_OVERLOAD = "Load level of power plant '%s' is above One: '%s' and was reset to One.";
+	private static Logger logger = LoggerFactory.getLogger(PowerPlant.class);
+	static final double LOAD_TOLERANCE = 1E-10;
+
 	private double efficiency;
 	private double installedGenerationPowerInMW;
 	private double currentLoadLevel = 0;
@@ -155,25 +162,28 @@ public class PowerPlant extends PowerPlantPrototype implements Comparable<PowerP
 		return ensureValidLoadLevel(newLoadLevel);
 	}
 
+	/** Returns the given load level if it is between 0 and 1, else enforces these boundaries and raises a warning.
+	 * 
+	 * @param loadLevel to ensure validity
+	 * @return a loadLevel between 0 and 1; 0 if load level is {@link Double#isNaN()} */
+	private double ensureValidLoadLevel(double loadLevel) {
+		if (Double.isNaN(loadLevel)) {
+			return 0;
+		}
+		if (loadLevel < 0 - LOAD_TOLERANCE) {
+			logger.warn(String.format(WARN_NEGATIVE_LOAD, this, loadLevel));
+		}
+		if (loadLevel > 1 + LOAD_TOLERANCE) {
+			logger.warn(String.format(WARN_OVERLOAD, this, loadLevel));
+		}
+		return Math.max(0., Math.min(1., loadLevel));
+	}
+
 	/** Returns electricity production from last update of load level
 	 * 
 	 * @return power production as set by last update */
 	public double getCurrentPowerOutputInMW() {
 		return currentPowerOutputInMW;
-	}
-
-	/** Throws an Exception if given load level is not between [0..1], else returns given load level
-	 * 
-	 * @param loadLevel to check for validity
-	 * @return given loadLevel as is, if between 0 and 1; 0 if load level is {@link Double#isNaN()};
-	 * @throws RuntimeException on invalid load level */
-	private double ensureValidLoadLevel(double loadLevel) {
-		if (Double.isNaN(loadLevel)) {
-			return 0;
-		} else if (loadLevel >= 0 && loadLevel <= 1) {
-			return loadLevel;
-		}
-		throw new RuntimeException("Load level not element of [0, 1].");
 	}
 
 	/** Returns ramping cost on load level change
