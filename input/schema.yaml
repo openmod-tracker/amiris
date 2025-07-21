@@ -1386,20 +1386,13 @@ AgentTypes:
             MetaData:
               Description: "Specific CO2-emissions in tons per thermal MWh."
               OEONearestConcept: OEO_00260007
-          PlannedAvailability: &PBM_A_PlannedAvailability
+          OutageFactor: &PBM_A_OutageFactor
             AttributeType: time_series
             Mandatory: true
             List: false
-            MetaData:
-              Description: "The planned availability of the respective power plant technology, e.g. scheduled downtime of plants."
-              OEONearestConcept: OEO_00140126
-          UnplannedAvailabilityFactor: &PBM_A_UnplannedAvailabilityFactor
-            AttributeType: double
-            Mandatory: true
-            List: false
-            MetaData:
-              Description: "The unplanned availability of the respective power plant technology, due to, e.g., technological problems."
-              OEONearestConcept: OEO_00140129
+            MetaData: &PBM_A_OutageFactor_Metadata
+              Description: "The share of the respective power plant(s) that is not available for electricity production."
+              OEONearestConcept: OEO_00020104
           OpexVarInEURperMWH: &PBM_A_OpexVar
             AttributeType: time_series
             Mandatory: true
@@ -1520,20 +1513,11 @@ AgentTypes:
             MetaData:
               Description: "Values given here override those specified in the associated portfolio"
             NestedAttributes:
-              PlannedAvailability:
+              OutageFactor:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
-                MetaData:
-                  Description: "The planned availability of the respective power plant technology, e.g. scheduled downtime of plants."
-                  OEONearestConcept: OEO_00140126
-              UnplannedAvailabilityFactor:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  Description: "The unplanned availability of the respective power plant technology, due to, e.g., technological problems."
-                  OEONearestConcept: OEO_00140129
+                MetaData: *PBM_A_OutageFactor_Metadata
               OpexVarInEURperMWH:
                 AttributeType: time_series
                 Mandatory: false
