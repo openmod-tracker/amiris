@@ -2,7 +2,14 @@
 
 SPDX-License-Identifier: Apache-2.0 -->
 # Upgrading
-## [3.5.0] 
+## 4.0.0
+### GenericFlexibilityTrader: Assessment.Types renamed
+Names of assessment function types of `GenericFlexibilityTrader` were renamed:
+
+* `SINGLE_AGENT_MIN_SYSTEM_COST` &rarr; `MIN_SYSTEM_COST`
+* `SINGLE_AGENT_MAX_PROFIT` &rarr; `MAX_PROFIT`
+
+## 3.5.0
 This version features the `GenericFlexibilityTrader` which will replace `StorageTrader` in a future release.
 We recommend to switch to `GenericFlexibilityTrader` as it also offers more comprehensive and flexible parametrisation:
 * asymmetric charging / discharging power,
@@ -57,7 +64,7 @@ Attributes:
     SchedulingHorizonInHours: 24  # former "ScheduleDurationInHours"
 ```
 
-## [3.0.0]
+## 3.0.0
 ### String Sets
 This version requires new feature `string_set` provided by `fameio` > v2.3.
 Thus, update `fameio` accordingly.
@@ -107,7 +114,7 @@ Update your schema files and scenarios, and if necessary, adjust you scripts if 
 1. Contracts: Change the `FirstDeliveryTime` of all Contracts with Product `GateClosureInfo` to `-30`.
 1. `DayAheadMarketSingleZone`: Change the Attribute `GateClosureInfoOffsetInSeconds` to 31. 
 
-## [2.0.0]
+## 2.0.0
 ### Minimum JDK 11
 This version drops support for JDK 8, 9, and 10.
 If you have a higher JDK already installed, no steps are required.
