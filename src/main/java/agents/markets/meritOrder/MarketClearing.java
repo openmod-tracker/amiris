@@ -34,7 +34,7 @@ public class MarketClearing {
 		ValueOfLostLoad,
 		/** The last available supply bid determines the market clearing price */
 		LastSupplyPrice
-	};
+	}
 
 	/** Input parameters of {@link MarketClearing} */
 	public static final Tree parameters = Make.newTree().add(Make.newEnum("DistributionMethod", DistributionMethod.class),
@@ -102,7 +102,8 @@ public class MarketClearing {
 		}
 	}
 
-	/** Clears the market and returns the ClearingDetails based on the specified OrderBooks for supply and demand. Use for
+	/** Clears the market and returns the ClearingDetails based on the specified OrderBooks for supply and demand; both OrderBooks
+	 * are sorted in the process.
 	 * 
 	 * @param supplyBook book of all supply bids
 	 * @param demandBook book of all demand bids
@@ -111,7 +112,9 @@ public class MarketClearing {
 	 * @throws MeritOrderClearingException if the market clearing failed */
 	static ClearingDetails internalClearing(SupplyOrderBook supplyBook, DemandOrderBook demandBook)
 			throws MeritOrderClearingException {
-		if (supplyBook.hasNoValidBids() || demandBook.hasNoValidBids()) {
+		supplyBook.sort();
+		demandBook.sort();
+		if (!supplyBook.hasValidBids() || !demandBook.hasValidBids()) {
 			return EMPTY_MARKET_RESULT;
 		}
 		return MeritOrderKernel.clearMarketSimple(supplyBook, demandBook);
