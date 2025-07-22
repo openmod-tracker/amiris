@@ -10,6 +10,9 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - **Breaking**: Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
 - Update formatting of templates #179 (@dlr-cjs)
 
+### Added
+- Move wiki content to docs folder #184 (dlr-cjs, dlr_fn)
+
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
 ### Changed
 - Rename `forecast.ForecastClient` to `DamForecastClient` #121 (@dlr-cjs)
