@@ -1,13 +1,13 @@
 # 42 words
 
-A type of [MarketForecaster](./MarketForecaster) and [SensitivityForecastProvider](../Abilities/SensitivityForecastProvider) for the day-ahead electricity market.
+A type of [MarketForecaster](./MarketForecaster.md) and [SensitivityForecastProvider](../Abilities/SensitivityForecastProvider.md) for the day-ahead electricity market.
 It provides electricity price forecasts to connected agents.
 These price forecasts are compiled by external models considered as "extensions" to AMIRIS namely [AMIRIS-PriceForecast](https://gitlab.com/dlr-ve/esy/amiris/extensions/priceforecast).
 To reduce the frequency of API calls, `PriceForecasterApi` may request additional time steps of forecasts from the API that extend beyond the specified forecast period.
 
 # Details
 
-Communication between Java and Python modules is facilitated through the use of the [UrlModelService](../Util/UrlModelService).
+Communication between Java and Python modules is facilitated through the use of the [UrlModelService](../Util/UrlModelService.md).
 
 ## Available Forecasting Models
 
@@ -34,12 +34,12 @@ Again, this is only useful for ML-based predictors, and should __not be used for
 
 ## Forecasting Types
 
-`PriceForecasterApi` can provide `MeritOrderForecasts` (inherited from [MarketForecaster](./MarketForecaster)), `PriceForecasts`, and `SensitivityForecasts`.
+`PriceForecasterApi` can provide `MeritOrderForecasts` (inherited from [MarketForecaster](./MarketForecaster.md)), `PriceForecasts`, and `SensitivityForecasts`.
 For sake of clarity, it is recommended to **not use it for `MeritOrderForecasts`** - instead, add a `MarketForecaster`.
 
 `PriceForecasts` and `SensitivityForecasts` are both based on the external prediction service.
 It is not possible to obtain `PriceForecasts` that are created from the pre-timed market clearing mechanism employed by `MarketForecaster`.
-For `SensitivityForecasts`, only the subtype `CostInsensitive` is available, thus, ensure to have a compatible [AssessmentFunction](../Modules/AssessmentFunction) selected.
+For `SensitivityForecasts`, only the subtype `CostInsensitive` is available, thus, ensure to have a compatible [AssessmentFunction](../Modules/AssessmentFunction.md) selected.
 
 # Dependencies
 
@@ -53,13 +53,13 @@ An externally running `amiris-priceforecaster` service endpoint.
 * `ForecastErrorToleranceInEURperMWH`: optional (default=-1); maximum tolerance for deviations between forecasted and realized electricity prices. If tolerance is exceeded, a new prediction is obtained from the remote model. Thus, small tolerances may result in many API calls. If set to negative values, no error checks are performed.
 * `ResidualLoadInMWh`: optional; Load time series derived from total electricity demand minus all renewable energy supply
 
-see also [MarketForecaster](./MarketForecaster)
+see also [MarketForecaster](./MarketForecaster.md)
 
 # Input from environment
 
 * `PriceForecastRequest` from FlexibilityTraders
 
-see also [MarketForecaster](./MarketForecaster)
+see also [MarketForecaster](./MarketForecaster.md)
 
 # Simulation outputs
 
@@ -71,35 +71,35 @@ see also [MarketForecaster](./MarketForecaster)
 * `SensitivityForecastClient`: receive `SensitivityRequest`s
 * `SensitivityForecastClient`: send `SensitivityForecast`s of type `CostInsensitive`
 
-`PriceForecasterApi` can tolerate all messages from [SensitivityForecastClients](../Abilities/SensitivityForecastClient), although the `ForecastRegistration` and `NetAward` messages are not required.
-This allows easy switching between `PriceForecasterApi` and [SensitivityForecaster](./SensitivityForecaster), without the need to change contracts.
+`PriceForecasterApi` can tolerate all messages from [SensitivityForecastClients](../Abilities/SensitivityForecastClient.md), although the `ForecastRegistration` and `NetAward` messages are not required.
+This allows easy switching between `PriceForecasterApi` and [SensitivityForecaster](./SensitivityForecaster.md), without the need to change contracts.
 
-see also [MarketForecaster](./MarketForecaster)
+see also [MarketForecaster](./MarketForecaster.md)
 
 # Available Products
 
-see [MarketForecaster](./MarketForecaster) and [SensitivityForecastProvider](../Abilities/SensitivityForecastProvider)
+see [MarketForecaster](./MarketForecaster.md) and [SensitivityForecastProvider](../Abilities/SensitivityForecastProvider.md)
 
 # Submodules
 
-* [ForecastApiRequest](../Modules/ForecastApiRequest): Requests sent to the external `amiris-priceforecaster` prediction model
-* [ForecastApiResponse](../Modules/ForecastApiResponse): Responses received from the external `amiris-priceforecaster` prediction model
-* [CostInsensitive](../Modules/CostInsensitive)
+* [ForecastApiRequest](../Modules/ForecastApiRequest.md): Requests sent to the external `amiris-priceforecaster` prediction model
+* [ForecastApiResponse](../Modules/ForecastApiResponse.md): Responses received from the external `amiris-priceforecaster` prediction model
+* [CostInsensitive](../Modules/CostInsensitive.md)
 
 # Messages
 
-* [AmountAtTime](../Comms/AmountAtTime) as PriceForecast
-* [Sensitivity](../Comms/Sensitivity) as SensitivityForecast
+* [AmountAtTime](../Comms/AmountAtTime.md) as PriceForecast
+* [Sensitivity](../Comms/Sensitivity.md) as SensitivityForecast
 
 # See also
 
-* [MarketForecaster](./MarketForecaster)
-* [SensitivityForecastProvider](../Abilities/SensitivityForecastProvider)
-* [SensitivityForecastClient](../Abilities/SensitivityForecastClient)
-* [PriceForecaster](./PriceForecaster)
-* [FlexibilityTrader](./FlexibilityTrader)
-* [ForecastApiRequest](../Modules/ForecastApiRequest)
-* [ForecastApiResponse](../Modules/ForecastApiResponse)
-* [CostInsensitive](../Modules/CostInsensitive)
-* [AssessmentFunction](../Modules/AssessmentFunction)
-* [SensitivityForecaster](./SensitivityForecaster)
+* [MarketForecaster](./MarketForecaster.md)
+* [SensitivityForecastProvider](../Abilities/SensitivityForecastProvider.md)
+* [SensitivityForecastClient](../Abilities/SensitivityForecastClient.md)
+* [PriceForecaster](./PriceForecaster.md)
+* [FlexibilityTrader](./FlexibilityTrader.md)
+* [ForecastApiRequest](../Modules/ForecastApiRequest.md)
+* [ForecastApiResponse](../Modules/ForecastApiResponse.md)
+* [CostInsensitive](../Modules/CostInsensitive.md)
+* [AssessmentFunction](../Modules/AssessmentFunction.md)
+* [SensitivityForecaster](./SensitivityForecaster.md)
