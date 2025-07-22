@@ -1,0 +1,33 @@
+Messages between agents
+
+* DataItem
+  * [AmountAtTime](./Comms/AmountAtTime)
+  * [AwardData](./Comms/AwardData)
+  * [ClearingTimes](./Comms/ClearingTimes)
+  * [Co2Cost](./Comms/Co2Cost)
+  * [ForecastClientRegistration](./Comms/ForecastClientRegistration)
+  * [FuelCost](./Comms/FuelCost)
+  * [FuelData](./Comms/FuelData)
+  * [HydrogenPolicyRegistration](./Comms/HydrogenPolicyRegistration)
+  * [PointInTime](./Comms/PointInTime)
+  * [PpaInformation](./Comms/PpaInformation)
+  * [SupportRequestData](./Comms/SupportRequestData)
+  * [SupportDataResponse](./Comms/SupportResponseData)
+  * [TechnologySet](./Comms/TechnologySet)
+  * [YieldPotential](./Comms/YieldPotential)
+* Portable
+  * [BidsAtTime](./Comms/BidsAtTime)
+  * [CouplingData](./Comms/CouplingData)
+  * [HydrogenSupportData](./Comms/HydrogenSupportData)
+  * [MarginalsAtTime](./Comms/MarginalsAtTime)
+  * [MeritOrderMessage](./Comms/MeritOrderMessage)
+  * [Sensitivity](./Comms/Sensitivity)
+  * [SupportData](./Comms/SupportData)
+  * [TransmissionBook](./Comms/TransmissionBook)
+  * [PredictionRequest](./Comms/PredictionRequest)
+  * [PredictionResponse](./Comms/PredictionResponse)
+  * [InputVariable](./Comms/InputVariable)
+* JSONable
+  * [InputVariable](./Comms/InputVariable)
+  * [PredictionRequest](./Comms/PredictionRequest)
+  * [PredictionResponse](./Comms/PredictionResponse)
