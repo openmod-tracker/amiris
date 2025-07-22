@@ -30,15 +30,15 @@ These tools are recommended when working with AMIRIS:
 
 After you have met the technical requirements as described above, choose one of the two options to run AMIRIS using AMIRIS-Py:
 
-- **Beginner**: In case you are new to Python, follow the [Step-by-Step Guide](./Get-Started/StepByStep).
-- **Experienced Python user**: We suggest to use the [Quickstart Guide](./Get-Started/QuickStart) to get your first simulation result in less than 5 minutes using `amirispy`.
+- **Beginner**: In case you are new to Python, follow the [Step-by-Step Guide](./Get-Started/StepByStep.md).
+- **Experienced Python user**: We suggest to use the [Quickstart Guide](./Get-Started/QuickStart.md) to get your first simulation result in less than 5 minutes using `amirispy`.
 
-You could run AMIRIS also without AMIRIS-Py by using [FAME-Io](Get-Started/FameioSetup) directly.
+You could run AMIRIS also without AMIRIS-Py by using [FAME-Io](Get-Started/FameioSetup.md) directly.
 This is a slightly less convenient way, but might be necessary when you modify and build AMIRIS (see [below](#build-amiris)).
 
 # Results
 
-Congratulations, you successfully ran your first simulation with AMIRIS! Check the [Result Page](./Get-Started/Results) to learn more about the results you just generated.
+Congratulations, you successfully ran your first simulation with AMIRIS! Check the [Result Page](./Get-Started/Results.md) to learn more about the results you just generated.
 
 # Run your first real-world simulation
 
@@ -64,7 +64,7 @@ Please also refer to the [FAME-Wiki](https://gitlab.com/fame-framework/wiki/-/wi
 
 So far you only ran the AMIRIS model as it is provided.
 If you were to modify code and change agent logic of AMIRIS, you would also need to package the application.
-See the [AMIRIS Build Guide](./Get-Started/Build) for instructions.
+See the [AMIRIS Build Guide](./Get-Started/Build.md) for instructions.
 
 # Multi-Core Mode
 
