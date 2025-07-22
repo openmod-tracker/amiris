@@ -5,8 +5,8 @@ Step-by-step guide on how to set up AMIRIS with Eclipse
 Eclipse is a free and powerful IDE for Java development, thus use it in this tutorial.
 
 1. Open [Eclipse](https://www.eclipse.org/downloads) download page
-2. Select your OS and architecture (e.g. Windows and x64) and download <details><summary>Show Screenshots</summary>![](uploads/screenshots/Eclipse_Install_1.png) ![](uploads/screenshots/Eclipse_Install_2.png)</details>
-3. Start the setup and choose "for Java developers" <details><summary>Show Screenshots</summary>![](uploads/screenshots/Eclipse_Install_3.png)</details>
+2. Select your OS and architecture (e.g. Windows and x64) and download <details><summary>Show Screenshots</summary>![](../uploads/screenshots/Eclipse_Install_1.png) ![](../uploads/screenshots/Eclipse_Install_2.png)</details>
+3. Start the setup and choose "for Java developers" <details><summary>Show Screenshots</summary>![](../uploads/screenshots/Eclipse_Install_3.png)</details>
 
 You are now ready for Java development!
 
