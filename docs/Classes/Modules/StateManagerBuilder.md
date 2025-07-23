@@ -1,0 +1,19 @@
+# In short
+
+Builds [StateManager](./StateManager) from given input parameters
+
+# Input from file
+
+* `Type`: enum, name of the assessment function that is to be instantiated
+* `PlanningHorizonInHours`: double value, time length of the foresight horizon used when optimising the dispatch
+* `EnergyResolutionInMWH`: double value, granularity of the energy discretisation, smaller values lead to more precise results but quadratically increasing calculation effort
+* `WaterValues`: optional list of groups to specify water values for the optimisation at the end of the foresight horizon, see [WaterValues](./WaterValues)
+
+# Available Types
+
+* `STATE_OF_CHARGE`: Energy states of a device are represented in one dimension, see [EnergyStateManager](./EnergyStateManager)
+
+# See also
+
+* [StateManager](./StateManager)
+* [WaterValues](./WaterValues)
