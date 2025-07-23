@@ -3,6 +3,16 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
+## [4.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.0.0) - tba
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
+
+### Changed
+- **Breaking**: Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
+- Update formatting of templates #179 (@dlr-cjs)
+
+### Added
+- Move wiki content to docs folder #184 (dlr-cjs, dlr_fn)
+
 ## [3.6.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.1) - 2025-07-23
 ### Fixed
 - Fix crash on minor numerical deviations of `PowerPlant` load levels #183 (@dlr-cjs)
