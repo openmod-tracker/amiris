@@ -9,7 +9,7 @@ Covered parameters are:
 - cycling costs in Euro per MW,
 - specific CO2-emissions for consumed thermal energy in tons per thermal MW,
 - fuel type (e.g. hardcoal, lignite),
-- planned and unplanned availability,
+- capacity outages
 - variable costs in Euro per MWh, and
 - must-run capacities
 
@@ -23,6 +23,5 @@ Required inputs are:
 * `OpexVarInEURperMWH` The variable cost of the respective power plant technology.
 * `CyclingCostInEURperMW` Additional cycling costs for conventional power plants in Euro per Megawatt, i.e. costs due to plant start up
 * `SpecificCo2EmissionsInTperMWH` specific CO2-emissions in tons per thermal MWh
-* `PlannedAvailability` The planned availability of the respective power plant technology, e.g. scheduled downtime of plants.
-* `UnplannedAvailabilityFactor` The unplanned availability of the respective power plant technology, due to, e.g., technological problems
-* `MustRunFactor` share of the total installed capacity that must run at a given time due to, e.g., heat contracts, or reserve power obligations; the must-run factor will be capped at the product of planned and unplanned availability factors.
+* `OutageFactor` The share of installed capacity that is not available for electricity production at a given time.
+* `MustRunFactor` share of the total installed capacity that must run at a given time due to, e.g., heat contracts, or reserve power obligations; the must-run factor will be capped at the maximum available capacity after deducting the outage factor.
