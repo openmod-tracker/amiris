@@ -13,8 +13,8 @@ import agents.markets.meritOrder.Constants;
  * @author Martin Klein, Christoph Schimeczek, A. Achraf El Ghazi */
 public class DemandOrderBook extends OrderBook implements Cloneable {
 	@Override
-	protected Bid getLastBid() {
-		return new Bid(0, -Double.MAX_VALUE, 0);
+	protected double getLastBidValue() {
+		return -Double.MAX_VALUE;
 	}
 
 	/** sorts in descending order */

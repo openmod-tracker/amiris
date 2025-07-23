@@ -13,6 +13,12 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Added
 - Move wiki content to docs folder #184 (dlr-cjs, dlr_fn)
 
+## [3.6.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.1) - 2025-07-23
+### Fixed
+- Fix crash on minor numerical deviations of `PowerPlant` load levels #183 (@dlr-cjs)
+- Fix NullPointerException for unregistered clients at `SensitivityForecaster` #181 (@dlr-cjs)
+- Fix missing side effect in `MarketClearing` if `SupplyBook` is empty #182 (@jgower11, dlr-cjs)
+
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
 ### Changed
 - Rename `forecast.ForecastClient` to `DamForecastClient` #121 (@dlr-cjs)
