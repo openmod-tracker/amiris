@@ -1,7 +1,7 @@
 # AMIRIS Step-By-Step Guide
 
 AMIRIS is a *JAVA* application configured via *Python* scripts.
-To run AMIRIS, **Python** and a **Java Development Kit** are required, check required version [here](../Get-Started.md#Requirements).
+To run AMIRIS, **Python** and a **Java Development Kit** are required, check required version [here](../Get-Started.md#requirements).
 
 ## Requirements
 
@@ -9,14 +9,14 @@ To run AMIRIS, **Python** and a **Java Development Kit** are required, check req
 
 Check if your system has Java already installed by using the command `java --version` (or `java -version` on some systems).   
 This should show your Java version if Java was found.
-If you get a "command not found" error, or if your Java version is less than the one specified in the [Requirements](../Get-Started.md#Requirements), please download and install a recent JDK from e.g. [here](https://adoptium.net/).
+If you get a "command not found" error, or if your Java version is less than the one specified in the [Requirements](../Get-Started.md#requirements), please download and install a recent JDK from e.g. [here](https://adoptium.net/).
 
 ### Python
 
 You will need a Python-enabled shell with pip.
 You can test if you have Python available by using the command `python --version`.
 This should show your Python version if the Python command was found.
-Make sure the version of your Python is covered by the AMIRIS [Requirements](../Get-Started.md#Requirements).
+Make sure the version of your Python is covered by the AMIRIS [Requirements](../Get-Started.md#requirements).
 Note that if you use a Python environment manager you can have several Python versions on your system side by side.
 If you do not have a Python environment manager installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html), or [mamba](https://github.com/conda-forge/miniforge#mambaforge), or [Poetry](https://python-poetry.org/).
 

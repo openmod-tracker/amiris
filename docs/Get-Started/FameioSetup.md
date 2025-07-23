@@ -15,10 +15,10 @@ You can safely use both methods of running AMIRIS from within the same Python en
 
 ... since AMIRIS is a *JAVA* application configured via *Python* scripts, you need to set up a Python environment and make sure to have Java available.
 To run AMIRIS, **Python** and a **Java Development Kit** are required.
-Check the required version [here](../Get-Started.md#Requirements).
-For a detailed guide on how to install both, see the AMIRIS-Py [Step-by-Step Guide](./StepByStep.md#Requirements).
+Check the required version [here](../Get-Started.md#requirements).
+For a detailed guide on how to install both, see the AMIRIS-Py [Step-by-Step Guide](./StepByStep.md#requirements).
 Similar to when working with AMIRIS-Py, you will need a Python-enabled shell.
-Follow the instructions in the AMIRIS-Py [Step-by-Step Guide](./StepByStep.md#Environment) for more details.
+Follow the instructions in the AMIRIS-Py [Step-by-Step Guide](./StepByStep.md#environment) for more details.
 
 ### Install FAME-Io
 

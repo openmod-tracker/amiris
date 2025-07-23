@@ -30,10 +30,10 @@ Class structure of the dynamic programming implementation used by `GenericFlexib
 
 `GenericFlexibilityTrader` joins individual input groups of its submodules:
 
-* `Device`: see [GenericDevice](../Modules/GenericDevice.md#Input-from-file)
-* `Assessment`: see [AssessmentFunction](../Modules/AssessmentFunctionBuilder.md#Input-from-file)
-* `StateDiscretisation`: see [StateManager](../Modules/StateManagerBuilder.md#Input-from-file)
-* `Bidding`: see [BidScheduler](../Modules/BidSchedulerBuilder.md#Input-from-file)
+* `Device`: see [GenericDevice](../Modules/GenericDevice.md#input-from-file)
+* `Assessment`: see [AssessmentFunction](../Modules/AssessmentFunctionBuilder.md#input-from-file)
+* `StateDiscretisation`: see [StateManager](../Modules/StateManagerBuilder.md#input-from-file)
+* `Bidding`: see [BidScheduler](../Modules/BidSchedulerBuilder.md#input-from-file)
 
 # Simulation outputs
 
@@ -58,7 +58,7 @@ See [Trader](./Trader.md) and [ForecastClient](../Abilities/DamForecastClient.md
 
 # Submodules
 
-See [Dependencies](#Dependencies)
+See [Dependencies](#dependencies)
 
 # Messages
 
