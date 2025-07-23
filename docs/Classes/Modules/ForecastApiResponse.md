@@ -4,7 +4,7 @@
 
 # Details
 
-The [PriceForecasterApi](../Agents/PriceForecasterApi) receives a `ForecastApiResponse` including
+The [PriceForecasterApi](../Agents/PriceForecasterApi.md) receives a `ForecastApiResponse` including
 
 * `forecastMeans`: mean values of the forecast target
 * `forecastVariances`: variances of the forecast target

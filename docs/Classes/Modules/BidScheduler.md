@@ -1,6 +1,6 @@
 # In short
 
-`BidSchedulers` is an interface that creates [BidSchedules](./BidSchedule) from a given dispatch schedule.
+`BidSchedulers` is an interface that creates [BidSchedules](./BidSchedule.md) from a given dispatch schedule.
 
 ## Details
 
@@ -11,14 +11,14 @@ Based on a given starting time and a planned dispatch, `BidSchedulers` create th
 
 # Input from file
 
-See [BidSchedulerBuilder](./BidSchedulerBuilder)
+See [BidSchedulerBuilder](./BidSchedulerBuilder.md)
 
 # Child classes
 
-* [EnsureDispatch](./EnsureDispatch)
-* [StorageContentValue](./StorageContentValue)
+* [EnsureDispatch](./EnsureDispatch.md)
+* [StorageContentValue](./StorageContentValue.md)
 
 # See also
 
-* [GenericFlexibilityTrader](../Agents/GenericFlexibilityTrader)
-* [BidSchedule](./BidSchedule)
+* [GenericFlexibilityTrader](../Agents/GenericFlexibilityTrader.md)
+* [BidSchedule](./BidSchedule.md)

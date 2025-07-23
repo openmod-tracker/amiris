@@ -8,7 +8,7 @@ Water values are used to consider the long-term value of stored energy beyond th
 * `StoredEnergyInMWH`: mandatory float, the absolute state of charge of the flexibility device in MWh which the associated water value timeseries applies to
 * `WaterValueInEUR`: mandatory timeseries, the absolute value in EUR of the associated absolute state of charge of the flexibility device over time
 
-The parameters are part of a list group in [StateManagerBuilder](./StateManagerBuilder): Multiple pairs of `StoredEnergyInMWH` and `WaterValueInEUR` can be provided.
+The parameters are part of a list group in [StateManagerBuilder](./StateManagerBuilder.md): Multiple pairs of `StoredEnergyInMWH` and `WaterValueInEUR` can be provided.
 
 # Details
 
@@ -54,4 +54,4 @@ Values between the provided data points are interpolated (black dashed line) and
 
 # See also
 
-* [EnergyStateManager](./EnergyStateManager)
+* [EnergyStateManager](./EnergyStateManager.md)

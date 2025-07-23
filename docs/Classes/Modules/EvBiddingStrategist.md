@@ -1,6 +1,6 @@
 # In Short
 
-`EvBiddingStrategist` is a machine learning (ML) based strategist used by [EvTraderExternal](../Agents/EvTraderExternal).  
+`EvBiddingStrategist` is a machine learning (ML) based strategist used by [EvTraderExternal](../Agents/EvTraderExternal.md).  
 It predicts optimized aggregated net load for electric vehicles using an external ML model.
 The predicted load can be used to create market bids.
 
@@ -14,14 +14,14 @@ The predicted load can be used to create market bids.
     - Electricity consumption
     - Past load behavior
 - Generate a prediction request for a remote ML prediction service using these input variables
-- Return the net load prediction to the trader class, i.e. [EvTraderExternal](../Agents/EvTraderExternal).
+- Return the net load prediction to the trader class, i.e. [EvTraderExternal](../Agents/EvTraderExternal.md).
 
 # Dependencies
 
-* [UrlModelService](../Util/UrlModelService)
-* [SeriesManipulation](../Util/SeriesManipulation)
-* [PredictionRequest](../Comms/PredictionRequest)
-* [PredictionResponse](../Comms/PredictionResponse)
+* [UrlModelService](../Util/UrlModelService.md)
+* [SeriesManipulation](../Util/SeriesManipulation.md)
+* [PredictionRequest](../Comms/PredictionRequest.md)
+* [PredictionResponse](../Comms/PredictionResponse.md)
 
 # Input from file
 
@@ -46,9 +46,9 @@ The predicted load can be used to create market bids.
 
 # Messages with ML service
 
-* [PredictionRequest](../Comms/PredictionRequest): Sent to external ML service
-* [PredictionResponse](../Comms/PredictionResponse): Received from ML service
+* [PredictionRequest](../Comms/PredictionRequest.md): Sent to external ML service
+* [PredictionResponse](../Comms/PredictionResponse.md): Received from ML service
 
 # See also
 
-* [EvTraderExternal](../Agents/EvTraderExternal)
+* [EvTraderExternal](../Agents/EvTraderExternal.md)

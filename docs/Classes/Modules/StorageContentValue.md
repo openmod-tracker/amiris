@@ -26,9 +26,9 @@ For each transition, we estimate the opportunity costs as follows:
 * for bids: Assuming the transition *does not* happen, what storage content value will be lost?
 * for asks: Assuming the transition *does* happen, what storage content value will be lost?
 
-Compared to the [EnsureDispatch](./EnsureDispatch) bidding strategy, `StorageContentValue` has a higher risk of unfulfilled offers at the market, but also reduces the bidding risks in case forecasts have errors.
+Compared to the [EnsureDispatch](./EnsureDispatch.md) bidding strategy, `StorageContentValue` has a higher risk of unfulfilled offers at the market, but also reduces the bidding risks in case forecasts have errors.
 
 # See also
 
-* [BidScheduler](./BidScheduler)
-* [EnsureDispatch](./EnsureDispatch)
+* [BidScheduler](./BidScheduler.md)
+* [EnsureDispatch](./EnsureDispatch.md)

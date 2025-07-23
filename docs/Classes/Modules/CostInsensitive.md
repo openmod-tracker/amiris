@@ -1,6 +1,6 @@
 # In short
 
-`CostInsensitive` is an implementation of [MarketClearingAssessment](./MarketClearingAssessment).
+`CostInsensitive` is an implementation of [MarketClearingAssessment](./MarketClearingAssessment.md).
 It assesses costs / revenues associated with added demand / supply.
 
 # Details
@@ -11,4 +11,4 @@ It assesses costs / revenues associated with added demand / supply.
 
 # See also
 
-* [MarketClearingAssessment](./MarketClearingAssessment)
+* [MarketClearingAssessment](./MarketClearingAssessment.md)

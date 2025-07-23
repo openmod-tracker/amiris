@@ -1,13 +1,13 @@
 # In Short
 
-Creates [BidSchedules](./BidSchedule) for an associated [LoadShiftingPortfolio](./LoadShiftingPortfolio) and thereby maximising the profits optionally considering purchase taxes and levies in a highly simplified manner.
+Creates [BidSchedules](./BidSchedule.md) for an associated [LoadShiftingPortfolio](./LoadShiftingPortfolio.md) and thereby maximising the profits optionally considering purchase taxes and levies in a highly simplified manner.
 
 # Details
 
-ShiftProfitMaximiser is a [LoadShiftingStrategist](./LoadShiftingStrategist).
-It uses [MeritOrderSensitivity](./MeritOrderSensitivity) to find the optimal dispatch path that maximises the load shifting portfolio's profits.
+ShiftProfitMaximiser is a [LoadShiftingStrategist](./LoadShiftingStrategist.md).
+It uses [MeritOrderSensitivity](./MeritOrderSensitivity.md) to find the optimal dispatch path that maximises the load shifting portfolio's profits.
 Hereby, purchase taxes and levies are considered as a static adder that can be specified optionally.
-In case, end user tariffs should be studied in detail, the strategist [ShiftProfitMaximiserTariffs](./ShiftProfitMaximiserTariffs) should be used instead.
+In case, end user tariffs should be studied in detail, the strategist [ShiftProfitMaximiserTariffs](./ShiftProfitMaximiserTariffs.md) should be used instead.
 
 ## General strategy
 

@@ -1,6 +1,6 @@
 # In short
 
-`GenericDeviceCache` caches properties of a [GenericDevice](./GenericDevice) at a certain time.
+`GenericDeviceCache` caches properties of a [GenericDevice](./GenericDevice.md) at a certain time.
 It simulates transitions between two internal states of charge (SOC) and returns the corresponding external energy delta (including self discharge, inflows / outflows, and (dis-)charging efficiency).
 
 # Details
@@ -28,5 +28,5 @@ Once the concrete time to cache for is then set using `prepareFor()`, `GenericDe
 
 # See also
 
-* [EnergyStateManager](./EnergyStateManager)
-* [GenericDevice](./GenericDevice)
+* [EnergyStateManager](./EnergyStateManager.md)
+* [GenericDevice](./GenericDevice.md)

@@ -1,6 +1,6 @@
 # In short
 
-`SensitivityBasedAssessment` is an abstract type of [AssessmentFunction](./AssessmentFunction) that uses [Sensitivity](../Comms/Sensitivity) forecasts provided by a [SensitivityForecaster](../Agents/SensitivityForecaster) to assess state transitions within a dynamic programming scheduling algorithm applied for scheduling a [GenericDevice](./GenericDevice).
+`SensitivityBasedAssessment` is an abstract type of [AssessmentFunction](./AssessmentFunction.md) that uses [Sensitivity](../Comms/Sensitivity.md) forecasts provided by a [SensitivityForecaster](../Agents/SensitivityForecaster.md) to assess state transitions within a dynamic programming scheduling algorithm applied for scheduling a [GenericDevice](./GenericDevice.md).
 
 # Details
 
@@ -13,28 +13,28 @@ Depending on the child class, the assessment can consider the feedback of the tr
 Dispatch multipliers are taken from the latest `Sensitivity` update provided by the `SensitivityForecaster`.
 Thus, always the latest dispatch multiplier is used during assessment, even if previous `Sensitivity` messages contained a different dispatch multiplier.
 
-See also [AssessmentFunction](./AssessmentFunction)
+See also [AssessmentFunction](./AssessmentFunction.md)
 
 ## Operations
 
-see [AssessmentFunction](./AssessmentFunction)
+see [AssessmentFunction](./AssessmentFunction.md)
 
 # Input from file
 
-see [AssessmentFunction](./AssessmentFunction)
+see [AssessmentFunction](./AssessmentFunction.md)
 
 # Input from Environment
 
-* [Sensitivity](../Comms/Sensitivity) messages
+* [Sensitivity](../Comms/Sensitivity.md) messages
 
 # Child classes
 
-* [MaxProfitPriceTaker](./MaxProfitPriceTaker)
-* [MaxProfit](./MaxProfit)
-* [MinSystemCost](./MinSystemCost)
+* [MaxProfitPriceTaker](./MaxProfitPriceTaker.md)
+* [MaxProfit](./MaxProfit.md)
+* [MinSystemCost](./MinSystemCost.md)
 
 # See also
 
-* [AssessmentFunction](./AssessmentFunction)
-* [Sensitivity](../Comms/Sensitivity)
-* [SensitivityForecaster](../Agents/SensitivityForecaster)
+* [AssessmentFunction](./AssessmentFunction.md)
+* [Sensitivity](../Comms/Sensitivity.md)
+* [SensitivityForecaster](../Agents/SensitivityForecaster.md)

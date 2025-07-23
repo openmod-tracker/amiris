@@ -1,11 +1,11 @@
 # In short
 
-`MaxProfitPriceTaker` is a type of [AssessmentFunction](./AssessmentFunction) that assesses the value of state transitions using an electricity price forecast.
-It neglects any price impact (from own dispatch of considered [GenericDevice](./GenericDevice) or dispatch of other flexibility options).
+`MaxProfitPriceTaker` is a type of [AssessmentFunction](./AssessmentFunction.md) that assesses the value of state transitions using an electricity price forecast.
+It neglects any price impact (from own dispatch of considered [GenericDevice](./GenericDevice.md) or dispatch of other flexibility options).
 
 # Details
 
-`MaxProfitPriceTaker` operates on electricity price forecasts as provided by a [PriceForecaster](../Agents/PriceForecaster).
+`MaxProfitPriceTaker` operates on electricity price forecasts as provided by a [PriceForecaster](../Agents/PriceForecaster.md).
 
 ## Assumptions
 
@@ -16,21 +16,21 @@ If no price forecast is available to `MaxProfitPriceTaker`, it will assume an el
 ## Operation
 
 `MaxProfitPriceTaker` will assess and maximise profits from selling and buying electricity utilising the provided electricity price forecasts.
-See also [SensitivityBasedAssessment](./SensitivityBasedAssessment)
+See also [SensitivityBasedAssessment](./SensitivityBasedAssessment.md)
 
 # Input from file
 
-`MaxProfitPriceTaker` requires `Sensitivities` of type [CostInsensitive](./CostInsensitive).
+`MaxProfitPriceTaker` requires `Sensitivities` of type [CostInsensitive](./CostInsensitive.md).
 
-See [SensitivityBasedAssessment](./SensitivityBasedAssessment)
+See [SensitivityBasedAssessment](./SensitivityBasedAssessment.md)
 
 # Input from Environment
 
-See [SensitivityBasedAssessment](./SensitivityBasedAssessment)
+See [SensitivityBasedAssessment](./SensitivityBasedAssessment.md)
 
 # See also
 
-* [Sensitivity](../Comms/Sensitivity)
-* [CostInsensitive](./CostInsensitive)
-* [SensitivityBasedAssessment](./SensitivityBasedAssessment)
-* [SensitivityForecaster](../Agents/SensitivityForecaster)
+* [Sensitivity](../Comms/Sensitivity.md)
+* [CostInsensitive](./CostInsensitive.md)
+* [SensitivityBasedAssessment](./SensitivityBasedAssessment.md)
+* [SensitivityForecaster](../Agents/SensitivityForecaster.md)

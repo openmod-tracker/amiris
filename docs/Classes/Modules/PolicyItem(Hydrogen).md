@@ -1,7 +1,7 @@
 # In Short
 
 PolicyItem is an abstract base class for set-specific hydrogen support policy parametrization.
-This set-specific information is generated from [HydrogenSupportPolicy](../Agents/HydrogenSupportPolicy) configuration.
+This set-specific information is generated from [HydrogenSupportPolicy](../Agents/HydrogenSupportPolicy.md) configuration.
 
 # Details
 
@@ -9,9 +9,9 @@ PolicyItem can initialize any kind of support policy info and add the respective
 
 # Subclasses
 
-* [MpFix](./Mpfix(Hydrogen))
+* [MpFix](./Mpfix(Hydrogen).md)
 
 # See also
 
-[HydrogenSupportPolicy](../Agents/HydrogenSupportPolicy)
-[HydrogenSupportProvider](../Abilities/HydrogenSupportProvider)
+[HydrogenSupportPolicy](../Agents/HydrogenSupportPolicy.md)
+[HydrogenSupportProvider](../Abilities/HydrogenSupportProvider.md)

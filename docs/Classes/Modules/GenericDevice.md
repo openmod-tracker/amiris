@@ -58,4 +58,4 @@ In addition, a scalar double parameter exists:
 
 # See also
 
-* [GenericFlexibilityTrader](../Agents/GenericFlexibilityTrader)
+* [GenericFlexibilityTrader](../Agents/GenericFlexibilityTrader.md)

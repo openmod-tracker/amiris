@@ -1,19 +1,19 @@
 # In Short
 
-Creates [BidSchedules](./BidSchedule) for an associated [LoadShiftingPortfolio](./LoadShiftingPortfolio) and minimising the total power payment obligations of the consumers, thus also accounting for their tariff structure.
+Creates [BidSchedules](./BidSchedule.md) for an associated [LoadShiftingPortfolio](./LoadShiftingPortfolio.md) and minimising the total power payment obligations of the consumers, thus also accounting for their tariff structure.
 
 # Details
 
-ShiftConsumerCostMinimiserExternal is a [LoadShiftingStrategist](./LoadShiftingStrategist).
-It uses "merit order sensitivities" of type [PriceNoSensitivity](./PriceNoSensitivity) to find the optimal dispatch path that maximises the load shifting portfolio's profits.
+ShiftConsumerCostMinimiserExternal is a [LoadShiftingStrategist](./LoadShiftingStrategist.md).
+It uses "merit order sensitivities" of type [PriceNoSensitivity](./PriceNoSensitivity.md) to find the optimal dispatch path that maximises the load shifting portfolio's profits.
 Hereby, end user tariff components are considered and included in the dispatch optimization.
 The price components included may be static or dynamic placing different incentives.
-The ShiftProfitMaximiserTariffs uses price information from an [EndUserTariff](./EndUserTariff) for the dispatch optimization.
+The ShiftProfitMaximiserTariffs uses price information from an [EndUserTariff](./EndUserTariff.md) for the dispatch optimization.
 The underlying portfolio is assumed to be homogeneous in terms of pricing.
 
 ## General strategy
 
-The dispatch strategy is decided by calling an external optimisation model making use of the [UrlModelService](../Util/UrlModelService).
+The dispatch strategy is decided by calling an external optimisation model making use of the [UrlModelService](../Util/UrlModelService.md).
 The model formulation itself relates to modelling a storage with additional inter-temporal constraints (i.e. balancing requirements).
 The full formulation is laid down in Kochems (2024), pp. 101-105 and 135-136 and based on Gils (2015), pp. 67-70.
 In order to account for own price repercussion, a time series containing sensitivity values, i.e. expected price change rates due to flexible load reactions, can be used in the optimization model.

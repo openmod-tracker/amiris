@@ -4,7 +4,7 @@
 
 # Details
 
-The [PriceForecasterApi](../Agents/PriceForecasterApi) sends a `ForecastApiRequest` including
+The [PriceForecasterApi](../Agents/PriceForecasterApi.md) sends a `ForecastApiRequest` including
 
 * `forecastStartTime`: start time of forecast
 * `forecastWindow`: window of forecast

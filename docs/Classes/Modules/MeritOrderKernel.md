@@ -1,7 +1,10 @@
 # Short Description
-Performs merit-order market clearing based on given [SupplyOrderBook](./SupplyOrderBook) and [DemandOrderBook](./DemandOrderBook). Those should contain all Bids and Asks for the same time period in question. 
+
+Performs merit-order market clearing based on given [SupplyOrderBook](./SupplyOrderBook.md) and [DemandOrderBook](./DemandOrderBook.md).
+Those should contain all Bids and Asks for the same time period in question.
 
 # Details
+
 The function takes two sorted OrderBooks for demand (descending by offerPrice) and supply (ascending by offerPrice).
 The OrderBooks are also sorted ascending by cumulatedPower.
 It is assumed that the price of the first element from demand exceeds that of the first supply element.
@@ -15,6 +18,6 @@ If no cut is found, the next element from demand and/or supply is selected, whic
 Then the cut condition is evaluated again.
 
 # See also
-* [MarketClearingResult](./MarketClearingResult)
-* [DemandOrderBook](./DemandOrderBook) 
-* [SupplyOrderBook](./SupplyOrderBook)
+* [MarketClearingResult](./MarketClearingResult.md)
+* [DemandOrderBook](./DemandOrderBook.md) 
+* [SupplyOrderBook](./SupplyOrderBook.md)

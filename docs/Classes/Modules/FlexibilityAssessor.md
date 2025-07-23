@@ -1,6 +1,6 @@
 # In short
 
-`FlexibilityAssessor` is a module of the [SensitivityForecaster](../Agents/SensitivityForecaster).
+`FlexibilityAssessor` is a module of the [SensitivityForecaster](../Agents/SensitivityForecaster.md).
 It assesses the dispatch of competing flexibility options over the course of a simulation and investigates how synchronised their dispatch is.
 Based on this individual "dispatch multipliers" are calculated that help the flexibility options to estimate their joint impact on the electricity prices.
 
@@ -74,4 +74,4 @@ The outcome of this combination, which effectively forms a weighted average, dep
 
 # See also
 
-* [SensitivityForecaster](../Agents/SensitivityForecaster)
+* [SensitivityForecaster](../Agents/SensitivityForecaster.md)

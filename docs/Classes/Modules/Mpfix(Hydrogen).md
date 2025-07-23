@@ -1,6 +1,6 @@
 # In Short
 
-`Mpfix` is a type of hydrogen [PolicyItem](./PolicyItem(Hydrogen)) holding all the set-specific information for a `MPFIX` scheme, i.e. a fixed market premium.
+`Mpfix` is a type of hydrogen [PolicyItem](./PolicyItem(Hydrogen).md) holding all the set-specific information for a `MPFIX` scheme, i.e. a fixed market premium.
 Support payments equal the amount of hydrogen generation eligible for support multiplied with the fixed market premium.
 
 # Details
@@ -11,4 +11,4 @@ Included parameters are
 
 # See also
 
-[PolicyItem](./PolicyItem(Hydrogen))
+[PolicyItem](./PolicyItem(Hydrogen).md)

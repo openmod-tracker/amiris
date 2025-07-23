@@ -1,6 +1,6 @@
 # In short
 
-Builds [BidScheduler](./BidScheduler) from given input parameters
+Builds [BidScheduler](./BidScheduler.md) from given input parameters
 
 # Input from file
 
@@ -9,9 +9,9 @@ Builds [BidScheduler](./BidScheduler) from given input parameters
 
 # Available Types
 
-* `ENSURE_DISPATCH`: Ensure planned dispatch is fulfilled by bidding at technical price limits; high-risk strategy, requires high-precision forecasts [EnsureDispatch](./EnsureDispatch)
-* `STORAGE_CONTENT_VALUE`: Use the estimated value changes of storage content to calculate bidding price; medium-risk strategy, requires forecasts with reasonable precision [StorageContentValue](./StorageContentValue)
+* `ENSURE_DISPATCH`: Ensure planned dispatch is fulfilled by bidding at technical price limits; high-risk strategy, requires high-precision forecasts [EnsureDispatch](./EnsureDispatch.md)
+* `STORAGE_CONTENT_VALUE`: Use the estimated value changes of storage content to calculate bidding price; medium-risk strategy, requires forecasts with reasonable precision [StorageContentValue](./StorageContentValue.md)
 
 # See also
 
-* [BidScheduler](./BidScheduler)
+* [BidScheduler](./BidScheduler.md)

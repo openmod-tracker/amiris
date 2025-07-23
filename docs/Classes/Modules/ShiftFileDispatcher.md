@@ -1,6 +1,6 @@
 # In short
 
-Creates [BidSchedule](./BidSchedule) from file for a connected [LoadShiftingPortfolio](./LoadShiftingPortfolio).
+Creates [BidSchedule](./BidSchedule.md) from file for a connected [LoadShiftingPortfolio](./LoadShiftingPortfolio.md).
 
 # Details
 

@@ -1,12 +1,13 @@
 # In Short
 
-`Optimiser` in package `dynamicProgramming` finds the best dispatch strategy for a [GenericDevice](./GenericDevice) using dynamic programming. It maximises or minimises the value of a given [AssessmentFunction](./AssessmentFunction).
+`Optimiser` in package `dynamicProgramming` finds the best dispatch strategy for a [GenericDevice](./GenericDevice.md) using dynamic programming.
+It maximises or minimises the value of a given [AssessmentFunction](./AssessmentFunction.md).
 
 # Details
 
-The operational states are controlled by a [StateManager](./StateManager), which also assesses the value of transitions between states.
+The operational states are controlled by a [StateManager](./StateManager.md), which also assesses the value of transitions between states.
 After the optimisation is run, the best operation path can be obtained from the `StateManager`.
-This best dispatch schedule is then fed to [BidScheduler](./BidScheduler) to obtain an associated [BidSchedule](./BidSchedule).
+This best dispatch schedule is then fed to [BidScheduler](./BidScheduler.md) to obtain an associated [BidSchedule](./BidSchedule.md).
 
 ![Dynamic programming classes](../../uploads/DynamicProgramming_Classes.png)
 
@@ -26,5 +27,5 @@ The latter tells `Optimiser` whether to maximise or minimise the assessment valu
 
 # See also
 
-* [GenericDevice](./GenericDevice)
-* [StateManager](./StateManager)
+* [GenericDevice](./GenericDevice.md)
+* [StateManager](./StateManager.md)

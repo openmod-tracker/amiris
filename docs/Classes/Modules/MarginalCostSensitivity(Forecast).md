@@ -1,6 +1,6 @@
 # In short
 
-`MarginalCostSensitivity` is a [FullAssessor](FullAssessor).
+`MarginalCostSensitivity` is a [FullAssessor](FullAssessor.md).
 It assesses changes in marginal cost of electricity production associated with added demand / supply.
 
 # Details
@@ -10,4 +10,4 @@ Mark-ups or mark-downs of bids are _not_ considered, but the actual marginal cos
 
 # See also
 
-* [FullAssessor](FullAssessor)
+* [FullAssessor](FullAssessor.md)

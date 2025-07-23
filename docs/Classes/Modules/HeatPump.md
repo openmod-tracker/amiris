@@ -18,8 +18,8 @@ A dedicated ParameterTree is given that can be re-used in agents that feature he
   air/water heat pumps). Derived from manufacturer data. In the model, the current COP is interpolated based on the
   ambient temperature.
 * `heatPumpPenetration` Share of given heatDemandProfile that should be covered by heat pumps. Only used for strategist
-  types [StrategistInflexibleFile](./StrategistInflexibleFile(HeatPump))
-  and [StrategistMinCostFile](./StrategistMinCostFile(HeatPump)).
+  types [StrategistInflexibleFile](./StrategistInflexibleFile(HeatPump).md)
+  and [StrategistMinCostFile](./StrategistMinCostFile(HeatPump).md).
 * `installedUnits` Total number of installed heat pumps. Only used for strategist
-  types [StrategistInflexibleRC](./StrategistInflexibleRC(HeatPump))
-  and [StrategistMinCostRC](./StrategistMinCostRC(HeatPump)).
+  types [StrategistInflexibleRC](./StrategistInflexibleRC(HeatPump).md)
+  and [StrategistMinCostRC](./StrategistMinCostRC(HeatPump).md).

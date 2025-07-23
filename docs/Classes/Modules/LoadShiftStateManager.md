@@ -1,6 +1,6 @@
 # In Short
 
-Child classes of the [LoadShiftingStrategist](./LoadShiftingStrategist) that are based on dynamic programming use the LoadShiftStateManager to ensure meeting the time-, energy- and power-related constraints for load shifting.
+Child classes of the [LoadShiftingStrategist](./LoadShiftingStrategist.md) that are based on dynamic programming use the LoadShiftStateManager to ensure meeting the time-, energy- and power-related constraints for load shifting.
 
 # Details
 
@@ -19,7 +19,8 @@ The zero energy state is the one that corresponds to a real-world load shift ene
 ## Power constraints
 
 The transition from one energy-state to another is limited in such a way that the additional power shifted in upwards direction is smaller or equal to the allowed upshift at this particular simulation time step.
-The allowed upshift power in turn is retrieved by multiplying the PowerInMW value of a [LoadShiftingPortfolio](./LoadShiftingPortfolio) with the PowerUpAvailability time series value for this time step. Analogously, power downshifts are limited to be smaller or equal to the maximum allowed downshift for this time step.
+The allowed upshift power in turn is retrieved by multiplying the PowerInMW value of a [LoadShiftingPortfolio](./LoadShiftingPortfolio.md) with the PowerUpAvailability time series value for this time step.
+Analogously, power downshifts are limited to be smaller or equal to the maximum allowed downshift for this time step.
 
 ## Shift time constraints
 
@@ -36,12 +37,12 @@ It is assumed, that the portfolio is built from multiple independent units capab
 Thus, if the maximum shifting time has been reached, a load shift can be transferred from one part of the portfolio (currently experiencing a shifted load), to another part of the portfolio (currently not experiencing load shifting).
 This we call prolonging a shift beyond the maximum shifting time. 
 However, each unit of the load shifting portfolio is expected to only perform one type of load shift per time step (up or down).
-Thus, if X% of the portfolio are required to shift, e.g. down, to end their current load shifting, only 100 - X% of the portfolio are available for shifting up again at the same time.   
+Thus, if X% of the portfolio are required to shift, e.g. down, to end their current load shifting, only 100 - X% of the portfolio are available for shifting up again at the same time.
 This puts stricter constrains on the portfolio's available net shifting power.
-The implemented prolonging algorithm correctly considers different maximum up- and downshift power constraints. 
+The implemented prolonging algorithm correctly considers different maximum up- and downshift power constraints.
 
 Prolonged shifts effectively add twice the variable costs of the prolonged shift power (for compensating and re-establishing the shift within the portfolio).
-The [LoadShiftingStrategist](./LoadShiftingStrategist) considers these extra costs.
+The [LoadShiftingStrategist](./LoadShiftingStrategist.md) considers these extra costs.
 The originally shifted power can be reduced, increased or kept at the same level, provided enough down- and upshifting capacities exist.
 
 The following figure shows two examples for possible prolonging.

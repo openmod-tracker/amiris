@@ -1,6 +1,6 @@
 # In short
 
-`EnergyStateManager` covers states of a [GenericDevice](./GenericDevice) along one dimension, representing its internal energy content or state of charge (SOC).
+`EnergyStateManager` covers states of a [GenericDevice](./GenericDevice.md) along one dimension, representing its internal energy content or state of charge (SOC).
 
 # Details
 
@@ -9,7 +9,7 @@
 Properties of the connected `GenericDevice` are assumed to be constant during the time steps.
 Thus, the time discretisation of the TimeSeries properties of a `GenericDevice` should match (or be an integer multiple of) the time resolution of the dispatch optimisation.
 
-To consider the SOC value at the end of the foresight horizon, `EnergyStateManager` can be parametrised with [WaterValues](./WaterValues).
+To consider the SOC value at the end of the foresight horizon, `EnergyStateManager` can be parametrised with [WaterValues](./WaterValues.md).
 If no `WaterValues` are provided, the value of any SOC level will be assumed to be zero.
 
 ## Operations
@@ -26,14 +26,14 @@ This enables an efficient state representation, a full state list is not require
 Hence,
 
 * `useStateList()` will return `false`
-* `getInitialStates()` and `getFinalStates()` will return only the IDs of the first and last state to be considered, not the full list, giving [Optimiser](./Optimiser) a higher speed.
+* `getInitialStates()` and `getFinalStates()` will return only the IDs of the first and last state to be considered, not the full list, giving [Optimiser](./Optimiser.md) a higher speed.
 
 ### Caching
 
 If self-discharge is not modelled, `EnergyStateManager` will operate faster and cache all transition values for a given time step during `prepareFor()`.
-In any case, `EnergyStateManager` pre-caches the properties of its `GenericDevice` using a [GenericDeviceCache](./GenericDeviceCache) at any given time step.
+In any case, `EnergyStateManager` pre-caches the properties of its `GenericDevice` using a [GenericDeviceCache](./GenericDeviceCache.md) at any given time step.
 
-See also [StateManager](./StateManager).
+See also [StateManager](./StateManager.md).
 
 ### Dispatch scheduling
 
@@ -49,12 +49,12 @@ Illustration of parallel shift transitions (green, red) of the device schedule i
 
 # Input from file
 
-See [StateManagerBuilder](./StateManagerBuilder)
+See [StateManagerBuilder](./StateManagerBuilder.md)
 
 # See also
 
-* [StateManager](./StateManager)
-* [GenericDevice](./GenericDevice)
-* [GenericDeviceCache](./GenericDeviceCache)
-* [Optimiser](./Optimiser)
-* [WaterValues](./WaterValues)
+* [StateManager](./StateManager.md)
+* [GenericDevice](./GenericDevice.md)
+* [GenericDeviceCache](./GenericDeviceCache.md)
+* [Optimiser](./Optimiser.md)
+* [WaterValues](./WaterValues.md)

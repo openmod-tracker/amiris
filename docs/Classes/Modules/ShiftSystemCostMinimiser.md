@@ -1,11 +1,11 @@
 # In Short
 
-Creates [BidSchedules](./BidSchedule) for an associated [LoadShiftingPortfolio](./LoadShiftingPortfolio) and thereby minimises the dispatch-based system cost.
+Creates [BidSchedules](./BidSchedule.md) for an associated [LoadShiftingPortfolio](./LoadShiftingPortfolio.md) and thereby minimises the dispatch-based system cost.
 
 # Details
 
-ShiftSystemCostMinimiser is a [LoadShiftingStrategist](./LoadShiftingStrategist).
-It uses [MarginalCostSensitivity](./MarginalCostSensitivity) to find the optimal dispatch path that minimises the overall system cost for dispatch.
+ShiftSystemCostMinimiser is a [LoadShiftingStrategist](./LoadShiftingStrategist.md).
+It uses [MarginalCostSensitivity](./MarginalCostSensitivity.md) to find the optimal dispatch path that minimises the overall system cost for dispatch.
 
 ## General strategy
 

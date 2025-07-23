@@ -6,7 +6,7 @@
 
 ## Assumptions
 
-A [MarketClearingResult](./MarketClearingResult) is provided first before information is extracted from this interface.
+A [MarketClearingResult](./MarketClearingResult.md) is provided first before information is extracted from this interface.
 
 ## Operations
 
@@ -16,9 +16,9 @@ Finally, the assessment results may be extracted using `getDemandSensitivityPowe
 
 # Implementations
 
-* [FullAssessor](./FullAssessor)
-* [CostInsensitive](./CostInsensitive)
+* [FullAssessor](./FullAssessor.md)
+* [CostInsensitive](./CostInsensitive.md)
 
 # See also
 
-* [MarketClearingResult](./MarketClearingResult)
+* [MarketClearingResult](./MarketClearingResult.md)

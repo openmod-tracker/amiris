@@ -1,11 +1,11 @@
 # In Short
 
-Creates [BidSchedules](./BidSchedule) for an associated [StorageDevice](./Device) and thereby maximises profits of the storage operator.
+Creates [BidSchedules](./BidSchedule.md) for an associated [StorageDevice](./Device.md) and thereby maximises profits of the storage operator.
 
 # Details
 
-ProfitMaximiser is an [ArbitrageStrategist](./ArbitrageStrategist).
-It uses "merit order sensitivities" of type [MarginalCostSensitivity](./MarginalCostSensitivity) to find the optimal storage utilisation that maximises its profits.
+ProfitMaximiser is an [ArbitrageStrategist](./ArbitrageStrategist.md).
+It uses "merit order sensitivities" of type [MarginalCostSensitivity](./MarginalCostSensitivity.md) to find the optimal storage utilisation that maximises its profits.
 
 ## General strategy
 
@@ -22,4 +22,4 @@ This includes its own expected impact on the electricity price.
 
 # See also
 
-[ArbitrageStrategist](./ArbitrageStrategist)
+[ArbitrageStrategist](./ArbitrageStrategist.md)

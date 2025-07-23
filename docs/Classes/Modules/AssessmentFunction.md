@@ -1,6 +1,6 @@
 # In short
 
-`AssessmentFunctions` are used by [StateManagers](./StateManager) to assess the value of [GenericDevice](./GenericDevice) operations.
+`AssessmentFunctions` are used by [StateManagers](./StateManager.md) to assess the value of [GenericDevice](./GenericDevice.md) operations.
 
 # Details
 
@@ -16,20 +16,20 @@ In return, `storeForecast()` can be used to feed `AssessmentFunction` with corre
 To remove outdated forecast data, `clearBefore()` can be used.
 With `getTargetType()` the type of the assessment goal can be obtained (i.e. maximisation or minimisation).
 Using `getSensitivityType()`, the type of Forecast that is required by the `AssessmentFunction` can be checked.
-The `getMultiplier()` method returns the latest multiplier (see [FlexibilityAssessor](./FlexibilityAssessor)) applied to energy deltas during optimisation.
+The `getMultiplier()` method returns the latest multiplier (see [FlexibilityAssessor](./FlexibilityAssessor.md)) applied to energy deltas during optimisation.
 
 Once `prepareFor()` was called to set the specific time for assessments, `assessTransition()` can be called to assess the value of one or multiple transitions.
 
 # Input from file
 
-See [AssessmentFunctionBuilder](./AssessmentFunctionBuilder)
+See [AssessmentFunctionBuilder](./AssessmentFunctionBuilder.md)
 
 # Child classes
 
-* [SensitivityBasedAssessment](./SensitivityBasedAssessment)
+* [SensitivityBasedAssessment](./SensitivityBasedAssessment.md)
 
 # See also
 
-* [GenericFlexibilityTrader](../Agents/GenericFlexibilityTrader)
-* [GenericDevice](./GenericDevice)
-* [StateManager](./StateManager)
+* [GenericFlexibilityTrader](../Agents/GenericFlexibilityTrader.md)
+* [GenericDevice](./GenericDevice.md)
+* [StateManager](./StateManager.md)
