@@ -23,7 +23,7 @@ At any prepared time, `StateManager` can tell which initial state IDs are availa
 Depending on the result of `useStateList()`, this will either return a full list of all states, or only the first and the last state to iterate in between.
 Based on a given initial state ID, `StateManager` can also tell which state IDs that can be reached at the prepared time without violating restrictions from the connected `GenericDevice` using `getFinalStates()`.
 Again, depending on the result of `useStateList()`, this will either return a full list of the state IDs or only the first and the last state to iterate in between.
-For any propose transition from state ID `i` to state ID `f` at the prepared time, `StateManager` can calculate the value of the state transition utilising its configured [AssessmentFunction](./AssessmentFunction) by using `getTransitionValueFor()`.
+For any propose transition from state ID `i` to state ID `f` at the prepared time, `StateManager` can calculate the value of the state transition utilising its configured [AssessmentFunction](./AssessmentFunction.md) by using `getTransitionValueFor()`.
 
 The dynamic programming [Optimiser](./Optimiser.md) will store the best available transition for each initial state using `updateBestFinalState()`.
 All best follow-up states for all available initial states and time steps are thus stored in `StateManager`.

@@ -22,7 +22,7 @@ See also [Trader](./Trader.md)
 
 # Input from environment
 
-See [Trader](./Trader)
+See [Trader](./Trader.md)
 
 # Simulation outputs
 

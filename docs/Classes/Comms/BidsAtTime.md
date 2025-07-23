@@ -1,7 +1,7 @@
 ## In Short
 
 `BidsAtTime` is a Portable sent to [DayAheadMarkets](../Agents/DayAheadMarket.md).
-It is a summary of multiple [Bids](../Modules/Bid) from one `Trader` for one bidding time period.
+It is a summary of multiple [Bids](../Modules/Bid.md) from one `Trader` for one bidding time period.
 
 ## Content
 

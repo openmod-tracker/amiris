@@ -7,7 +7,7 @@ A `GenericDevice` represents any kind of electrical flexibility, e.g., pumped-hy
 A `GenericDevice` is a physical representation of a flexibility source.
 Specifically, it keeps track of the current energy level.
 This level can be changed by charging, discharging, inflows, and self discharge.
-A `GenericDevice` can handle arbitrary time resolutions and time-variant technical parameters, see section [Input from file](#Input-from-file)
+A `GenericDevice` can handle arbitrary time resolutions and time-variant technical parameters, see section [Input from file](#input-from-file)
 It is connected to a trader who markets the flexibility by applying an algorithm to schedule its operation.
 
 Besides "getter" methods for (current/maximum/minimum) energy content, (charging/discharging) efficiencies and the self discharge rate, `GenericDevice` provides the following methods:
@@ -15,7 +15,7 @@ Besides "getter" methods for (current/maximum/minimum) energy content, (charging
 * `transition`: Performs an actual transition from the current energy content at given time using a given external energy delta. It enforces energy and power limits. Returns actual external energy delta considering applied limits, i.e. positive values represent charging.
 * `internalToExternalEnergy`: Converts a given internal energy delta of a `GenericDevice` to an external energy delta by applying charging efficiency $\eta_\mathrm{c}$ or discharging efficiency $\eta_\mathrm{d}$.
 
-For performance improvement, a cached version of a `GenericDevice` is used to simulate transitions within the dynamic programming scheduling algorithm, see [GenericDeviceCache](./GenericDeviceCache)
+For performance improvement, a cached version of a `GenericDevice` is used to simulate transitions within the dynamic programming scheduling algorithm, see [GenericDeviceCache](./GenericDeviceCache.md)
 
 ## Assumptions
 

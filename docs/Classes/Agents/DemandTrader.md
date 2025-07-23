@@ -4,7 +4,7 @@ DemandTrader is a [Trader](./Trader.md), which is responsible for purchasing the
 
 # Details
 
-DemandTrader is responsible to acquire the electricity demand from the [DayAheadMarket](./DayAheadMarket).
+DemandTrader is responsible to acquire the electricity demand from the [DayAheadMarket](./DayAheadMarket.md).
 The demand is given as time series.
 Hereby, multiple time series are used and attributed with a `ValueOfLostLoad`, i.e. the price  level at which the respective consumer cluster is willing to shed (parts of) their load. 
 The non-sheddable baseline demand is marketed at the technical price maximum.

@@ -15,11 +15,11 @@ Bidding and operation decisions are conducted by traders in pursuit of e.g. prof
 Marketplaces serve as trading platforms and organize market clearing.
 Policies define a regulatory framework, which impacts the decisions of other agents. Demand agents as well as storage facilities trade directly in the electricity market. Simulations with AMIRIS thus enable the investigation of the influence of political framework conditions on the behavior and profitability of energy market actors, taking into account different marketing paths, as well as the quantification of the influence of uncertainties and socioeconomic decision aspects of individual actors on energy markets.
 
-Due to its agent-based and modular nature, AMIRIS can be easily extended or modified, see [Model Classes](Classes) and [Extensions](Extensions).
+Due to its agent-based and modular nature, AMIRIS can be easily extended or modified, see [Model Classes](./Classes.md) and [Extensions](./Extensions.md).
 AMIRIS is based on the open-source framework for distributed agent-based models of energy systems [FAME](https://gitlab.com/fame-framework/wiki/-/wikis/home).
 Due to its high-performance computing capability (significantly ensured by parallelization readiness) and computationally efficient development paradigms, AMIRIS can simulate even large-scale agent systems in a short time.
 Currently, several model years can be simulated at hourly resolution in less than a minute.
-Get started [now](Get-Started)!
+Get started [now](./Get-Started.md)!
 
 ## Roadmap
 

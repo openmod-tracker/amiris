@@ -8,7 +8,7 @@ In case, the payment is negative, the concerned [AggregatorTrader](../Agents/Agg
 Contained information:
 
 * `clientId` UUID of the power plant operator connected to this support request response
-* `setType` the name of the [TechnologySet](./TechnologySet) (enum)
+* `setType` the name of the [TechnologySet](./TechnologySet.md) (enum)
 * `accountingPeriod` the accounting period (TimeSegment) for which the support is to be paid
 * `payment` the amount of payment for the accounting period
 * `marketPremium` the market premium for the accounting period - for energy-based market premia only (`MPFIX`, `MPVAR` and `CFD`).

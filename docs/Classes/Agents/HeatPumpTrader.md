@@ -25,7 +25,7 @@ Contracts of the HeatPumpTrader depend on its dispatch strategy:
 * `StrategistInflexibleRC` and `StragistInflexibleFile` do use any forecast since their dispatch does not depend on prices.
 
 When merit-order forecasts are used, it must be ensured that **no other flexibility option agents** are active - otherwise, they will interfere and the merit-order forecasts will be spoiled (with the dispatch of the other flexibility agent(s)).
-Once the forecasts are obtained, the HeatPumpTrader uses its [Strategist](../Modules/HeatPumpStrategist) to calculate a suitable [BidSchedule](../Modules/BidSchedule.md).
+Once the forecasts are obtained, the HeatPumpTrader uses its [Strategist](../Modules/HeatPumpStrategist.md) to calculate a suitable [BidSchedule](../Modules/BidSchedule.md).
 This schedule contains the heat pump's electricity demand over time.
 Following the DispatchSchedule, the HeatPumpTrader places demand bids at the [DayAheadMarket](./DayAheadMarket.md).
 The HeatPumpTrader bids at the maximum allowed bidding price in order to assure that the demand is always met.

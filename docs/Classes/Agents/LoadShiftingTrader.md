@@ -1,6 +1,6 @@
 # 42 words
 
-LoadShiftingTrader is a kind of [FlexibilityTrader](./FlexibilityTrader.md) that markets the load shifting capability of a [LoadShiftingPortfolio](../Modules/LoadShiftingPortfolio) at the [DayAheadMarket](./DayAheadMarket.md).
+LoadShiftingTrader is a kind of [FlexibilityTrader](./FlexibilityTrader.md) that markets the load shifting capability of a [LoadShiftingPortfolio](../Modules/LoadShiftingPortfolio.md) at the [DayAheadMarket](./DayAheadMarket.md).
 Different dispatch strategies can be used to fulfil different targets, e.g., to maximise profits, or to minimise system cost.
 Depending on its strategy, it might require for forecasts of electricity prices or the merit order.
 
@@ -28,7 +28,7 @@ In general, the load shifting modelling is similar to the storages modeling, see
 
 * For the strategies `SINGLE_AGENT_MIN_SYSTEM_COST`, `SINGLE_AGENT_MAX_PROFIT` and `SINGLE_AGENT_MAX_PROFIT_TARIFFS`, a dynamic programming approach is used to find an optimal dispatch pattern. Hereby, the state is defined as a two-dimensional state consisting of a current shift time, i.e. the time that has been shifted for so far, as well as a current energy storage state. The latter is an integer value that is corresponding to a fictitious load shifting energy storage level which in turn is greater than 0 when loads are advanced compared to a baseline load pattern and smaller than 0 when loads are delayed.
   The current shift time has to be smaller than a maximum shift time which indicates the maximum duration for a shift. Some prolonging option is also allowed, see [LoadShiftStateManager](../Modules/LoadShiftStateManager.md).
-  The load shifting process only considers deviations from a baseline demand. To keep track of the load shifting state, the [LoadShiftingStrategist](../Modules/LoadShiftingStrategist) chosen makes use of a [LoadShiftStateManager](../Modules/LoadShiftStateManager.md). Parameterization-wise, it must be ensured that the overall demand of the [DemandTrader](./DemandTrader.md) is decreased by the baseline demand of load shifting portfolio units.
+  The load shifting process only considers deviations from a baseline demand. To keep track of the load shifting state, the [LoadShiftingStrategist](../Modules/LoadShiftingStrategist.md) chosen makes use of a [LoadShiftStateManager](../Modules/LoadShiftStateManager.md). Parameterization-wise, it must be ensured that the overall demand of the [DemandTrader](./DemandTrader.md) is decreased by the baseline demand of load shifting portfolio units.
 * The `SINGLE_AGENT_MIN_CONSUMER_COST_EXTERNAL` calls an external optimization model written in python (pyomo) and thus given as a full algebraic description of the target function and its constraints that is in turn solved by an external solver (e.g. gurobi, CPLEX, GLPK or CBC). The model formulation itself relates to modelling a storage with additional inter-temporal constraints (i.e. balancing requirements). The full formulation is laid down in Kochems (2024), pp. 101-105 and 135-136 and based on Gils (2015), pp. 67-70.
 
 # Dependencies

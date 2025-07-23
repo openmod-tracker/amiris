@@ -5,7 +5,7 @@ Creates [BidSchedules](./BidSchedule.md) for an associated [LoadShiftingPortfoli
 # Details
 
 ShiftProfitMaximiserTariffs is a [LoadShiftingStrategist](./LoadShiftingStrategist.md).
-It uses [MeritOrderSensitivity](./MeritOrderSensitivity) to find the optimal dispatch path that maximises the load shifting portfolio's profits.
+It uses [MeritOrderSensitivity](./MeritOrderSensitivity.md) to find the optimal dispatch path that maximises the load shifting portfolio's profits.
 Hereby, end user tariff components are considered and included in the dispatch optimization.
 The price components included may be static or dynamic placing different incentives.
 The ShiftProfitMaximiserTariffs uses price information from an [EndUserTariff](./EndUserTariff.md) for the dispatch optimization.

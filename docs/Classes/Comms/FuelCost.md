@@ -9,4 +9,4 @@ FuelCosts is an [AmountAtTime](./AmountAtTime.md) DataItem that contains the fue
 
 # See also
 
-* [AmountAtTime](./AmountAtTime)
+* [AmountAtTime](./AmountAtTime.md)

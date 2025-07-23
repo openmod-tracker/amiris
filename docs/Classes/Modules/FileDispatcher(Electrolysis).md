@@ -1,7 +1,7 @@
 # In short
 
 `FileDispatcher` is a kind of [ElectrolyzerStrategist](./ElectrolyzerStrategist.md).
-It creates [BidSchedule](./BidSchedule) from a time series file for a corresponding [Electrolyzer](./Electrolyzer.md).
+It creates [BidSchedule](./BidSchedule.md) from a time series file for a corresponding [Electrolyzer](./Electrolyzer.md).
 Given time series can be either a hydrogen production, or an electricity consumption and can be either an absolute number or relative to peak conversion capacity.
 
 # Input
