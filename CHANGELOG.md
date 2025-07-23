@@ -3,7 +3,7 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
-## [3.6.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.1) - 2025-07-21
+## [3.6.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.1) - 2025-07-23
 ### Fixed
 - Fix crash on minor numerical deviations of `PowerPlant` load levels #183 (@dlr-cjs)
 - Fix NullPointerException for unregistered clients at `SensitivityForecaster` #181 (@dlr-cjs)
