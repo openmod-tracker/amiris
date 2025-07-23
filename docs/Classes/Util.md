@@ -1,9 +1,9 @@
 Helpers used across multiple packages
 
-* [JSONable](./Util/JSONable)
-* [Polynomial](./Util/Polynomial)
-* [SeriesManipulation](./Util/SeriesManipulation)
-* [SortedLinkedList](./Util/SortedLinkedList)
-* [TimedDataMap](./Util/TimedDataMap)
-* [UrlModelService](./Util/UrlModelService)
-* [Util](./Util/Util)
+* [JSONable](./Util/JSONable.md)
+* [Polynomial](./Util/Polynomial.md)
+* [SeriesManipulation](./Util/SeriesManipulation.md)
+* [SortedLinkedList](./Util/SortedLinkedList.md)
+* [TimedDataMap](./Util/TimedDataMap.md)
+* [UrlModelService](./Util/UrlModelService.md)
+* [Util](./Util/Util.md)
