@@ -27,6 +27,8 @@ import util.TimedDataMap;
  * 
  * @author Christoph Schimeczek, Johannes Kochems */
 public class SensitivityForecaster extends MarketForecaster implements SensitivityForecastProvider {
+	static final String ERR_UNREGISTERED = "Client '%s' is not registered at SensitivityForecaster '%s'. Add `ForecastRegistration` contract before `SensitivityRequest`.";
+
 	@Input private static final Tree parameters = Make.newTree().add(Make.newGroup("MultiplierEstimation").optional()
 			.add(Make.newDouble("IgnoreAwardFactor").optional()
 					.help("Awards with less energy than maximum energy divided by this factor are ignored."))
@@ -86,13 +88,22 @@ public class SensitivityForecaster extends MarketForecaster implements Sensitivi
 			ArrayList<Message> requests = CommUtils.extractMessagesFrom(messages, clientId);
 			for (Message message : requests) {
 				TimeStamp time = message.getDataItemOfType(PointInTime.class).validAt;
-				MarketClearingAssessment assessment = getAssessmentFor(typePerClient.get(clientId), time);
+				MarketClearingAssessment assessment = getAssessmentFor(getForecastTypeOfClient(clientId), time);
 				fulfilNext(contract, new Sensitivity(assessment, multiplier), new PointInTime(time));
 			}
 		}
 		flexibilityAssessor.clearBefore(now());
 		assessments.clearBefore(now());
 		saveNextForecast();
+	}
+
+	/** @return type of forecast of given client; throws a RuntimeException if client is not registered */
+	private ForecastType getForecastTypeOfClient(long clientId) {
+		ForecastType type = typePerClient.get(clientId);
+		if (type == null) {
+			throw new RuntimeException(String.format(ERR_UNREGISTERED, clientId, this));
+		}
+		return type;
 	}
 
 	/** @return the assessment of type associated with the given client at the specified time */
