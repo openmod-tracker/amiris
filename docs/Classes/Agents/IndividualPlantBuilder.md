@@ -25,8 +25,7 @@ see also [PlantBuildingManager](./PlantBuildingManager.md)
     * `DeactivationTime` Optional: if present marks the point in time when this power plant is deactivated; if missing the plant is not deactivated any time
     * `Id` Optional: if present defines a name for this power plant. If not present, Id will be the number of the power plant in the portfolio
     * `Override` Optional Group: allows to override one or multiple parameters from the [Prototype](../Modules/PowerplantPrototype.md) specifically for this power plant. Cannot override `FuelType` or `SpecificCo2EmissionsInTperMWH`.
-        * `PlannedAvailability`: see [Prototype](../Modules/PowerplantPrototype.md)
-        * `UnplannedAvailabilityFactor`: see [Prototype](../Modules/PowerplantPrototype.md)
+        * `OutageFactor`: see [Prototype](../Modules/PowerplantPrototype.md)
         * `OpexVarInEURperMWH`: see [Prototype](../Modules/PowerplantPrototype.md)
         * `CyclingCostInEURperMW`: see [Prototype](../Modules/PowerplantPrototype.md)
         * `MustRunFactor`: see [Prototype](../Modules/PowerplantPrototype.md)
