@@ -1391,7 +1391,7 @@ AgentTypes:
             Mandatory: true
             List: false
             MetaData: &PBM_A_OutageFactor_Metadata
-              Description: "The share of the respective power plant(s) that is not available for electricity production."
+              Description: "share of the respective power plant(s) that is not available for electricity production."
               OEONearestConcept: OEO_00020104
           OpexVarInEURperMWH: &PBM_A_OpexVar
             AttributeType: time_series

@@ -14,8 +14,8 @@ Names of assessment function types of `GenericFlexibilityTrader` were renamed:
 
 ### PlantBuilder: Change Availability Attributes to Outage
 
-Attributes `UnplannedAvailabilityFactor` $a$ and `PlannedAvailability` $a'$ whose product described the total available share of capacity of `PredefinedPlantBuilder` and `IndividualPlantBuilder` were replaced by a single deterministic `OutageFactor` $o$.
-`OutageFactor` now states, what share of capacity is **not** available and thus the following formula holds:
+The attributes `UnplannedAvailabilityFactor` $a$ and `PlannedAvailability` $a'$ whose product described the total available share of capacity of `PredefinedPlantBuilder` and `IndividualPlantBuilder` were replaced by a single deterministic `OutageFactor` $o$.
+The following formula defines the `OutageFactor` as the share of capacity which is **not** available:
 
 $o = 1 - a * a'$
 

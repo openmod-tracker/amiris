@@ -20,8 +20,8 @@ This set can be used in associated Agents to assemble their set of input paramet
 Required inputs are:
 
 * `FuelType` The different fuel types like coal, oil, etc.
-* `OpexVarInEURperMWH` The variable cost of the respective power plant technology.
+* `OpexVarInEURperMWH` variable cost of the respective power plant technology.
 * `CyclingCostInEURperMW` Additional cycling costs for conventional power plants in Euro per Megawatt, i.e. costs due to plant start up
 * `SpecificCo2EmissionsInTperMWH` specific CO2-emissions in tons per thermal MWh
-* `OutageFactor` The share of installed capacity that is not available for electricity production at a given time.
+* `OutageFactor` share of installed capacity that is not available for electricity production at a given time.
 * `MustRunFactor` share of the total installed capacity that must run at a given time due to, e.g., heat contracts, or reserve power obligations; the must-run factor will be capped at the maximum available capacity after deducting the outage factor.
