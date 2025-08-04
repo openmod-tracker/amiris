@@ -105,6 +105,7 @@ public class OrderBookItem implements Portable {
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeComponents(bid);
 		collector.storeDoubles(cumulatedPowerUpperValue, awardedPower);
+		collector.storeLongs(traderUuid);
 	}
 
 	@Override
@@ -113,5 +114,6 @@ public class OrderBookItem implements Portable {
 		bid = provider.nextComponent(Bid.class);
 		cumulatedPowerUpperValue = provider.nextDouble();
 		awardedPower = provider.nextDouble();
+		traderUuid = provider.nextLong();
 	}
 }
