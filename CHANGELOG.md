@@ -18,6 +18,10 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Fixed
 - Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)
 
+## [3.6.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.2) - 2025-08-04
+### Fixed
+- Fix allocation of awarded power when market coupling is enabled #187 (@dlr-cjs, @dlr_fn)
+
 ## [3.6.1](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.1) - 2025-07-23
 ### Fixed
 - Fix crash on minor numerical deviations of `PowerPlant` load levels #183 (@dlr-cjs)
