@@ -3,6 +3,21 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
+## [4.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.0.0) - tba
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
+
+### Changed
+- **Breaking**: Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
+- **Breaking**: PlantBuilder: Replace `PlannedAvailability` and `UnplannedAvailabilityFactor` attributes with `OutageFactor` #148 (@dlr-cjs, dlr_jk, @dlr_fn)
+- Update formatting of templates #179 (@dlr-cjs)
+- Update `spotless-maven-plugin` to `2.44.5` #186 (dlr-cjs, dlr_fn)
+
+### Added
+- Move wiki content to docs folder #184 (dlr-cjs, dlr_fn)
+
+### Fixed
+- Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)
+
 ## [3.6.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.2) - 2025-08-04
 ### Fixed
 - Fix allocation of awarded power when market coupling is enabled #187 (@dlr-cjs, @dlr_fn)
