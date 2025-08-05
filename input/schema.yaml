@@ -2468,7 +2468,7 @@ AgentTypes:
   GenericFlexibilityTrader:
     Attributes:
       Refinancing: *AnnualCostCalculator_G_Refinancing
-      Device:
+      Device: &GenericDevice_G_Device
         AttributeType: block
         Mandatory: true
         List: false
@@ -2893,3 +2893,63 @@ AgentTypes:
           Description: "Energy in MWh currently stored in the electric vehicles"
     MetaData:
       Description: "A Trader that sells and buys energy utilising a fleet of electric vehicles."
+
+  HeuristicStorageTrader:
+    Attributes:
+      Device: *GenericDevice_G_Device
+      SchedulingHorizonInHours:
+        MetaData:
+          Description: "Number time length each created schedule is viable in hours; should be significantly larger than the flexibilities energy-to-power ratio."
+        AttributeType: double
+        Mandatory: true
+        List: false
+      PlanningHorizonInHours:
+        MetaData:
+          Description: "Foresight time length in hours. Must be smaller or equal to that of the contracted Forecaster."
+        AttributeType: double
+        Mandatory: true
+        List: false
+      OperationPeriodInHours:
+        MetaData:
+          Description: "Time interval used for bidding and dispatch planning."
+        AttributeType: double
+        Mandatory: true
+        List: false
+      AssessmentFunctionPrefactors:
+        AttributeType: double
+        Mandatory: true
+        List: true
+        MetaData:
+          description: "Prefactors `a`,`b`,`c`, ... of a polynomial `a + bx + cx² + ...`, where `x` is the difference between the hourly price and the price median. Higher prefactors favour (dis-)charge at more extreme prices."       
+    Products:
+      ForecastRegistration: *SensitivityForecastClient_P_ForecastRegistration
+      NetAward: *SensitivityForecastClient_P_NetAward
+      SensitivityRequest: *SensitivityForecastClient_P_SensitivityRequest
+      Bids: *DamTrader_P_Bids
+    Outputs:
+      OfferedEnergyInMWH: *DamTrader_O_OfferedEnergy
+      RequestedEnergyInMWH: *DamTrader_O_RequestedEnergy
+      AwardedEnergyInMWH: *DamTrader_O_AwardedEnergy
+      VariableCostsInEUR:
+        MetaData:
+          Description: "Variable operation and maintenance costs in EUR"
+      ReceivedMoneyInEUR:
+        MetaData:
+          Description: "Total received money in EUR"
+      OfferedChargePriceInEURperMWH:
+        MetaData:
+          Description: "Offered price for charging in EUR per MWh"
+      OfferedDischargePriceInEURperMWH:
+        MetaData:
+          Description: "Offered price for discharging in EUR per MWh"
+      AwardedChargeEnergyInMWH:
+        MetaData:
+          Description: "Total amount of charge energy awarded in MWh"
+      AwardedDischargeEnergyInMWH:
+        MetaData:
+          Description: "Total amount of discharge energy awarded in MWh"
+      StoredEnergyInMWH:
+        MetaData:
+          Description: "Amount of energy in stored in flexibility device in MWh after executing (dis-)charging actions in the current time step"
+    MetaData:
+      Description: "Trader that operates an energy storage device, e.g., a battery storage, pumped-hydro storage using heuristic dispatch strategies."
