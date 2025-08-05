@@ -2899,7 +2899,7 @@ AgentTypes:
       Device: *GenericDevice_G_Device
       SchedulingHorizonInHours:
         MetaData:
-          Description: "Number time length each created schedule is viable in hours; should be significantly larger than the flexibilities energy-to-power ratio."
+          Description: "Time length each created schedule is viable in hours; should be significantly larger than the flexibilities energy-to-power ratio."
         AttributeType: double
         Mandatory: true
         List: false
