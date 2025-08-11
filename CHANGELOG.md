@@ -14,6 +14,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 
 ### Added
 - Move wiki content to docs folder #184 (dlr-cjs, dlr_fn)
+- Provide overview on AMIRIS model history #192 (dlr_fn)
 
 ### Fixed
 - Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)
