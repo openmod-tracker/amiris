@@ -16,6 +16,6 @@ See a short overview of AMIRIS's history below.
 | 02-2022 | The AMIRIS [release workshop](https://doi.org/10.5281/zenodo.6327556) is held.                                                                                               |
 | 03-2023 | AMIRIS Examples v1.0 are [published](https://zenodo.org/badge/DOI/10.5281/zenodo.7789050.svg).                                                                               |
 | 04-2023 | AMIRIS is [peer-reviewed](https://github.com/openjournals/joss-reviews/issues/5041) and [published](https://doi.org/10.21105/joss.05041) in [JOSS](https://joss.theoj.org/). |
-| 03-2024 | AMIRIS v2.0 is [published](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/tags/v2.0.0)   todo                                                                                 |
-| 09-2024 | AMIRIS v3.0 is [published](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/tags/v3.0.0)       todo                                                                             |
+| 03-2024 | AMIRIS v2.0 is [published](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/tags/v2.0.0).                                                                                       |
+| 09-2024 | AMIRIS v3.0 is [published](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/tags/v3.0.0).                                                                                       |
 | 08-2025 | AMIRIS is applied and further developt by 30 confirmed external users.                                                                                                       |
