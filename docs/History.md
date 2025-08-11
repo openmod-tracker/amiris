@@ -19,3 +19,4 @@ See a short overview of AMIRIS's history below.
 | 03-2024 | AMIRIS v2.0 is [published](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/tags/v2.0.0).                                                                                       |
 | 09-2024 | AMIRIS v3.0 is [published](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/tags/v3.0.0).                                                                                       |
 | 08-2025 | AMIRIS is applied and further developt by 30 confirmed external users.                                                                                                       |
+| 08-2025 | AMIRIS and its accompanying [tools](https://gitlab.com/dlr-ve/esy/amiris) account for a total of 50 releases.                                                                                                       |
