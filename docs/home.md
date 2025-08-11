@@ -21,9 +21,10 @@ Due to its high-performance computing capability (significantly ensured by paral
 Currently, several model years can be simulated at hourly resolution in less than a minute.
 Get started [now](./Get-Started.md)!
 
-## Roadmap
+## History and Roadmap
 
-Please have a look at our [Roadmap](./Roadmap.md) to see what plans we have for AMIRIS in the future.
+AMIRIS is developed for more than 15 years, have a look at its [History](./History.md).
+Also check out our [Roadmap](./Roadmap.md) to see what plans we have for AMIRIS in the future.
 
 ## License
 
