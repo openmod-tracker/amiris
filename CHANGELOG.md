@@ -4,6 +4,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
 ## [3.7.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.2) - tba
+### Changed
+- Update schema to feature metadata #193 (@dlr-cjs)
+
 ### Added
 - Add `HeuristicStorageTrader` that operates a `GenericDevice` using heuristic median-based strategy #180 (@dlr-cjs)
 
