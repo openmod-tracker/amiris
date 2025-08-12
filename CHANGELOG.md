@@ -8,6 +8,7 @@ SPDX-License-Identifier: CC0-1.0 -->
 - Add `HeuristicStorageTrader` that operates a `GenericDevice` using heuristic median-based strategy #180 (@dlr-cjs)
 
 ### Fixed
+- Fix non-avoidance of scarcity events within `FullAssessor` #189 (@dlr_fn, @dlr-cjs, @dlr-jk)
 - Fix multiplier to One for `HeuristicStorageTrader` !200 (@dlr-cjs)
 
 ## [3.6.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.2) - 2025-08-04
