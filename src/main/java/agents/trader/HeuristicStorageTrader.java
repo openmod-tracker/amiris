@@ -8,17 +8,13 @@ import java.util.Arrays;
 import java.util.List;
 import agents.flexibility.BidSchedule;
 import agents.flexibility.GenericDevice;
-import agents.flexibility.dynamicProgramming.Optimiser;
-import agents.flexibility.dynamicProgramming.assessment.AssessmentFunction;
-import agents.flexibility.dynamicProgramming.assessment.AssessmentFunctionBuilder;
-import agents.flexibility.dynamicProgramming.bidding.BidSchedulerBuilder;
-import agents.flexibility.dynamicProgramming.states.StateManager;
-import agents.flexibility.dynamicProgramming.states.StateManagerBuilder;
 import agents.forecast.sensitivity.SensitivityForecastClient;
 import agents.forecast.sensitivity.SensitivityForecastProvider;
+import agents.forecast.sensitivity.SensitivityForecastProvider.ForecastType;
 import agents.markets.DayAheadMarket;
 import agents.markets.DayAheadMarketTrader;
 import agents.markets.meritOrder.Bid;
+import agents.storage.arbitrageStrategists.HeuristicMedian;
 import communications.message.AmountAtTime;
 import communications.message.AwardData;
 import communications.message.ClearingTimes;
@@ -35,54 +31,51 @@ import de.dlr.gitlab.fame.communication.CommUtils;
 import de.dlr.gitlab.fame.communication.Contract;
 import de.dlr.gitlab.fame.communication.message.Message;
 import de.dlr.gitlab.fame.service.output.Output;
+import de.dlr.gitlab.fame.time.Constants;
 import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimePeriod;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
+import util.Polynomial;
 
-/** Trader that operates a generic flexibility device, e.g., a battery storage, pumped-hydro storage, load shifting, heat pumps...
- * It can use different dispatch optimisation strategies, optimisation targets, and strategy assessments. Optimisation is based on
- * dynamic programming.
+/** A Trader that operates a {@link GenericDevice} and uses a heuristic dispatch strategy based on sensitivity forecasts
  * 
- * @author Felix Nitsch, Christoph Schimeczek, Johannes Kochems */
-public class GenericFlexibilityTrader extends Trader implements SensitivityForecastClient {
-	@Input private static final Tree parameters = Make.newTree()
-			.addAs("Device", GenericDevice.parameters)
-			.addAs("Assessment", AssessmentFunctionBuilder.parameters)
-			.addAs("StateDiscretisation", StateManagerBuilder.parameters)
-			.addAs("Bidding", BidSchedulerBuilder.parameters)
-			.buildTree();
+ * @author Christoph Schimeczek */
+public class HeuristicStorageTrader extends Trader implements SensitivityForecastClient {
+	static final String GROUP_DEVICE = "Device";
+	static final String PARAM_PERIOD = "OperationPeriodInHours";
+	static final String PARAM_HORIZON = "PlanningHorizonInHours";
+	static final String PARAM_SCHEDULE = "SchedulingHorizonInHours";
+	static final String PARAM_PREFACTORS = "AssessmentFunctionPrefactors";
 
-	/** Output columns of {@link GenericFlexibilityTrader}s */
+	@Input private static final Tree parameters = Make.newTree()
+			.addAs(GROUP_DEVICE, GenericDevice.parameters)
+			.add(Make.newDouble(PARAM_PERIOD)).add(Make.newDouble(PARAM_HORIZON)).add(Make.newDouble(PARAM_SCHEDULE))
+			.add(Make.newDouble(PARAM_PREFACTORS).list()).buildTree();
+
+	/** Output columns of {@link HeuristicStorageTrader} */
 	@Output
 	protected static enum Outputs {
-		/** Total received money in EUR */
 		ReceivedMoneyInEUR,
 		OfferedChargePriceInEURperMWH, OfferedDischargePriceInEURperMWH, AwardedChargeEnergyInMWH,
-		AwardedDischargeEnergyInMWH, StoredEnergyInMWH, VariableCostsInEUR, DispatchMultiplier
+		AwardedDischargeEnergyInMWH, StoredEnergyInMWH, VariableCostsInEUR
 	}
 
-	private static final TimeSpan OPERATION_PERIOD = new TimeSpan(1, Interval.HOURS);
-
+	private final TimeSpan operationPeriod;
 	private final GenericDevice device;
-	private final AssessmentFunction assessmentFunction;
-	private final StateManager stateManager;
-	private final Optimiser strategist;
+	private final HeuristicMedian strategy;
 	private BidSchedule bidSchedule;
 
-	/** Instantiate a new {@link GenericFlexibilityTrader}
+	/** Instantiates a {@link HeuristicStorageTrader}
 	 * 
 	 * @param dataProvider input from config
 	 * @throws MissingDataException if any required data is not provided */
-	public GenericFlexibilityTrader(DataProvider dataProvider) throws MissingDataException {
+	public HeuristicStorageTrader(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
-
-		device = new GenericDevice(input.getGroup("Device"));
-		assessmentFunction = AssessmentFunctionBuilder.build(input.getGroup("Assessment"));
-		stateManager = StateManagerBuilder.build(device, assessmentFunction, input.getGroup("StateDiscretisation"));
-		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
-		strategist = new Optimiser(stateManager, bidScheduler, assessmentFunction.getTargetType());
+		device = new GenericDevice(input.getGroup(GROUP_DEVICE));
+		operationPeriod = new TimeSpan(Math.round(input.getDouble(PARAM_PERIOD) * Constants.STEPS_PER_HOUR));
+		strategy = createStrategist(input);
 
 		call(this::registerAtForecaster).on(SensitivityForecastClient.Products.ForecastRegistration);
 		call(this::requestElectricityForecast).on(SensitivityForecastClient.Products.SensitivityRequest)
@@ -93,6 +86,16 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		call(this::sendAward).on(SensitivityForecastClient.Products.NetAward).use(DayAheadMarket.Products.Awards);
 	}
 
+	/** @return {@link HeuristicMedian} strategist created from input */
+	private HeuristicMedian createStrategist(ParameterData input) throws MissingDataException {
+		Polynomial polynomial = new Polynomial(input.getList(PARAM_PREFACTORS, Double.class));
+		double forecastHorizonInHours = input.getDouble(PARAM_HORIZON) * Constants.STEPS_PER_HOUR;
+		int forecastPeriods = (int) Math.round(forecastHorizonInHours / operationPeriod.getSteps());
+		double scheduleDuration = input.getDouble(PARAM_SCHEDULE) * Constants.STEPS_PER_HOUR;
+		int schedulePeriods = (int) Math.round(scheduleDuration / operationPeriod.getSteps());
+		return new HeuristicMedian(polynomial, device, forecastPeriods, schedulePeriods);
+	}
+
 	/** Send registration information to {@link SensitivityForecastProvider}
 	 * 
 	 * @param input none
@@ -101,8 +104,8 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		double averagePowerInMW = (device.getExternalChargingPowerInMW(now())
 				+ device.getExternalDischargingPowerInMW(now())) / 2.;
-		double energyInMWH = averagePowerInMW * OPERATION_PERIOD.getSteps() / new TimeSpan(1, Interval.HOURS).getSteps();
-		fulfilNext(contract, new ForecastClientRegistration(assessmentFunction.getSensitivityType(), energyInMWH));
+		double energyInMWH = averagePowerInMW * operationPeriod.getSteps() / new TimeSpan(1, Interval.HOURS).getSteps();
+		fulfilNext(contract, new ForecastClientRegistration(ForecastType.CostInsensitive, energyInMWH));
 	}
 
 	/** Requests a forecast from a contracted Forecaster.
@@ -112,9 +115,8 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 	protected void requestElectricityForecast(ArrayList<Message> input, List<Contract> contracts) {
 		Contract contract = CommUtils.getExactlyOneEntry(contracts);
 		ClearingTimes clearingTimes = CommUtils.getExactlyOneEntry(input).getDataItemOfType(ClearingTimes.class);
-		TimePeriod nextTime = new TimePeriod(clearingTimes.getTimes().get(0), OPERATION_PERIOD);
-		var allPlanningTimes = stateManager.getPlanningTimes(nextTime);
-		var missingForecastTimes = assessmentFunction.getMissingForecastTimes(allPlanningTimes);
+		TimePeriod nextTime = new TimePeriod(clearingTimes.getTimes().get(0), operationPeriod);
+		var missingForecastTimes = strategy.getMissingForecastTimes(nextTime);
 		for (TimeStamp missingForecastTime : missingForecastTimes) {
 			PointInTime pointInTime = new PointInTime(missingForecastTime);
 			fulfilNext(contract, pointInTime);
@@ -126,7 +128,7 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 	 * @param input to be stored
 	 * @param contracts not used */
 	protected void updateForecast(ArrayList<Message> input, List<Contract> contracts) {
-		assessmentFunction.storeForecast(input);
+		strategy.storeForecast(input);
 	}
 
 	/** Prepares and sends Bids to the contracted partner
@@ -145,7 +147,6 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 			fulfilNext(contractToFulfil,
 					new BidsAtTime(targetTime, getId(), Arrays.asList(supplyBid), Arrays.asList(demandBid)));
 		}
-		store(Outputs.DispatchMultiplier, assessmentFunction.getMultiplier());
 	}
 
 	/** Clears past sensitivities and creates new schedule based on current energy storage level
@@ -153,8 +154,8 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 	 * @param targetTime TimeStamp of bid to prepare */
 	private void excuteBeforeBidPreparation(TimeStamp targetTime) {
 		if (bidSchedule == null || !bidSchedule.isApplicable(targetTime, device.getCurrentInternalEnergyInMWH())) {
-			assessmentFunction.clearBefore(now());
-			bidSchedule = strategist.createSchedule(new TimePeriod(targetTime, OPERATION_PERIOD));
+			strategy.clearBefore(now());
+			bidSchedule = strategy.createSchedule(new TimePeriod(targetTime, operationPeriod));
 		}
 	}
 
@@ -195,7 +196,7 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		double revenuesInEUR = powerPriceInEURperMWH * awardedDischargeEnergyInMWH;
 		double costsInEUR = powerPriceInEURperMWH * awardedChargeEnergyInMWH;
 
-		device.transition(awards.beginOfDeliveryInterval, externalEnergyDeltaInMWH, OPERATION_PERIOD);
+		device.transition(awards.beginOfDeliveryInterval, externalEnergyDeltaInMWH, operationPeriod);
 
 		store(Outputs.AwardedDischargeEnergyInMWH, awardedDischargeEnergyInMWH);
 		store(Outputs.AwardedChargeEnergyInMWH, awardedChargeEnergyInMWH);

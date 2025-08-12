@@ -18,6 +18,17 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Fixed
 - Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)
 
+## [3.7.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.7.0) - 2025-08-12
+### Changed
+- Update schema to feature metadata #193 (@dlr-cjs)
+
+### Added
+- Add `HeuristicStorageTrader` that operates a `GenericDevice` using heuristic median-based strategy #180 (@dlr-cjs)
+
+### Fixed
+- Fix non-avoidance of scarcity events within `FullAssessor` #189 (@dlr_fn, @dlr-cjs, @dlr-jk)
+- Fix multiplier to One for `HeuristicStorageTrader` !200 (@dlr-cjs)
+
 ## [3.6.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.2) - 2025-08-04
 ### Fixed
 - Fix allocation of awarded power when market coupling is enabled #187 (@dlr-cjs, @dlr_fn)
@@ -26,7 +37,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Fixed
 - Fix crash on minor numerical deviations of `PowerPlant` load levels #183 (@dlr-cjs)
 - Fix NullPointerException for unregistered clients at `SensitivityForecaster` #181 (@dlr-cjs)
-- Fix missing side effect in `MarketClearing` if `SupplyBook` is empty #182 (@jgower11, dlr-cjs)
+- Fix missing side effect in `MarketClearing` if `SupplyBook` is empty #182 (@jgower11, @dlr-cjs)
 
 ## [3.6.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.0) - 2025-07-16
 ### Changed
@@ -169,7 +180,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 
 ### Changed
 - **Breaking**: Rename `EnergyExchange` to `DayAheadMarketSingleZone` #41 (@dlr-cjs)
-- **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, dlr_es, Seyerfarzad Sarfarazi, @kriniti)
+- **Breaking**: Forecasting products now defined in class `Forecaster` instead of `MeritOrderForecaster` #53 (@dlr-cjs, @dlr_es, Seyerfarzad Sarfarazi, @kriniti)
 - **Breaking**: FuelsMarket product `FuelsBill` renamed to `FuelBill` #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: ConventionalPlantOperator now based on `FuelsTrader` interface using new `FuelBid` message #54 (@dlr-cjs, @dlr_jk)
 - **Breaking**: StorageTrader input field `forecastRequestOffset` renamed to `electricityForecastRequestOffset` #54 (@dlr-cjs, @dlr_jk)

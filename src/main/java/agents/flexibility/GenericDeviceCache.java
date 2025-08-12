@@ -11,8 +11,10 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek, Felix Nitsch, Johannes Kochems */
 public class GenericDeviceCache {
+	static final String ERR_PERIOD_INIT = "GenericDeviceCache's `setPeriod()` must be called at least once before `prepareFor()`.";
+
 	private final GenericDevice device;
-	private double intervalDurationInHours;
+	private double intervalDurationInHours = Double.NaN;
 
 	private double chargingEfficiency;
 	private double dischargingEfficiency;
@@ -30,7 +32,7 @@ public class GenericDeviceCache {
 		this.device = device;
 	}
 
-	/** Extract the time granularity of time steps; call again if time granularity changes
+	/** Extracts the time granularity of time steps; call again if time granularity changes
 	 * 
 	 * @param timePeriod to extract the time step duration from */
 	public void setPeriod(TimePeriod timePeriod) {
@@ -42,6 +44,7 @@ public class GenericDeviceCache {
 	 * 
 	 * @param time to cache the device properties at */
 	public void prepareFor(TimeStamp time) {
+		ensurePeriodIsSet();
 		chargingEfficiency = device.getChargingEfficiency(time);
 		dischargingEfficiency = device.getDischargingEfficiency(time);
 		energyContentUpperLimitInMWH = device.getEnergyContentUpperLimitInMWH(time);
@@ -56,14 +59,28 @@ public class GenericDeviceCache {
 		netInflowEnergyInMWH = netInflowPowerInMW * intervalDurationInHours;
 	}
 
-	/** Return upper limit of energy content for currently cached time, may be negative;
+	/** @throws RuntimeException if {@link #intervalDurationInHours} is not set */
+	private void ensurePeriodIsSet() {
+		if (Double.isNaN(intervalDurationInHours)) {
+			throw new RuntimeException(ERR_PERIOD_INIT);
+		}
+	}
+
+	/** Returns round-trip efficiency at cached time
+	 * 
+	 * @return round-trip efficiency */
+	public double getRoundTripEfficiency() {
+		return chargingEfficiency * dischargingEfficiency;
+	}
+
+	/** Returns upper limit of energy content for currently cached time, may be negative;
 	 *
 	 * @return maximum internal energy content of {@link GenericDevice} in MWh */
 	public double getEnergyContentUpperLimitInMWH() {
 		return energyContentUpperLimitInMWH;
 	}
 
-	/** Return lower limit of energy content for currently cached time, may be negative;
+	/** Returns lower limit of energy content for currently cached time, may be negative;
 	 * 
 	 * @return minimum internal energy content of {@link GenericDevice} in MWh */
 	public double getEnergyContentLowerLimitInMWH() {
@@ -109,7 +126,7 @@ public class GenericDeviceCache {
 		return internalToExternalEnergy(internalEnergyDelta);
 	}
 
-	/** Return external energy delta equivalent of given internal energy delta based on (dis-)charging efficiency at currently
+	/** Returns external energy delta equivalent of given internal energy delta based on (dis-)charging efficiency at currently
 	 * cached time
 	 * 
 	 * @param internalEnergyDelta &gt; 0: charging; &lt; 0: depleting
@@ -122,14 +139,14 @@ public class GenericDeviceCache {
 		}
 	}
 
-	/** Return the maximum internal energy delta that can occur from charging at currently cached time
+	/** Returns the maximum internal energy delta that can occur from charging at currently cached time
 	 * 
 	 * @return maximum positive net energy delta */
 	public double getMaxNetChargingEnergyInMWH() {
 		return maxNetChargingEnergyInMWH;
 	}
 
-	/** Return the maximum (negative) internal energy delta that can occur from discharging at currently cached time
+	/** Returns the maximum (negative) internal energy delta that can occur from discharging at currently cached time
 	 * 
 	 * @return maximum negative net energy delta */
 	public double getMaxNetDischargingEnergyInMWH() {
