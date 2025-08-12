@@ -89,6 +89,7 @@ public class HeuristicMedian {
 		for (Message inputMessage : messages) {
 			Sensitivity sensitivity = inputMessage.getAllPortableItemsOfType(Sensitivity.class).get(0);
 			sensitivity.setInterpolationType(InterpolationType.DIRECT);
+			sensitivity.updateMultiplier(1.0);
 			TimeStamp time = inputMessage.getDataItemOfType(PointInTime.class).validAt;
 			forecasts.put(time, sensitivity.getValue(1.));
 		}
