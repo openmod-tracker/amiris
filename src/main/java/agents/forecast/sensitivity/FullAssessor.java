@@ -68,10 +68,10 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			additionalSupplyItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalSupplyItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getOfferPrice()));
 		}
 		if (awardedPower > 0) {
-			additionalLoadItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalLoadItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getOfferPrice()));
 		}
 	}
 
