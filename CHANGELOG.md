@@ -7,6 +7,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 ### Added
 - Add `HeuristicStorageTrader` that operates a `GenericDevice` using heuristic median-based strategy #180 (@dlr-cjs)
 
+### Fixed
+- Fix multiplier to One for `HeuristicStorageTrader` !200 (@dlr-cjs)
+
 ## [3.6.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.2) - 2025-08-04
 ### Fixed
 - Fix allocation of awarded power when market coupling is enabled #187 (@dlr-cjs, @dlr_fn)
