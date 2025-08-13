@@ -65,6 +65,13 @@ AMIRIS
 
 You are now ready to run AMIRIS simulations.
 
+## Update AMIRIS
+
+Feel free to give the AMIRIS project a "star" :star: and hit the notification bell :bell: in order to get notifications on new releases. If you want to update your existing model version use
+
+* `amiris download -m model` for the latest model, and
+* `amiris download -m examples` for the latest examples.
+
 ## Run AMIRIS
 
 ![AMIRIS-Py Workflow](../uploads/amirispy.png)
