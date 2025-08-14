@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "main"
+      when: never
+    - when: always
+
 stages:
   - changelog
   - lint
@@ -99,7 +105,7 @@ deploy:jdk11:
   script: ['mvn $MAVEN_CLI_OPTS package', 'mvn javadoc:javadoc']
   artifacts:
     paths: ["target/*.jar", "target/reports/apidocs"]
-    expire_in: 1 year
+    expire_in: 1 day
   only: [main]
 
 # Publish javadoc to pages

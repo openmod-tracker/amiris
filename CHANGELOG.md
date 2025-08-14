@@ -3,6 +3,10 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
+## 3.7.1 - 2025-08-14
+### Fixed
+- Fix deletion of latest deploy artifact when creating a merge request from main branch
+
 ## [3.7.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.7.0) - 2025-08-12
 ### Changed
 - Update schema to feature metadata #193 (@dlr-cjs)
