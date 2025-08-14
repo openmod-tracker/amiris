@@ -2,7 +2,32 @@
 
 SPDX-License-Identifier: Apache-2.0 -->
 # Upgrading
-## [3.5.0] 
+## 4.0.0
+
+### GenericFlexibilityTrader: Assessment.Types Renamed
+
+Names of assessment function types of `GenericFlexibilityTrader` were renamed:
+
+* `SINGLE_AGENT_MIN_SYSTEM_COST` &rarr; `MIN_SYSTEM_COST`
+* `SINGLE_AGENT_MAX_PROFIT` &rarr; `MAX_PROFIT`
+
+### GenericFlexibilityTrader: MIN_SYSTEM_COST Assessment uses prices instead of marginal cost
+
+Previously, AssessmentFunction `MIN_SYSTEM_COST` used the exact marginal cost of bids to calculate system cost.
+Since this version, system costs are estimated from the bid prices, instead.
+In this way, bids are considered to represent the true marginal costs of an operator - mark-ups and mark-downs are merely a modelling help to capture effects of, e.g., shut-down and ramping costs.
+
+### PlantBuilder: Change Availability Attributes to Outage
+
+The attributes `UnplannedAvailabilityFactor` $a$ and `PlannedAvailability` $a'$ whose product described the total available share of capacity of `PredefinedPlantBuilder` and `IndividualPlantBuilder` were replaced by a single deterministic `OutageFactor` $o$.
+The following formula defines the `OutageFactor` as the share of capacity which is **not** available:
+
+$o = 1 - a * a'$
+
+Adapt the attribute names and values accordingly.
+
+## 3.5.0
+
 This version features the `GenericFlexibilityTrader` which will replace `StorageTrader` in a future release.
 We recommend to switch to `GenericFlexibilityTrader` as it also offers more comprehensive and flexible parametrisation:
 * asymmetric charging / discharging power,
