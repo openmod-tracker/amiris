@@ -105,7 +105,7 @@ deploy:jdk11:
   script: ['mvn $MAVEN_CLI_OPTS package', 'mvn javadoc:javadoc']
   artifacts:
     paths: ["target/*.jar", "target/reports/apidocs"]
-    expire_in: 1 day
+    expire_in: 1 hour
   only: [main]
 
 # Publish javadoc to pages
