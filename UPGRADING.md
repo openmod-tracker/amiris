@@ -18,8 +18,6 @@ Previously, AssessmentFunction `MIN_SYSTEM_COST` used the exact marginal cost of
 Since this version, system costs are estimated from the bid prices, instead.
 In this way, bids are considered to represent the true marginal costs of an operator - mark-ups and mark-downs are merely a modelling help to capture effects of, e.g., shut-down and ramping costs.
 
-=======
->>>>>>> UPGRADING.md
 ### PlantBuilder: Change Availability Attributes to Outage
 
 The attributes `UnplannedAvailabilityFactor` $a$ and `PlannedAvailability` $a'$ whose product described the total available share of capacity of `PredefinedPlantBuilder` and `IndividualPlantBuilder` were replaced by a single deterministic `OutageFactor` $o$.
