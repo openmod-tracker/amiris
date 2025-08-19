@@ -9,6 +9,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
 - **Breaking**: Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
 - **Breaking**: PlantBuilder: Replace `PlannedAvailability` and `UnplannedAvailabilityFactor` attributes with `OutageFactor` #148 (@dlr-cjs, dlr_jk, @dlr_fn)
+- `PriceforecasterApi` forwards average of multiple price forecasts #162 (@dlr_fn, @dlr-cjs)
 - Update formatting of templates #179 (@dlr-cjs)
 - Update `spotless-maven-plugin` to `2.44.5` #186 (dlr-cjs, dlr_fn)
 
