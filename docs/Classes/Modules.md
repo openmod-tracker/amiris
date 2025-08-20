@@ -47,6 +47,7 @@ Internal states or decision logics of agents
       * [CostSensitivity](./Modules/CostSensitivity.md)
       * [MarginalCostSensitivity](./Modules/MarginalCostSensitivity(Forecast.md).md)
   * [PowerForecastError](./Modules/PowerForecastError.md)
+  * [Util](./Modules/Util(Forecast).md)
 * Heat pump
   * [HeatPumpSchedule](./Modules/HeatPumpSchedule.md)
   * [ThermalResponse](./Modules/ThermalResponse.md)
