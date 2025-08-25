@@ -9,16 +9,28 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ### Changed
 - **Breaking**: Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
 - **Breaking**: PlantBuilder: Replace `PlannedAvailability` and `UnplannedAvailabilityFactor` attributes with `OutageFactor` #148 (@dlr-cjs, @dlr_jk, @dlr_fn)
+- `PriceforecasterApi` forwards average of multiple price forecasts #162 (@dlr_fn, @dlr-cjs)
 - Update formatting of templates #179 (@dlr-cjs)
 - Update `spotless-maven-plugin` to `2.44.5` #186 (@dlr-cjs, @dlr_fn)
 
 ### Added
 - Wiki: move content to docs folder #184 (@dlr-cjs, @dlr_fn)
-- Wiki: provide overview on AMIRIS model history #192 (@dlr_fn)
-- Wiki: provide information on how to update AMIRIS and examples (@dlr_fn)
+- Docs: provide overview on AMIRIS model history #192 (@dlr_fn)
+- Docs: provide information on how to update AMIRIS and examples (@dlr_fn)
 
 ### Fixed
 - Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)
+
+## [3.7.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.7.0) - 2025-08-12
+### Changed
+- Update schema to feature metadata #193 (@dlr-cjs)
+
+### Added
+- Add `HeuristicStorageTrader` that operates a `GenericDevice` using heuristic median-based strategy #180 (@dlr-cjs)
+
+### Fixed
+- Fix non-avoidance of scarcity events within `FullAssessor` #189 (@dlr_fn, @dlr-cjs, @dlr-jk)
+- Fix multiplier to One for `HeuristicStorageTrader` !200 (@dlr-cjs)
 
 ## [3.6.2](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.6.2) - 2025-08-04
 ### Fixed
