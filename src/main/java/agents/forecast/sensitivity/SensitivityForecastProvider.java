@@ -23,8 +23,5 @@ public interface SensitivityForecastProvider extends AgentAbility {
 		/** Monetary value of charging / discharging based on the market clearing price - considering changes to the price caused by
 		 * additional demand or supply */
 		CostSensitivity,
-		/** Change in system cost caused by charging / discharging + based on the marginal cost of supply - considering changes caused
-		 * by additional demand or supply */
-		MarginalCostSensitivity,
 	}
 }

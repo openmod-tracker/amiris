@@ -8,13 +8,14 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 
 ### Changed
 - **Breaking**: Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
-- **Breaking**: PlantBuilder: Replace `PlannedAvailability` and `UnplannedAvailabilityFactor` attributes with `OutageFactor` #148 (@dlr-cjs, dlr_jk, @dlr_fn)
+- **Breaking**: PlantBuilder: Replace `PlannedAvailability` and `UnplannedAvailabilityFactor` attributes with `OutageFactor` #148 (@dlr-cjs, @dlr_jk, @dlr_fn)
+- **Breaking**: Use bid prices to estimate system cost in `GenericFlexibilityTrader`'s assessment function `MIN_SYSTEM_COST` #196 (@dlr-cjs, @dlr_jk, @dlr_fn)
 - `PriceforecasterApi` forwards average of multiple price forecasts #162 (@dlr_fn, @dlr-cjs)
 - Update formatting of templates #179 (@dlr-cjs)
-- Update `spotless-maven-plugin` to `2.44.5` #186 (dlr-cjs, dlr_fn)
+- Update `spotless-maven-plugin` to `2.44.5` #186 (@dlr-cjs, @dlr_fn)
 
 ### Added
-- Move wiki content to docs folder #184 (dlr-cjs, dlr_fn)
+- Move wiki content to docs folder #184 (@dlr-cjs, @dlr_fn)
 
 ### Fixed
 - Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)

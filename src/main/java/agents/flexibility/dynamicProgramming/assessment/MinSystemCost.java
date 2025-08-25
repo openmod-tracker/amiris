@@ -25,7 +25,7 @@ public class MinSystemCost extends SensitivityBasedAssessment {
 
 	@Override
 	public ForecastType getSensitivityType() {
-		return ForecastType.MarginalCostSensitivity;
+		return ForecastType.CostSensitivity;
 	}
 
 	@Override

@@ -11,10 +11,10 @@ import agents.markets.meritOrder.books.OrderBookItem;
 import agents.markets.meritOrder.books.SupplyOrderBook;
 import agents.markets.meritOrder.sensitivities.SensitivityItem;
 
-/** Base class for full merit order assessment; actual type of sensitivity assessed depends on the child class.
+/** Provides full merit order assessment for cost / revenues associated with added demand / supply
  * 
  * @author Johannes Kochems, Christoph Schimeczek */
-public abstract class FullAssessor implements MarketClearingAssessment {
+public class CostSensitive implements MarketClearingAssessment {
 	/** list of changes (in terms of cumulated power and price) in the merit order for all possible charging events of the
 	 * associated flexibility device */
 	protected ArrayList<SensitivityItem> additionalLoadItems = new ArrayList<>();
@@ -55,10 +55,10 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			additionalLoadItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalLoadItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), 0));
 		}
 		if (awardedPower > 0) {
-			additionalSupplyItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getMarginalCost()));
+			additionalSupplyItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), 0.));
 		}
 	}
 
@@ -68,15 +68,17 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 		double notAwardedPower = item.getNotAwardedPower();
 		double awardedPower = item.getAwardedPower();
 		if (notAwardedPower > 0) {
-			additionalSupplyItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), item.getOfferPrice()));
+			additionalSupplyItems.add(new SensitivityItem(notAwardedPower, item.getOfferPrice(), 0.));
 		}
 		if (awardedPower > 0) {
-			additionalLoadItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), item.getOfferPrice()));
+			additionalLoadItems.add(new SensitivityItem(awardedPower, item.getOfferPrice(), 0.));
 		}
 	}
 
 	/** @return {@link Comparator} for {@link SensitivityItem}s to be used by this Sensitivity type */
-	protected abstract Comparator<SensitivityItem> getComparator();
+	private Comparator<SensitivityItem> getComparator() {
+		return SensitivityItem.BY_PRICE;
+	}
 
 	/** Sets cumulative power and monetary value of given sorted {@link SensitivityItem}s */
 	private void setCumulativeValues(ArrayList<SensitivityItem> items) {
@@ -95,7 +97,9 @@ public abstract class FullAssessor implements MarketClearingAssessment {
 	 * 
 	 * @param item to assess
 	 * @return monetary value of this {@link SensitivityItem} according to this Sensitivity type */
-	protected abstract double calcMonetaryValue(SensitivityItem item);
+	private double calcMonetaryValue(SensitivityItem item) {
+		return item.getPower() * item.getPrice();
+	}
 
 	@Override
 	public double[] getDemandSensitivityPowers() {
