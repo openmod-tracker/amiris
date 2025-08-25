@@ -12,7 +12,7 @@ Names of assessment function types of `GenericFlexibilityTrader` were renamed:
 * `SINGLE_AGENT_MIN_SYSTEM_COST` &rarr; `MIN_SYSTEM_COST`
 * `SINGLE_AGENT_MAX_PROFIT` &rarr; `MAX_PROFIT`
 
-### GenericFlexibilityTrader: MIN_SYSTEM_COST Assessment uses prices instead of marginal cost
+### GenericFlexibilityTrader: MIN_SYSTEM_COST Assessment Uses Prices
 
 Previously, AssessmentFunction `MIN_SYSTEM_COST` used the exact marginal cost of bids to calculate system cost.
 Since this version, system costs are estimated from the bid prices, instead.

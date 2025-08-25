@@ -13,7 +13,7 @@ They may provide different types of sensitivity forecasts.
 
 # Outputs
 
-None.
+None
 
 # Messages
 
