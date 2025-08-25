@@ -14,9 +14,10 @@ Names of assessment function types of `GenericFlexibilityTrader` were renamed:
 
 ### GenericFlexibilityTrader: MIN_SYSTEM_COST Assessment Uses Prices
 
-Previously, AssessmentFunction `MIN_SYSTEM_COST` used the exact marginal cost of bids to calculate system cost.
-Since this version, system costs are estimated from the bid prices, instead.
-In this way, bids are considered to represent the true marginal costs of an operator - mark-ups and mark-downs are merely a modelling help to capture effects of, e.g., shut-down and ramping costs.
+Previously, the AssessmentFunction `MIN_SYSTEM_COST` used the exact marginal cost of bids to calculate the system cost.
+In this version, however, system costs are estimated from the bid prices.
+Therefore, bids represent an operator's "true" marginal costs.
+Mark-ups and mark-downs merely help modelling the effects of shut-down and ramping costs, for example.
 
 ### PlantBuilder: Change Availability Attributes to Outage
 
