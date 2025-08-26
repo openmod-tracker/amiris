@@ -16,8 +16,8 @@ Finally, the assessment results may be extracted using `getDemandSensitivityPowe
 
 # Implementations
 
-* [FullAssessor](./FullAssessor.md)
 * [CostInsensitive](./CostInsensitive.md)
+* [CostSensitive](./CostSensitive.md)
 
 # See also
 

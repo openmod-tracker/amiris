@@ -5,12 +5,19 @@ SPDX-License-Identifier: Apache-2.0 -->
 
 ## 4.0.0
 
-### GenericFlexibilityTrader: Assessment.Types renamed
+### GenericFlexibilityTrader: Assessment.Types Renamed
 
 Names of assessment function types of `GenericFlexibilityTrader` were renamed:
 
 * `SINGLE_AGENT_MIN_SYSTEM_COST` &rarr; `MIN_SYSTEM_COST`
 * `SINGLE_AGENT_MAX_PROFIT` &rarr; `MAX_PROFIT`
+
+### GenericFlexibilityTrader: MIN_SYSTEM_COST Assessment Uses Prices
+
+Previously, the AssessmentFunction `MIN_SYSTEM_COST` used the exact marginal cost of bids to calculate the system cost.
+In this version, however, system costs are estimated from the bid prices.
+Therefore, bids represent an operator's "true" marginal costs.
+Mark-ups and mark-downs merely help modelling the effects of shut-down and ramping costs, for example.
 
 ### PlantBuilder: Change Availability Attributes to Outage
 
