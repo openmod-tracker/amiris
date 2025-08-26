@@ -17,6 +17,12 @@ This quick start guide assumes that you have both Java and Python installed and 
 Executing AMIRIS should only take a few seconds on any computer.
 Now, open the newly created folder called "simple" and check out the [Results](./Results.md).
 
+### Updating
+Feel free to give the AMIRIS project a "star" ⭐ and hit the notification bell 🔔 in order to get notifications on new releases. If you want to update your existing model use 
+
+* `amiris download -m model` for the latest model, and 
+* `amiris download -m examples` for the latest examples.
+
 ## Next steps
 
 * Try out the backtesting examples for Germany or Austria as provided in the [AMIRIS-Examples](https://gitlab.com/dlr-ve/esy/amiris/examples)

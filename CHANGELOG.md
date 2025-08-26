@@ -15,7 +15,9 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Update `spotless-maven-plugin` to `2.44.5` #186 (@dlr-cjs, @dlr_fn)
 
 ### Added
-- Move wiki content to docs folder #184 (@dlr-cjs, @dlr_fn)
+- Docs: Add wiki content to folder `docs` #184 (@dlr-cjs, @dlr_fn)
+- Docs: provide overview on AMIRIS model history #192 (@dlr_fn)
+- Docs: provide information on how to update AMIRIS and examples !199 (@dlr_fn)
 
 ### Fixed
 - Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)
