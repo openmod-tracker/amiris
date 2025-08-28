@@ -20,7 +20,8 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Docs: provide information on how to update AMIRIS and examples !199 (@dlr_fn)
 
 ### Fixed
-- Fix crash in MarketCoupling if market gets emptied due to transfers #185 (@dlr-cjs)
+- Fix crash in `MarketCoupling` if market gets emptied due to transfers #185 (@dlr-cjs)
+- Avoid crash in `EnergyStateManager` due to varying energy levels over time - log a warning instead #199 (@dlr-cjs, @dlr_jk)
 
 ## [3.7.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.7.0) - 2025-08-12
 ### Changed
