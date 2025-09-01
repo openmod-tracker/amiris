@@ -13,6 +13,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - `PriceforecasterApi` forwards average of multiple price forecasts #162 (@dlr_fn, @dlr-cjs)
 - Update formatting of templates #179 (@dlr-cjs)
 - Update `spotless-maven-plugin` to `2.44.5` #186 (@dlr-cjs, @dlr_fn)
+- Update CITATION.cff and release workflow #200 (@dlrc-js)
 
 ### Added
 - Docs: Add wiki content to folder `docs` #184 (@dlr-cjs, @dlr_fn)
