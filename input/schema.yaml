@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 Metadata:
   name: "AMIRIS"
-  version: "3.7.0"
+  version: "4.0.0"
   title: "open Agent-based Market model for the Investigation of Renewable and Integrated energy Systems"
   homepage: "https://helmholtz.software/software/amiris"
   documentation: "https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home"
