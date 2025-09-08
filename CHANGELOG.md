@@ -3,7 +3,7 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
-## [4.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.0.0) - tba
+## [4.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.0.0) - 2025-09-09
 _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 
 ### Changed
