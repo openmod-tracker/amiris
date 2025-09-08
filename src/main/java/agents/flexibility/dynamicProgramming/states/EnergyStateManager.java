@@ -4,6 +4,8 @@
 package agents.flexibility.dynamicProgramming.states;
 
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import agents.flexibility.GenericDevice;
 import agents.flexibility.GenericDeviceCache;
 import agents.flexibility.dynamicProgramming.Optimiser;
@@ -17,6 +19,8 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public class EnergyStateManager implements StateManager {
 	/** Used to avoid rounding errors in floating point calculation of transition steps */
 	private static final double PRECISION_GUARD = 1E-5;
+	private static final String WARN_IMPERFECT_PLANNING = "Detected suboptimal dispatch planning due to changing storage content levels.";
+	private static final Logger logger = LoggerFactory.getLogger(EnergyStateManager.class);
 
 	private final GenericDevice device;
 	private final GenericDeviceCache deviceCache;
@@ -221,29 +225,42 @@ public class EnergyStateManager implements StateManager {
 			internalEnergiesInMWH[timeIndex] = currentInternalEnergyInMWH;
 			int currentEnergyLevelIndex = energyToNearestIndex(currentInternalEnergyInMWH);
 			int nextEnergyLevelIndex = bestNextState[timeIndex][currentEnergyLevelIndex];
-			double rawEnergyDeltaInMWH = (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
-			double nextInternalEnergyInMWH = ensureLimits(currentInternalEnergyInMWH + rawEnergyDeltaInMWH);
+			double plannedEnergyDeltaInMWH = (nextEnergyLevelIndex - currentEnergyLevelIndex) * energyResolutionInMWH;
+
+			double nextInternalEnergyInMWH = calcNextEnergyInMWH(currentInternalEnergyInMWH, plannedEnergyDeltaInMWH);
 			externalEnergyDeltaInMWH[timeIndex] = deviceCache.simulateTransition(currentInternalEnergyInMWH,
 					nextInternalEnergyInMWH);
 			currentInternalEnergyInMWH = nextInternalEnergyInMWH;
 
 			double rawValueDeltaInEUR = getValueOfStorage(timeIndex + 1, nextEnergyLevelIndex)
 					- getValueOfStorage(timeIndex + 1, currentEnergyLevelIndex);
-			specificValuesInEURperMWH[timeIndex] = calcSpecificValue(rawEnergyDeltaInMWH, rawValueDeltaInEUR);
+			specificValuesInEURperMWH[timeIndex] = calcSpecificValue(plannedEnergyDeltaInMWH, rawValueDeltaInEUR);
 		}
 		return new DispatchSchedule(externalEnergyDeltaInMWH, internalEnergiesInMWH, specificValuesInEURperMWH);
 	}
 
-	/** @return closest index corresponding to given energy level */
+	/** @return closest valid index corresponding to given energy level */
 	private int energyToNearestIndex(double energyAmountInMWH) {
 		double energyLevel = Math.round(energyAmountInMWH / energyResolutionInMWH) * energyResolutionInMWH;
-		return (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
+		int nearestIndex = (int) Math.round((energyLevel - lowestLevelEnergyInMWH) / energyResolutionInMWH);
+		int correctedIndex = Math.max(0, Math.min(nearestIndex, numberOfEnergyStates - 1));
+		if (nearestIndex != correctedIndex) {
+			logger.error(WARN_IMPERFECT_PLANNING);
+		}
+		return correctedIndex;
 	}
 
-	private double ensureLimits(double energyContentInMWH) {
+	/** @return next energy level based on current one and planned energy delta; if current energy level is already out of bounds,
+	 *         do <b>not</b> force the planned next energy value onto a modelled energy level. This avoids unplanned dispatch purely
+	 *         because an energy level is out-of-bounds. Instead, follow the original dispatch plan. */
+	private double calcNextEnergyInMWH(double currentInternalEnergyInMWH, double plannedEnergyDeltaInMWH) {
 		double lowerLevelInMWH = deviceCache.getEnergyContentLowerLimitInMWH();
 		double upperLevelInMWH = deviceCache.getEnergyContentUpperLimitInMWH();
-		return Math.max(lowerLevelInMWH, Math.min(upperLevelInMWH, energyContentInMWH));
+		double plannedNextEnergyContentInMWH = currentInternalEnergyInMWH + plannedEnergyDeltaInMWH;
+		if (currentInternalEnergyInMWH >= lowerLevelInMWH && currentInternalEnergyInMWH <= upperLevelInMWH) {
+			return Math.max(lowerLevelInMWH, Math.min(upperLevelInMWH, plannedNextEnergyContentInMWH));
+		}
+		return plannedNextEnergyContentInMWH;
 	}
 
 	/** @return the value of storage for given time and state index */
