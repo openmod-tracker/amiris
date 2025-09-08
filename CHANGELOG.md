@@ -24,6 +24,10 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Fix crash in `MarketCoupling` if market gets emptied due to transfers #185 (@dlr-cjs)
 - Avoid crash in `EnergyStateManager` due to varying energy levels over time - log a warning instead #199 (@dlr-cjs, @dlr_jk)
 
+## 3.7.1 - 2025-08-14
+### Fixed
+- Fix deletion of latest deploy artifact when creating a merge request from main branch #130  (@dlr-cjs, @dlr_fn)
+
 ## [3.7.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v3.7.0) - 2025-08-12
 ### Changed
 - Update schema to feature metadata #193 (@dlr-cjs)
@@ -268,7 +272,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - Storage: bids could exceed market limits - now they abide by the market limits #47 (@dlr-cjs)
 - AggregatorTrader: corrected association of support payments in case of multiple clients with similar set #104 (@dlr-cjs)
 - Storage: discretisation of planning no longer causes over-charging or under-depletion #55 (@dlr-cjs)
-- Forecaster: wrote out forecast prices with one hour lag - the time lag is removed #48 (@dlr-cjs)
+- Forecaster: wrote out forecast prices with one-hour lag - the time lag is removed #48 (@dlr-cjs)
 - ConventionalPlantOperator: did not sort power plants for dispatch correctly - sorting now according to marginal cost #97 (@dlr-cjs)
 - CI: Pipeline to publish javadocs #62 #63 (@dlr-cjs)
 - ConventionalPlantOperator: do not store outputs for inactive plants #75 (@dlr_fn, @dlr-cjs)
@@ -278,7 +282,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 ## [1.3](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v1.3) - 2023-03-21
 ### Changed
 - StorageTrader with Strategist "DISPATCH_FILE" can now also provide forecasts
-- REUSE license statements for each file in repository
+- REUSE licence statements for each file in repository
 - README improved
 - Use FAME-Core version 1.4.2
 - Improved packaging with executable JAR file
