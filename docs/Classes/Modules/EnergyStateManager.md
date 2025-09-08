@@ -32,6 +32,10 @@ Hence,
 
 If self-discharge is not modelled, `EnergyStateManager` will operate faster and cache all transition values for a given time step during `prepareFor()`.
 In any case, `EnergyStateManager` pre-caches the properties of its `GenericDevice` using a [GenericDeviceCache](./GenericDeviceCache.md) at any given time step.
+**Warning**: If the `GenericDevice`'s lower or upper limit for energy content are not constant, the algorithm will not consider changes in the number of states.
+This can lead to imperfect planning results and the `GenericDevice` might temporarily operate outside of its (changed) energy limits.
+`EnergyStateManager` will ensure that no energy is lost or gained due to this behaviour and correct its state along with its normal dispatch.
+An according warning will be raised in this case.
 
 See also [StateManager](./StateManager.md).
 
