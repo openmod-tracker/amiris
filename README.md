@@ -12,9 +12,9 @@ SPDX-License-Identifier: Apache-2.0 -->
 [![Last Commit](https://img.shields.io/gitlab/last-commit/dlr-ve/esy/amiris/amiris)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/commits/dev)
 
 AMIRIS is an agent-based simulation model of electricity markets and their actors.
-Check out its [full documentation](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
+Check out its [full documentation](./docs/home.md).
 
-**[Get started right away](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Get-Started)**!
+**[Get started right away](./docs/Get-Started.md)**!
 
 ## What is AMIRIS?
 
@@ -26,7 +26,7 @@ The typical **runtime is less than a minute** when simulating a market zone in h
 
 The figure below illustrates the available prototypical agents as well as associated flows of information, energy, and money.
 
-![AMIRIS Model Schema](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_ModellSchema_CCBY4.png)
+![AMIRIS Model Schema](./docs/uploads/AMIRIS_ModellSchema_CCBY4.png)
 
 ## Who is AMIRIS for?
 
@@ -59,9 +59,9 @@ Thus, we recommend using optimisation-based tools like [REMix](https://gitlab.co
 ## Community
 
 AMIRIS is mainly developed by the German Aerospace Center, Institute of Networked Energy Systems.
-We provide multi-level support for AMIRIS users as listed on our dedicated [Support Page](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Support).
+We provide multi-level support for AMIRIS users as listed on our dedicated [Support Page](./docs/Community/Support.md).
 **We welcome all contributions**: bug reports, feature requests, documentation enhancements, and code.
-Please see our [Contribution Guidelines](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute).
+Please see our [Contribution Guidelines](./docs/Community/Contribute.md).
 
 ## Citing AMIRIS
 
@@ -90,7 +90,7 @@ We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contribut
 
 ## What next?
 
-* [Install and run AMIRIS](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Get-Started)
+* [Install and run AMIRIS](./docs/Get-Started.md)
 * [Read previous publications & material](https://zenodo.org/communities/amiris)
 * [Ask questions](https://forum.openmod.org/tag/amiris)
-* [Contribute an issue or code](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute)
+* [Contribute an issue or code](./docs/Community/Contribute.md)

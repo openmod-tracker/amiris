@@ -15,28 +15,28 @@ Development takes place openly on GitLab and is supplemented by online developer
 ### Release plan
 
 There is currently no fixed release schedule. 
-However, there is a [Roadmap](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Roadmap) with tentative release dates.
+However, there is a [Roadmap](./docs/Roadmap.md) with tentative release dates.
 Minor bug fixes are released continuously.
 
 ## What is where?
 
 Here you can find information on how to contribute.
-For a general overview of AMIRIS please visit the [AMIRIS-Wiki](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
+For a general overview of AMIRIS please visit the [documentation](./docs/home.md).
 There, you will also find relevant background information such as a glossary and a description of existing model components.
 AMIRIS is based on FAME - an open Framework for distributed Agent-based Modelling of Energy systems.
 Please visit [FAME on GitLab](https://gitlab.com/fame-framework/wiki/-/wikis/home) to get more details about this framework.
 
-Installation instructions can be found in the Wiki's [Getting-started](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Get-Started) section.
+Installation instructions can be found in the [Getting-started](./docs/Get-Started.md) section.
 
 Issues and bugs are tracked in the [Repository](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/issues) on GitLab.
 
 We kindly ask you to discuss the development and configuration of AMIRIS on the [openMod Forum](https://forum.openmod.org/tag/amiris).
 
-Tag naming conventions, definitions of done, etc. can be found in the [Contribute](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute) section of the wiki.
+Tag naming conventions, definitions of done, etc. can be found in the [Contribute](./docs/Community/Contribute.md) section of the documentation.
 
 ## Support
 
-Please see our dedicated [Support Page](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Support) in the AMIRIS Wiki.
+Please see our dedicated [Support Page](./docs/Community/Support.md).
 
 # How to Contribute
 
@@ -57,7 +57,7 @@ You are always welcome to contribute to AMIRIS by submitting bug reports and fea
 ## Code contributions
 
 Thank you for your interest in contributing code which is highly regarded.
-Please note that code contributions (e.g. via pull requests) require you to complete and sign the [Contributor License Agreement](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/CLA.pdf), before we can merge your code into the project.
+Please note that code contributions (e.g. via pull requests) require you to complete and sign the [Contributor License Agreement](./docs/Community/CLA.pdf), before we can merge your code into the project.
 
 ### Environment
 
@@ -75,7 +75,7 @@ The file `CodeStyle.xml` in the `/misc` folder of the repository covers most of 
 ### Before submitting
 
 Please, check the following points before submitting a pull request:
-1. Please complete the [Contributor License Agreement](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/CLA.pdf) and send it to [amiris@dlr.de](mailto:amiris@dlr.de).
+1. Please complete the [Contributor License Agreement](./docs/Community/CLA.pdf) and send it to [amiris@dlr.de](mailto:amiris@dlr.de).
 1. Make sure there is a corresponding issue to your code contribution.
 1. Make sure your code is based on the latest version of the *dev* branch and that there are no conflicts. If there are any conflicts, fix them first.
 1. Make sure all existing unit tests are successful. Add new unit tests that cover your code contributions and ensure that your code works as intended. If there is a bug you don't know how to fix, ask the main developers for help.
