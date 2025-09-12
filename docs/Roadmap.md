@@ -3,31 +3,30 @@ The given dates and feature specifications are likely subject to change.
 We might not have funding yet to achieve all our roadmap targets - do not hesitate to contact us to draft a joint project proposal.
 Also, if you need a specific feature feel free to submit a [feature request](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/issues).
 
-# 3.7 (2025-08)
+# 4.1 (2025-10)
 * Agents
 * Modules
-  * Flexibility: Dispatch strategies for probabilistic forecasts #162
+  * Forecaster: Make sensitivity forecasting compatible with market coupling
 * Outputs
 * Products
 * Utilities
 * Documentation
 * Framework
 
-# 3.8 (2025-09)
+# 4.2 (2025-11)
 * Agents
-  * Make market forecasting compatible with market coupling
 * Modules
-  * Flexibility: Implement load shifting / heat pump / electric vehicle representation
+  * Flexibility: Implement load shifting with GenericFlexibilityTrader
 * Outputs
 * Products
 * Utilities
 * Documentation
 * Framework
 
-# 3.9 (2025-12)
+# 4.3 (2025-12)
 * Agents
+* Modules
   * Policy: Implement CfD's with cap & floor as well as dynamic claw-back
-* Modules
 * Outputs
 * Products
 * Utilities

@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: Apache-2.0 -->
-![AMIRIS_Logo](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_LogoWTitle.png)
+![AMIRIS_Logo](./docs/uploads/AMIRIS_LogoWTitle.png)
 
 ## _Simulate electricity markets emerging from interactions of producers, consumers, and flexibilities_
 
@@ -12,9 +12,9 @@ SPDX-License-Identifier: Apache-2.0 -->
 [![Last Commit](https://img.shields.io/gitlab/last-commit/dlr-ve/esy/amiris/amiris)](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/commits/dev)
 
 AMIRIS is an agent-based simulation model of electricity markets and their actors.
-Check out its [full documentation](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home).
+Check out its [full documentation](./docs/home.md).
 
-**[Get started right away](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Get-Started)**!
+**[Get started right away](./docs/Get-Started.md)**!
 
 ## What is AMIRIS?
 
@@ -26,7 +26,7 @@ The typical **runtime is less than a minute** when simulating a market zone in h
 
 The figure below illustrates the available prototypical agents as well as associated flows of information, energy, and money.
 
-![AMIRIS Model Schema](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_ModellSchema_CCBY4.png)
+![AMIRIS Model Schema](./docs/uploads/AMIRIS_ModellSchema_CCBY4.png)
 
 ## Who is AMIRIS for?
 
@@ -39,6 +39,8 @@ The development of AMIRIS started in 2008.
 Since then, AMIRIS has seen many different applications.
 Selected recent applications:
 
+- AMIRIS was used to assess **storage profitability** in renewable-dominated energy scenarios. [Preprint](https://dx.doi.org/10.2139/ssrn.5320926 )
+- A novel approach to account for **competing flexibility options** was backtested on open [historical data](https://zenodo.org/records/16978510). [Preprint](https://zenodo.org/records/17087877)
 - In [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewables in ~100% renewable electricity systems under different **Energy Policy Instruments**. [Paper](https://doi.org/10.1109/EEM60825.2024.10608886)
 - Intertwined dynamics between **Energy Community Markets** and national electricity markets were analysed with AMIRIS. [Paper](https://doi.org/10.1016/j.egyr.2024.06.052)
 - Interactions of **Household Flexibility** (heat pumps, electric vehicles, and electricity storage units) with the German energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802)
@@ -57,9 +59,9 @@ Thus, we recommend using optimisation-based tools like [REMix](https://gitlab.co
 ## Community
 
 AMIRIS is mainly developed by the German Aerospace Center, Institute of Networked Energy Systems.
-We provide multi-level support for AMIRIS users as listed on our dedicated [Support Page](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Support).
+We provide multi-level support for AMIRIS users as listed on our dedicated [Support Page](./docs/Community/Support.md).
 **We welcome all contributions**: bug reports, feature requests, documentation enhancements, and code.
-Please see our [Contribution Guidelines](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute).
+Please see our [Contribution Guidelines](./docs/Community/Contribute.md).
 
 ## Citing AMIRIS
 
@@ -88,7 +90,7 @@ We express our gratitude to all [contributors](CONTRIBUTING.md#list-of-contribut
 
 ## What next?
 
-* [Install and run AMIRIS](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Get-Started)
+* [Install and run AMIRIS](./docs/Get-Started.md)
 * [Read previous publications & material](https://zenodo.org/communities/amiris)
 * [Ask questions](https://forum.openmod.org/tag/amiris)
-* [Contribute an issue or code](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/Community/Contribute)
+* [Contribute an issue or code](./docs/Community/Contribute.md)
