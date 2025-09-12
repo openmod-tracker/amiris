@@ -27,6 +27,7 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 	static final String PARAM_ACTIVATION = "ActivationTime";
 	static final String PARAM_DEACTIVATION = "DeactivationTime";
 	static final String PARAM_ID = "Id";
+	static final String AUTO_NAME = "Auto_"; 
 
 	@Input private static final Tree parameters = Make.newTree().add(
 			Make.newGroup(GROUP_PLANTS).list().add(
@@ -46,7 +47,7 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 
 	/** Creates an {@link IndividualPlantBuilder}
 	 * 
-	 * @param dataProvider provides input from config file
+	 * @param dataProvider provides input from configuration file
 	 * @throws MissingDataException if any required data is not provided */
 	public IndividualPlantBuilder(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
@@ -61,7 +62,7 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 		for (ParameterData data : plantsData) {
 			plantCount++;
 			PowerPlant plant = new PowerPlant(prototypeData, data.getDouble(PARAM_EFFICIENCY),
-					data.getDouble(PARAM_CAPACITY), data.getStringOrDefault(PARAM_ID, "Auto_" + plantCount));
+					data.getDouble(PARAM_CAPACITY), data.getStringOrDefault(PARAM_ID, AUTO_NAME + plantCount));
 			TimeStamp activationTime = data.getTimeStampOrDefault(PARAM_ACTIVATION, null);
 			TimeStamp deactivationTime = data.getTimeStampOrDefault(PARAM_DEACTIVATION, null);
 			if (activationTime != null) {
