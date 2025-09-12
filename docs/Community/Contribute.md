@@ -58,7 +58,7 @@ If you need something to be implemented in AMIRIS:
 
 ## Code
 
-Tag naming conventions, definitions of done, etc. can be found on this dedicated page for [Code Contributions](./Code).
+Tag naming conventions, definitions of done, etc. can be found on this dedicated page for [Code Contributions](./Code.md).
 
 ## Bugs Reports & Feature Requests
 

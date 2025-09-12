@@ -10,7 +10,7 @@ A feature can be **closed**, once it has been
 - implemented
 - tested
 - documented in the code, e.g., JavaDoc or DocString
-- documented in the wiki
+- documented in the docs folder
 - reviewed by another team member
 - merged to `dev`
 

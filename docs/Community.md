@@ -6,4 +6,5 @@ Please see our dedicated [Support Page](./Community/Support.md).
 
 We welcome any kind of contribution: bug reports, feature requests, forum questions and answers, example data, documentation improvements, and code.
 Please follow our [Contribution Guidelines](./Community/Contribute.md).
+
 See the [List of Contributors](./Community/Contributors.md) that have our eternal gratitude.
