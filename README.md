@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2025 German Aerospace Center <amiris@dlr.de>
 
 SPDX-License-Identifier: Apache-2.0 -->
-![AMIRIS_Logo](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/uploads/AMIRIS_LogoWTitle.png)
+![AMIRIS_Logo](./docs/uploads/AMIRIS_LogoWTitle.png)
 
 ## _Simulate electricity markets emerging from interactions of producers, consumers, and flexibilities_
 
@@ -39,6 +39,8 @@ The development of AMIRIS started in 2008.
 Since then, AMIRIS has seen many different applications.
 Selected recent applications:
 
+- AMIRIS was used to assess **storage profitability** in renewable-dominated energy scenarios. [Preprint](https://dx.doi.org/10.2139/ssrn.5320926 )
+- A novel approach to account for **competing flexibility options** was backtested on open [historical data](https://zenodo.org/records/16978510). [Preprint](https://zenodo.org/records/17087877)
 - In [TradeRES](https://traderes.eu/) AMIRIS was used to analyse cost recovery of renewables in ~100% renewable electricity systems under different **Energy Policy Instruments**. [Paper](https://doi.org/10.1109/EEM60825.2024.10608886)
 - Intertwined dynamics between **Energy Community Markets** and national electricity markets were analysed with AMIRIS. [Paper](https://doi.org/10.1016/j.egyr.2024.06.052)
 - Interactions of **Household Flexibility** (heat pumps, electric vehicles, and electricity storage units) with the German energy system were modelled with AMIRIS. [Paper](https://elib.dlr.de/207802)
