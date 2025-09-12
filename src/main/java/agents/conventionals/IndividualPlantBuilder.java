@@ -27,7 +27,7 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 	static final String PARAM_ACTIVATION = "ActivationTime";
 	static final String PARAM_DEACTIVATION = "DeactivationTime";
 	static final String PARAM_ID = "Id";
-	static final String AUTO_NAME = "Auto_"; 
+	static final String AUTO_NAME = "Auto_";
 
 	@Input private static final Tree parameters = Make.newTree().add(
 			Make.newGroup(GROUP_PLANTS).list().add(
