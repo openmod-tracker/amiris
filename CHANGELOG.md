@@ -11,6 +11,7 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
 - **Breaking**: PlantBuilder: Replace `PlannedAvailability` and `UnplannedAvailabilityFactor` attributes with `OutageFactor` #148 (@dlr-cjs, @dlr_jk, @dlr_fn)
 - **Breaking**: Use bid prices to estimate system cost in `GenericFlexibilityTrader`'s assessment function `MIN_SYSTEM_COST` #196 (@dlr-cjs, @dlr_jk, @dlr_fn)
 - `PriceforecasterApi` forwards average of multiple price forecasts #162 (@dlr_fn, @dlr-cjs)
+- Update links in documentation to main repository #202 (@dlr_fn, @dlr-cjs)
 - Update formatting of templates #179 (@dlr-cjs)
 - Update `spotless-maven-plugin` to `2.44.5` #186 (@dlr-cjs, @dlr_fn)
 - Update CITATION.cff and release workflow #200 (@dlrc-js)
