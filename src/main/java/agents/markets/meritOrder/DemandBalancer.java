@@ -25,7 +25,9 @@ import communications.portable.CouplingData;
 public class DemandBalancer {
 	private static final Logger logger = LoggerFactory.getLogger(DemandBalancer.class);
 	/** Minimal amount of energy to be shifted between markets */
-	public static final double MIN_SHIFT_AMOUNT_IN_MWH = 0.1;
+	static final double MIN_SHIFT_AMOUNT_IN_MWH = 0.1;
+	/** Threshold at which markets are regarded as effectively empty */
+	static final double MIN_TRADED_ENERGY_IN_MWH = 1E-6;
 
 	private class DemandShiftResult {
 		public Long expensiveMarketId;
@@ -224,6 +226,10 @@ public class DemandBalancer {
 		}
 
 		if (clearingOfExpensive.minPriceSettingDemand <= 0) {
+			return null;
+		}
+
+		if (clearingOfExpensive.tradedEnergyInMWH < MIN_TRADED_ENERGY_IN_MWH) {
 			return null;
 		}
 

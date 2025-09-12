@@ -5,7 +5,8 @@
 * [ ] Update release date, version, and link in `Changelog.md`
 * [ ] Update release date, version, and release notes link in `codemeta.json`
 * [ ] Update release date and version in `Metadata` section of `schema.yaml`
-* [ ] Add new contributers to `Contributing.md` and `codemeta.json`
+* [ ] Update release date and version in `Citation.cff`
+* [ ] Add new contributers to `Contributing.md`, `codemeta.json`, and `Citation.cff`
 * [ ] Update version in `pom.xml`
 * [ ] Merge feature branch to `main`
 * [ ] Merge `main` branch to `dev`

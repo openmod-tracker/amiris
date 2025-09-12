@@ -20,31 +20,39 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public class IndividualPlantBuilder extends PlantBuildingManager {
+	static final String GROUP_PLANTS = "Plants";
+	static final String GROUP_OVERRIDE = "Override";
+	static final String PARAM_EFFICIENCY = "Efficiency";
+	static final String PARAM_CAPACITY = "NetCapacityInMW";
+	static final String PARAM_ACTIVATION = "ActivationTime";
+	static final String PARAM_DEACTIVATION = "DeactivationTime";
+	static final String PARAM_ID = "Id";
+	static final String AUTO_NAME = "Auto_";
+
 	@Input private static final Tree parameters = Make.newTree().add(
-			Make.newGroup("Plants").list().add(
-					Make.newDouble("Efficiency"),
-					Make.newDouble("NetCapacityInMW"),
-					Make.newTimeStamp("ActivationTime").optional(),
-					Make.newTimeStamp("DeactivationTime").optional(),
-					Make.newString("Id").optional(),
-					Make.newGroup("Override").optional().add(
-							Make.newSeries("PlannedAvailability").optional(),
-							Make.newDouble("UnplannedAvailabilityFactor").optional(),
-							Make.newSeries("OpexVarInEURperMWH").optional(),
-							Make.newDouble("CyclingCostInEURperMW").optional(),
-							Make.newSeries("MustRunFactor").optional())))
+			Make.newGroup(GROUP_PLANTS).list().add(
+					Make.newDouble(PARAM_EFFICIENCY),
+					Make.newDouble(PARAM_CAPACITY),
+					Make.newTimeStamp(PARAM_ACTIVATION).optional(),
+					Make.newTimeStamp(PARAM_DEACTIVATION).optional(),
+					Make.newString(PARAM_ID).optional(),
+					Make.newGroup(GROUP_OVERRIDE).optional().add(
+							Make.newSeries(PowerPlantPrototype.PARAM_OUTAGE).optional(),
+							Make.newSeries(PowerPlantPrototype.PARAM_OPEX).optional(),
+							Make.newDouble(PowerPlantPrototype.PARAM_CYCLING_COST).optional(),
+							Make.newSeries(PowerPlantPrototype.PARAM_MUST_RUN).optional())))
 			.buildTree();
 
 	private final List<PowerPlant> powerPlants;
 
 	/** Creates an {@link IndividualPlantBuilder}
 	 * 
-	 * @param dataProvider provides input from config file
+	 * @param dataProvider provides input from configuration file
 	 * @throws MissingDataException if any required data is not provided */
 	public IndividualPlantBuilder(DataProvider dataProvider) throws MissingDataException {
 		super(dataProvider);
 		ParameterData input = parameters.join(dataProvider);
-		powerPlants = readPowerPlants(input.getGroupList("Plants"));
+		powerPlants = readPowerPlants(input.getGroupList(GROUP_PLANTS));
 	}
 
 	/** @return list of all power plants created from the corresponding input group list */
@@ -53,11 +61,10 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 		int plantCount = 0;
 		for (ParameterData data : plantsData) {
 			plantCount++;
-			String identifier = data.getStringOrDefault("Id", "Auto_" + plantCount);
-			PowerPlant plant = new PowerPlant(prototypeData, data.getDouble("Efficiency"), data.getDouble("NetCapacityInMW"),
-					identifier);
-			TimeStamp activationTime = data.getTimeStampOrDefault("ActivationTime", null);
-			TimeStamp deactivationTime = data.getTimeStampOrDefault("DeactivationTime", null);
+			PowerPlant plant = new PowerPlant(prototypeData, data.getDouble(PARAM_EFFICIENCY),
+					data.getDouble(PARAM_CAPACITY), data.getStringOrDefault(PARAM_ID, AUTO_NAME + plantCount));
+			TimeStamp activationTime = data.getTimeStampOrDefault(PARAM_ACTIVATION, null);
+			TimeStamp deactivationTime = data.getTimeStampOrDefault(PARAM_DEACTIVATION, null);
 			if (activationTime != null) {
 				plant.setConstructionTimeStep(activationTime.getStep());
 			}
@@ -65,17 +72,13 @@ public class IndividualPlantBuilder extends PlantBuildingManager {
 				plant.setTearDownTimeStep(deactivationTime.getStep());
 			}
 			try {
-				ParameterData override = data.getGroup("Override");
-				TimeSeries plannedAvailability = override.getTimeSeriesOrDefault("PlannedAvailability", null);
-				Double unplannedAvailabilityFactor = override.getDoubleOrDefault("UnplannedAvailabilityFactor", null);
-				TimeSeries opexVarInEURperMWH = override.getTimeSeriesOrDefault("OpexVarInEURperMWH", null);
-				Double cyclingCostInEURperMW = override.getDoubleOrDefault("CyclingCostInEURperMW", null);
-				TimeSeries mustRunFactor = override.getTimeSeriesOrDefault("MustRunFactor", null);
-				if (plannedAvailability != null) {
-					plant.setPlannedAvailability(plannedAvailability);
-				}
-				if (unplannedAvailabilityFactor != null) {
-					plant.setUnplannedAvailabilityFactor(unplannedAvailabilityFactor);
+				ParameterData override = data.getGroup(GROUP_OVERRIDE);
+				TimeSeries outageFactor = override.getTimeSeriesOrDefault(PowerPlantPrototype.PARAM_OUTAGE, null);
+				TimeSeries opexVarInEURperMWH = override.getTimeSeriesOrDefault(PowerPlantPrototype.PARAM_OPEX, null);
+				Double cyclingCostInEURperMW = override.getDoubleOrDefault(PowerPlantPrototype.PARAM_CYCLING_COST, null);
+				TimeSeries mustRunFactor = override.getTimeSeriesOrDefault(PowerPlantPrototype.PARAM_MUST_RUN, null);
+				if (outageFactor != null) {
+					plant.setOutageFactor(outageFactor);
 				}
 				if (opexVarInEURperMWH != null) {
 					plant.setTsVariableCosts(opexVarInEURperMWH);

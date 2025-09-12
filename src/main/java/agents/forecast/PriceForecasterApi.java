@@ -216,8 +216,8 @@ public class PriceForecasterApi extends MarketForecaster implements SensitivityF
 				forecastPeriodInHours + forecastWindowExtensionInHours,
 				marketClearingPrices, residualLoadInMWh);
 		ForecastApiResponse response = urlService.call(request);
-		priceForecastMeans = response.getForecastMeans().get(0);
-		priceForecastVariances = response.getForecastVariances().get(0);
+		priceForecastMeans = Util.averageValues(response.getForecastMeans());
+		priceForecastVariances = Util.averageValues(response.getForecastVariances());
 	}
 
 	/** If forecastUpdateRequired, returns all updated forecasts until requestedTime; else, only forecast for requestedTime */

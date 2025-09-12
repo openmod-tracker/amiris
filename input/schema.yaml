@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 Metadata:
   name: "AMIRIS"
-  version: "3.7.0"
+  version: "4.0.0"
   title: "open Agent-based Market model for the Investigation of Renewable and Integrated energy Systems"
   homepage: "https://helmholtz.software/software/amiris"
   documentation: "https://gitlab.com/dlr-ve/esy/amiris/amiris/-/wikis/home"
@@ -1654,22 +1654,14 @@ AgentTypes:
               description: "Specific CO2-emissions in tons per thermal MWh."
               unit: t/MWh
               isAbout: [{name: "CO2 emission", "@id": "OEO_00260007"}, {name: "emission factor", "@id": "OEO_00000148"}]
-          PlannedAvailability: &PBM_A_PlannedAvailability
+          OutageFactor: &PBM_A_OutageFactor
             AttributeType: time_series
             Mandatory: true
             List: false
-            MetaData:
-              description: "The planned availability of the respective power plant technology, e.g. scheduled downtime of plants."
+            MetaData: &PBM_A_OutageFactor_Metadata
+              description: "Share of the respective power plant(s) that is not available for electricity production."
               unit: 1
-              isAbout: [{name: "planned availability", "@id": "OEO_00140126"}]
-          UnplannedAvailabilityFactor: &PBM_A_UnplannedAvailabilityFactor
-            AttributeType: double
-            Mandatory: true
-            List: false
-            MetaData:
-              description: "The unplanned availability of the respective power plant technology, due to, e.g., technological problems."
-              unit: 1
-              isAbout: [{name: "unplanned availability", "@id": "OEO_00140129"}]
+              isAbout: [{name: "outage", "@id": "OEO_00020104"}]
           OpexVarInEURperMWH: &PBM_A_OpexVar
             AttributeType: time_series
             Mandatory: true
@@ -1808,22 +1800,11 @@ AgentTypes:
             MetaData:
               description: "Values given here override those specified in the associated portfolio"
             NestedAttributes:
-              PlannedAvailability:
+              OutageFactor:
                 AttributeType: time_series
                 Mandatory: false
                 List: false
-                MetaData:
-                  description: "The planned availability of the respective power plant technology, e.g. scheduled downtime of plants."
-                  unit: 1
-                  isAbout: [{name: "planned availability", "@id": "OEO_00140126"}]
-              UnplannedAvailabilityFactor:
-                AttributeType: double
-                Mandatory: false
-                List: false
-                MetaData:
-                  description: "The unplanned availability of the respective power plant technology, due to, e.g., technological problems."
-                  unit: 1
-                  isAbout: [{name: "unplanned availability", "@id": "OEO_00140129"}]
+                MetaData: *PBM_A_OutageFactor_Metadata
               OpexVarInEURperMWH:
                 AttributeType: time_series
                 Mandatory: false
@@ -3034,13 +3015,13 @@ AgentTypes:
             Values:
               MAX_PROFIT_PRICE_TAKER:
                 MetaData:
-                  description: "Maximise profit using an electricity price forecast neglecting any price impact of bids"
-              SINGLE_AGENT_MIN_SYSTEM_COST:
+                  Description: "Maximises profit using an electricity price forecast neglecting any price impact of bids"
+              MIN_SYSTEM_COST:
                 MetaData:
-                  description: "Minimise total system costs using a merit order forecast that takes into account the impact of bids from all GenericFlexibilityTraders"
-              SINGLE_AGENT_MAX_PROFIT:
+                  Description: "Minimises total system costs using a merit order sensitivity forecast that takes into account the impact of bids from all GenericFlexibilityTraders"
+              MAX_PROFIT:
                 MetaData:
-                  description: "Maximise own profits using a merit order forecast that takes into account the impact of bids from all GenericFlexibilityTraders"
+                  Description: "Maximises own profits using a merit order sensitivity forecast that takes into account the impact of bids from all GenericFlexibilityTraders"
       StateDiscretisation:
         AttributeType: block
         Mandatory: true

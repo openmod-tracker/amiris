@@ -3,6 +3,27 @@
 SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
+## [4.0.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.0.0) - 2025-09-09
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)_
+
+### Changed
+- **Breaking**: Rename `GenericFlexibilityTrader` assessment function types #166 (@dlr-cjs, @dlr_jk)
+- **Breaking**: PlantBuilder: Replace `PlannedAvailability` and `UnplannedAvailabilityFactor` attributes with `OutageFactor` #148 (@dlr-cjs, @dlr_jk, @dlr_fn)
+- **Breaking**: Use bid prices to estimate system cost in `GenericFlexibilityTrader`'s assessment function `MIN_SYSTEM_COST` #196 (@dlr-cjs, @dlr_jk, @dlr_fn)
+- `PriceforecasterApi` forwards average of multiple price forecasts #162 (@dlr_fn, @dlr-cjs)
+- Update formatting of templates #179 (@dlr-cjs)
+- Update `spotless-maven-plugin` to `2.44.5` #186 (@dlr-cjs, @dlr_fn)
+- Update CITATION.cff and release workflow #200 (@dlrc-js)
+
+### Added
+- Docs: Add wiki content to folder `docs` #184 (@dlr-cjs, @dlr_fn)
+- Docs: provide overview on AMIRIS model history #192 (@dlr_fn)
+- Docs: provide information on how to update AMIRIS and examples !199 (@dlr_fn)
+
+### Fixed
+- Fix crash in `MarketCoupling` if market gets emptied due to transfers #185 (@dlr-cjs)
+- Avoid crash in `EnergyStateManager` due to varying energy levels over time - log a warning instead #199 (@dlr-cjs, @dlr_jk)
+
 ## 3.7.1 - 2025-08-14
 ### Fixed
 - Fix deletion of latest deploy artifact when creating a merge request from main branch #130  (@dlr-cjs, @dlr_fn)

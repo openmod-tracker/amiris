@@ -1,0 +1,1 @@
+This class was renamed in AMIRIS v3.5, see [BidSchedule](./BidSchedule.md).

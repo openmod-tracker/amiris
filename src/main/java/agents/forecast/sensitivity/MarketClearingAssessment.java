@@ -44,9 +44,7 @@ public interface MarketClearingAssessment {
 	static MarketClearingAssessment build(ForecastType type) {
 		switch (type) {
 			case CostSensitivity:
-				return new CostSensitivity();
-			case MarginalCostSensitivity:
-				return new MarginalCostSensitivity();
+				return new CostSensitive();
 			case CostInsensitive:
 				return new CostInsensitive();
 			default:

@@ -19,18 +19,21 @@ import de.dlr.gitlab.fame.time.TimeStamp;
  * 
  * @author Christoph Schimeczek */
 public abstract class PowerPlantPrototype implements Portable {
+	static final String PARAM_EMISSION = "SpecificCo2EmissionsInTperMWH";
+	static final String PARAM_OUTAGE = "OutageFactor";
+	static final String PARAM_OPEX = "OpexVarInEURperMWH";
+	static final String PARAM_CYCLING_COST = "CyclingCostInEURperMW";
+	static final String PARAM_MUST_RUN = "MustRunFactor";
+
 	static final Tree parameters = Make.newTree().add(
-			FuelsTrader.fuelTypeParameter, Make.newDouble("SpecificCo2EmissionsInTperMWH"),
-			Make.newSeries("PlannedAvailability"), Make.newDouble("UnplannedAvailabilityFactor"),
-			Make.newSeries("OpexVarInEURperMWH"), Make.newDouble("CyclingCostInEURperMW"),
-			Make.newSeries("MustRunFactor").optional())
+			FuelsTrader.fuelTypeParameter, Make.newDouble(PARAM_EMISSION), Make.newSeries(PARAM_OUTAGE),
+			Make.newSeries(PARAM_OPEX), Make.newDouble(PARAM_CYCLING_COST), Make.newSeries(PARAM_MUST_RUN).optional())
 			.buildTree();
 
 	private String fuelType;
 	private double specificCo2EmissionsInTonsPerThermalMWH;
-	private double unplannedAvailabilityFactor;
 	private double cyclingCostInEURperMW;
-	private TimeSeries tsAvailability;
+	private TimeSeries tsOutage;
 	private TimeSeries tsVariableCosts;
 	private TimeSeries tsMustRun;
 
@@ -40,12 +43,10 @@ public abstract class PowerPlantPrototype implements Portable {
 		public String fuelType;
 		/** Specific CO2 emissions in tons per use of 1 thermal MWh of fuel */
 		public double specificCo2EmissionsInTonsPerThermalMWH;
-		/** Permanently applied average availability reduction factor */
-		public double unplannedAvailabilityFactor;
 		/** Cost for one ramping cycle */
 		public double cyclingCostInEURperMW;
-		/** Time-dependent availability factor */
-		public TimeSeries tsAvailability;
+		/** Time-dependent outage factor */
+		public TimeSeries tsOutage;
 		/** Time-dependent variable costs per MWh of produced electricity */
 		public TimeSeries tsVariableCosts;
 		/** Time-dependend factor of the installed capacity that must run and may not be shut down */
@@ -57,12 +58,11 @@ public abstract class PowerPlantPrototype implements Portable {
 		 * @throws MissingDataException if any required parameter is not specified */
 		public PrototypeData(ParameterData data) throws MissingDataException {
 			fuelType = FuelsTrader.readFuelType(data);
-			specificCo2EmissionsInTonsPerThermalMWH = data.getDouble("SpecificCo2EmissionsInTperMWH");
-			unplannedAvailabilityFactor = data.getDouble("UnplannedAvailabilityFactor");
-			tsAvailability = data.getTimeSeries("PlannedAvailability");
-			cyclingCostInEURperMW = data.getDouble("CyclingCostInEURperMW");
-			tsVariableCosts = data.getTimeSeries("OpexVarInEURperMWH");
-			tsMustRun = data.getTimeSeriesOrDefault("MustRunFactor", null);
+			specificCo2EmissionsInTonsPerThermalMWH = data.getDouble(PARAM_EMISSION);
+			tsOutage = data.getTimeSeries(PARAM_OUTAGE);
+			tsVariableCosts = data.getTimeSeries(PARAM_OPEX);
+			cyclingCostInEURperMW = data.getDouble(PARAM_CYCLING_COST);
+			tsMustRun = data.getTimeSeriesOrDefault(PARAM_MUST_RUN, null);
 		}
 	}
 
@@ -75,9 +75,8 @@ public abstract class PowerPlantPrototype implements Portable {
 	public PowerPlantPrototype(PrototypeData prototypeData) {
 		fuelType = prototypeData.fuelType;
 		specificCo2EmissionsInTonsPerThermalMWH = prototypeData.specificCo2EmissionsInTonsPerThermalMWH;
-		unplannedAvailabilityFactor = prototypeData.unplannedAvailabilityFactor;
 		cyclingCostInEURperMW = prototypeData.cyclingCostInEURperMW;
-		tsAvailability = prototypeData.tsAvailability;
+		tsOutage = prototypeData.tsOutage;
 		tsVariableCosts = prototypeData.tsVariableCosts;
 		tsMustRun = prototypeData.tsMustRun;
 	}
@@ -86,8 +85,8 @@ public abstract class PowerPlantPrototype implements Portable {
 	@Override
 	public void addComponentsTo(ComponentCollector collector) {
 		collector.storeStrings(fuelType);
-		collector.storeDoubles(specificCo2EmissionsInTonsPerThermalMWH, unplannedAvailabilityFactor, cyclingCostInEURperMW);
-		collector.storeTimeSeries(tsAvailability, tsVariableCosts);
+		collector.storeDoubles(specificCo2EmissionsInTonsPerThermalMWH, cyclingCostInEURperMW);
+		collector.storeTimeSeries(tsOutage, tsVariableCosts);
 		if (tsMustRun != null) {
 			collector.storeTimeSeries(tsMustRun);
 		}
@@ -98,9 +97,8 @@ public abstract class PowerPlantPrototype implements Portable {
 	public void populate(ComponentProvider provider) {
 		fuelType = provider.nextString();
 		specificCo2EmissionsInTonsPerThermalMWH = provider.nextDouble();
-		unplannedAvailabilityFactor = provider.nextDouble();
 		cyclingCostInEURperMW = provider.nextDouble();
-		tsAvailability = provider.nextTimeSeries();
+		tsOutage = provider.nextTimeSeries();
 		tsVariableCosts = provider.nextTimeSeries();
 		try {
 			tsMustRun = provider.nextTimeSeries();
@@ -115,7 +113,7 @@ public abstract class PowerPlantPrototype implements Portable {
 	 * @return availability ratio between effective and nominal available net electricity generation considering planned and
 	 *         unplanned availabilities */
 	protected double getAvailability(TimeStamp time) {
-		return tsAvailability.getValueLinear(time) * unplannedAvailabilityFactor;
+		return 1. - tsOutage.getValueLinear(time);
 	}
 
 	/** Returns the variable costs at a specified time.
@@ -163,13 +161,6 @@ public abstract class PowerPlantPrototype implements Portable {
 		return tsMustRun != null ? tsMustRun.getValueLinear(time) : 0.;
 	}
 
-	/** Override {@link #unplannedAvailabilityFactor} with given value
-	 * 
-	 * @param unplannedAvailabilityFactor to replace template value */
-	public void setUnplannedAvailabilityFactor(double unplannedAvailabilityFactor) {
-		this.unplannedAvailabilityFactor = unplannedAvailabilityFactor;
-	}
-
 	/** Override {@link #cyclingCostInEURperMW} with given value
 	 * 
 	 * @param cyclingCostInEURperMW to replace template value */
@@ -177,11 +168,11 @@ public abstract class PowerPlantPrototype implements Portable {
 		this.cyclingCostInEURperMW = cyclingCostInEURperMW;
 	}
 
-	/** Override {@link #tsAvailability} with given value
+	/** Override {@link #tsOutage} with given value
 	 * 
-	 * @param tsAvailability to replace template value */
-	public void setPlannedAvailability(TimeSeries tsAvailability) {
-		this.tsAvailability = tsAvailability;
+	 * @param tsOutage to replace template value */
+	public void setOutageFactor(TimeSeries tsOutage) {
+		this.tsOutage = tsOutage;
 	}
 
 	/** Override {@link #tsVariableCosts} with given value
