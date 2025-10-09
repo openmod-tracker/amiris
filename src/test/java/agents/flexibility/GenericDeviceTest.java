@@ -206,5 +206,5 @@ public class GenericDeviceTest {
 		device = createGenericDevice(100, 100, 0.5, 0.8, 500, -500, 0.1, 0, -450, 0);
 		device.transition(defaultTime, 100, oneHour);
 		logChecker.assertLogsContain(GenericDevice.ERR_NEGATIVE_SELF_DISCHARGE);
-	}	
+	}
 }
