@@ -52,7 +52,7 @@ These required input parameters are `TimeSeries`:
 * `SelfDischargeRatePerHour`: rate at which the associated electricity storage looses energy due to self discharge per hour relative to _initial_ level of charged energy (value from 0 to 1); 0 means no internal self-discharge; defaults to 0 (specified in schema).
 * `NetInflowPowerInMW`: _net_ inflow into the associated flexibility device in MW; positive values are inflows, negative values are outflows; defaults to 0 (specified in schema).
 * `VariableCostInEURperMWH`: variable cost for operating a flexibility device applied to both, charging and discharging energy amounts at grid interaction level in EUR/MWh; defaults to 0 (specified in schema).
-* `MaximumShiftTimeInHours`: maximum allowed time for the flexibility device to be in an unbalanced state, e.g. maximum time for load shifting, in hours; defaults to 1e10, i.e. no limit (specified in schema).
+* `MaximumShiftTimeInHours`: maximum allowed time for the flexibility device to be in an unbalanced state, e.g. maximum time for load shifting, in hours; defaults to -1, i.e. no limit (specified in schema).
 
 In addition, a scalar double parameter exists:
 

@@ -12,9 +12,9 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
+import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
-import de.dlr.gitlab.fame.time.Constants.Interval;
 
 /** A generic device representing any kind of electrical flexibility, e.g., pumped-hydro storages with inflow, reservoir storages,
  * heat pumps, electric vehicle fleets, load-shifting portfolios. See also the
@@ -41,6 +41,7 @@ public class GenericDevice {
 	static final String PARAM_INITIAL_ENERGY = "InitialEnergyContentInMWH";
 	static final String PARAM_VARIABLE_COST = "VariableCostInEURperMWH";
 	static final String PARAM_SHIFT_TIME = "MaximumShiftTimeInHours";
+	static final String PARAM_ENABLE_PROLONGING = "EnableProlonging";
 
 	private static Logger logger = LoggerFactory.getLogger(GenericDevice.class);
 	private TimeSeries externalChargingPowerInMW;
@@ -55,6 +56,8 @@ public class GenericDevice {
 	private double currentEnergyContentInMWH;
 	private long maximumShiftTimeInSteps;
 	private long currentShiftTimeInSteps;
+	private boolean enableProlonging;
+	private double lastProlongingCostInEUR;
 
 	/** Input parameters of a storage {@link Device} */
 	public static final Tree parameters = Make.newTree()
@@ -62,7 +65,7 @@ public class GenericDevice {
 					Make.newSeries(PARAM_CHARGING_EFFICIENCY), Make.newSeries(PARAM_DISCHARGING_EFFICIENCY),
 					Make.newSeries(PARAM_UPPER_LIMIT), Make.newSeries(PARAM_LOWER_LIMIT), Make.newSeries(PARAM_SELF_DISCHARGE),
 					Make.newSeries(PARAM_INFLOW), Make.newDouble(PARAM_INITIAL_ENERGY), Make.newSeries(PARAM_VARIABLE_COST),
-					Make.newDouble(PARAM_SHIFT_TIME))
+					Make.newDouble(PARAM_SHIFT_TIME), Make.newInt(PARAM_ENABLE_PROLONGING))
 			.buildTree();
 
 	/** Instantiates new {@link GenericDevice}
@@ -81,6 +84,7 @@ public class GenericDevice {
 		currentEnergyContentInMWH = input.getDouble(PARAM_INITIAL_ENERGY);
 		variableCostInEURperMWH = input.getTimeSeries(PARAM_VARIABLE_COST);
 		maximumShiftTimeInSteps = (long) (new TimeSpan(1, Interval.HOURS).getSteps() * input.getDouble(PARAM_SHIFT_TIME));
+		enableProlonging = input.getInteger(PARAM_ENABLE_PROLONGING) >= 1;
 	}
 
 	/** @return effective self discharge rate for given duration, considering exponential reduction over time */
@@ -129,21 +133,28 @@ public class GenericDevice {
 		finalEnergyContentInMWH = ensureEnergyWithinLimits(time, finalEnergyContentInMWH);
 		double internalEnergyDeltaInMWH = finalEnergyContentInMWH - currentEnergyContentInMWH
 				+ selfDischargeLossInMWH - netInflowPowerInMW.getValueLinear(time) * calcDurationInHours(duration);
-		updateShiftTime(currentEnergyContentInMWH, finalEnergyContentInMWH, duration);
+		updateShiftTimeAndProlongingCost(currentEnergyContentInMWH, finalEnergyContentInMWH, duration, time);
 		currentEnergyContentInMWH = finalEnergyContentInMWH;
 		return internalToExternalEnergy(internalEnergyDeltaInMWH, time);
 	}
 
-	private void updateShiftTime(double initialEnergyContentInMWH, double finalEnergyContentInMWH, TimeSpan duration) {
-		if (hasZeroEnergyContent(finalEnergyContentInMWH)) {
-			currentShiftTimeInSteps = 0;
-		} else if (isChangeOfSign(initialEnergyContentInMWH, finalEnergyContentInMWH)) {
-			currentShiftTimeInSteps = duration.getSteps();
-		} else {
-			currentShiftTimeInSteps += duration.getSteps();
-		}
-		if (currentShiftTimeInSteps > maximumShiftTimeInSteps) {
-			logger.warn(WARN_SHIFT_TIME_EXCEEDED + (currentShiftTimeInSteps - maximumShiftTimeInSteps));
+	private void updateShiftTimeAndProlongingCost(double initialEnergyContentInMWH, double finalEnergyContentInMWH,
+			TimeSpan duration, TimeStamp time) {
+		if (maximumShiftTimeInSteps > 0) {
+			lastProlongingCostInEUR = 0.;
+			if (hasZeroEnergyContent(finalEnergyContentInMWH)) {
+				currentShiftTimeInSteps = 0;
+			} else if (isChangeOfSign(initialEnergyContentInMWH, finalEnergyContentInMWH)) {
+				currentShiftTimeInSteps = duration.getSteps();
+			} else if (isProlongedShift(initialEnergyContentInMWH, finalEnergyContentInMWH, duration) && enableProlonging) {
+				currentShiftTimeInSteps = duration.getSteps();
+				lastProlongingCostInEUR = 2 * initialEnergyContentInMWH * getVariableCostInEURperMWH(time);
+			} else {
+				currentShiftTimeInSteps += duration.getSteps();
+			}
+			if (currentShiftTimeInSteps > maximumShiftTimeInSteps) {
+				logger.warn(WARN_SHIFT_TIME_EXCEEDED + (currentShiftTimeInSteps - maximumShiftTimeInSteps));
+			}
 		}
 	}
 
@@ -162,6 +173,21 @@ public class GenericDevice {
 	 * @return true if energy content changes its sign */
 	public static boolean isChangeOfSign(double initialEnergyContent, double finalEnergyContent) {
 		return Math.signum(finalEnergyContent) != Math.signum(initialEnergyContent);
+	}
+
+	/** Check for an initial balancing of parts of the flexibility device
+	 * 
+	 * @param chargingPower power charged (increment of energy storage level)
+	 * @param shiftTime time that the flexibility device has been shifted for in one direction so far
+	 * @param initialEnergyContent before transition
+	 * @return whether shift is a prolonged shift */
+	private boolean isProlongedShift(double chargingPower, double initialEnergyContent, TimeSpan duration) {
+		if (currentShiftTimeInSteps + duration.getSteps() >= maximumShiftTimeInSteps) {
+			double finalEnergyLevel = initialEnergyContent + chargingPower;
+			return (initialEnergyContent > TOLERANCE && finalEnergyLevel > TOLERANCE) ||
+					(initialEnergyContent < -TOLERANCE && finalEnergyLevel < -TOLERANCE);
+		}
+		return false;
 	}
 
 	/** Returns internal energy delta or power equivalent of given external energy delta or power
@@ -298,5 +324,12 @@ public class GenericDevice {
 	 * @return current shift time in steps */
 	public long getCurrentShiftTimeInSteps() {
 		return currentShiftTimeInSteps;
+	}
+
+	/** Returns prolonging cost from last transition in EUR
+	 * 
+	 * @return prolonging cost from last transition in EUR */
+	public double getLastProlongingCostInEUR() {
+		return lastProlongingCostInEUR;
 	}
 }
