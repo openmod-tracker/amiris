@@ -157,8 +157,8 @@ public class GenericDevice {
 
 	/** Returns true if energy content changes its sign
 	 * 
-	 * @param initialEnergyContent
-	 * @param finalEnergyContent
+	 * @param initialEnergyContent before transition
+	 * @param finalEnergyContent after transition
 	 * @return true if energy content changes its sign */
 	public static boolean isChangeOfSign(double initialEnergyContent, double finalEnergyContent) {
 		return Math.signum(finalEnergyContent) != Math.signum(initialEnergyContent);
