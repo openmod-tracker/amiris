@@ -5,6 +5,8 @@ package agents.flexibility.dynamicProgramming.assessment;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+import agents.flexibility.GenericDevice;
+import agents.flexibility.GenericDeviceCache;
 import communications.message.PointInTime;
 import communications.portable.Sensitivity;
 import communications.portable.Sensitivity.InterpolationType;
@@ -17,10 +19,17 @@ import de.dlr.gitlab.fame.time.TimeStamp;
 public abstract class SensitivityBasedAssessment implements AssessmentFunction {
 	private final TreeMap<TimeStamp, Sensitivity> sensitivityForecasts = new TreeMap<>();
 	protected Sensitivity currentSensitivity;
+	protected GenericDevice device;
+	protected double currentVariableCostInEURperMWH;
+
+	public SensitivityBasedAssessment(GenericDevice device) {
+		this.device = device;
+	}
 
 	@Override
 	public void prepareFor(TimeStamp time) {
 		currentSensitivity = sensitivityForecasts.get(time);
+		currentVariableCostInEURperMWH = device.getVariableCostInEURperMWH(time);
 	}
 
 	@Override

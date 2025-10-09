@@ -79,7 +79,7 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		ParameterData input = parameters.join(dataProvider);
 
 		device = new GenericDevice(input.getGroup("Device"));
-		assessmentFunction = AssessmentFunctionBuilder.build(input.getGroup("Assessment"));
+		assessmentFunction = AssessmentFunctionBuilder.build(input.getGroup("Assessment"), device);
 		stateManager = StateManagerBuilder.build(device, assessmentFunction, input.getGroup("StateDiscretisation"));
 		var bidScheduler = BidSchedulerBuilder.build(input.getGroup("Bidding"));
 		strategist = new Optimiser(stateManager, bidScheduler, assessmentFunction.getTargetType());
@@ -193,7 +193,9 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		double externalEnergyDeltaInMWH = awardedChargeEnergyInMWH - awardedDischargeEnergyInMWH;
 		double powerPriceInEURperMWH = awards.powerPriceInEURperMWH;
 		double revenuesInEUR = powerPriceInEURperMWH * awardedDischargeEnergyInMWH;
-		double costsInEUR = powerPriceInEURperMWH * awardedChargeEnergyInMWH;
+		double operationalCostInEUR = (awardedChargeEnergyInMWH + awardedDischargeEnergyInMWH)
+				* device.getVariableCostInEURperMWH(awards.beginOfDeliveryInterval);
+		double costsInEUR = powerPriceInEURperMWH * awardedChargeEnergyInMWH + operationalCostInEUR;
 
 		device.transition(awards.beginOfDeliveryInterval, externalEnergyDeltaInMWH, OPERATION_PERIOD);
 
