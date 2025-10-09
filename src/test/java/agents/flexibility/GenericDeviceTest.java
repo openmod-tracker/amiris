@@ -227,15 +227,15 @@ public class GenericDeviceTest {
 	@Test
 	public void transition_counterShift_reinitialisesCurrentShiftTime() {
 		device = createGenericDevice(100, 100, 1, 1, 500, -500, 0., 0, 0, 0, 1E10);
-		device.transition(defaultTime, 100, quarterHour);
-		device.transition(defaultTime, -200, oneHour);
+		device.transition(defaultTime, 25, quarterHour);
+		device.transition(defaultTime, -100, oneHour);
 		assertEquals(oneHour.getSteps(), device.getCurrentShiftTimeInSteps());
 	}
 
 	@Test
 	public void transition_exceedsMaximumShiftTime_logsWarning() {
-		device = createGenericDevice(100, 100, 1, 1, 500, -500, 0., 0, 0, 0, 1);
-		device.transition(defaultTime, 100, quarterHour);
+		device = createGenericDevice(100, 100, 1, 1, 500, -500, 0., 0, 0, 0, 0.1);
+		device.transition(defaultTime, 25, quarterHour);
 		logChecker.assertLogsContain(GenericDevice.WARN_SHIFT_TIME_EXCEEDED);
 	}
 }

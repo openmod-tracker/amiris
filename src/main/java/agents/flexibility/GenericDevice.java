@@ -141,9 +141,9 @@ public class GenericDevice {
 			currentShiftTimeInSteps = duration.getSteps();
 		} else {
 			currentShiftTimeInSteps += duration.getSteps();
-			if (currentShiftTimeInSteps > maximumShiftTimeInSteps) {
-				logger.warn(WARN_SHIFT_TIME_EXCEEDED + (currentShiftTimeInSteps - maximumShiftTimeInSteps));
-			}
+		}
+		if (currentShiftTimeInSteps > maximumShiftTimeInSteps) {
+			logger.warn(WARN_SHIFT_TIME_EXCEEDED + (currentShiftTimeInSteps - maximumShiftTimeInSteps));
 		}
 	}
 
