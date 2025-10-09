@@ -14,6 +14,7 @@ import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
+import de.dlr.gitlab.fame.time.Constants.Interval;
 
 /** A generic device representing any kind of electrical flexibility, e.g., pumped-hydro storages with inflow, reservoir storages,
  * heat pumps, electric vehicle fleets, load-shifting portfolios. See also the
@@ -26,6 +27,7 @@ public class GenericDevice {
 	static final String ERR_EXCEED_UPPER_ENERGY_LIMIT = " Upper energy limit exceeded by MWh: ";
 	static final String ERR_EXCEED_LOWER_ENERGY_LIMIT = " Lower energy limit exceeded by MWh: ";
 	static final String ERR_NEGATIVE_SELF_DISCHARGE = "Energy out of nothing: negative self discharge occured at time: ";
+	static final String WARN_SHIFT_TIME_EXCEEDED = "Maximum shift time exceeded by seconds: ";
 	static final double TOLERANCE = 1E-3;
 
 	static final String PARAM_CHARGING_POWER = "GrossChargingPowerInMW";
@@ -38,6 +40,7 @@ public class GenericDevice {
 	static final String PARAM_INFLOW = "NetInflowPowerInMW";
 	static final String PARAM_INITIAL_ENERGY = "InitialEnergyContentInMWH";
 	static final String PARAM_VARIABLE_COST = "VariableCostInEURperMWH";
+	static final String PARAM_SHIFT_TIME = "MaximumShiftTimeInHours";
 
 	private static Logger logger = LoggerFactory.getLogger(GenericDevice.class);
 	private TimeSeries externalChargingPowerInMW;
@@ -50,16 +53,19 @@ public class GenericDevice {
 	private TimeSeries netInflowPowerInMW;
 	private TimeSeries variableCostInEURperMWH;
 	private double currentEnergyContentInMWH;
+	private long maximumShiftTimeInSteps;
+	private long currentShiftTimeInSteps;
 
 	/** Input parameters of a storage {@link Device} */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newSeries(PARAM_CHARGING_POWER), Make.newSeries(PARAM_DISCHARGING_POWER),
 					Make.newSeries(PARAM_CHARGING_EFFICIENCY), Make.newSeries(PARAM_DISCHARGING_EFFICIENCY),
 					Make.newSeries(PARAM_UPPER_LIMIT), Make.newSeries(PARAM_LOWER_LIMIT), Make.newSeries(PARAM_SELF_DISCHARGE),
-					Make.newSeries(PARAM_INFLOW), Make.newDouble(PARAM_INITIAL_ENERGY), Make.newSeries(PARAM_VARIABLE_COST))
+					Make.newSeries(PARAM_INFLOW), Make.newDouble(PARAM_INITIAL_ENERGY), Make.newSeries(PARAM_VARIABLE_COST),
+					Make.newDouble(PARAM_SHIFT_TIME))
 			.buildTree();
 
-	/** Instantiate new {@link GenericDevice}
+	/** Instantiates new {@link GenericDevice}
 	 * 
 	 * @param input parameters from file
 	 * @throws MissingDataException if any required input parameter is missing */
@@ -74,6 +80,7 @@ public class GenericDevice {
 		netInflowPowerInMW = input.getTimeSeries(PARAM_INFLOW);
 		currentEnergyContentInMWH = input.getDouble(PARAM_INITIAL_ENERGY);
 		variableCostInEURperMWH = input.getTimeSeries(PARAM_VARIABLE_COST);
+		maximumShiftTimeInSteps = (long) (new TimeSpan(1, Interval.HOURS).getSteps() * input.getDouble(PARAM_SHIFT_TIME));
 	}
 
 	/** @return effective self discharge rate for given duration, considering exponential reduction over time */
@@ -90,7 +97,7 @@ public class GenericDevice {
 		return currentEnergyContentInMWH;
 	}
 
-	/** Return external energy delta equivalent of given internal energy delta
+	/** Returns external energy delta equivalent of given internal energy delta
 	 * 
 	 * @param internalEnergyDelta &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
@@ -122,11 +129,42 @@ public class GenericDevice {
 		finalEnergyContentInMWH = ensureEnergyWithinLimits(time, finalEnergyContentInMWH);
 		double internalEnergyDeltaInMWH = finalEnergyContentInMWH - currentEnergyContentInMWH
 				+ selfDischargeLossInMWH - netInflowPowerInMW.getValueLinear(time) * calcDurationInHours(duration);
+		updateShiftTime(currentEnergyContentInMWH, finalEnergyContentInMWH, duration);
 		currentEnergyContentInMWH = finalEnergyContentInMWH;
 		return internalToExternalEnergy(internalEnergyDeltaInMWH, time);
 	}
 
-	/** Return internal energy delta or power equivalent of given external energy delta or power
+	private void updateShiftTime(double initialEnergyContentInMWH, double finalEnergyContentInMWH, TimeSpan duration) {
+		if (hasZeroEnergyContent(finalEnergyContentInMWH)) {
+			currentShiftTimeInSteps = 0;
+		} else if (isChangeOfSign(initialEnergyContentInMWH, finalEnergyContentInMWH)) {
+			currentShiftTimeInSteps = duration.getSteps();
+		} else {
+			currentShiftTimeInSteps += duration.getSteps();
+			if (currentShiftTimeInSteps > maximumShiftTimeInSteps) {
+				logger.warn(WARN_SHIFT_TIME_EXCEEDED + (currentShiftTimeInSteps - maximumShiftTimeInSteps));
+			}
+		}
+	}
+
+	/** Returns true if given energy content is within zero storage level tolerance
+	 * 
+	 * @param energyContentInMWH to be evaluated
+	 * @return true if given energy content is within zero storage level tolerance */
+	public static boolean hasZeroEnergyContent(double energyContentInMWH) {
+		return -TOLERANCE <= energyContentInMWH && energyContentInMWH <= TOLERANCE;
+	}
+
+	/** Returns true if energy content changes its sign
+	 * 
+	 * @param initialEnergyContent
+	 * @param finalEnergyContent
+	 * @return true if energy content changes its sign */
+	public static boolean isChangeOfSign(double initialEnergyContent, double finalEnergyContent) {
+		return Math.signum(finalEnergyContent) != Math.signum(initialEnergyContent);
+	}
+
+	/** Returns internal energy delta or power equivalent of given external energy delta or power
 	 * 
 	 * @param externalValue &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
