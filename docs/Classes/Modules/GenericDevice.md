@@ -10,7 +10,7 @@ This level can be changed by charging, discharging, inflows, and self discharge.
 A `GenericDevice` can handle arbitrary time resolutions and time-variant technical parameters, see section [Input from file](#input-from-file)
 It is connected to a trader who markets the flexibility by applying an algorithm to schedule its operation.
 
-Besides "getter" methods for (current/maximum/minimum) energy content, (charging/discharging) efficiencies and the self discharge rate, `GenericDevice` provides the following methods:
+Besides "getter" methods for (current/maximum/minimum) energy content, (charging/discharging) efficiencies, the self discharge rate, specific variable costs, absolute costs for prolonging, and the current shift time, `GenericDevice` provides the following methods:
 
 * `transition`: Performs an actual transition from the current energy content at given time using a given external energy delta. It enforces energy and power limits. Returns actual external energy delta considering applied limits, i.e. positive values represent charging.
 * `internalToExternalEnergy`: Converts a given internal energy delta of a `GenericDevice` to an external energy delta by applying charging efficiency $\eta_\mathrm{c}$ or discharging efficiency $\eta_\mathrm{d}$.
@@ -38,6 +38,11 @@ A higher energy resolution leads to smaller deviations.
 
 _Feasible dynamic programming states considering time-variant upper and lower energy limits_
 
+## Use Cases
+
+* Grid-connected energy storage: Parameters `MaximumShiftTimeInHours` and `EnableProlonging` are not applicable. It should be combined with [StateManager](./StateManager.md) of type `STATE_OF_CHARGE`.
+* Load shifting portfolio: Parameters `MaximumShiftTimeInHours` and `EnableProlonging` apply. It should be combined with [StateManager](./StateManager.md) of type `ENERGY_AND_TIME`.
+
 # Input from file
 
 `GenericDevice` defines a set of input parameters, which can be used to define the required inputs for Agents that control such a device.
@@ -52,7 +57,8 @@ These required input parameters are `TimeSeries`:
 * `SelfDischargeRatePerHour`: rate at which the associated electricity storage looses energy due to self discharge per hour relative to _initial_ level of charged energy (value from 0 to 1); 0 means no internal self-discharge; defaults to 0 (specified in schema).
 * `NetInflowPowerInMW`: _net_ inflow into the associated flexibility device in MW; positive values are inflows, negative values are outflows; defaults to 0 (specified in schema).
 * `VariableCostInEURperMWH`: variable cost for operating a flexibility device applied to both, charging and discharging energy amounts at grid interaction level in EUR/MWh; defaults to 0 (specified in schema).
-* `MaximumShiftTimeInHours`: maximum allowed time for the flexibility device to be in an unbalanced state, e.g. maximum time for load shifting, in hours; defaults to -1, i.e. no limit (specified in schema).
+* `MaximumShiftTimeInHours`: maximum allowed time for the flexibility device to be in an unbalanced state, e.g. maximum time for load shifting, in hours; no limit in case of 0 or negative values; defaults to -1 (specified in schema).
+* `EnableProlonging`: if positive, enable prolonged shifts of flexibility device beyond maximum shift time; defaults to 1 (specified in schema); ignored in case of unlimited shift time.
 
 In addition, a scalar double parameter exists:
 
