@@ -221,7 +221,7 @@ public class GenericDevice {
 		return selfDischargeRate;
 	}
 
-	/** Return lower limit of energy content at given time
+	/** Returns lower limit of energy content at given time
 	 * 
 	 * @param time at which the lower limit is to be returned
 	 * @return lower energy content limit in MWh */
@@ -229,7 +229,7 @@ public class GenericDevice {
 		return energyContentLowerLimitInMWH.getValueLinear(time);
 	}
 
-	/** Return upper limit of energy content at given time
+	/** Returns upper limit of energy content at given time
 	 * 
 	 * @param time at which the upper limit is to be returned
 	 * @return upper energy content limit in MWh */
@@ -237,7 +237,7 @@ public class GenericDevice {
 		return energyContentUpperLimitInMWH.getValueLinear(time);
 	}
 
-	/** Return hourly self discharge rate at given time
+	/** Returns hourly self discharge rate at given time
 	 * 
 	 * @param time at which the self discharge rate is to be returned
 	 * @return hourly self discharge rate */
@@ -245,7 +245,7 @@ public class GenericDevice {
 		return selfDischargeRatePerHour.getValueLinear(time);
 	}
 
-	/** Return charging efficiency at given time
+	/** Returns charging efficiency at given time
 	 * 
 	 * @param time at which to return charging efficiency
 	 * @return charging efficiency at given time */
@@ -253,7 +253,7 @@ public class GenericDevice {
 		return chargingEfficiency.getValueLinear(time);
 	}
 
-	/** Return discharging efficiency at given time
+	/** Returns discharging efficiency at given time
 	 * 
 	 * @param time at which to return discharging efficiency
 	 * @return discharging efficiency at given time */
@@ -261,7 +261,7 @@ public class GenericDevice {
 		return dischargingEfficiency.getValueLinear(time);
 	}
 
-	/** Return net inflow power at given time
+	/** Returns net inflow power at given time
 	 * 
 	 * @param time at which to return the net inflow power
 	 * @return net inflow power at given time in MW */
@@ -269,7 +269,7 @@ public class GenericDevice {
 		return netInflowPowerInMW.getValueLinear(time);
 	}
 
-	/** Return external charging power at given time
+	/** Returns external charging power at given time
 	 * 
 	 * @param time at which to return the external charging power
 	 * @return external charging power at given time in MW */
@@ -277,7 +277,7 @@ public class GenericDevice {
 		return externalChargingPowerInMW.getValueLinear(time);
 	}
 
-	/** Return external discharging power at given time
+	/** Returns external discharging power at given time
 	 * 
 	 * @param time at which to return the external discharging power
 	 * @return external discharging power at given time in MW */
@@ -285,11 +285,18 @@ public class GenericDevice {
 		return externalDischargingPowerInMW.getValueLinear(time);
 	}
 
-	/** Return variable cost at given time
+	/** Returns variable cost at given time
 	 * 
 	 * @param time at which to return the variable cost
 	 * @return variable cost at given time in EUR per MWh */
 	public double getVariableCostInEURperMWH(TimeStamp time) {
 		return variableCostInEURperMWH.getValueLinear(time);
+	}
+
+	/** Returns current shift time in steps
+	 * 
+	 * @return current shift time in steps */
+	public long getCurrentShiftTimeInSteps() {
+		return currentShiftTimeInSteps;
 	}
 }
