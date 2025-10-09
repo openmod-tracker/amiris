@@ -12,6 +12,7 @@ import de.dlr.gitlab.fame.agent.input.ParameterData;
 import de.dlr.gitlab.fame.agent.input.ParameterData.MissingDataException;
 import de.dlr.gitlab.fame.agent.input.Tree;
 import de.dlr.gitlab.fame.data.TimeSeries;
+import de.dlr.gitlab.fame.time.Constants.Interval;
 import de.dlr.gitlab.fame.time.TimeSpan;
 import de.dlr.gitlab.fame.time.TimeStamp;
 
@@ -26,6 +27,7 @@ public class GenericDevice {
 	static final String ERR_EXCEED_UPPER_ENERGY_LIMIT = " Upper energy limit exceeded by MWh: ";
 	static final String ERR_EXCEED_LOWER_ENERGY_LIMIT = " Lower energy limit exceeded by MWh: ";
 	static final String ERR_NEGATIVE_SELF_DISCHARGE = "Energy out of nothing: negative self discharge occured at time: ";
+	static final String WARN_SHIFT_TIME_EXCEEDED = "Maximum shift time exceeded by seconds: ";
 	static final double TOLERANCE = 1E-3;
 
 	static final String PARAM_CHARGING_POWER = "GrossChargingPowerInMW";
@@ -38,6 +40,8 @@ public class GenericDevice {
 	static final String PARAM_INFLOW = "NetInflowPowerInMW";
 	static final String PARAM_INITIAL_ENERGY = "InitialEnergyContentInMWH";
 	static final String PARAM_VARIABLE_COST = "VariableCostInEURperMWH";
+	static final String PARAM_SHIFT_TIME = "MaximumShiftTimeInHours";
+	static final String PARAM_ENABLE_PROLONGING = "EnableProlonging";
 
 	private static Logger logger = LoggerFactory.getLogger(GenericDevice.class);
 	private TimeSeries externalChargingPowerInMW;
@@ -50,16 +54,21 @@ public class GenericDevice {
 	private TimeSeries netInflowPowerInMW;
 	private TimeSeries variableCostInEURperMWH;
 	private double currentEnergyContentInMWH;
+	private long maximumShiftTimeInSteps;
+	private long currentShiftTimeInSteps;
+	private boolean enableProlonging;
+	private double lastProlongingCostInEUR;
 
 	/** Input parameters of a storage {@link Device} */
 	public static final Tree parameters = Make.newTree()
 			.add(Make.newSeries(PARAM_CHARGING_POWER), Make.newSeries(PARAM_DISCHARGING_POWER),
 					Make.newSeries(PARAM_CHARGING_EFFICIENCY), Make.newSeries(PARAM_DISCHARGING_EFFICIENCY),
 					Make.newSeries(PARAM_UPPER_LIMIT), Make.newSeries(PARAM_LOWER_LIMIT), Make.newSeries(PARAM_SELF_DISCHARGE),
-					Make.newSeries(PARAM_INFLOW), Make.newDouble(PARAM_INITIAL_ENERGY), Make.newSeries(PARAM_VARIABLE_COST))
+					Make.newSeries(PARAM_INFLOW), Make.newDouble(PARAM_INITIAL_ENERGY), Make.newSeries(PARAM_VARIABLE_COST),
+					Make.newDouble(PARAM_SHIFT_TIME), Make.newInt(PARAM_ENABLE_PROLONGING))
 			.buildTree();
 
-	/** Instantiate new {@link GenericDevice}
+	/** Instantiates new {@link GenericDevice}
 	 * 
 	 * @param input parameters from file
 	 * @throws MissingDataException if any required input parameter is missing */
@@ -74,6 +83,8 @@ public class GenericDevice {
 		netInflowPowerInMW = input.getTimeSeries(PARAM_INFLOW);
 		currentEnergyContentInMWH = input.getDouble(PARAM_INITIAL_ENERGY);
 		variableCostInEURperMWH = input.getTimeSeries(PARAM_VARIABLE_COST);
+		maximumShiftTimeInSteps = (long) (new TimeSpan(1, Interval.HOURS).getSteps() * input.getDouble(PARAM_SHIFT_TIME));
+		enableProlonging = input.getInteger(PARAM_ENABLE_PROLONGING) >= 1;
 	}
 
 	/** @return effective self discharge rate for given duration, considering exponential reduction over time */
@@ -90,7 +101,7 @@ public class GenericDevice {
 		return currentEnergyContentInMWH;
 	}
 
-	/** Return external energy delta equivalent of given internal energy delta
+	/** Returns external energy delta equivalent of given internal energy delta
 	 * 
 	 * @param internalEnergyDelta &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
@@ -122,11 +133,64 @@ public class GenericDevice {
 		finalEnergyContentInMWH = ensureEnergyWithinLimits(time, finalEnergyContentInMWH);
 		double internalEnergyDeltaInMWH = finalEnergyContentInMWH - currentEnergyContentInMWH
 				+ selfDischargeLossInMWH - netInflowPowerInMW.getValueLinear(time) * calcDurationInHours(duration);
+		updateShiftTimeAndProlongingCost(currentEnergyContentInMWH, finalEnergyContentInMWH, duration, time);
 		currentEnergyContentInMWH = finalEnergyContentInMWH;
 		return internalToExternalEnergy(internalEnergyDeltaInMWH, time);
 	}
 
-	/** Return internal energy delta or power equivalent of given external energy delta or power
+	private void updateShiftTimeAndProlongingCost(double initialEnergyContentInMWH, double finalEnergyContentInMWH,
+			TimeSpan duration, TimeStamp time) {
+		if (maximumShiftTimeInSteps > 0) {
+			lastProlongingCostInEUR = 0.;
+			if (hasZeroEnergyContent(finalEnergyContentInMWH)) {
+				currentShiftTimeInSteps = 0;
+			} else if (isChangeOfSign(initialEnergyContentInMWH, finalEnergyContentInMWH)) {
+				currentShiftTimeInSteps = duration.getSteps();
+			} else if (isProlongedShift(initialEnergyContentInMWH, finalEnergyContentInMWH, duration) && enableProlonging) {
+				currentShiftTimeInSteps = duration.getSteps();
+				lastProlongingCostInEUR = 2 * initialEnergyContentInMWH * getVariableCostInEURperMWH(time);
+			} else {
+				currentShiftTimeInSteps += duration.getSteps();
+			}
+			if (currentShiftTimeInSteps > maximumShiftTimeInSteps) {
+				logger.warn(WARN_SHIFT_TIME_EXCEEDED + (currentShiftTimeInSteps - maximumShiftTimeInSteps));
+			}
+		}
+	}
+
+	/** Returns true if given energy content is within zero storage level tolerance
+	 * 
+	 * @param energyContentInMWH to be evaluated
+	 * @return true if given energy content is within zero storage level tolerance */
+	public static boolean hasZeroEnergyContent(double energyContentInMWH) {
+		return -TOLERANCE <= energyContentInMWH && energyContentInMWH <= TOLERANCE;
+	}
+
+	/** Returns true if energy content changes its sign
+	 * 
+	 * @param initialEnergyContent before transition
+	 * @param finalEnergyContent after transition
+	 * @return true if energy content changes its sign */
+	public static boolean isChangeOfSign(double initialEnergyContent, double finalEnergyContent) {
+		return Math.signum(finalEnergyContent) != Math.signum(initialEnergyContent);
+	}
+
+	/** Check for an initial balancing of parts of the flexibility device
+	 * 
+	 * @param chargingPower power charged (increment of energy storage level)
+	 * @param shiftTime time that the flexibility device has been shifted for in one direction so far
+	 * @param initialEnergyContent before transition
+	 * @return whether shift is a prolonged shift */
+	private boolean isProlongedShift(double chargingPower, double initialEnergyContent, TimeSpan duration) {
+		if (currentShiftTimeInSteps + duration.getSteps() >= maximumShiftTimeInSteps) {
+			double finalEnergyLevel = initialEnergyContent + chargingPower;
+			return (initialEnergyContent > TOLERANCE && finalEnergyLevel > TOLERANCE) ||
+					(initialEnergyContent < -TOLERANCE && finalEnergyLevel < -TOLERANCE);
+		}
+		return false;
+	}
+
+	/** Returns internal energy delta or power equivalent of given external energy delta or power
 	 * 
 	 * @param externalValue &gt; 0: charging; &lt; 0: depleting
 	 * @param time of transition
@@ -183,7 +247,7 @@ public class GenericDevice {
 		return selfDischargeRate;
 	}
 
-	/** Return lower limit of energy content at given time
+	/** Returns lower limit of energy content at given time
 	 * 
 	 * @param time at which the lower limit is to be returned
 	 * @return lower energy content limit in MWh */
@@ -191,7 +255,7 @@ public class GenericDevice {
 		return energyContentLowerLimitInMWH.getValueLinear(time);
 	}
 
-	/** Return upper limit of energy content at given time
+	/** Returns upper limit of energy content at given time
 	 * 
 	 * @param time at which the upper limit is to be returned
 	 * @return upper energy content limit in MWh */
@@ -199,7 +263,7 @@ public class GenericDevice {
 		return energyContentUpperLimitInMWH.getValueLinear(time);
 	}
 
-	/** Return hourly self discharge rate at given time
+	/** Returns hourly self discharge rate at given time
 	 * 
 	 * @param time at which the self discharge rate is to be returned
 	 * @return hourly self discharge rate */
@@ -207,7 +271,7 @@ public class GenericDevice {
 		return selfDischargeRatePerHour.getValueLinear(time);
 	}
 
-	/** Return charging efficiency at given time
+	/** Returns charging efficiency at given time
 	 * 
 	 * @param time at which to return charging efficiency
 	 * @return charging efficiency at given time */
@@ -215,7 +279,7 @@ public class GenericDevice {
 		return chargingEfficiency.getValueLinear(time);
 	}
 
-	/** Return discharging efficiency at given time
+	/** Returns discharging efficiency at given time
 	 * 
 	 * @param time at which to return discharging efficiency
 	 * @return discharging efficiency at given time */
@@ -223,7 +287,7 @@ public class GenericDevice {
 		return dischargingEfficiency.getValueLinear(time);
 	}
 
-	/** Return net inflow power at given time
+	/** Returns net inflow power at given time
 	 * 
 	 * @param time at which to return the net inflow power
 	 * @return net inflow power at given time in MW */
@@ -231,7 +295,7 @@ public class GenericDevice {
 		return netInflowPowerInMW.getValueLinear(time);
 	}
 
-	/** Return external charging power at given time
+	/** Returns external charging power at given time
 	 * 
 	 * @param time at which to return the external charging power
 	 * @return external charging power at given time in MW */
@@ -239,7 +303,7 @@ public class GenericDevice {
 		return externalChargingPowerInMW.getValueLinear(time);
 	}
 
-	/** Return external discharging power at given time
+	/** Returns external discharging power at given time
 	 * 
 	 * @param time at which to return the external discharging power
 	 * @return external discharging power at given time in MW */
@@ -247,11 +311,25 @@ public class GenericDevice {
 		return externalDischargingPowerInMW.getValueLinear(time);
 	}
 
-	/** Return variable cost at given time
+	/** Returns variable cost at given time
 	 * 
 	 * @param time at which to return the variable cost
 	 * @return variable cost at given time in EUR per MWh */
 	public double getVariableCostInEURperMWH(TimeStamp time) {
 		return variableCostInEURperMWH.getValueLinear(time);
+	}
+
+	/** Returns current shift time in steps
+	 * 
+	 * @return current shift time in steps */
+	public long getCurrentShiftTimeInSteps() {
+		return currentShiftTimeInSteps;
+	}
+
+	/** Returns prolonging cost from last transition in EUR
+	 * 
+	 * @return prolonging cost from last transition in EUR */
+	public double getLastProlongingCostInEUR() {
+		return lastProlongingCostInEUR;
 	}
 }

@@ -195,7 +195,8 @@ public class GenericFlexibilityTrader extends Trader implements SensitivityForec
 		double revenuesInEUR = powerPriceInEURperMWH * awardedDischargeEnergyInMWH;
 		double operationalCostInEUR = (awardedChargeEnergyInMWH + awardedDischargeEnergyInMWH)
 				* device.getVariableCostInEURperMWH(awards.beginOfDeliveryInterval);
-		double costsInEUR = powerPriceInEURperMWH * awardedChargeEnergyInMWH + operationalCostInEUR;
+		double prolongingCostInEUR = device.getLastProlongingCostInEUR();
+		double costsInEUR = powerPriceInEURperMWH * awardedChargeEnergyInMWH + operationalCostInEUR + prolongingCostInEUR;
 
 		device.transition(awards.beginOfDeliveryInterval, externalEnergyDeltaInMWH, OPERATION_PERIOD);
 

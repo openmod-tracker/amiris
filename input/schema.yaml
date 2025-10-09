@@ -3008,6 +3008,24 @@ AgentTypes:
               description: "Variable cost for operating a flexibility device applied to both, charging and discharging energy amounts at grid interaction level"
               unit: EUR/MWh
               isAbout: [{name: "variable cost", "@id": "OEO_00020145"}, {name: "time series", "@id": "OEO_00030034"}]
+          MaximumShiftTimeInHours:
+            AttributeType: double
+            Mandatory: true
+            List: false
+            Default: -1
+            MetaData:
+              description: "Maximum allowed time for the flexibility device to be in an unbalanced state, e.g. maximum time for load shifting; disabled for 0 or negative values"
+              unit: h
+              isAbout: [{name: "time span", "@id": "OEO_00030035"}]
+          EnableProlonging:
+            AttributeType: integer
+            Mandatory: true
+            List: false
+            Default: 1
+            MetaData:
+              description: "If positive, enable prolonged shifts of flexibility device beyond maximum shift time"
+              unit: 1
+              isAbout: [{name: "boolean value", "@id": "OEO_00010422"}]
       Assessment:
         AttributeType: block
         Mandatory: true
