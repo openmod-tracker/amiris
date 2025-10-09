@@ -28,6 +28,17 @@ public class GenericDevice {
 	static final String ERR_NEGATIVE_SELF_DISCHARGE = "Energy out of nothing: negative self discharge occured at time: ";
 	static final double TOLERANCE = 1E-3;
 
+	static final String PARAM_CHARGING_POWER = "GrossChargingPowerInMW";
+	static final String PARAM_DISCHARGING_POWER = "NetDischargingPowerInMW";
+	static final String PARAM_CHARGING_EFFICIENCY = "ChargingEfficiency";
+	static final String PARAM_DISCHARGING_EFFICIENCY = "DischargingEfficiency";
+	static final String PARAM_UPPER_LIMIT = "EnergyContentUpperLimitInMWH";
+	static final String PARAM_LOWER_LIMIT = "EnergyContentLowerLimitInMWH";
+	static final String PARAM_SELF_DISCHARGE = "SelfDischargeRatePerHour";
+	static final String PARAM_INFLOW = "NetInflowPowerInMW";
+	static final String PARAM_INITIAL_ENERGY = "InitialEnergyContentInMWH";
+	static final String PARAM_VARIABLE_COST = "VariableCostInEURperMWH";
+
 	private static Logger logger = LoggerFactory.getLogger(GenericDevice.class);
 	private TimeSeries externalChargingPowerInMW;
 	private TimeSeries externalDischargingPowerInMW;
@@ -37,15 +48,15 @@ public class GenericDevice {
 	private TimeSeries energyContentLowerLimitInMWH;
 	private TimeSeries selfDischargeRatePerHour;
 	private TimeSeries netInflowPowerInMW;
+	private TimeSeries variableCostInEURperMWH;
 	private double currentEnergyContentInMWH;
 
 	/** Input parameters of a storage {@link Device} */
 	public static final Tree parameters = Make.newTree()
-			.add(Make.newSeries("GrossChargingPowerInMW"), Make.newSeries("NetDischargingPowerInMW"),
-					Make.newSeries("ChargingEfficiency"), Make.newSeries("DischargingEfficiency"),
-					Make.newSeries("EnergyContentUpperLimitInMWH"),
-					Make.newSeries("EnergyContentLowerLimitInMWH"), Make.newSeries("SelfDischargeRatePerHour"),
-					Make.newSeries("NetInflowPowerInMW"), Make.newDouble("InitialEnergyContentInMWH"))
+			.add(Make.newSeries(PARAM_CHARGING_POWER), Make.newSeries(PARAM_DISCHARGING_POWER),
+					Make.newSeries(PARAM_CHARGING_EFFICIENCY), Make.newSeries(PARAM_DISCHARGING_EFFICIENCY),
+					Make.newSeries(PARAM_UPPER_LIMIT), Make.newSeries(PARAM_LOWER_LIMIT), Make.newSeries(PARAM_SELF_DISCHARGE),
+					Make.newSeries(PARAM_INFLOW), Make.newDouble(PARAM_INITIAL_ENERGY), Make.newSeries(PARAM_VARIABLE_COST))
 			.buildTree();
 
 	/** Instantiate new {@link GenericDevice}
@@ -53,15 +64,16 @@ public class GenericDevice {
 	 * @param input parameters from file
 	 * @throws MissingDataException if any required input parameter is missing */
 	public GenericDevice(ParameterData input) throws MissingDataException {
-		externalChargingPowerInMW = input.getTimeSeries("GrossChargingPowerInMW");
-		externalDischargingPowerInMW = input.getTimeSeries("NetDischargingPowerInMW");
-		chargingEfficiency = input.getTimeSeries("ChargingEfficiency");
-		dischargingEfficiency = input.getTimeSeries("DischargingEfficiency");
-		energyContentUpperLimitInMWH = input.getTimeSeries("EnergyContentUpperLimitInMWH");
-		energyContentLowerLimitInMWH = input.getTimeSeries("EnergyContentLowerLimitInMWH");
-		selfDischargeRatePerHour = input.getTimeSeries("SelfDischargeRatePerHour");
-		netInflowPowerInMW = input.getTimeSeries("NetInflowPowerInMW");
-		currentEnergyContentInMWH = input.getDouble("InitialEnergyContentInMWH");
+		externalChargingPowerInMW = input.getTimeSeries(PARAM_CHARGING_POWER);
+		externalDischargingPowerInMW = input.getTimeSeries(PARAM_DISCHARGING_POWER);
+		chargingEfficiency = input.getTimeSeries(PARAM_CHARGING_EFFICIENCY);
+		dischargingEfficiency = input.getTimeSeries(PARAM_DISCHARGING_EFFICIENCY);
+		energyContentUpperLimitInMWH = input.getTimeSeries(PARAM_UPPER_LIMIT);
+		energyContentLowerLimitInMWH = input.getTimeSeries(PARAM_LOWER_LIMIT);
+		selfDischargeRatePerHour = input.getTimeSeries(PARAM_SELF_DISCHARGE);
+		netInflowPowerInMW = input.getTimeSeries(PARAM_INFLOW);
+		currentEnergyContentInMWH = input.getDouble(PARAM_INITIAL_ENERGY);
+		variableCostInEURperMWH = input.getTimeSeries(PARAM_VARIABLE_COST);
 	}
 
 	/** @return effective self discharge rate for given duration, considering exponential reduction over time */
@@ -233,5 +245,13 @@ public class GenericDevice {
 	 * @return external discharging power at given time in MW */
 	public double getExternalDischargingPowerInMW(TimeStamp time) {
 		return externalDischargingPowerInMW.getValueLinear(time);
+	}
+
+	/** Return variable cost at given time
+	 * 
+	 * @param time at which to return the variable cost
+	 * @return variable cost at given time in EUR per MWh */
+	public double getVariableCostInEURperMWH(TimeStamp time) {
+		return variableCostInEURperMWH.getValueLinear(time);
 	}
 }
