@@ -42,8 +42,8 @@ Congratulations, you successfully ran your first simulation with AMIRIS! Check t
 
 # Run your first real-world simulation
 
-The [`Simple`](https://gitlab.com/dlr-ve/esy/amiris/examples/-/tree/dev/Simple) scenario example is intended to achieve a fast setup - it is not based on a real-world energy system.
-Switch to the [examples](https://gitlab.com/dlr-ve/esy/amiris/examples) folder `Germany2019` to investigate market dynamics closer to a real-world electricity system.
+The [`Simple`](https://gitlab.com/dlr-ve/esy/amiris/examples/-/tree/dev/demo/Simple) scenario example is intended to achieve a fast setup - it is not based on a real-world energy system.
+In the [backtest](https://gitlab.com/dlr-ve/esy/amiris/examples/-/tree/dev/backtest) folder you find multiple scenarios to investigate market dynamics closer to a real-world electricity system.
 Run another simulation and check the results.
 
 # Experiment
