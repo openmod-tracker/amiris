@@ -47,7 +47,7 @@ This will grant you a new shell command `amiris`.
 1. Create a new folder on your disk called, e.g., "AMIRIS": `mkdir AMIRIS`
 2. Navigate to this newly created folder: `cd AMIRIS`
 3. Activate your Python-enabled shell that includes amiris-py: `conda activate amirisEnv`
-4. Download the latest AMIRIS build use: `amiris install`
+4. Download the latest AMIRIS build use: `amiris download`
 
 This downloads the latest [AMIRIS model](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/jobs/artifacts/main/download?job=deploy:jdk11) and the latest version of [AMIRIS examples](https://gitlab.com/dlr-ve/esy/amiris/examples) into the current folder.
 As a result, your "AMIRIS" folder should look like this:
@@ -55,10 +55,13 @@ As a result, your "AMIRIS" folder should look like this:
 ```
 AMIRIS
 ├─── examples
-│    ├─── Austria2019/
-│    ├─── Germany2019/
-│    ├─── ...
-│    ├─── Simple/
+│    ├─── demo/
+│    │    ├─── Simple/
+│    │    └─── SimpleCoupled/
+│    ├─── backtest/
+│    │    ├─── Austria2019/
+│    │    ├─── ...
+│    │    └─── Germany2019/
 │    └─── README.md
 └─── amiris-core_x.y.z-with-dependencies.jar
 ```
@@ -67,7 +70,8 @@ You are now ready to run AMIRIS simulations.
 
 ## Update AMIRIS
 
-Feel free to give the AMIRIS project a "star" :star: and hit the notification bell :bell: in order to get notifications on new releases. If you want to update your existing model version use
+Feel free to give the AMIRIS project a "star" :star: and hit the notification bell :bell: in order to get notifications on new releases.
+If you want to update your existing model version use
 
 * `amiris download -m model` for the latest model, and
 * `amiris download -m examples` for the latest examples.
@@ -82,7 +86,7 @@ Once finished, AMIRIS-Py will automatically extract the simulation results to CS
 To run AMIRIS, excecute:
 
 ```
-amiris run -s ./examples/Simple/scenario.yaml -o simple
+amiris run -s ./examples/demo/Simple/scenario.yaml -o simple
 ```
 
 This runs AMIRIS using any Java archive (jar) file named `amiris<*>.jar` in the current folder.
