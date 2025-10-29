@@ -4,6 +4,9 @@ SPDX-License-Identifier: CC0-1.0 -->
 # Changelog
 
 ## [4.1.0](https://gitlab.com/dlr-ve/esy/amiris/amiris/-/releases/v4.1.0) - TBA
+### Changed
+- docs: Improve get-started section based on user feedback #210 (@dlr-cjs)
+
 ### Added
 - GenericFlexibility: Add variable cost as optional input #206 (@dlr-cjs, @dlr_jk)
 - GenericFlexibility: Add maximum shift time and energy shift prolonging as optional inputs #207 (@dlr-cjs, @dlr_jk)
