@@ -18,10 +18,11 @@ Executing AMIRIS should only take a few seconds on any computer.
 Now, open the newly created folder called "simple" and check out the [Results](./Results.md).
 
 ### Updating
-Feel free to give the AMIRIS project a "star" ⭐ and hit the notification bell 🔔 in order to get notifications on new releases. If you want to update your existing model use 
+Feel free to give the AMIRIS project a "star" :star: and hit the notification bell :bell: in order to get notifications on new releases.
+**In the future**: If you want to update your existing model version use
 
-* `amiris download -m model` for the latest model, and 
-* `amiris download -m examples` for the latest examples.
+* `amiris download -m model` to download the latest model, and
+* `amiris download -m examples` to get the latest examples.
 
 ## Next steps
 

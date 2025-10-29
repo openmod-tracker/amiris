@@ -18,7 +18,7 @@ You can test if you have Python available by using the command `python --version
 This should show your Python version if the Python command was found.
 Make sure the version of your Python is covered by the AMIRIS [Requirements](../Get-Started.md#requirements).
 Note that if you use a Python environment manager you can have several Python versions on your system side by side.
-If you do not have a Python environment manager installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html), or [mamba](https://github.com/conda-forge/miniforge#mambaforge), or [Poetry](https://python-poetry.org/).
+If you do not have a Python environment manager installed on your system, you may use e.g. [conda](https://docs.conda.io/en/latest/miniconda.html), [mamba](https://github.com/conda-forge/miniforge#mambaforge), or [Poetry](https://python-poetry.org/).
 
 ## Environment
 
@@ -33,7 +33,6 @@ If you are using mamba instead of conda, simple replace "conda" in the first com
 ## Install AMIRIS-Py
 
 [AMIRIS-Py](https://gitlab.com/dlr-ve/esy/amiris/amiris-py/-/blob/main/README.md) enables you to install and execute AMIRIS with one command.
-If you like it more tedious, you may also run AMIRIS using FAME scripts directly, see [here](./FameioSetup.md).
 To install it, make sure you are in your AMIRIS Python environment (called "amirisEnv" above) and run
 
 ```
@@ -71,10 +70,10 @@ You are now ready to run AMIRIS simulations.
 ## Update AMIRIS
 
 Feel free to give the AMIRIS project a "star" :star: and hit the notification bell :bell: in order to get notifications on new releases.
-If you want to update your existing model version use
+**In the future**: If you want to update your existing model version use
 
-* `amiris download -m model` for the latest model, and
-* `amiris download -m examples` for the latest examples.
+* `amiris download -m model` to download the latest model, and
+* `amiris download -m examples` to get the latest examples.
 
 ## Run AMIRIS
 
