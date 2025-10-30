@@ -4,6 +4,7 @@ AMIRIS is a *JAVA* application configured via *Python* scripts.
 To run AMIRIS, you need **Python** and a **Java Development Kit**.
 Check the required version [here](../Get-Started.md#requirements).
 This quick start guide assumes that you have both Java and Python installed and are familiar with Python environments.
+If you experience troubles, try the more explicit [Step-by-Step Guide](./StepByStep.md).
 
 ## Installation and Execution
 

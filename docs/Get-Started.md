@@ -28,12 +28,11 @@ These tools are recommended when working with AMIRIS:
 
 # Install and Run AMIRIS
 
-After you have met the technical requirements as described above, **choose one of the first two options** to run AMIRIS using AMIRIS-Py:
+After you have met the technical requirements as described above, **choose one of the following** installation guides for AMIRIS: 
 
-- **Experienced Python user**: We suggest to use the [Quickstart Guide](./Get-Started/QuickStart.md) to get your first simulation result in less than 5 minutes using `amirispy`.
-- **Otherwise**: follow the [Step-by-Step Guide](./Get-Started/StepByStep.md).
-- **If you really want to**: you could run AMIRIS also without AMIRIS-Py by using [FAME-Io](Get-Started/FameioSetup.md) directly.
-This is a slightly less convenient way, but might be necessary when you modify and build AMIRIS (see [below](#build-amiris)).
+- **[Quickstart Guide](./Get-Started/QuickStart.md)**: Get your first simulation result in less than 5 minutes using `amirispy`.
+- **[Step-by-Step Guide](./Get-Started/StepByStep.md)**: Follow this guide if you want additional explanations on environment setup.
+- **[All-the-Details Guide](Get-Started/FameioSetup.md)**: Gain full control over all model execution parameters by using the `fameio` package instead of the `amirispy` wrapper. Not recommended for beginners!
 
 # Results
 
