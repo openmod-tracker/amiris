@@ -9,7 +9,7 @@ This quick start guide assumes that you have both Java and Python installed and 
 
 1. **Environment**: Create and activate a Python environment with Python 3.9 or higher.
 2. **AMIRIS-Py**: run `pip install amirispy` to install the *amirispy* package.
-3. **AMIRIS Files**: use `amiris install` to download the AMIRIS ".jar" executable and examples into the *current folder* 
+3. **AMIRIS Files**: use `amiris download` to download the AMIRIS ".jar" executable and examples into the *current folder* 
 4. **Execution**: Run AMIRIS with `amiris run --scenario ./examples/demo/Simple/scenario.yaml --output simple`, where
     * `--scenario ./examples/demo/Simple/scenario.yaml` points to a `scenario.yaml` in one of the subfolders from the examples you just downloaded; Choose any example of interest.
     * `--output simple` sets the name of the folder to be created and hold the result data. Results in existing folders are overwritten.
